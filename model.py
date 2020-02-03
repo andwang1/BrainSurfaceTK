@@ -3,7 +3,6 @@ import os.path as osp
 import torch
 import torch.nn.functional as F
 from torch.nn import Sequential as Seq, Linear as Lin, ReLU, BatchNorm1d as BN
-from deepl_brain_surfaces.data_loader import MyOwnDataset
 from torch_geometric.datasets import ModelNet
 import torch_geometric.transforms as T
 from torch_geometric.data import DataLoader
@@ -57,7 +56,7 @@ class Net(torch.nn.Module):
 
         self.lin1 = Lin(1024, 512)
         self.lin2 = Lin(512, 256)
-        self.lin3 = Lin(256, 2)
+        self.lin3 = Lin(256, 10)
 
     def forward(self, data):
         sa0_out = (data.x, data.pos, data.batch)
@@ -100,25 +99,22 @@ def test(loader):
 if __name__ == '__main__':
     path = osp.join(
         osp.dirname(osp.realpath(__file__)), '..', 'data/ModelNet10')
-
     pre_transform, transform = T.NormalizeScale(), T.SamplePoints(1024)
-    train_dataset = MyOwnDataset(path, transform=transform)#, '10', True, transform, pre_transform)
+    train_dataset = ModelNet(path, '10', True, transform, pre_transform)
+    test_dataset = ModelNet(path, '10', False, transform, pre_transform)
 
+    print(train_dataset)
 
-    # self.processed_paths[0] = path '/../../training.pt'
-    # self.processed_paths[1] = path '/../../test.pt'
-
-    # test_dataset = MyOwnDataset(path, '10', False, transform, pre_transform)
-    train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True,
+    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True,
                               num_workers=6)
-    # test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False,
-    #                          num_workers=6)
+    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False,
+                             num_workers=6)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = Net().to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
     for epoch in range(1, 201):
-        print('Epoch: {:03d}'.format(epoch))
         train(epoch)
-        # test_acc = test(test_loader)
+        test_acc = test(test_loader)
+        print('Epoch: {:03d}, Test: {:.4f}'.format(epoch, test_acc))
