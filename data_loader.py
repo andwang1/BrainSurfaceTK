@@ -14,21 +14,23 @@ from torch_geometric.data import Data
 import torch_geometric.transforms as T
 
 
-class MyOwnDataset(InMemoryDataset):
-    def __init__(self, root, label_class='gender', train=True, transform=None,
+class OurDataset(InMemoryDataset):
+    def __init__(self, root, label_class='gender', classification=True, train=True, transform=None,
                         pre_transform=None, pre_filter=None, data_folder=None):
 
         self.train = train
         self.categories = {'gender': 2, 'birth_age': 3, 'weight': 4, 'scan_age': 6, 'scan_num': 7}
         self.meta_column_idx = self.categories[label_class]
         self.classes = dict()
+        self.classification = classification
+        root += '/' + label_class
 
         if data_folder is None:
             self.data_folder = '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/'
         else:
             self.data_folder = data_folder
 
-        super(MyOwnDataset, self).__init__(root, transform, pre_transform, pre_filter)
+        super(OurDataset, self).__init__(root, transform, pre_transform, pre_filter)
 
         path = self.processed_paths[0] if train else self.processed_paths[1]
         self.data, self.slices = torch.load(path)
@@ -41,7 +43,7 @@ class MyOwnDataset(InMemoryDataset):
     @property
     def processed_file_names(self):
         '''A list of files in the processed_dir which needs to be found in order to skip the processing.'''
-        return ['training.pt', 'test.pt', 'a'] # TODO: REMOVE 'a' WHEN DONE DEBUGGING
+        return ['training.pt', 'test.pt']
 
     def download(self):
         '''No need to download data.'''
@@ -61,7 +63,7 @@ class MyOwnDataset(InMemoryDataset):
         meta_data = read_meta()
 
         # 0. Get patient id number and label columns (0 = patient id, meta_column_idx = label column (eg. sex))
-        if self.train:  # TODO: MAKE SPLIT CORRECTLY (ACCORDING TO INPUT IN PERCENTAGE)
+        if self.train:  # TODO: MAKE SPLIT CORRECTLY (ACCORDING TO INPUT IN PERCENTAGE). NOW TESTING == TRAINING
             meta_data = meta_data[:, [0, self.meta_column_idx]]
         else:
             meta_data = meta_data[:, [0, self.meta_column_idx]]
@@ -115,7 +117,10 @@ class MyOwnDataset(InMemoryDataset):
 
 
                 # classes[meta_data[:, 1][idx]] returns class_num from classes using key (e.g. 'female' -> 1)
-                y = torch.tensor([self.classes[meta_data[:, 1][idx]]])
+                if self.classification:
+                    y = torch.tensor([self.classes[meta_data[:, 1][idx]]])
+                else:
+                    y = torch.tensor([float(meta_data[:, 1][idx])])
 
                 data = Data(x=x, pos=points, y=y, face=faces)
                 data_list.append(data)
@@ -151,19 +156,13 @@ if __name__ == '__main__':
     # Transformations, scaling and sampling 102 points (doesn't sample faces).
     pre_transform, transform = None, None  # T.NormalizeScale(), T.SamplePoints(1024) #T .FixedPoints(1024)
 
-    myDataset = MyOwnDataset(path, train=True, transform=transform, pre_transform=pre_transform)
+    myDataset = OurDataset(path, train=True, transform=transform, pre_transform=pre_transform)
 
     print(myDataset)
 
     train_loader = DataLoader(myDataset, batch_size=1, shuffle=False)
 
     print(list(train_loader))
-
-    # for i, (batch, pos, y) in enumerate(train_loader):
-    #     print(batch)
-    #     print(pos)
-    #     print(y)
-    #     print('_____________')
 
      # Printing dataset without sampling points. Will include faces.
     for i, (batch, face, pos, x, y) in enumerate(train_loader):
