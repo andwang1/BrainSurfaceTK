@@ -61,7 +61,7 @@ class MyOwnDataset(InMemoryDataset):
         meta_data = read_meta()
 
         # 0. Get patient id number and label columns (0 = patient id, meta_column_idx = label column (eg. sex))
-        if self.train: # TODO: MAKE SPLIT CORRECTLY (ACCORDING TO INPUT IN PERCENTAGE)
+        if self.train:  # TODO: MAKE SPLIT CORRECTLY (ACCORDING TO INPUT IN PERCENTAGE)
             meta_data = meta_data[:, [0, self.meta_column_idx]]
         else:
             meta_data = meta_data[:, [0, self.meta_column_idx]]
@@ -76,11 +76,9 @@ class MyOwnDataset(InMemoryDataset):
 
         # 3. Iterate through all patient ids
         for idx, patient_id in enumerate(meta_data[:, 0]):
-            # TODO: GET ALL THE VTK FILES IN ONE PLACE.
-            # TODO: PREDEFINE THESE IN __INIT__
-            repo = "/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/sub-" + patient_id + "/ses-38200/anat/vtk/"
-            file_name = "sub-" + patient_id + "_ses-38200_hemi-L_space-dHCPavg32k_inflated_drawem_thickness_thickness_curvature_sulc_myelinmap_myelinmap.vtk"
-
+            # TODO: DECIDE WHERE TO PUT ALL THE DATA, NAMING CONVENTIONS, WHICH DATA TO USE.
+            repo = "/vol/project/2019/545/g1954504/Vitalis/data/vtk_files/"
+            file_name = "sub-" + patient_id + "_hemi-L_space-dHCPavg32k_inflated_drawem_thickness_thickness_curvature_sulc_myelinmap_myelinmap_reduce90.vtk"
             file_path = repo + file_name
 
             if os.path.isfile(file_path):
@@ -91,8 +89,7 @@ class MyOwnDataset(InMemoryDataset):
                 # Points
                 points = torch.tensor(np.array(reader.GetOutput().GetPoints().GetData()))
 
-
-                # Getting the faces # TODO: NEED TO CHECK (COMPARE FACES WITH WHAT TORCH GIVES)
+                # Getting the faces  # TODO: THERE ARE SOME DIFFERENCES. DISCUSS WITH AMIR
                 cells = reader.GetOutput().GetPolys()
                 nCells = cells.GetNumberOfCells()
                 array = cells.GetData()
@@ -101,18 +98,21 @@ class MyOwnDataset(InMemoryDataset):
                 numpy_cells = numpy_cells.reshape((-1, nCols))
                 faces = torch.tensor(numpy_cells[:, [1, 2, 3]].transpose())
 
-
                 # Features # TODO: ADD ALL THE FEATURES THAT ARE NEEDED.
-                # array_drawem = vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(0))
-                use_thinckness = True
-                if use_thinckness:
-                    array_corrThickness = vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(1))
-                    x = torch.tensor(array_corrThickness)
-                # array_2 = vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(2))  # TODO: ASK ABOUT THIS
-                # array_Curvature = vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(3))
-                # array_Sulc = vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(4))
-                # array_SmoothedMyelinMap = vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(5))
-                # array_MyelinMap = vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(6))
+                x = None
+                add_features = True
+                if add_features:
+                    corr_thickness = vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(1))
+                    curvature = vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(3))
+                    drawem = vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(0))
+                    sulc = vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(4))
+                    smoothed_myelin_map = vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(5))
+                    myelinMap = vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(6))
+                    # array_2 = vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(2))  # TODO: ASK ABOUT THIS
+
+                    # Which features to add.
+                    x = torch.tensor([corr_thickness, curvature, drawem, sulc, smoothed_myelin_map, myelinMap]).t()
+
 
                 # classes[meta_data[:, 1][idx]] returns class_num from classes using key (e.g. 'female' -> 1)
                 y = torch.tensor([self.classes[meta_data[:, 1][idx]]])
@@ -122,8 +122,8 @@ class MyOwnDataset(InMemoryDataset):
             else:
                 continue
 
-            ##  KEEPING FOR NOW
-            # # Create path to file. _L_pial for now.
+            #  KEEPING FOR NOW
+            # Create path to file. _L_pial for now.
             # path = self.data_folder + patient_id + '_L_pial' +'.off'
             #
             # # Try read patient data
@@ -142,7 +142,6 @@ class MyOwnDataset(InMemoryDataset):
         if self.pre_transform is not None:
             data_list = [self.pre_transform(d) for d in data_list]
 
-        print(len(data_list))
         return self.collate(data_list)
 
 
@@ -150,9 +149,12 @@ if __name__ == '__main__':
     # Path to where the data will be saved.
     path = osp.join(osp.dirname(osp.realpath(__file__)), '..', 'data')
     # Transformations, scaling and sampling 102 points (doesn't sample faces).
-    pre_transform, transform = T.NormalizeScale(), T.SamplePoints(1024)
+    pre_transform, transform = None, None  # T.NormalizeScale(), T.SamplePoints(1024) #T .FixedPoints(1024)
 
     myDataset = MyOwnDataset(path, train=True, transform=transform, pre_transform=pre_transform)
+
+    print(myDataset)
+
     train_loader = DataLoader(myDataset, batch_size=1, shuffle=False)
 
     print(list(train_loader))
@@ -164,10 +166,11 @@ if __name__ == '__main__':
     #     print('_____________')
 
      # Printing dataset without sampling points. Will include faces.
-    # for i, (batch, face, pos, x, y) in enumerate(train_loader):
-    #     print(batch)
-    #     print(face)
-    #     print(pos)
-    #     print(x)
-    #     print(y)
-    #     print('_____________')
+    for i, (batch, face, pos, x, y) in enumerate(train_loader):
+        print(batch)
+        print(face)
+        print(pos)
+        print(x)
+        print(y)
+        print('_____________')
+        break
