@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Transaction history
+{% endblock %}
+
+{% block main %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Stock Ticker</th>
+                <th scope="col">Buy/Sell</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Trade Price</th>
+                <th scope="col">Time</th>
+            <tr>
+        </thead>
+        <tbody>
+            {% for tuple in data %}
+                <tr>
+                    {% for index in range(tuple|length) %}
+                        <td>{{tuple[index]}}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

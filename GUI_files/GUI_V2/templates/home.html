@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block main %}
+<div class="feat-box">
+  Input / Select Patient File
+</div>
+<div class="feat-box">
+  <form action="/visualisation">
+    <input type="submit" value="Load" />
+</form>
+</div>
+
+{% endblock %}

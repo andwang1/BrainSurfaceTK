@@ -1,0 +1,106 @@
+nav .navbar-brand
+{
+    /* size for brand */
+    font-size: xx-large;
+}
+/* colors for brand */
+nav .navbar-brand .blue
+{
+    color: #537fbe;
+}
+nav .navbar-brand .red
+{
+    color: #ea433b;
+}
+nav .navbar-brand .yellow
+{
+    color: #f5b82e;
+}
+nav .navbar-brand .green
+{
+    color: #2e944b;
+}
+main .form-control
+{
+    /* center form controls */
+    display: inline-block;
+
+    /* override Bootstrap's 100% width for form controls */
+    width: auto;
+}
+
+/* MY MESS BEGINS HERE NOW::::> */
+
+body{
+  min-height:100%;
+}
+
+main.main_block{
+    margin: 0px;
+    padding: 0px;
+
+    height: 1000px;
+    width: 1000px;
+    background-color: powderblue;
+}
+
+
+/* main img
+{
+
+    max-width: 100%;
+    max-height: 100%;
+
+} */
+
+/* .container
+{
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.box {
+    float: left;
+    width: 500px;
+    height: 500px;
+    margin-left: 0px;
+    margin-top: 0px;
+    padding: 0px;
+    background-color: grey;
+    border: 2px solid blue;
+}
+
+.vis{
+  width: 500px;
+}
+
+.main_box{
+  padding-top: 10%;
+  margin-left: 10%;
+  margin-right: 10%;
+  height: max-content;
+  width: max-content;
+}
+
+.plot-container.plotly{
+  height:500px;
+}
+
+#surface-plot.js-plotly-plot{
+  height:500px;
+} */
+
+.modebar-container{
+  width:0%;
+}
+
+.plotly{
+      padding: 1px;
+      margin: 1px;
+      width: 974px;
+      position: absolute;
+}
+
+.svg-container{
+  position: initial;
+}
