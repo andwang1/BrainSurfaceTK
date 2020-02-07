@@ -2,8 +2,7 @@ import os
 import os.path as osp
 
 import numpy as np
-import vtk
-from vtk.util.numpy_support import vtk_to_numpy
+import pyvista as pv
 
 from read_meta import read_meta
 import torch
@@ -84,33 +83,30 @@ class OurDataset(InMemoryDataset):
             file_path = repo + file_name
 
             if os.path.isfile(file_path):
-                reader = vtk.vtkPolyDataReader()
-                reader.SetFileName(file_path)
-                reader.Update()
+
+                mesh = pv.read(file_path)
 
                 # Points
-                points = torch.tensor(np.array(reader.GetOutput().GetPoints().GetData()))
+                points = torch.tensor(mesh.points)
 
-                # Getting the faces  # TODO: THERE ARE SOME DIFFERENCES. DISCUSS WITH AMIR
-                cells = reader.GetOutput().GetPolys()
-                nCells = cells.GetNumberOfCells()
-                array = cells.GetData()
-                nCols = array.GetNumberOfValues() // nCells
-                numpy_cells = vtk_to_numpy(array)
-                numpy_cells = numpy_cells.reshape((-1, nCols))
-                faces = torch.tensor(numpy_cells[:, [1, 2, 3]].transpose())
+                n_faces = mesh.n_cells
+                faces = mesh.faces.reshape((n_faces, -1))
+                faces = torch.tensor(faces[:, 1:].transpose())
+
 
                 # Features # TODO: ADD ALL THE FEATURES THAT ARE NEEDED.
                 x = None
                 add_features = True
                 if add_features:
-                    corr_thickness = vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(1))
-                    curvature = vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(3))
-                    drawem = vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(0))
-                    sulc = vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(4))
-                    smoothed_myelin_map = vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(5))
-                    myelinMap = vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(6))
-                    # array_2 = vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(2))  # TODO: ASK ABOUT THIS
+
+                    corr_thickness = mesh.get_array(1)
+                    curvature = mesh.get_array(3)
+                    drawem = mesh.get_array(0)
+                    sulc = mesh.get_array(4)
+                    smoothed_myelin_map = mesh.get_array(5)
+                    myelinMap = mesh.get_array(6)
+                    # array_2 = mesh.get_array(2)
+
 
                     # Which features to add.
                     x = torch.tensor([corr_thickness, curvature, drawem, sulc, smoothed_myelin_map, myelinMap]).t()
