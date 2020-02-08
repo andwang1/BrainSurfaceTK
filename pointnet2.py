@@ -111,8 +111,9 @@ def test_regression(loader):
         data = data.to(device)
         with torch.no_grad():
             pred = model(data)
-            print(pred, data.y)
-        mse += (pred - data.y).item() ** 2
+            # print(torch.sum((pred - data.y) ** 2) / len(pred))
+            print(pred.t(), data.y.t())
+        mse += torch.sum((pred - data.y) ** 2) / len(pred)
     return mse / len(loader.dataset)
 
 
@@ -121,8 +122,9 @@ if __name__ == '__main__':
         osp.dirname(osp.realpath(__file__)), '..', 'data')
 
     # DEFINE TRANSFORMS HERE.
+    # 32492
     transform = T.Compose([
-        T.FixedPoints(1024)
+        T.FixedPoints(15000)
         # T.SamplePoints(1024)  # THIS ONE DOESN'T KEEP FEATURES(x)
     ])
 
@@ -130,14 +132,14 @@ if __name__ == '__main__':
     pre_transform = T.NormalizeScale()
 
     # TODO: DEFINE TEST/TRAIN SPLIT (WHEN MORE DATA IS AVAILABLE). NOW TESTING == TRAINING
-    train_dataset = OurDataset(path, label_class='birth_age', train=True, classification=False,
+    train_dataset = OurDataset(path, label_class='scan_age', train=True, classification=False,
                                  transform=transform, pre_transform=pre_transform)
-    test_dataset = OurDataset(path, label_class='birth_age', train=False, classification=False,
+    test_dataset = OurDataset(path, label_class='scan_age', train=False, classification=False,
                                  transform=transform, pre_transform=pre_transform)
 
     # TODO: EXPERIMENT WITH BATCH_SIZE AND NUM_WORKERS
-    train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True, num_workers=1)
-    test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False,num_workers=1)
+    train_loader = DataLoader(train_dataset, batch_size=2, shuffle=True, num_workers=4)
+    test_loader = DataLoader(test_dataset, batch_size=2, shuffle=False, num_workers=4)
 
     if not torch.cuda.is_available():
         print('YOU ARE RUNNING ON A CPU!!!!')
@@ -147,7 +149,7 @@ if __name__ == '__main__':
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
     # MAIN TRAINING LOOP
-    for epoch in range(1, 11):
+    for epoch in range(1, 110):
         start = time.time()
         train(epoch)
         test_acc = test_regression(test_loader)
