@@ -14,13 +14,14 @@ from torch_geometric.data import Data
 
 class OurDataset(InMemoryDataset):
     def __init__(self, root, label_class='gender', classification=True, train=True, transform=None,
-                        pre_transform=None, pre_filter=None, data_folder=None):
+                        pre_transform=None, pre_filter=None, data_folder=None, add_birth_weight=True):
 
         self.train = train
         self.categories = {'gender': 2, 'birth_age': 3, 'weight': 4, 'scan_age': 6, 'scan_num': 7}
         self.meta_column_idx = self.categories[label_class]
         self.classes = dict()
         self.classification = classification
+        self.add_birth_weight = add_birth_weight  # TODO: ADD OTHER FEATURES
         root += '/' + label_class
 
         # For reading .obj
@@ -42,7 +43,7 @@ class OurDataset(InMemoryDataset):
     @property
     def processed_file_names(self):
         '''A list of files in the processed_dir which needs to be found in order to skip the processing.'''
-        return ['training.pt', 'test.pt']
+        return ['training.pt', 'test.pt', 'a']
 
     def download(self):
         '''No need to download data.'''
@@ -76,14 +77,14 @@ class OurDataset(InMemoryDataset):
         meta_data = read_meta()
 
         # 0. Get patient id number and label columns (0 = patient id, meta_column_idx = label column (eg. sex))
-        if self.train:  # TODO: MAKE SPLIT CORRECTLY (ACCORDING TO INPUT IN PERCENTAGE). NOW TESTING == TRAINING
-            meta_data = meta_data[:, [0, 1, self.meta_column_idx]]
-        else:
-            meta_data = meta_data[:, [0, 1, self.meta_column_idx]]
+        # if self.train:  # TODO: MAKE SPLIT CORRECTLY (ACCORDING TO INPUT IN PERCENTAGE). NOW TESTING == TRAINING
+        #     meta_data = meta_data[:, :]
+        # else:
+        #     meta_data = meta_data[:, :]
 
         # 1. Initialise the variables
         data_list = []
-        categories = set(meta_data[:, 2])           # Set of categories {male, female}
+        categories = set(meta_data[:, self.meta_column_idx])           # Set of categories {male, female}
 
         # 2. Create category dictionary (mapping: category --> class), e.g. 'male' --> 0, 'female' --> 1
         for class_num, category in enumerate(categories):
@@ -124,9 +125,13 @@ class OurDataset(InMemoryDataset):
 
                 # classes[meta_data[:, 1][idx]] returns class_num from classes using key (e.g. 'female' -> 1)
                 if self.classification:
-                    y = torch.tensor([self.classes[meta_data[:, 2][idx]]])
+                    y = torch.tensor([self.classes[meta_data[:, self.meta_column_idx][idx]]])
                 else:
-                    y = torch.tensor([float(meta_data[:, 2][idx])])
+                    if self.add_birth_weight:
+                        y = torch.tensor([[float(meta_data[:, self.meta_column_idx][idx])], [float(meta_data[:, 4][idx])]])
+                    else:
+                        y = torch.tensor([[float(meta_data[:, self.meta_column_idx][idx])]])
+
 
                 data = Data(x=x, pos=points, y=y, face=faces)
                 data_list.append(data)
@@ -162,7 +167,7 @@ if __name__ == '__main__':
     # Transformations, scaling and sampling 102 points (doesn't sample faces).
     pre_transform, transform = None, None  # T.NormalizeScale(), T.SamplePoints(1024) #T .FixedPoints(1024)
 
-    myDataset = OurDataset(path, train=True, transform=transform, pre_transform=pre_transform)
+    myDataset = OurDataset(path, train=True, transform=transform, pre_transform=pre_transform, label_class='scan_age', classification=False)
 
     print(myDataset)
 
@@ -173,9 +178,9 @@ if __name__ == '__main__':
      # Printing dataset without sampling points. Will include faces.
     for i, (batch, face, pos, x, y) in enumerate(train_loader):
         # print(batch)
-        print(face[1].t())
+        # print(face[1].t())
         # print(pos)
         # print(x)
-        # print(y)
+        print(y[1][0])
         print('_____________')
         break

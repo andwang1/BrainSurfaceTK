@@ -23,7 +23,7 @@ class SAModule(torch.nn.Module):
     def forward(self, x, pos, batch):
         idx = fps(pos, batch, ratio=self.ratio)
         row, col = radius(pos, pos[idx], self.r, batch, batch[idx],
-                          max_num_neighbors=64)
+                          max_num_neighbors=64)  # TODO: FIGURE OUT THIS WITH RESPECT TO NUMBER OF POINTS
         edge_index = torch.stack([col, row], dim=0)
         x = self.conv(x, (pos, pos[idx]), edge_index)
         pos, batch = pos[idx], batch[idx]
@@ -58,7 +58,9 @@ class Net(torch.nn.Module):
         self.sa2_module = SAModule(0.25, 0.4, MLP([128 + 3, 128, 128, 256]))
         self.sa3_module = GlobalSAModule(MLP([256 + 3, 256, 512, 1024]))
 
-        self.lin1 = Lin(1024, 512)
+        # That +1 is for weight at birth
+        self.lin1 = Lin(1024 + 1, 512)
+        # self.lin1 = Lin(1024, 512)
         self.lin2 = Lin(512, 256)
         self.lin3 = Lin(256, 1)  # OUTPUT = NUMBER OF CLASSES, 1 IF REGRESSION TASK
 
@@ -68,6 +70,9 @@ class Net(torch.nn.Module):
         sa2_out = self.sa2_module(*sa1_out)
         sa3_out = self.sa3_module(*sa2_out)
         x, pos, batch = sa3_out
+
+        # Adding weight at birth. #  TODO: Do this properly for all the features. (Might leave it manual?)
+        x = torch.cat((x, data.y[1].expand((x.size(0), 1))), 1)
 
         x = F.relu(self.lin1(x))
         # x = F.dropout(x, p=0.5, training=self.training)
@@ -86,7 +91,8 @@ def train(epoch):
         optimizer.zero_grad()
         # USE F.nll_loss FOR CLASSIFICATION, F.mse_loss FOR REGRESSION.
         # loss = F.nll_loss(model(data), data.y)
-        loss = F.mse_loss(model(data), data.y)
+        pred = model(data)
+        loss = F.mse_loss(pred, data.y[0].expand(pred.size()))
         loss.backward()
         optimizer.step()
 
@@ -103,7 +109,7 @@ def test_classification(loader):
         with torch.no_grad():
             pred = model(data).max(1)[1]
 
-        correct += pred.eq(data.y).sum().item()
+        correct += pred.eq(data.y[0]).sum().item()
     return correct / len(loader.dataset)
 
 
@@ -116,8 +122,8 @@ def test_regression(loader):
         with torch.no_grad():
             pred = model(data)
             # print(torch.sum((pred - data.y) ** 2) / len(pred))
-            print(pred.t(), data.y.t())
-            loss_test = F.mse_loss(pred, data.y)
+            print(pred.t(), data.y[0].t())
+            loss_test = F.mse_loss(pred, data.y[0].expand(pred.size()))
         # mse += torch.sum((pred - data.y) ** 2) / len(pred)
         mse += loss_test.item()
     return mse / len(loader)
@@ -127,15 +133,16 @@ if __name__ == '__main__':
 
     # Model Parameters
     lr = 0.001
-    batch_size = 2
-    num_workers = 4
-
+    batch_size = 1
+    num_workers = 2
+    add_birth_weight = True
     # Additional comments
     comment = ""
 
     # Tensorboard writer.
     writer = SummaryWriter(comment="LR_"+str(lr)+"_BATCH_"+str(batch_size)
-                                   +"_NUM_WORKERS_"+str(num_workers)+"_Comment_"+comment)
+                                   +"_NUM_WORKERS_"+str(num_workers)+"_ADD_BIRTH_WEIGHT_"
+                                   +str(add_birth_weight)+"_Comment_"+comment)
 
     path = osp.join(
         osp.dirname(osp.realpath(__file__)), '..', 'data')
@@ -152,9 +159,9 @@ if __name__ == '__main__':
 
     # TODO: DEFINE TEST/TRAIN SPLIT (WHEN MORE DATA IS AVAILABLE). NOW TESTING == TRAINING
     train_dataset = OurDataset(path, label_class='scan_age', train=True, classification=False,
-                                 transform=transform, pre_transform=pre_transform)
+                                 transform=transform, pre_transform=pre_transform, add_birth_weight=add_birth_weight)
     test_dataset = OurDataset(path, label_class='scan_age', train=False, classification=False,
-                                 transform=transform, pre_transform=pre_transform)
+                                 transform=transform, pre_transform=pre_transform, add_birth_weight=add_birth_weight)
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
