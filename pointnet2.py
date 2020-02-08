@@ -10,6 +10,7 @@ from torch_geometric.data import DataLoader
 from torch_geometric.nn import PointConv, fps, radius, global_max_pool
 import time
 from data_loader import OurDataset
+from torch.utils.tensorboard import SummaryWriter
 
 
 class SAModule(torch.nn.Module):
@@ -69,17 +70,17 @@ class Net(torch.nn.Module):
         x, pos, batch = sa3_out
 
         x = F.relu(self.lin1(x))
-        x = F.dropout(x, p=0.5, training=self.training)
+        # x = F.dropout(x, p=0.5, training=self.training)
         x = F.relu(self.lin2(x))
-        x = F.dropout(x, p=0.5, training=self.training)
+        # x = F.dropout(x, p=0.5, training=self.training)
         x = self.lin3(x)
-        # x FOR REGRESSION, F.log_softmax(x, dim=-1) FOR CLASSIFICATION.
+        # x.view(-1) FOR REGRESSION, F.log_softmax(x, dim=-1) FOR CLASSIFICATION.
         return x.view(-1) #F.log_softmax(x, dim=-1)
 
 
 def train(epoch):
     model.train()
-
+    loss_train = 0.0
     for data in train_loader:
         data = data.to(device)
         optimizer.zero_grad()
@@ -89,6 +90,9 @@ def train(epoch):
         loss.backward()
         optimizer.step()
 
+        loss_train += loss.item()
+
+    writer.add_scalar('Loss/train', loss_train / len(train_loader), epoch)
 
 def test_classification(loader):
     model.eval()
@@ -113,11 +117,26 @@ def test_regression(loader):
             pred = model(data)
             # print(torch.sum((pred - data.y) ** 2) / len(pred))
             print(pred.t(), data.y.t())
-        mse += torch.sum((pred - data.y) ** 2) / len(pred)
-    return mse / len(loader.dataset)
+            loss_test = F.mse_loss(pred, data.y)
+        # mse += torch.sum((pred - data.y) ** 2) / len(pred)
+        mse += loss_test.item()
+    return mse / len(loader)
 
 
 if __name__ == '__main__':
+
+    # Model Parameters
+    lr = 0.001
+    batch_size = 2
+    num_workers = 4
+
+    # Additional comments
+    comment = ""
+
+    # Tensorboard writer.
+    writer = SummaryWriter(comment="LR_"+str(lr)+"_BATCH_"+str(batch_size)
+                                   +"_NUM_WORKERS_"+str(num_workers)+"_Comment_"+comment)
+
     path = osp.join(
         osp.dirname(osp.realpath(__file__)), '..', 'data')
 
@@ -137,22 +156,24 @@ if __name__ == '__main__':
     test_dataset = OurDataset(path, label_class='scan_age', train=False, classification=False,
                                  transform=transform, pre_transform=pre_transform)
 
-    # TODO: EXPERIMENT WITH BATCH_SIZE AND NUM_WORKERS
-    train_loader = DataLoader(train_dataset, batch_size=2, shuffle=True, num_workers=4)
-    test_loader = DataLoader(test_dataset, batch_size=2, shuffle=False, num_workers=4)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
     if not torch.cuda.is_available():
         print('YOU ARE RUNNING ON A CPU!!!!')
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = Net().to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     # MAIN TRAINING LOOP
-    for epoch in range(1, 110):
+    for epoch in range(1, 11):
         start = time.time()
         train(epoch)
         test_acc = test_regression(test_loader)
+
+        writer.add_scalar('Loss/test', test_acc, epoch)
+
         print('Epoch: {:03d}, Test: {:.4f}'.format(epoch, test_acc))
         end = time.time()
         print('Time: ' + str(end - start))
