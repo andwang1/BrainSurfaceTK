@@ -43,7 +43,7 @@ class OurDataset(InMemoryDataset):
     @property
     def processed_file_names(self):
         '''A list of files in the processed_dir which needs to be found in order to skip the processing.'''
-        return ['training.pt', 'test.pt', 'a']
+        return ['training.pt', 'test.pt']
 
     def download(self):
         '''No need to download data.'''
@@ -60,12 +60,16 @@ class OurDataset(InMemoryDataset):
     @staticmethod
     def get_file_path(patient_id, session_id, extension='vtp'):
 
-        repo = "/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/sub-" \
-               + patient_id + "/ses-" + session_id + "/anat/vtp"
+        # repo = "/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/sub-" \
+        #        + patient_id + "/ses-" + session_id + "/anat/vtp"
+        #
+        # file_name = "sub-" + patient_id + "_ses-" + session_id \
+        #         + "_hemi-L_space-dHCPavg32k_inflated_drawem_thickness_thickness_curvature_sulc_myelinmap_myelinmap."\
+        #         + extension
 
-        file_name = "sub-" + patient_id + "_ses-" + session_id \
-                + "_hemi-L_space-dHCPavg32k_inflated_drawem_thickness_thickness_curvature_sulc_myelinmap_myelinmap."\
-                + extension
+        repo = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_fsavg32k/reduced_50/vtk/inflated"
+        file_name = "sub-"+ patient_id +"_ses-"+ session_id +"_hemi-L_inflated_reduce50.vtk"
+
 
         file_path = repo + '/' + file_name
 
@@ -77,10 +81,10 @@ class OurDataset(InMemoryDataset):
         meta_data = read_meta()
 
         # 0. Get patient id number and label columns (0 = patient id, meta_column_idx = label column (eg. sex))
-        # if self.train:  # TODO: MAKE SPLIT CORRECTLY (ACCORDING TO INPUT IN PERCENTAGE). NOW TESTING == TRAINING
-        #     meta_data = meta_data[:, :]
-        # else:
-        #     meta_data = meta_data[:, :]
+        if self.train:  # TODO: MAKE SPLIT CORRECTLY (ACCORDING TO INPUT IN PERCENTAGE). NOW TESTING == TRAINING
+            meta_data = meta_data[80:, :]
+        else:
+            meta_data = meta_data[:80, :]
 
         # 1. Initialise the variables
         data_list = []
@@ -115,12 +119,19 @@ class OurDataset(InMemoryDataset):
                     curvature = mesh.get_array(3)
                     drawem = mesh.get_array(0)
                     sulc = mesh.get_array(4)
-                    smoothed_myelin_map = mesh.get_array(5)
-                    myelinMap = mesh.get_array(6)
-                    # array_2 = mesh.get_array(2)
+                    smoothed_myelin_map = mesh.get_array(2)
+
+                    # print(corr_thickness.shape)
+                    # print(curvature.shape)
+                    # print(drawem.shape)
+                    # print(sulc.shape)
+                    # print(smoothed_myelin_map.shape)
+
+                    # myelinMap = torch.tensor(mesh.get_array(6))
+                    # array_2 = torch.tensor(mesh.get_array(2))
 
                     # Which features to add.
-                    x = torch.tensor([corr_thickness, curvature, drawem, sulc, smoothed_myelin_map, myelinMap]).t()
+                    x = torch.tensor([corr_thickness, curvature, drawem, sulc, smoothed_myelin_map]).t()
 
 
                 # classes[meta_data[:, 1][idx]] returns class_num from classes using key (e.g. 'female' -> 1)
@@ -128,10 +139,9 @@ class OurDataset(InMemoryDataset):
                     y = torch.tensor([self.classes[meta_data[:, self.meta_column_idx][idx]]])
                 else:
                     if self.add_birth_weight:
-                        y = torch.tensor([[float(meta_data[:, self.meta_column_idx][idx])], [float(meta_data[:, 4][idx])]])
+                        y = torch.tensor([[float(meta_data[:, self.meta_column_idx][idx]), float(meta_data[:, 4][idx])]])
                     else:
                         y = torch.tensor([[float(meta_data[:, self.meta_column_idx][idx])]])
-
 
                 data = Data(x=x, pos=points, y=y, face=faces)
                 data_list.append(data)

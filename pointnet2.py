@@ -54,7 +54,7 @@ class Net(torch.nn.Module):
     def __init__(self):
         super(Net, self).__init__()
         # 3+6 IS 3 FOR COORDINATES, 6 FOR FEATURES PER POINT.
-        self.sa1_module = SAModule(0.5, 0.2, MLP([3 + 6, 64, 64, 128]))
+        self.sa1_module = SAModule(0.5, 0.2, MLP([3 + 5, 64, 64, 128]))
         self.sa2_module = SAModule(0.25, 0.4, MLP([128 + 3, 128, 128, 256]))
         self.sa3_module = GlobalSAModule(MLP([256 + 3, 256, 512, 1024]))
 
@@ -72,7 +72,7 @@ class Net(torch.nn.Module):
         x, pos, batch = sa3_out
 
         # Adding weight at birth. #  TODO: Do this properly for all the features. (Might leave it manual?)
-        x = torch.cat((x, data.y[1].expand((x.size(0), 1))), 1)
+        x = torch.cat((x, data.y[:, 1].view(-1, 1)), 1)
 
         x = F.relu(self.lin1(x))
         # x = F.dropout(x, p=0.5, training=self.training)
@@ -89,10 +89,12 @@ def train(epoch):
     for data in train_loader:
         data = data.to(device)
         optimizer.zero_grad()
+        # print(data.y.size())
+        # print(data.y[:, 0])
         # USE F.nll_loss FOR CLASSIFICATION, F.mse_loss FOR REGRESSION.
         # loss = F.nll_loss(model(data), data.y)
         pred = model(data)
-        loss = F.mse_loss(pred, data.y[0].expand(pred.size()))
+        loss = F.mse_loss(pred, data.y[:, 0])
         loss.backward()
         optimizer.step()
 
@@ -122,8 +124,8 @@ def test_regression(loader):
         with torch.no_grad():
             pred = model(data)
             # print(torch.sum((pred - data.y) ** 2) / len(pred))
-            print(pred.t(), data.y[0].t())
-            loss_test = F.mse_loss(pred, data.y[0].expand(pred.size()))
+            print(pred.t(), data.y[:, 0])
+            loss_test = F.mse_loss(pred, data.y[:, 0])
         # mse += torch.sum((pred - data.y) ** 2) / len(pred)
         mse += loss_test.item()
     return mse / len(loader)
@@ -133,8 +135,8 @@ if __name__ == '__main__':
 
     # Model Parameters
     lr = 0.001
-    batch_size = 1
-    num_workers = 2
+    batch_size = 16
+    num_workers = 8
     add_birth_weight = True
     # Additional comments
     comment = ""
@@ -150,7 +152,7 @@ if __name__ == '__main__':
     # DEFINE TRANSFORMS HERE.
     # 32492
     transform = T.Compose([
-        T.FixedPoints(15000)
+        T.FixedPoints(1500)
         # T.SamplePoints(1024)  # THIS ONE DOESN'T KEEP FEATURES(x)
     ])
 
