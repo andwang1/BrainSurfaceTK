@@ -90,7 +90,9 @@ def train(epoch):
         data = data.to(device)
         optimizer.zero_grad()
         # print(data.y.size())
+        # print(data.y)
         # print(data.y[:, 0])
+
         # USE F.nll_loss FOR CLASSIFICATION, F.mse_loss FOR REGRESSION.
         # loss = F.nll_loss(model(data), data.y)
         pred = model(data)
@@ -110,8 +112,8 @@ def test_classification(loader):
         data = data.to(device)
         with torch.no_grad():
             pred = model(data).max(1)[1]
-
-        correct += pred.eq(data.y[0]).sum().item()
+            print(pred.t(), data.y[:, 0])
+        correct += pred.eq(data.y[:, 0].long()).sum().item()
     return correct / len(loader.dataset)
 
 
@@ -135,11 +137,11 @@ if __name__ == '__main__':
 
     # Model Parameters
     lr = 0.001
-    batch_size = 16
-    num_workers = 8
+    batch_size = 4
+    num_workers = 4
     add_birth_weight = True
     # Additional comments
-    comment = ""
+    comment = "NUMB_POINTS_16247_ONE_DROPOUT"
 
     # Tensorboard writer.
     writer = SummaryWriter(comment="LR_"+str(lr)+"_BATCH_"+str(batch_size)
@@ -152,7 +154,7 @@ if __name__ == '__main__':
     # DEFINE TRANSFORMS HERE.
     # 32492
     transform = T.Compose([
-        T.FixedPoints(1500)
+        T.FixedPoints(16000)
         # T.SamplePoints(1024)  # THIS ONE DOESN'T KEEP FEATURES(x)
     ])
 
@@ -176,7 +178,7 @@ if __name__ == '__main__':
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     # MAIN TRAINING LOOP
-    for epoch in range(1, 11):
+    for epoch in range(1, 101):
         start = time.time()
         train(epoch)
         test_acc = test_regression(test_loader)
@@ -186,3 +188,4 @@ if __name__ == '__main__':
         print('Epoch: {:03d}, Test: {:.4f}'.format(epoch, test_acc))
         end = time.time()
         print('Time: ' + str(end - start))
+        writer.add_scalar('Time/epoch', end - start, epoch)
