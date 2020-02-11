@@ -24,9 +24,8 @@ class OurDataset(InMemoryDataset):
         self.add_birth_weight = add_birth_weight  # TODO: ADD OTHER FEATURES
         root += '/' + label_class
 
-        # For reading .obj
         if data_folder is None:
-            self.data_folder = '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/'
+            self.data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_fsavg32k/reduced_50/vtk/inflated"
         else:
             self.data_folder = data_folder
 
@@ -57,8 +56,7 @@ class OurDataset(InMemoryDataset):
         else:
             torch.save(self.process_set(), self.processed_paths[1])
 
-    @staticmethod
-    def get_file_path(patient_id, session_id, extension='vtp'):
+    def get_file_path(self, patient_id, session_id, extension='vtp'):
 
         # repo = "/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/sub-" \
         #        + patient_id + "/ses-" + session_id + "/anat/vtp"
@@ -67,8 +65,8 @@ class OurDataset(InMemoryDataset):
         #         + "_hemi-L_space-dHCPavg32k_inflated_drawem_thickness_thickness_curvature_sulc_myelinmap_myelinmap."\
         #         + extension
 
-        repo = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_fsavg32k/reduced_50/vtk/inflated"
-        file_name = "sub-"+ patient_id +"_ses-"+ session_id +"_hemi-L_inflated_reduce50.vtk"
+        repo = self.data_folder
+        file_name = "sub-" + patient_id +"_ses-" + session_id + "_hemi-L_inflated_reduce50.vtk"
 
 
         file_path = repo + '/' + file_name
@@ -136,10 +134,15 @@ class OurDataset(InMemoryDataset):
 
                 # classes[meta_data[:, 1][idx]] returns class_num from classes using key (e.g. 'female' -> 1)
                 if self.classification:
-                    y = torch.tensor([self.classes[meta_data[:, self.meta_column_idx][idx]]])
+                    if self.add_birth_weight:
+                        y = torch.tensor(
+                            [[self.classes[meta_data[:, self.meta_column_idx][idx]], float(meta_data[:, 4][idx])]])
+                    else:
+                        y = torch.tensor([self.classes[meta_data[:, self.meta_column_idx][idx]]])
                 else:
                     if self.add_birth_weight:
-                        y = torch.tensor([[float(meta_data[:, self.meta_column_idx][idx]), float(meta_data[:, 4][idx])]])
+                        y = torch.tensor(
+                            [[float(meta_data[:, self.meta_column_idx][idx]), float(meta_data[:, 4][idx])]])
                     else:
                         y = torch.tensor([[float(meta_data[:, self.meta_column_idx][idx])]])
 
