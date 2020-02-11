@@ -9,7 +9,7 @@ import torch_geometric.transforms as T
 from torch_geometric.data import DataLoader
 from torch_geometric.nn import PointConv, fps, radius, global_max_pool
 import time
-from data_loader import OurDataset
+# from data_loader import OurDataset
 
 
 class SAModule(torch.nn.Module):
