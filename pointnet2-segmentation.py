@@ -2,14 +2,16 @@ import os.path as osp
 
 import torch
 import torch.nn.functional as F
-from deepl_brain_surfaces.shapenet_fake import ShapeNet
+# from deepl_brain_surfaces.shapenet_fake import ShapeNet
 import torch_geometric.transforms as T
 from torch_geometric.data import DataLoader
 from torch_geometric.nn import knn_interpolate
 from torch_geometric.utils import intersection_and_union as i_and_u
-from deepl_brain_surfaces.data_loader import OurDataset
+from data_loader import OurDataset
 from torch_geometric.nn import PointConv, fps, radius, global_max_pool
 from torch.nn import Sequential as Seq, Linear as Lin, ReLU, BatchNorm1d as BN
+from pyvista_examples import plot
+import pickle
 
 
 
@@ -68,13 +70,13 @@ class FPModule(torch.nn.Module):
 class Net(torch.nn.Module):
     def __init__(self, num_classes):
         super(Net, self).__init__()
-        self.sa1_module = SAModule(0.2, 0.2, MLP([3 + 5, 64, 64, 128]))
+        self.sa1_module = SAModule(0.2, 0.2, MLP([3 + 0, 64, 64, 128]))
         self.sa2_module = SAModule(0.25, 0.4, MLP([128 + 3, 128, 128, 256]))
         self.sa3_module = GlobalSAModule(MLP([256 + 3, 256, 512, 1024]))
 
         self.fp3_module = FPModule(1, MLP([1024 + 256, 256, 256]))
         self.fp2_module = FPModule(3, MLP([256 + 128, 256, 128]))
-        self.fp1_module = FPModule(3, MLP([133, 128, 128, 128]))
+        self.fp1_module = FPModule(3, MLP([128 + 0, 128, 128, 128]))
 
         self.lin1 = torch.nn.Linear(128, 128)
         self.lin2 = torch.nn.Linear(128, 64)
@@ -167,12 +169,22 @@ def train():
 
     total_loss = correct_nodes = total_nodes = 0
     for i, data in enumerate(train_loader):
+        # print(i)
         data = data.to(device)
         optimizer.zero_grad()
         out = model(data)
-        print(out)
-        print(out.shape)
-        print(data.y)
+        # print(out)
+        # print(out.shape)
+        # print(data.y)
+        d = data.pos.cpu().detach().numpy()
+        _y = data.y.cpu().detach().numpy()
+        _out = out.max(dim=1)[1].cpu().detach().numpy()
+        # plot(d, _y, _out)
+
+        with open('data.pkl', 'wb') as file:
+            pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
+
+
         loss = F.nll_loss(out, data.y)
         loss.backward()
         optimizer.step()
@@ -260,15 +272,15 @@ if __name__ == '__main__':
 
     train_dataset = OurDataset(path, task='segmentation', target_class='gender', train=True,
                                transform=transform, pre_transform=pre_transform, pre_filter=None,
-                               data_folder=None, add_birth_weight=False, add_features=True)
+                               data_folder=None, add_birth_weight=False, add_features=False)
 
     test_dataset = OurDataset(path, task='segmentation', target_class='gender', train=False,
                                transform=transform, pre_transform=pre_transform, pre_filter=None,
-                               data_folder=None, add_birth_weight=False, add_features=True)
+                               data_folder=None, add_birth_weight=False, add_features=False)
 
     # TODO: EXPERIMENT WITH BATCH_SIZE AND NUM_WORKERS
     train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True, num_workers=1)
-    test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False, num_workers=1)
+    test_loader = DataLoader(test_dataset, batch_size=1, shuffle=True, num_workers=1)
 
     if not torch.cuda.is_available():
         print('YOU ARE RUNNING ON A CPU!!!!')
@@ -279,7 +291,7 @@ if __name__ == '__main__':
     model = Net(18).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-    for epoch in range(1, 31):
+    for epoch in range(1, 5):
         train()
         # acc, iou = test(test_loader)
         acc = test(test_loader)

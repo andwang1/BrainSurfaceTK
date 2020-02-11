@@ -150,18 +150,17 @@ class OurDataset(InMemoryDataset):
 
                 # Features # TODO: ADD ALL THE FEATURES THAT ARE NEEDED.
                 x = None
+                corr_thickness = mesh.get_array(1)
+                curvature = mesh.get_array(3)
+                drawem = mesh.get_array(0)
+                sulc = mesh.get_array(4)
+                smoothed_myelin_map = mesh.get_array(2)
+                # myelinMap = torch.tensor(mesh.get_array(6))
+                # array_2 = torch.tensor(mesh.get_array(2))
 
                 if self.add_features:
-                    corr_thickness = mesh.get_array(1)
-                    curvature = mesh.get_array(3)
-                    drawem = mesh.get_array(0)
-                    sulc = mesh.get_array(4)
-                    smoothed_myelin_map = mesh.get_array(2)
-                    # myelinMap = torch.tensor(mesh.get_array(6))
-                    # array_2 = torch.tensor(mesh.get_array(2))
-
                     # Which features to add
-                    x = torch.tensor([corr_thickness, curvature, drawem, sulc, smoothed_myelin_map]).t()
+                    x = torch.tensor([corr_thickness, curvature, sulc, smoothed_myelin_map]).t()
 
 
                 # classes[meta_data[:, 1][idx]] returns class_num from classes using key (e.g. 'female' -> 1)
