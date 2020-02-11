@@ -7,7 +7,7 @@ import torch_geometric.transforms as T
 from torch_geometric.data import DataLoader
 from torch_geometric.nn import knn_interpolate
 from torch_geometric.utils import intersection_and_union as i_and_u
-from deepl_brain_surfaces.data_loader_segmentation import OurDataset
+from deepl_brain_surfaces.data_loader import OurDataset
 from torch_geometric.nn import PointConv, fps, radius, global_max_pool
 from torch.nn import Sequential as Seq, Linear as Lin, ReLU, BatchNorm1d as BN
 
@@ -257,10 +257,14 @@ if __name__ == '__main__':
     # pre_transform = None
     #
     # TODO: DEFINE TEST/TRAIN SPLIT (WHEN MORE DATA IS AVAILABLE). NOW TESTING == TRAINING
-    train_dataset = OurDataset(path, label_class='birth_age', train=True, classification=False,
-                                 transform=transform, pre_transform=pre_transform)
-    test_dataset = OurDataset(path, label_class='birth_age', train=False, classification=False,
-                              transform=transform, pre_transform=pre_transform)
+
+    train_dataset = OurDataset(path, task='segmentation', target_class='gender', train=True,
+                               transform=transform, pre_transform=pre_transform, pre_filter=None,
+                               data_folder=None, add_birth_weight=False, add_features=True)
+
+    test_dataset = OurDataset(path, task='segmentation', target_class='gender', train=False,
+                               transform=transform, pre_transform=pre_transform, pre_filter=None,
+                               data_folder=None, add_birth_weight=False, add_features=True)
 
     # TODO: EXPERIMENT WITH BATCH_SIZE AND NUM_WORKERS
     train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True, num_workers=1)

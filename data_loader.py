@@ -13,17 +13,49 @@ from torch_geometric.data import Data
 
 
 class OurDataset(InMemoryDataset):
-    def __init__(self, root, label_class='gender', classification=True, train=True, transform=None,
-                        pre_transform=None, pre_filter=None, data_folder=None, add_birth_weight=True):
+    def __init__(self, root, task='classification', target_class='gender', train=True, transform=None,
+                        pre_transform=None, pre_filter=None, data_folder=None, add_birth_weight=False,
+                        add_features=True):
+        '''
+        Creates a Pytorch dataset from the .vtk/.vtp brain data.
 
+        :param root: Root path, where processed data objects will be placed
+        :param task: Possible tasks include: {'classification', 'regression', 'segmentation'}
+        :param target_class: Target class that is being predicted (if applicable).
+        :param train: If true, returns train data
+        :param transform: Transformation applied
+        :param pre_transform: Pre-transformation applied
+        :param pre_filter: Pre-filter applied
+        :param data_folder: Path to the data folder with the dataset
+        :param add_birth_weight: If true, includes birth weight as a feature
+        :param add_features: If true, adds all features from .vtp/.vtk files to x in Dataset
+        '''
+
+        # Train, test, validation
         self.train = train
-        self.categories = {'gender': 2, 'birth_age': 3, 'weight': 4, 'scan_age': 6, 'scan_num': 7}
-        self.meta_column_idx = self.categories[label_class]
-        self.classes = dict()
-        self.classification = classification
-        self.add_birth_weight = add_birth_weight  # TODO: ADD OTHER FEATURES
-        root += '/' + label_class
 
+        # Initialise rooth path
+        root += '/' + target_class
+
+        # Metadata categories
+        self.categories = {'gender': 2, 'birth_age': 3, 'weight': 4, 'scan_age': 6, 'scan_num': 7}
+        self.meta_column_idx = self.categories[target_class]
+
+        #
+        self.classes = dict()
+
+        # The task at hand
+        self.task = task
+
+        # Additional global features
+        self.add_birth_weight = add_birth_weight  # TODO: ADD OTHER FEATURES
+
+        # Other useful variables
+        self.add_features = add_features
+        self.unique_labels = []
+        self.num_labels = 0
+
+        # Initialise path to data
         if data_folder is None:
             self.data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_fsavg32k/reduced_50/vtk/inflated"
         else:
@@ -31,22 +63,29 @@ class OurDataset(InMemoryDataset):
 
         super(OurDataset, self).__init__(root, transform, pre_transform, pre_filter)
 
+        # Standard paths to processed data objects (train or test)
         path = self.processed_paths[0] if train else self.processed_paths[1]
+
+        # If processed_paths exist, return without having to process again
         self.data, self.slices = torch.load(path)
+
 
     @property
     def raw_file_names(self):
         '''A list of files in the raw_dir which needs to be found in order to skip the download.'''
         return []
 
+
     @property
     def processed_file_names(self):
         '''A list of files in the processed_dir which needs to be found in order to skip the processing.'''
         return ['training.pt', 'test.pt']
 
+
     def download(self):
         '''No need to download data.'''
         pass
+
 
     def process(self):
         '''Processes raw data and saves it into the processed_dir.'''
@@ -55,6 +94,7 @@ class OurDataset(InMemoryDataset):
             torch.save(self.process_set(), self.processed_paths[0])
         else:
             torch.save(self.process_set(), self.processed_paths[1])
+
 
     def get_file_path(self, patient_id, session_id, extension='vtp'):
 
@@ -67,11 +107,10 @@ class OurDataset(InMemoryDataset):
 
         repo = self.data_folder
         file_name = "sub-" + patient_id +"_ses-" + session_id + "_hemi-L_inflated_reduce50.vtk"
-
-
         file_path = repo + '/' + file_name
 
         return file_path
+
 
     def process_set(self):
 
@@ -95,50 +134,54 @@ class OurDataset(InMemoryDataset):
         # 3. Iterate through all patient ids
         for idx, patient_id in enumerate(meta_data[:, 0]):
 
+            # Get file path to .vtk/.vtp for one patient
             file_path = self.get_file_path(patient_id, meta_data[idx, 1])
 
+            # If file exists
             if os.path.isfile(file_path):
 
                 mesh = pv.read(file_path)
 
-                # Points
+                # Get points and faces
                 points = torch.tensor(mesh.points)
-
                 n_faces = mesh.n_cells
                 faces = mesh.faces.reshape((n_faces, -1))
                 faces = torch.tensor(faces[:, 1:].transpose())
 
                 # Features # TODO: ADD ALL THE FEATURES THAT ARE NEEDED.
                 x = None
-                add_features = True
-                if add_features:
 
+                if self.add_features:
                     corr_thickness = mesh.get_array(1)
                     curvature = mesh.get_array(3)
                     drawem = mesh.get_array(0)
                     sulc = mesh.get_array(4)
                     smoothed_myelin_map = mesh.get_array(2)
-
-                    # print(corr_thickness.shape)
-                    # print(curvature.shape)
-                    # print(drawem.shape)
-                    # print(sulc.shape)
-                    # print(smoothed_myelin_map.shape)
-
                     # myelinMap = torch.tensor(mesh.get_array(6))
                     # array_2 = torch.tensor(mesh.get_array(2))
 
-                    # Which features to add.
+                    # Which features to add
                     x = torch.tensor([corr_thickness, curvature, drawem, sulc, smoothed_myelin_map]).t()
 
 
                 # classes[meta_data[:, 1][idx]] returns class_num from classes using key (e.g. 'female' -> 1)
+                # TODO: Comment on this please (or ideally simplify the indexing by including this in a separate function)
                 if self.classification:
                     if self.add_birth_weight:
                         y = torch.tensor(
                             [[self.classes[meta_data[:, self.meta_column_idx][idx]], float(meta_data[:, 4][idx])]])
                     else:
                         y = torch.tensor([self.classes[meta_data[:, self.meta_column_idx][idx]]])
+
+                elif self.segmentation:
+                    if self.add_birth_weight:
+                        pass
+                    else:
+                        y = torch.tensor(drawem)
+                        y = y.unique(return_inverse=True)[1].squeeze(0)
+                        self.unique_labels.append(y.unique())
+
+                # Else, regression
                 else:
                     if self.add_birth_weight:
                         y = torch.tensor(
@@ -146,8 +189,10 @@ class OurDataset(InMemoryDataset):
                     else:
                         y = torch.tensor([[float(meta_data[:, self.meta_column_idx][idx])]])
 
+                # Create a data object and add to data_list
                 data = Data(x=x, pos=points, y=y, face=faces)
                 data_list.append(data)
+
             else:
                 continue
 
@@ -164,19 +209,27 @@ class OurDataset(InMemoryDataset):
             # else:
             #     continue
 
-        # # 4. Attempt any pre-processing that is required
+        # Attempt any pre-processing that is required
         if self.pre_filter is not None:
             data_list = [d for d in data_list if self.pre_filter(d)]
 
         if self.pre_transform is not None:
             data_list = [self.pre_transform(d) for d in data_list]
 
+        # Get a set of unique labels (already standardized)
+        self.unique_labels = torch.cat(self.unique_labels).unique()
+
+        # Get the number of unique labels
+        self.num_labels = len(self.unique_labels)
+
         return self.collate(data_list)
 
 
 if __name__ == '__main__':
+
     # Path to where the data will be saved.
     path = osp.join(osp.dirname(osp.realpath(__file__)), '..', 'data')
+
     # Transformations, scaling and sampling 102 points (doesn't sample faces).
     pre_transform, transform = None, None  # T.NormalizeScale(), T.SamplePoints(1024) #T .FixedPoints(1024)
 
