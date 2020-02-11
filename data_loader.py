@@ -1,7 +1,7 @@
 import os
 import os.path as osp
 
-import numpy as np
+# import numpy as np
 import pyvista as pv
 
 from read_meta import read_meta
@@ -10,20 +10,21 @@ from torch_geometric.data import InMemoryDataset
 from torch_geometric.io import read_off
 from torch_geometric.data import DataLoader
 from torch_geometric.data import Data
-import torch_geometric.transforms as T
 
 
 class OurDataset(InMemoryDataset):
     def __init__(self, root, label_class='gender', classification=True, train=True, transform=None,
-                        pre_transform=None, pre_filter=None, data_folder=None):
+                        pre_transform=None, pre_filter=None, data_folder=None, add_birth_weight=True):
 
         self.train = train
         self.categories = {'gender': 2, 'birth_age': 3, 'weight': 4, 'scan_age': 6, 'scan_num': 7}
         self.meta_column_idx = self.categories[label_class]
         self.classes = dict()
         self.classification = classification
+        self.add_birth_weight = add_birth_weight  # TODO: ADD OTHER FEATURES
         root += '/' + label_class
 
+        # For reading .obj
         if data_folder is None:
             self.data_folder = '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/'
         else:
@@ -56,6 +57,24 @@ class OurDataset(InMemoryDataset):
         else:
             torch.save(self.process_set(), self.processed_paths[1])
 
+    @staticmethod
+    def get_file_path(patient_id, session_id, extension='vtp'):
+
+        # repo = "/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/sub-" \
+        #        + patient_id + "/ses-" + session_id + "/anat/vtp"
+        #
+        # file_name = "sub-" + patient_id + "_ses-" + session_id \
+        #         + "_hemi-L_space-dHCPavg32k_inflated_drawem_thickness_thickness_curvature_sulc_myelinmap_myelinmap."\
+        #         + extension
+
+        repo = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_fsavg32k/reduced_50/vtk/inflated"
+        file_name = "sub-"+ patient_id +"_ses-"+ session_id +"_hemi-L_inflated_reduce50.vtk"
+
+
+        file_path = repo + '/' + file_name
+
+        return file_path
+
     def process_set(self):
 
         # 0. Get meta data
@@ -63,13 +82,13 @@ class OurDataset(InMemoryDataset):
 
         # 0. Get patient id number and label columns (0 = patient id, meta_column_idx = label column (eg. sex))
         if self.train:  # TODO: MAKE SPLIT CORRECTLY (ACCORDING TO INPUT IN PERCENTAGE). NOW TESTING == TRAINING
-            meta_data = meta_data[:, [0, self.meta_column_idx]]
+            meta_data = meta_data[80:, :]
         else:
-            meta_data = meta_data[:, [0, self.meta_column_idx]]
+            meta_data = meta_data[:80, :]
 
         # 1. Initialise the variables
         data_list = []
-        categories = set(meta_data[:, 1])           # Set of categories {male, female}
+        categories = set(meta_data[:, self.meta_column_idx])           # Set of categories {male, female}
 
         # 2. Create category dictionary (mapping: category --> class), e.g. 'male' --> 0, 'female' --> 1
         for class_num, category in enumerate(categories):
@@ -77,10 +96,8 @@ class OurDataset(InMemoryDataset):
 
         # 3. Iterate through all patient ids
         for idx, patient_id in enumerate(meta_data[:, 0]):
-            # TODO: DECIDE WHERE TO PUT ALL THE DATA, NAMING CONVENTIONS, WHICH DATA TO USE.
-            repo = "/vol/project/2019/545/g1954504/Vitalis/data/vtk_files/"
-            file_name = "sub-" + patient_id + "_hemi-L_space-dHCPavg32k_inflated_drawem_thickness_thickness_curvature_sulc_myelinmap_myelinmap_reduce90.vtk"
-            file_path = repo + file_name
+
+            file_path = self.get_file_path(patient_id, meta_data[idx, 1])
 
             if os.path.isfile(file_path):
 
@@ -93,7 +110,6 @@ class OurDataset(InMemoryDataset):
                 faces = mesh.faces.reshape((n_faces, -1))
                 faces = torch.tensor(faces[:, 1:].transpose())
 
-
                 # Features # TODO: ADD ALL THE FEATURES THAT ARE NEEDED.
                 x = None
                 add_features = True
@@ -103,34 +119,43 @@ class OurDataset(InMemoryDataset):
                     curvature = mesh.get_array(3)
                     drawem = mesh.get_array(0)
                     sulc = mesh.get_array(4)
-                    smoothed_myelin_map = mesh.get_array(5)
-                    myelinMap = mesh.get_array(6)
-                    # array_2 = mesh.get_array(2)
+                    smoothed_myelin_map = mesh.get_array(2)
 
+                    # print(corr_thickness.shape)
+                    # print(curvature.shape)
+                    # print(drawem.shape)
+                    # print(sulc.shape)
+                    # print(smoothed_myelin_map.shape)
+
+                    # myelinMap = torch.tensor(mesh.get_array(6))
+                    # array_2 = torch.tensor(mesh.get_array(2))
 
                     # Which features to add.
-                    x = torch.tensor([corr_thickness, curvature, drawem, sulc, smoothed_myelin_map, myelinMap]).t()
+                    x = torch.tensor([corr_thickness, curvature, drawem, sulc, smoothed_myelin_map]).t()
 
 
                 # classes[meta_data[:, 1][idx]] returns class_num from classes using key (e.g. 'female' -> 1)
                 if self.classification:
-                    y = torch.tensor([self.classes[meta_data[:, 1][idx]]])
+                    y = torch.tensor([self.classes[meta_data[:, self.meta_column_idx][idx]]])
                 else:
-                    y = torch.tensor([float(meta_data[:, 1][idx])])
+                    if self.add_birth_weight:
+                        y = torch.tensor([[float(meta_data[:, self.meta_column_idx][idx]), float(meta_data[:, 4][idx])]])
+                    else:
+                        y = torch.tensor([[float(meta_data[:, self.meta_column_idx][idx])]])
 
                 data = Data(x=x, pos=points, y=y, face=faces)
                 data_list.append(data)
             else:
                 continue
 
-            #  KEEPING FOR NOW
+            #  KEEPING FOR NOW. Reading .obj files
             # Create path to file. _L_pial for now.
             # path = self.data_folder + patient_id + '_L_pial' +'.off'
             #
             # # Try read patient data
             # if os.path.isfile(path):
             #     data = read_off(path)
-            #     data.y = torch.tensor([self.classes[meta_data[:, 1][idx]]])   # classes[meta_data[:, 1][idx]] returns class_num from classes using key (e.g. 'female' -> 1)
+            #     data.y = torch.tensor([self.classes[meta_data[:, 2][idx]]])   # classes[meta_data[:, 1][idx]] returns class_num from classes using key (e.g. 'female' -> 1)
             #
             #     data_list.append(data)
             # else:
@@ -152,7 +177,7 @@ if __name__ == '__main__':
     # Transformations, scaling and sampling 102 points (doesn't sample faces).
     pre_transform, transform = None, None  # T.NormalizeScale(), T.SamplePoints(1024) #T .FixedPoints(1024)
 
-    myDataset = OurDataset(path, train=True, transform=transform, pre_transform=pre_transform)
+    myDataset = OurDataset(path, train=True, transform=transform, pre_transform=pre_transform, label_class='scan_age', classification=False)
 
     print(myDataset)
 
@@ -162,10 +187,10 @@ if __name__ == '__main__':
 
      # Printing dataset without sampling points. Will include faces.
     for i, (batch, face, pos, x, y) in enumerate(train_loader):
-        print(batch)
-        print(face)
-        print(pos)
-        print(x)
-        print(y)
+        # print(batch)
+        # print(face[1].t())
+        # print(pos)
+        # print(x)
+        print(y[1][0])
         print('_____________')
         break

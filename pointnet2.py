@@ -9,7 +9,8 @@ import torch_geometric.transforms as T
 from torch_geometric.data import DataLoader
 from torch_geometric.nn import PointConv, fps, radius, global_max_pool
 import time
-# from data_loader import OurDataset
+from data_loader import OurDataset
+from torch.utils.tensorboard import SummaryWriter
 
 
 class SAModule(torch.nn.Module):
@@ -22,7 +23,7 @@ class SAModule(torch.nn.Module):
     def forward(self, x, pos, batch):
         idx = fps(pos, batch, ratio=self.ratio)
         row, col = radius(pos, pos[idx], self.r, batch, batch[idx],
-                          max_num_neighbors=64)
+                          max_num_neighbors=64)  # TODO: FIGURE OUT THIS WITH RESPECT TO NUMBER OF POINTS
         edge_index = torch.stack([col, row], dim=0)
         x = self.conv(x, (pos, pos[idx]), edge_index)
         pos, batch = pos[idx], batch[idx]
@@ -53,11 +54,13 @@ class Net(torch.nn.Module):
     def __init__(self):
         super(Net, self).__init__()
         # 3+6 IS 3 FOR COORDINATES, 6 FOR FEATURES PER POINT.
-        self.sa1_module = SAModule(0.5, 0.2, MLP([3 + 6, 64, 64, 128]))
+        self.sa1_module = SAModule(0.5, 0.2, MLP([3 + 5, 64, 64, 128]))
         self.sa2_module = SAModule(0.25, 0.4, MLP([128 + 3, 128, 128, 256]))
         self.sa3_module = GlobalSAModule(MLP([256 + 3, 256, 512, 1024]))
 
-        self.lin1 = Lin(1024, 512)
+        # That +1 is for weight at birth
+        self.lin1 = Lin(1024 + 1, 512)
+        # self.lin1 = Lin(1024, 512)
         self.lin2 = Lin(512, 256)
         self.lin3 = Lin(256, 1)  # OUTPUT = NUMBER OF CLASSES, 1 IF REGRESSION TASK
 
@@ -68,27 +71,36 @@ class Net(torch.nn.Module):
         sa3_out = self.sa3_module(*sa2_out)
         x, pos, batch = sa3_out
 
+        # Adding weight at birth. #  TODO: Do this properly for all the features. (Might leave it manual?)
+        x = torch.cat((x, data.y[:, 1].view(-1, 1)), 1)
+
         x = F.relu(self.lin1(x))
-        x = F.dropout(x, p=0.5, training=self.training)
+        # x = F.dropout(x, p=0.5, training=self.training)
         x = F.relu(self.lin2(x))
-        x = F.dropout(x, p=0.5, training=self.training)
+        # x = F.dropout(x, p=0.5, training=self.training)
         x = self.lin3(x)
-        # x FOR REGRESSION, F.log_softmax(x, dim=-1) FOR CLASSIFICATION.
+        # x.view(-1) FOR REGRESSION, F.log_softmax(x, dim=-1) FOR CLASSIFICATION.
         return x.view(-1) #F.log_softmax(x, dim=-1)
 
 
 def train(epoch):
     model.train()
-
+    loss_train = 0.0
     for data in train_loader:
         data = data.to(device)
         optimizer.zero_grad()
+        # print(data.y.size())
+        # print(data.y[:, 0])
         # USE F.nll_loss FOR CLASSIFICATION, F.mse_loss FOR REGRESSION.
         # loss = F.nll_loss(model(data), data.y)
-        loss = F.mse_loss(model(data), data.y)
+        pred = model(data)
+        loss = F.mse_loss(pred, data.y[:, 0])
         loss.backward()
         optimizer.step()
 
+        loss_train += loss.item()
+
+    writer.add_scalar('Loss/train', loss_train / len(train_loader), epoch)
 
 def test_classification(loader):
     model.eval()
@@ -99,7 +111,7 @@ def test_classification(loader):
         with torch.no_grad():
             pred = model(data).max(1)[1]
 
-        correct += pred.eq(data.y).sum().item()
+        correct += pred.eq(data.y[0]).sum().item()
     return correct / len(loader.dataset)
 
 
@@ -111,18 +123,36 @@ def test_regression(loader):
         data = data.to(device)
         with torch.no_grad():
             pred = model(data)
-            print(pred, data.y)
-        mse += (pred - data.y).item() ** 2
-    return mse / len(loader.dataset)
+            # print(torch.sum((pred - data.y) ** 2) / len(pred))
+            print(pred.t(), data.y[:, 0])
+            loss_test = F.mse_loss(pred, data.y[:, 0])
+        # mse += torch.sum((pred - data.y) ** 2) / len(pred)
+        mse += loss_test.item()
+    return mse / len(loader)
 
 
 if __name__ == '__main__':
+
+    # Model Parameters
+    lr = 0.001
+    batch_size = 16
+    num_workers = 8
+    add_birth_weight = True
+    # Additional comments
+    comment = ""
+
+    # Tensorboard writer.
+    writer = SummaryWriter(comment="LR_"+str(lr)+"_BATCH_"+str(batch_size)
+                                   +"_NUM_WORKERS_"+str(num_workers)+"_ADD_BIRTH_WEIGHT_"
+                                   +str(add_birth_weight)+"_Comment_"+comment)
+
     path = osp.join(
         osp.dirname(osp.realpath(__file__)), '..', 'data')
 
     # DEFINE TRANSFORMS HERE.
+    # 32492
     transform = T.Compose([
-        T.FixedPoints(1024)
+        T.FixedPoints(1500)
         # T.SamplePoints(1024)  # THIS ONE DOESN'T KEEP FEATURES(x)
     ])
 
@@ -130,27 +160,29 @@ if __name__ == '__main__':
     pre_transform = T.NormalizeScale()
 
     # TODO: DEFINE TEST/TRAIN SPLIT (WHEN MORE DATA IS AVAILABLE). NOW TESTING == TRAINING
-    train_dataset = OurDataset(path, label_class='birth_age', train=True, classification=False,
-                                 transform=transform, pre_transform=pre_transform)
-    test_dataset = OurDataset(path, label_class='birth_age', train=False, classification=False,
-                                 transform=transform, pre_transform=pre_transform)
+    train_dataset = OurDataset(path, label_class='scan_age', train=True, classification=False,
+                                 transform=transform, pre_transform=pre_transform, add_birth_weight=add_birth_weight)
+    test_dataset = OurDataset(path, label_class='scan_age', train=False, classification=False,
+                                 transform=transform, pre_transform=pre_transform, add_birth_weight=add_birth_weight)
 
-    # TODO: EXPERIMENT WITH BATCH_SIZE AND NUM_WORKERS
-    train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True, num_workers=1)
-    test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False,num_workers=1)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
     if not torch.cuda.is_available():
         print('YOU ARE RUNNING ON A CPU!!!!')
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = Net().to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     # MAIN TRAINING LOOP
     for epoch in range(1, 11):
         start = time.time()
         train(epoch)
         test_acc = test_regression(test_loader)
+
+        writer.add_scalar('Loss/test', test_acc, epoch)
+
         print('Epoch: {:03d}, Test: {:.4f}'.format(epoch, test_acc))
         end = time.time()
         print('Time: ' + str(end - start))
