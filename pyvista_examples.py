@@ -24,8 +24,8 @@ surf_faces = pv.PolyData(mesh.points, mesh.faces)
 surf_points = pv.PolyData(mesh.points)
 
 
-surf_points['values'] = mesh.get_array(3)
-surf_faces['values'] = mesh.get_array(4)
+surf_points['values'] = mesh.get_array(0)
+surf_faces['values'] = mesh.get_array(0)
 
 surf_points.plot(eye_dome_lighting=True, render_points_as_spheres=True)
 surf_faces.plot(eye_dome_lighting=True, show_edges=False)
