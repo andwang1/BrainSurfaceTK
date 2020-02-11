@@ -3,6 +3,8 @@ import torch
 from data.base_dataset import BaseDataset
 from util.util import is_mesh_file, pad
 from models.layers.mesh import Mesh
+import pickle
+import re
 
 class ClassificationData(BaseDataset):
 
@@ -12,9 +14,21 @@ class ClassificationData(BaseDataset):
         self.device = torch.device('cuda:{}'.format(opt.gpu_ids[0])) if opt.gpu_ids else torch.device('cpu')
         self.root = opt.dataroot
         self.dir = os.path.join(opt.dataroot)
-        self.classes, self.class_to_idx = self.find_classes(self.dir)
-        self.paths = self.make_dataset_by_class(self.dir, self.class_to_idx, opt.phase)
-        self.nclasses = len(self.classes)
+
+        if opt.dataset_mode == 'regression':
+            self.load_patient_age_dict()
+            print("1", self.class_to_idx)
+        else:
+            # ORIG CODE
+            self.classes, self.class_to_idx = self.find_classes(self.dir)
+
+        self.paths = self.make_dataset_by_class(self.dir, self.class_to_idx, opt.phase, opt.dataset_mode, self.retrieve_patient_and_session)
+        # ORIG CODE
+        if opt.dataset_mode == 'regression':
+            self.nclasses = 1
+        else:
+            self.nclasses = len(self.classes)
+
         self.size = len(self.paths)
         self.get_mean_std()
         # modify for network later.
@@ -44,7 +58,7 @@ class ClassificationData(BaseDataset):
         return classes, class_to_idx
 
     @staticmethod
-    def make_dataset_by_class(dir, class_to_idx, phase):
+    def make_dataset_by_class(dir, class_to_idx, phase, dataset_mode, retrieve_patient_func):
         meshes = []
         dir = os.path.expanduser(dir)
         for target in sorted(os.listdir(dir)):
@@ -55,6 +69,23 @@ class ClassificationData(BaseDataset):
                 for fname in sorted(fnames):
                     if is_mesh_file(fname) and (root.count(phase)==1):
                         path = os.path.join(root, fname)
-                        item = (path, class_to_idx[target])
+                        if dataset_mode == 'regression':
+                            # needs filename starting with CCblabla_SESSID
+                            item = (path, class_to_idx[retrieve_patient_func(fname)])
+                        else:
+                            item = (path, class_to_idx[target])
+                        # item = (path, class_to_idx[target])
                         meshes.append(item)
         return meshes
+
+    def retrieve_patient_and_session(self, fname):
+        # re_pattern = "(\w+)_(\d+)_\w+\.obj"
+        re_pattern = "(\w+)_(\d+)\.obj"
+        result = re.search(re_pattern, fname)
+        patient_name = result.group(1)
+        session_name = result.group(2)
+        return patient_name + "_" + session_name
+
+    def load_patient_age_dict(self):
+        with open(r"/vol/biomedic2/aa16914/shared/MScAI_brain_surface/andy/patient_to_age.pk", "rb") as f:
+            self.class_to_idx = pickle.load(f)

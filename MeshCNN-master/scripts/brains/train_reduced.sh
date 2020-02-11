@@ -16,3 +16,4 @@ python train.py \
 --num_aug 1 \
 --niter_decay 100 \
 --verbose_plot \
+--dataset_mode regression \
