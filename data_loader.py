@@ -166,14 +166,14 @@ class OurDataset(InMemoryDataset):
 
                 # classes[meta_data[:, 1][idx]] returns class_num from classes using key (e.g. 'female' -> 1)
                 # TODO: Comment on this please (or ideally simplify the indexing by including this in a separate function)
-                if self.classification:
+                if self.task == 'classification':
                     if self.add_birth_weight:
                         y = torch.tensor(
                             [[self.classes[meta_data[:, self.meta_column_idx][idx]], float(meta_data[:, 4][idx])]])
                     else:
                         y = torch.tensor([self.classes[meta_data[:, self.meta_column_idx][idx]]])
 
-                elif self.segmentation:
+                elif self.task == 'segmentation':
                     if self.add_birth_weight:
                         pass
                     else:
