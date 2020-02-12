@@ -80,7 +80,7 @@ class Net(torch.nn.Module):
 
         self.lin1 = torch.nn.Linear(128, 128)
         self.lin2 = torch.nn.Linear(128, 64)
-        print(num_classes)
+        print('Initialising the last layer with ', num_classes, 'outputs.')
         self.lin3 = torch.nn.Linear(64, num_classes)
 
     def forward(self, data):
@@ -91,7 +91,7 @@ class Net(torch.nn.Module):
 
         fp3_out = self.fp3_module(*sa3_out, *sa2_out)
         fp2_out = self.fp2_module(*fp3_out, *sa1_out)
-        x, _, _ = self.fp1_module(*fp2_out, *sa0_out) # <--- ERROR
+        x, _, _ = self.fp1_module(*fp2_out, *sa0_out)
 
 
         x = F.relu(self.lin1(x))
@@ -176,13 +176,6 @@ def train():
         # print(out)
         # print(out.shape)
         # print(data.y)
-        d = data.pos.cpu().detach().numpy()
-        _y = data.y.cpu().detach().numpy()
-        _out = out.max(dim=1)[1].cpu().detach().numpy()
-        # plot(d, _y, _out)
-
-        with open('data.pkl', 'wb') as file:
-            pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
 
 
         loss = F.nll_loss(out, data.y)
@@ -209,6 +202,15 @@ def test(loader):
         with torch.no_grad():
             out = model(data)
         pred = out.max(dim=1)[1]
+
+        d = data.pos.cpu().detach().numpy()
+        _y = data.y.cpu().detach().numpy()
+        _out = out.max(dim=1)[1].cpu().detach().numpy()
+        # plot(d, _y, _out)
+
+        with open('data.pkl', 'wb') as file:
+            pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
+
         correct_nodes += pred.eq(data.y).sum().item()
         total_nodes += data.num_nodes
         i, u = i_and_u(pred, data.y, test_dataset.num_classes, data.batch)
@@ -236,14 +238,16 @@ def test(loader):
 
 if __name__ == '__main__':
 
-    category = 'Airplane'
-    path = osp.join(osp.dirname(osp.realpath(__file__)), '..', 'data', 'ShapeNet')
+    # category = 'Airplane'
+    # path = osp.join(osp.dirname(osp.realpath(__file__)), '..', 'data', 'ShapeNet')
+
     transform = T.Compose([
         T.RandomTranslate(0.01),
         T.RandomRotate(15, axis=0),
         T.RandomRotate(15, axis=1),
         T.RandomRotate(15, axis=2)
     ])
+
     pre_transform = T.NormalizeScale()
 
     # train_dataset = ShapeNet(path, category, transform=transform,
@@ -279,8 +283,8 @@ if __name__ == '__main__':
                                data_folder=None, add_birth_weight=False, add_features=False)
 
     # TODO: EXPERIMENT WITH BATCH_SIZE AND NUM_WORKERS
-    train_loader = DataLoader(train_dataset, batch_size=1, shuffle=True, num_workers=1)
-    test_loader = DataLoader(test_dataset, batch_size=1, shuffle=True, num_workers=1)
+    train_loader = DataLoader(train_dataset, batch_size=4, shuffle=True, num_workers=4)
+    test_loader = DataLoader(test_dataset, batch_size=4, shuffle=True, num_workers=4)
 
     if not torch.cuda.is_available():
         print('YOU ARE RUNNING ON A CPU!!!!')
@@ -291,7 +295,7 @@ if __name__ == '__main__':
     model = Net(18).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-    for epoch in range(1, 5):
+    for epoch in range(1, 10):
         train()
         # acc, iou = test(test_loader)
         acc = test(test_loader)
