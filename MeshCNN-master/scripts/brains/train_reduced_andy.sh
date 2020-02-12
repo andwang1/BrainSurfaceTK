@@ -5,7 +5,6 @@ python3 train.py \
 --dataroot datasets/brains_reduced_90_gender \
 --name brains \
 --epoch_count 1 \
---niter 100 \
 --batch_size 1 \
 --ncf 64 128 256 256 \
 --pool_res 6000 4500 3000 1800 \
