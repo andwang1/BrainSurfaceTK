@@ -1,21 +1,22 @@
 import os
 import os.path as osp
 
-# import numpy as np
+import numpy as np
+import pandas as pd
 import pyvista as pv
 
 from read_meta import read_meta
 import torch
 from torch_geometric.data import InMemoryDataset
-from torch_geometric.io import read_off
+from sklearn.model_selection import train_test_split
 from torch_geometric.data import DataLoader
 from torch_geometric.data import Data
 
 
 class OurDataset(InMemoryDataset):
     def __init__(self, root, task='classification', target_class='gender', train=True, transform=None,
-                        pre_transform=None, pre_filter=None, data_folder=None, add_birth_weight=False,
-                        add_features=True):
+                        pre_transform=None, pre_filter=None, data_folder=None, add_features=True, local_features=[],
+                        global_feature=[], files_ending=None, test_size=0.1, random_state=42, reprocess=False):
         '''
         Creates a Pytorch dataset from the .vtk/.vtp brain data.
 
@@ -27,39 +28,52 @@ class OurDataset(InMemoryDataset):
         :param pre_transform: Pre-transformation applied
         :param pre_filter: Pre-filter applied
         :param data_folder: Path to the data folder with the dataset
-        :param add_birth_weight: If true, includes birth weight as a feature
         :param add_features: If true, adds all features from .vtp/.vtk files to x in Dataset
+        :param test_size: relative size of the training set
+        :param random_state: Random seed for recreating results
+        :param reprocess: Flag to reprocess the data even if it was processed before and saved in the root folder.
+        :param local_features: Local features that should be added to every point.
+        :param global_feature: Global features that should be added to the label for later use.
         '''
 
         # Train, test, validation
         self.train = train
-
-        # Initialise rooth path
-        root += '/' + target_class
+        self.test_size = test_size
+        self.random_state = random_state
 
         # Metadata categories
         self.categories = {'gender': 2, 'birth_age': 3, 'weight': 4, 'scan_age': 6, 'scan_num': 7}
         self.meta_column_idx = self.categories[target_class]
 
-        #
+        # Classes dict. Populated later. Saved in case you need to look this up.
         self.classes = dict()
+
+        # Mapping between features and array number in the files.
+        self.feature_arrays = {'drawem': 0, 'corr_thickness': 1, 'myelin_map': 2, 'curvature': 3, 'sulc': 4}
 
         # The task at hand
         self.task = task
 
         # Additional global features
-        self.add_birth_weight = add_birth_weight  # TODO: ADD OTHER FEATURES
+        self.local_features = local_features
+        self.global_feature = global_feature
 
         # Other useful variables
         self.add_features = add_features
         self.unique_labels = []
         self.num_labels = 0
+        self.reprocess = reprocess
 
         # Initialise path to data
         if data_folder is None:
             self.data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_fsavg32k/reduced_50/vtk/inflated"
         else:
             self.data_folder = data_folder
+
+        if files_ending is None:
+            self.files_ending = "_hemi-L_inflated_reduce50.vtk"
+        else:
+            self.files_ending = files_ending
 
         super(OurDataset, self).__init__(root, transform, pre_transform, pre_filter)
 
@@ -78,7 +92,12 @@ class OurDataset(InMemoryDataset):
 
     @property
     def processed_file_names(self):
-        '''A list of files in the processed_dir which needs to be found in order to skip the processing.'''
+        '''A list of files in the processed_dir which needs to be found in order to skip the processing.
+        if self.reprocess, doesn't skip processing'''
+
+        if self.reprocess:
+            return ['training.pt', 'test.pt', 'a']
+
         return ['training.pt', 'test.pt']
 
 
@@ -96,32 +115,104 @@ class OurDataset(InMemoryDataset):
             torch.save(self.process_set(), self.processed_paths[1])
 
 
-    def get_file_path(self, patient_id, session_id, extension='vtp'):
+    def get_file_path(self, patient_id, session_id):
 
-        # repo = "/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/sub-" \
-        #        + patient_id + "/ses-" + session_id + "/anat/vtp"
-        #
-        # file_name = "sub-" + patient_id + "_ses-" + session_id \
-        #         + "_hemi-L_space-dHCPavg32k_inflated_drawem_thickness_thickness_curvature_sulc_myelinmap_myelinmap."\
-        #         + extension
-
-        repo = self.data_folder
-        file_name = "sub-" + patient_id +"_ses-" + session_id + "_hemi-L_inflated_reduce50.vtk"
-        file_path = repo + '/' + file_name
+        file_name = "sub-" + patient_id +"_ses-" + session_id + self.files_ending
+        file_path = self.data_folder + '/' + file_name
 
         return file_path
 
 
-    def process_set(self):
+    def get_features(self, list_features, mesh):
+        '''Returns tensor of features to add in every point.
+        :param list_features: list of features to add. Mapping is in self.feature_arrays
+        :param mesh: pyvista mesh from which to get the arrays.
+        :returns: tensor of features or None if list is empty.'''
+        # TODO: ASK AMIR TO SORT THAT DRAWEM CLASS IMBALANCE OUT
 
+        # Very ugly workaround about some classes not being in some data.
+        list_of_drawem_labels = [0, 5, 7, 9, 11, 13, 15, 21, 22, 23, 25, 27, 29, 31, 33, 35, 37, 39]
+
+        if list_features:
+
+            if 'drawem' in list_features:
+                one_hot_drawem = pd.get_dummies(mesh.get_array(self.feature_arrays['drawem']))
+
+                new_df = pd.DataFrame()
+                for label in list_of_drawem_labels:
+                    if label not in one_hot_drawem.columns:
+                        new_df[label] = 0
+                    else:
+                        new_df[label] = one_hot_drawem[label]
+
+                one_hot_drawem = new_df.to_numpy()
+
+                drawem_list = [one_hot_drawem[:, i] for i in range(one_hot_drawem.shape[1])]
+
+            else:
+                drawem_list = []
+
+            features = [mesh.get_array(self.feature_arrays[key]) for key in self.feature_arrays if key != 'drawem']
+
+            return torch.tensor(features + drawem_list).t()
+        else:
+            return None
+
+    def get_global_features(self, list_features, meta_data, patient_idx):
+        '''Returns list of global features to add to label, later to be used in fully connected layers.
+        :param list_features: list of features to add. Mapping is in self.categories
+        :param meta_data: meta_data.
+        :param patient_idx: index of the patient from the metadata.
+        :return list: list of features from meta data.'''
+
+        return [float(meta_data[patient_idx, self.categories[feature]]) for feature in list_features]
+
+    def split_data(self, meta_data):
+        '''Split data into training and testing maintaining the same distribution for labels. Splitting is done
+        based on the task and the target labels.
+        :param meta_data: meta_data that is going to be split.
+        :returns: Train or test meta_data.'''
+        if self.task == 'regression':
+            _, bins = np.histogram(meta_data[:, self.meta_column_idx].astype(float), bins='doane')
+            y_binned = np.digitize(meta_data[:, self.meta_column_idx].astype(float), bins)
+
+            X_train, X_test, y_train, y_test = train_test_split(meta_data, meta_data[:, self.meta_column_idx],
+                                                                test_size=self.test_size,
+                                                                random_state=self.random_state,
+                                                                stratify=y_binned)
+        else:
+            X_train, X_test, y_train, y_test = train_test_split(meta_data, meta_data[:, self.meta_column_idx],
+                                                                test_size=self.test_size,
+                                                                random_state=self.random_state,
+                                                                stratify=meta_data[:, self.meta_column_idx])
+        if self.train:
+            return X_train
+        else:
+            return X_test
+
+    def clean_data(self, meta_data):
+        '''Cleans the meta_data. Removes rows in the data that we don't have files from.
+        :param meta_data: meta data.
+        :return data: cleaned version of meta data'''
+        data = meta_data.copy()
+
+        for idx, patient_id in enumerate(meta_data[:, 0]):
+            file_path = self.get_file_path(patient_id, meta_data[idx, 1])
+            if os.path.isfile(file_path):
+                data = np.delete(meta_data, idx, 0)
+
+        return data
+
+    def process_set(self):
+        '''Reads and processes the data. Collates the processed data which is later saved.'''
         # 0. Get meta data
         meta_data = read_meta()
 
-        # 0. Get patient id number and label columns (0 = patient id, meta_column_idx = label column (eg. sex))
-        if self.train:  # TODO: MAKE SPLIT CORRECTLY (ACCORDING TO INPUT IN PERCENTAGE). NOW TESTING == TRAINING
-            meta_data = meta_data[80:, :]
-        else:
-            meta_data = meta_data[:80, :]
+        # Cleaning data. Dropping rows, that we don't have files for.
+        meta_data = self.clean_data(meta_data)
+
+        # Splitting data.
+        meta_data = self.split_data(meta_data)
 
         # 1. Initialise the variables
         data_list = []
@@ -142,85 +233,51 @@ class OurDataset(InMemoryDataset):
 
                 mesh = pv.read(file_path)
 
-                # Get points and faces
+                # Get points
                 points = torch.tensor(mesh.points)
+                # Get faces
                 n_faces = mesh.n_cells
                 faces = mesh.faces.reshape((n_faces, -1))
                 faces = torch.tensor(faces[:, 1:].transpose())
 
-                # Features # TODO: ADD ALL THE FEATURES THAT ARE NEEDED.
-                x = None
+                # Features
+                x = self.get_features(self.local_features, mesh)
 
-                if self.add_features:
-                    corr_thickness = mesh.get_array(1)
-                    curvature = mesh.get_array(3)
-                    drawem = mesh.get_array(0)
-                    sulc = mesh.get_array(4)
-                    smoothed_myelin_map = mesh.get_array(2)
-                    # myelinMap = torch.tensor(mesh.get_array(6))
-                    # array_2 = torch.tensor(mesh.get_array(2))
+                # Global features
+                global_x = self.get_global_features(self.global_feature, meta_data, idx)
 
-                    # Which features to add
-                    x = torch.tensor([corr_thickness, curvature, drawem, sulc, smoothed_myelin_map]).t()
-
-
-                # classes[meta_data[:, 1][idx]] returns class_num from classes using key (e.g. 'female' -> 1)
-                # TODO: Comment on this please (or ideally simplify the indexing by including this in a separate function)
+                # Generating label based on the task. By default regression.
                 if self.task == 'classification':
-                    if self.add_birth_weight:
-                        y = torch.tensor(
-                            [[self.classes[meta_data[:, self.meta_column_idx][idx]], float(meta_data[:, 4][idx])]])
-                    else:
-                        y = torch.tensor([self.classes[meta_data[:, self.meta_column_idx][idx]]])
+                    y = torch.tensor([[self.classes[meta_data[idx, self.meta_column_idx]]] + global_x])
 
                 elif self.task == 'segmentation':
-                    if self.add_birth_weight:
-                        pass
-                    else:
-                        y = torch.tensor(drawem)
-                        y = y.unique(return_inverse=True)[1].squeeze(0)
-                        self.unique_labels.append(y.unique())
+                    y = torch.tensor(mesh.get_array(0))
+                    y = y.unique(return_inverse=True)[1].squeeze(0)
+                    self.unique_labels.append(y.unique())
 
                 # Else, regression
                 else:
-                    if self.add_birth_weight:
-                        y = torch.tensor(
-                            [[float(meta_data[:, self.meta_column_idx][idx]), float(meta_data[:, 4][idx])]])
-                    else:
-                        y = torch.tensor([[float(meta_data[:, self.meta_column_idx][idx])]])
+                    y = torch.tensor([[float(meta_data[idx, self.meta_column_idx])] + global_x])
 
                 # Create a data object and add to data_list
                 data = Data(x=x, pos=points, y=y, face=faces)
                 data_list.append(data)
 
-            else:
-                continue
-
-            #  KEEPING FOR NOW. Reading .obj files
-            # Create path to file. _L_pial for now.
-            # path = self.data_folder + patient_id + '_L_pial' +'.off'
-            #
-            # # Try read patient data
-            # if os.path.isfile(path):
-            #     data = read_off(path)
-            #     data.y = torch.tensor([self.classes[meta_data[:, 2][idx]]])   # classes[meta_data[:, 1][idx]] returns class_num from classes using key (e.g. 'female' -> 1)
-            #
-            #     data_list.append(data)
-            # else:
-            #     continue
-
-        # Attempt any pre-processing that is required
+        # Do any pre-processing that is required
         if self.pre_filter is not None:
             data_list = [d for d in data_list if self.pre_filter(d)]
 
         if self.pre_transform is not None:
             data_list = [self.pre_transform(d) for d in data_list]
 
-        # Get a set of unique labels (already standardized)
-        self.unique_labels = torch.cat(self.unique_labels).unique()
+        # Keeping information to look up later.
+        if self.task == 'segmentation':
 
-        # Get the number of unique labels
-        self.num_labels = len(self.unique_labels)
+            # Get a set of unique labels (already standardized)
+            self.unique_labels = torch.cat(self.unique_labels).unique()
+
+            # Get the number of unique labels
+            self.num_labels = len(self.unique_labels)
 
         return self.collate(data_list)
 
@@ -233,9 +290,18 @@ if __name__ == '__main__':
     # Transformations, scaling and sampling 102 points (doesn't sample faces).
     pre_transform, transform = None, None  # T.NormalizeScale(), T.SamplePoints(1024) #T .FixedPoints(1024)
 
-    myDataset = OurDataset(path, train=True, transform=transform, pre_transform=pre_transform, label_class='scan_age', classification=False)
+    myDataset = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform,
+                           target_class='scan_age', task='regression', reprocess=True,
+                           local_features=['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc']
+                           , global_feature=['weight'])
+
+    myDataset2 = OurDataset(path, train=True, transform=transform, pre_transform=pre_transform,
+                           target_class='scan_age', task='regression',
+                           local_features=['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc']
+                           , global_feature=['weight'])
 
     print(myDataset)
+    print(myDataset2)
 
     train_loader = DataLoader(myDataset, batch_size=1, shuffle=False)
 
@@ -243,10 +309,10 @@ if __name__ == '__main__':
 
      # Printing dataset without sampling points. Will include faces.
     for i, (batch, face, pos, x, y) in enumerate(train_loader):
-        # print(batch)
-        # print(face[1].t())
-        # print(pos)
-        # print(x)
-        print(y[1][0])
+        print(batch)
+        print(face)
+        print(pos)
+        print(x)
+        print(y)
         print('_____________')
         break
