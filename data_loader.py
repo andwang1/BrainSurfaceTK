@@ -240,27 +240,11 @@ class OurDataset(InMemoryDataset):
                 faces = mesh.faces.reshape((n_faces, -1))
                 faces = torch.tensor(faces[:, 1:].transpose())
 
-<<<<<<< HEAD
                 # Features
                 x = self.get_features(self.local_features, mesh)
 
                 # Global features
                 global_x = self.get_global_features(self.global_feature, meta_data, idx)
-=======
-                # Features # TODO: ADD ALL THE FEATURES THAT ARE NEEDED.
-                x = None
-                corr_thickness = mesh.get_array(1)
-                curvature = mesh.get_array(3)
-                drawem = mesh.get_array(0)
-                sulc = mesh.get_array(4)
-                smoothed_myelin_map = mesh.get_array(2)
-                # myelinMap = torch.tensor(mesh.get_array(6))
-                # array_2 = torch.tensor(mesh.get_array(2))
-
-                if self.add_features:
-                    # Which features to add
-                    x = torch.tensor([corr_thickness, curvature, sulc, smoothed_myelin_map]).t()
->>>>>>> 7c12b8ded28386053ac48807ec81778da6ffef61
 
                 # Generating label based on the task. By default regression.
                 if self.task == 'classification':
