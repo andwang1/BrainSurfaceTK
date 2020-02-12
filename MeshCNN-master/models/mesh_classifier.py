@@ -115,9 +115,9 @@ class ClassifierModel:
             pred_class = out.data.max(1)[1]
             label_class = self.labels
             self.export_segmentation(pred_class.cpu())
-            print('-------')
-            print('Predicted class:  ', pred_class)
-            print('Label:  ', label_class)
+            #print('-------')
+            #print('Predicted class:  ', pred_class)
+            #print('Label:  ', label_class)
             correct = self.get_accuracy(pred_class, label_class)
         return correct, len(label_class)
 
@@ -128,7 +128,8 @@ class ClassifierModel:
         elif self.opt.dataset_mode == 'segmentation':
             correct = seg_accuracy(pred, self.soft_label, self.mesh)
         elif self.opt.dataset_mode == 'regression':
-            correct = 99
+            loss = torch.nn.L1Loss()
+            correct = loss(pred, labels)
         return correct
 
     def export_segmentation(self, pred_seg):
