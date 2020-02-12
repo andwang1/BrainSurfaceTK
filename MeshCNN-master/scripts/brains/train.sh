@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-## run the training Rhys I have changed python to --> python3
 python3 train.py \
 --dataroot datasets/brains_m_f \
 --name brains \

@@ -61,7 +61,10 @@ class ClassifierModel:
         return out
 
     def backward(self, out):
-        self.loss = self.criterion(out, self.labels)
+        if self.opt.dataset_mode == "regression":
+            self.loss = self.criterion(out.view(-1), self.labels)
+        else:
+            self.loss = self.criterion(out, self.labels)
         self.loss.backward()
 
     def optimize_parameters(self):
@@ -128,8 +131,7 @@ class ClassifierModel:
         elif self.opt.dataset_mode == 'segmentation':
             correct = seg_accuracy(pred, self.soft_label, self.mesh)
         elif self.opt.dataset_mode == 'regression':
-            loss = torch.nn.L1Loss()
-            correct = loss(pred, labels)
+            correct = torch.nn.functional.l1_loss(pred, labels)
         return correct
 
     def export_segmentation(self, pred_seg):

@@ -17,7 +17,6 @@ class ClassificationData(BaseDataset):
 
         if opt.dataset_mode == 'regression':
             self.load_patient_age_dict()
-            print("1", self.class_to_idx)
         else:
             # ORIG CODE
             self.classes, self.class_to_idx = self.find_classes(self.dir)
@@ -74,12 +73,10 @@ class ClassificationData(BaseDataset):
                             item = (path, class_to_idx[retrieve_patient_func(fname)])
                         else:
                             item = (path, class_to_idx[target])
-                        # item = (path, class_to_idx[target])
                         meshes.append(item)
         return meshes
 
     def retrieve_patient_and_session(self, fname):
-        # re_pattern = "(\w+)_(\d+)_\w+\.obj"
         re_pattern = "(\w+)_(\d+)\.obj"
         result = re.search(re_pattern, fname)
         patient_name = result.group(1)
