@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ## run the training
-python train.py \
+python3 train.py \
 --dataroot datasets/brains_reduced_90_gender \
 --name brains \
 --epoch_count 5 \
