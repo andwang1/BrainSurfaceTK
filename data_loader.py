@@ -16,7 +16,8 @@ from torch_geometric.data import Data
 class OurDataset(InMemoryDataset):
     def __init__(self, root, task='classification', target_class='gender', train=True, transform=None,
                         pre_transform=None, pre_filter=None, data_folder=None, add_features=True, local_features=[],
-                        global_feature=[], files_ending=None, test_size=0.1, random_state=42, reprocess=False):
+                        global_feature=[], files_ending=None, test_size=0.1, random_state=42, reprocess=False,
+                        val_size=-1.0, val=False):
         '''
         Creates a Pytorch dataset from the .vtk/.vtp brain data.
 
@@ -34,12 +35,16 @@ class OurDataset(InMemoryDataset):
         :param reprocess: Flag to reprocess the data even if it was processed before and saved in the root folder.
         :param local_features: Local features that should be added to every point.
         :param global_feature: Global features that should be added to the label for later use.
+        :param val_size: size of the validation set (fraction of the remaining training data after train/test split).
+               IF THIS IS NOT ZERO, THE PROCESSING IS DONE FOR VALIDATION SET.
         '''
 
         # Train, test, validation
         self.train = train
         self.test_size = test_size
         self.random_state = random_state
+        self.val_size = val_size
+        self.val = val
 
         # Metadata categories
         self.categories = {'gender': 2, 'birth_age': 3, 'weight': 4, 'scan_age': 6, 'scan_num': 7}
@@ -77,8 +82,14 @@ class OurDataset(InMemoryDataset):
 
         super(OurDataset, self).__init__(root, transform, pre_transform, pre_filter)
 
-        # Standard paths to processed data objects (train or test)
-        path = self.processed_paths[0] if train else self.processed_paths[1]
+        # Standard paths to processed data objects (train or test or val)
+
+        if self.train:
+            path = self.processed_paths[0]
+        elif self.val:
+            path = self.processed_paths[2]
+        else:
+            path = self.processed_paths[1]
 
         # If processed_paths exist, return without having to process again
         self.data, self.slices = torch.load(path)
@@ -96,9 +107,9 @@ class OurDataset(InMemoryDataset):
         if self.reprocess, doesn't skip processing'''
 
         if self.reprocess:
-            return ['training.pt', 'test.pt', 'a']
+            return ['training.pt', 'test.pt', 'validation.pt', 'a']
 
-        return ['training.pt', 'test.pt']
+        return ['training.pt', 'test.pt', 'validation.pt']
 
 
     def download(self):
@@ -109,10 +120,14 @@ class OurDataset(InMemoryDataset):
     def process(self):
         '''Processes raw data and saves it into the processed_dir.'''
         # Read data into huge `Data` list.
+
         if self.train:
             torch.save(self.process_set(), self.processed_paths[0])
         else:
-            torch.save(self.process_set(), self.processed_paths[1])
+            if self.val:
+                torch.save(self.process_set(), self.processed_paths[2])
+            else:
+                torch.save(self.process_set(), self.processed_paths[1])
 
 
     def get_file_path(self, patient_id, session_id):
@@ -172,6 +187,13 @@ class OurDataset(InMemoryDataset):
         based on the task and the target labels.
         :param meta_data: meta_data that is going to be split.
         :returns: Train or test meta_data.'''
+
+        if self.test_size == 0:
+            if self.train:
+                return meta_data
+            else:
+                raise ValueError('Test size is zero. Can not create test data')
+
         if self.task == 'regression':
             _, bins = np.histogram(meta_data[:, self.meta_column_idx].astype(float), bins='doane')
             y_binned = np.digitize(meta_data[:, self.meta_column_idx].astype(float), bins)
@@ -180,28 +202,50 @@ class OurDataset(InMemoryDataset):
                                                                 test_size=self.test_size,
                                                                 random_state=self.random_state,
                                                                 stratify=y_binned)
+            if self.val_size > 0:
+                _, bins = np.histogram(X_train[:, self.meta_column_idx].astype(float), bins='doane')
+                y_binned = np.digitize(X_train[:, self.meta_column_idx].astype(float), bins)
+
+                X_train, X_val, y_train, y_test = train_test_split(X_train, X_train[:, self.meta_column_idx],
+                                                                    test_size=self.val_size,
+                                                                    random_state=self.random_state,
+                                                                    stratify=y_binned)
+
         else:
             X_train, X_test, y_train, y_test = train_test_split(meta_data, meta_data[:, self.meta_column_idx],
                                                                 test_size=self.test_size,
                                                                 random_state=self.random_state,
                                                                 stratify=meta_data[:, self.meta_column_idx])
+            if self.validation_size > 0:
+                X_train, X_val, y_train, y_test = train_test_split(X_train, X_train[:, self.meta_column_idx],
+                                                                   test_size=self.val_size,
+                                                                   random_state=self.random_state,
+                                                                   stratify=X_train[:, self.meta_column_idx])
         if self.train:
             return X_train
         else:
-            return X_test
+            if self.val:
+                return X_val
+            else:
+                return X_test
+
 
     def clean_data(self, meta_data):
         '''Cleans the meta_data. Removes rows in the data that we don't have files from.
         :param meta_data: meta data.
         :return data: cleaned version of meta data'''
-        data = meta_data.copy()
+
+        missing_idx = []
 
         for idx, patient_id in enumerate(meta_data[:, 0]):
             file_path = self.get_file_path(patient_id, meta_data[idx, 1])
-            if os.path.isfile(file_path):
-                data = np.delete(meta_data, idx, 0)
+            if not os.path.isfile(file_path):
+                missing_idx.append(idx)
 
-        return data
+        # for idx in missing_idx:
+        meta_data = np.delete(meta_data, missing_idx, 0)
+
+        return meta_data
 
     def process_set(self):
         '''Reads and processes the data. Collates the processed data which is later saved.'''
@@ -285,34 +329,47 @@ class OurDataset(InMemoryDataset):
 if __name__ == '__main__':
 
     # Path to where the data will be saved.
-    path = osp.join(osp.dirname(osp.realpath(__file__)), '..', 'data')
+    path = osp.join(osp.dirname(osp.realpath(__file__)), '..', 'data/test_reduce')
 
+    data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_fsavg32k/reduced_90/vtk/inflated"
+    files_ending = "_hemi-L_inflated_reduce90.vtk"
     # Transformations, scaling and sampling 102 points (doesn't sample faces).
     pre_transform, transform = None, None  # T.NormalizeScale(), T.SamplePoints(1024) #T .FixedPoints(1024)
 
-    myDataset = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform,
-                           target_class='scan_age', task='regression', reprocess=True,
-                           local_features=['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc']
-                           , global_feature=['weight'])
+    # myDataset = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform,
+    #                        target_class='scan_age', task='regression', reprocess=True,
+    #                        local_features=['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc']
+    #                        , global_feature=['weight'], data_folder=data_folder, files_ending=files_ending,
+    #                        val_size=0.1, test_size=0.09)
+    #
+    # myDataset2 = OurDataset(path, train=True, transform=transform, pre_transform=pre_transform,
+    #                        target_class='scan_age', task='regression', reprocess=True,
+    #                        local_features=['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc']
+    #                        , global_feature=['weight'], data_folder=data_folder, files_ending=files_ending,
+    #                        val_size=0.1, test_size=0.09)
 
-    myDataset2 = OurDataset(path, train=True, transform=transform, pre_transform=pre_transform,
-                           target_class='scan_age', task='regression',
-                           local_features=['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc']
-                           , global_feature=['weight'])
+    myDataset3 = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform,
+                            target_class='scan_age', task='regression', reprocess=False,
+                            local_features=['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc']
+                            , global_feature=['weight'], data_folder=data_folder, files_ending=files_ending,
+                            val_size=0.1, test_size=0.09, val=True)
 
-    print(myDataset)
-    print(myDataset2)
+    # print(myDataset)
+    # print(myDataset2)
+    print(myDataset3)
+    print(myDataset3[0].x.size(1))
+    print(myDataset3[0].y.size(1))
 
-    train_loader = DataLoader(myDataset, batch_size=1, shuffle=False)
+    # train_loader = DataLoader(myDataset, batch_size=1, shuffle=False)
+    # train_loader2 = DataLoader(myDataset2, batch_size=1, shuffle=False)
+    train_loader3 = DataLoader(myDataset3, batch_size=1, shuffle=False)
 
-    print(list(train_loader))
-
-     # Printing dataset without sampling points. Will include faces.
-    for i, (batch, face, pos, x, y) in enumerate(train_loader):
-        print(batch)
-        print(face)
-        print(pos)
-        print(x)
-        print(y)
-        print('_____________')
-        break
+    #
+    #  # Printing dataset without sampling points. Will include faces.
+    # for i, (batch, face, pos, x, y) in enumerate(train_loader3):
+    #     # print(batch)
+    #     print(face[1].size())
+    #     # print(pos[1].size())
+    #     # print(x)
+    #     # print(y)
+    #     print('_____________')

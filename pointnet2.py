@@ -51,17 +51,18 @@ def MLP(channels, batch_norm=True):
 
 
 class Net(torch.nn.Module):
-    def __init__(self):
+    def __init__(self, num_local_features, num_global_features):
         super(Net, self).__init__()
+
+        self.num_global_features = num_global_features
+
         # 3+6 IS 3 FOR COORDINATES, 6 FOR FEATURES PER POINT.
-        self.sa1_module = SAModule(0.5, 0.2, MLP([3 + 22, 64, 64, 96]))
+        self.sa1_module = SAModule(0.5, 0.2, MLP([3 + num_local_features, 64, 64, 96]))
         self.sa1a_module = SAModule(0.5, 0.2, MLP([96 + 3, 96, 96, 128]))
         self.sa2_module = SAModule(0.25, 0.4, MLP([128 + 3, 128, 128, 256]))
         self.sa3_module = GlobalSAModule(MLP([256 + 3, 256, 512, 1024]))
 
-        # That +1 is for weight at birth
-        self.lin1 = Lin(1024 + 1, 512)
-        # self.lin1 = Lin(1024, 512)
+        self.lin1 = Lin(1024 + num_global_features, 512)
         self.lin2 = Lin(512, 256)
         self.lin3 = Lin(256, 128)
         self.lin4 = Lin(128, 1)  # OUTPUT = NUMBER OF CLASSES, 1 IF REGRESSION TASK
@@ -74,8 +75,9 @@ class Net(torch.nn.Module):
         sa3_out = self.sa3_module(*sa2_out)
         x, pos, batch = sa3_out
 
-        # Adding weight at birth. #  TODO: Do this properly for all the features. (Might leave it manual?)
-        x = torch.cat((x, data.y[:, 1].view(-1, 1)), 1)
+        # Concatenates global features to the inputs.
+        if self.num_global_features > 0:
+            x = torch.cat((x, data.y[:, 1:self.num_global_features+1].view(-1, self.num_global_features)), 1)
 
         x = F.relu(self.lin1(x))
         # x = F.dropout(x, p=0.5, training=self.training)
@@ -93,9 +95,7 @@ def train(epoch):
     for data in train_loader:
         data = data.to(device)
         optimizer.zero_grad()
-
         # USE F.nll_loss FOR CLASSIFICATION, F.mse_loss FOR REGRESSION.
-        # loss = F.nll_loss(model(data), data.y)
         pred = model(data)
         loss = F.mse_loss(pred, data.y[:, 0])
         loss.backward()
@@ -122,16 +122,17 @@ def test_regression(loader):
     model.eval()
 
     mse = 0
+    l1 = 0
     for data in loader:
         data = data.to(device)
         with torch.no_grad():
             pred = model(data)
-            # print(torch.sum((pred - data.y) ** 2) / len(pred))
             print(pred.t(), data.y[:, 0])
-            loss_test = F.mse_loss(pred, data.y[:, 0])
-        # mse += torch.sum((pred - data.y) ** 2) / len(pred)
-        mse += loss_test.item()
-    return mse / len(loader)
+            loss_test_mse = F.mse_loss(pred, data.y[:, 0])
+            loss_test_l1 = F.l1_loss(pred, data.y[:, 0])
+        mse += loss_test_mse.item()
+        l1 += loss_test_l1.item()
+    return mse / len(loader), l1 / len(loader)
 
 
 if __name__ == '__main__':
@@ -140,31 +141,37 @@ if __name__ == '__main__':
     lr = 0.001
     batch_size = 8
     num_workers = 2
-    add_birth_weight = True
-    # Additional comments
-    comment = "Deeper_network_ALL_THE_POINTS"
 
     local_features = ['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc']
-    global_feature = ['weight']
+    global_features = ['weight']
     target_class = 'scan_age'
     task = 'regression'
-    number_of_points = 600
+    number_of_points = 12000
 
+    test_size = 0.09
+    val_size = 0.1
+    reprocess = True
+
+    data = "reduced_50"
+    type_data = "inflated"
+
+    comment = "LR_" + str(lr) \
+            + "_BATCH_" + str(batch_size) \
+            + "_NUM_WORKERS_" + str(num_workers)\
+            + "_local_features_" + str(local_features)\
+            + "_glogal_features_" + str(global_features) \
+            + "number_of_points" + str(number_of_points)\
+            + data + "_" + type_data
 
     # Tensorboard writer.
-    writer = SummaryWriter(comment="LR_"+str(lr)+"_BATCH_"+str(batch_size)
-                                   +"_NUM_WORKERS_"+str(num_workers)+"_ADD_BIRTH_WEIGHT_"
-                                   +str(add_birth_weight)+"_Comment_"+comment)
+    writer = SummaryWriter(comment=comment)
 
-    print("LR_"+str(lr)+"_BATCH_"+str(batch_size)
-                                   +"_NUM_WORKERS_"+str(num_workers)+"_ADD_BIRTH_WEIGHT_"
-                                   +str(add_birth_weight)+"_Comment_"+comment)
+    print(comment)
 
     path = osp.join(
-        osp.dirname(osp.realpath(__file__)), '..', 'data/'+target_class)
+        osp.dirname(osp.realpath(__file__)), '..', 'data/'+target_class+'/Reduced50/inflated')
 
     # DEFINE TRANSFORMS HERE.
-    # 32492
     transform = T.Compose([
         T.FixedPoints(number_of_points)
     ])
@@ -172,38 +179,52 @@ if __name__ == '__main__':
     # TRANSFORMS DONE BEFORE SAVING THE DATA IF THE DATA IS NOT YET PROCESSED.
     pre_transform = T.NormalizeScale()
 
+    # Creating datasets and dataloaders for train/test/val.
     train_dataset = OurDataset(path, train=True, transform=transform, pre_transform=pre_transform,
-                                                 target_class=target_class, task=task, reprocess=False,
-                                                 local_features=local_features, global_feature=global_feature,
-                                                 test_size=0.1)
+                                                 target_class=target_class, task=task, reprocess=reprocess,
+                                                 local_features=local_features, global_feature=global_features,
+                                                 test_size=test_size, val_size=val_size, val=False)
 
     test_dataset = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform,
-                                                 target_class=target_class, task=task, reprocess=False,
-                                                 local_features=local_features, global_feature=global_feature,
-                                                 test_size=0.1)
+                                                 target_class=target_class, task=task, reprocess=reprocess,
+                                                 local_features=local_features, global_feature=global_features,
+                                                 test_size=test_size, val_size=val_size, val=False)
+
+    validation_dataset = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform,
+                                                 target_class=target_class, task=task, reprocess=reprocess,
+                                                 local_features=local_features, global_feature=global_features,
+                                                 test_size=test_size, val_size=val_size, val=True)
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+    val_loader = DataLoader(validation_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+
+    # Getting the number of features to adapt the architecture
+    numb_local_features = train_dataset[0].x.size(1)
+    numb_global_features = train_dataset[0].y.size(1) - 1
 
     if not torch.cuda.is_available():
         print('YOU ARE RUNNING ON A CPU!!!!')
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = Net().to(device)
+    model = Net(numb_local_features, numb_global_features).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     # MAIN TRAINING LOOP
-    for epoch in range(1, 21):
+    for epoch in range(1, 51):
         start = time.time()
         train(epoch)
-        test_acc = test_regression(test_loader)
+        test_mse, test_l1 = test_regression(val_loader)
 
-        writer.add_scalar('Loss/test', test_acc, epoch)
+        writer.add_scalar('Loss/val_mse', test_mse, epoch)
+        writer.add_scalar('Loss/val_l1', test_l1, epoch)
 
-        print('Epoch: {:03d}, Test: {:.4f}'.format(epoch, test_acc))
+        print('Epoch: {:03d}, Test loss l1: {:.4f}'.format(epoch, test_l1))
         end = time.time()
         print('Time: ' + str(end - start))
         writer.add_scalar('Time/epoch', end - start, epoch)
+
+    writer.add_scalar('Final Test Loss (L1)', test_regression(test_loader))
 
     # save the model
     torch.save(model.state_dict(), 'model' + comment + '.pt')
