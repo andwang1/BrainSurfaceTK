@@ -4,9 +4,9 @@
 python3 train.py \
 --dataroot datasets/brains_reduced_90_gender \
 --name brains \
---epoch_count 5 \
---niter 20 \
---batch_size 1 \
+--epoch_count 1 \
+--niter 5 \
+--batch_size 14 \
 --ncf 64 128 256 256 \
 --pool_res 6000 4500 3000 1800 \
 --norm group \
@@ -17,3 +17,5 @@ python3 train.py \
 --niter_decay 100 \
 --verbose_plot \
 --dataset_mode regression \
+--print_freq 14 \
+

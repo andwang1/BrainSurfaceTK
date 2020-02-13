@@ -52,12 +52,53 @@ class BaseDataset(data.Dataset):
             self.ninput_channels = transform_dict['ninput_channels']
 
 
+#def collate_fn(batch):
+#    """Creates mini-batch tensors
+#    We should build custom collate_fn rather than using default collate_fn
+#    """
+#    # print("ENTER")
+#    meta = {}
+#    keys = batch[0].keys()
+#    # print(batch[0]['edge_features'].shape)
+#    # print(batch[1]['edge_features'].shape)
+#    # print("BATCH", batch)
+#    # print(batch[0]['edge_features'])
+#    # print(batch[1]['edge_features'])
+#    for key in keys:
+#        if key=='edge_features':
+#            arrays = []
+#            for d in batch:
+#                if d[key].shape[-1] != batch[0][key].shape[-1]:
+#                    continue
+#                arrays.append(d[key])
+#            meta.update({key: np.array(arrays)})
+#        else:
+#            meta.update({key: np.array([d[key] for d in batch])})
+#
+#
+#        #meta.update({key: np.array([d[key] for d in batch])})
+#        #print('~~~~~~~~~~~~~~~~')
+#        #print(len(meta))
+#        #print(len(key))
+#        #print([d[key] for d in batch])
+#        #[print(type(d[key])) for d in batch]
+# #       meta.update({key: np.array([d[key] for d in batch])})
+#    # print("META", meta)
+#    # print("LEAVE")
+#    return meta
+
 def collate_fn(batch):
     """Creates mini-batch tensors
     We should build custom collate_fn rather than using default collate_fn
     """
+    # print("ENTER")
     meta = {}
     keys = batch[0].keys()
+    # print(batch[0]['edge_features'].shape)
+    # print(batch[1]['edge_features'].shape)
+    # print("BATCH", batch)
+    # print(batch[0]['edge_features'])
+    # print(batch[1]['edge_features'])
     for key in keys:
         #meta.update({key: np.array([d[key] for d in batch])})
         #print('~~~~~~~~~~~~~~~~')
@@ -65,5 +106,13 @@ def collate_fn(batch):
         #print(len(key))
         #print([d[key] for d in batch])
         #[print(type(d[key])) for d in batch]
-        meta.update({key: np.array([d[key] for d in batch])})
+        # handling not matching uneven batch element array lengths
+        try:
+            meta.update({key: np.array([d[key] for d in batch])})
+        except ValueError as v:
+            print(v)
+            print([d[key].shape for d in batch])
+    # print("META", meta)
+    # print("LEAVE")
     return meta
+

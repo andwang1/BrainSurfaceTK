@@ -62,6 +62,7 @@ class ClassifierModel:
 
     def backward(self, out):
         if self.opt.dataset_mode == "regression":
+            # print("OUTPUT", out.view(-1), "LABEL", self.labels)
             self.loss = self.criterion(out.view(-1), self.labels)
         else:
             self.loss = self.criterion(out, self.labels)
@@ -114,8 +115,12 @@ class ClassifierModel:
         """
         with torch.no_grad():
             out = self.forward()
+            print("TESTOUTPUT", out.view(-1), "TESTLABELS", self.labels)
             # compute number of correct
-            pred_class = out.data.max(1)[1]
+            if self.opt.dataset_mode == 'regression':
+                pred_class = out.view(-1)
+            else:
+                pred_class = out.data.max(1)[1]
             label_class = self.labels
             self.export_segmentation(pred_class.cpu())
             #print('-------')

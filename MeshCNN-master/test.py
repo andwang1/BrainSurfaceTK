@@ -8,6 +8,8 @@ def run_test(epoch=-1):
     print('Running Test')
     opt = TestOptions().parse()
     opt.serial_batches = True  # no shuffle
+    # Hardcode batchsize to 1
+    opt.batch_size = 1
     dataset = DataLoader(opt)
     model = create_model(opt)
     writer = Writer(opt)
