@@ -203,6 +203,7 @@ def test(loader):
             out = model(data)
         pred = out.max(dim=1)[1]
 
+        # Get d (positions), _y (actual labels), _out (predictions)
         d = data.pos.cpu().detach().numpy()
         _y = data.y.cpu().detach().numpy()
         _out = out.max(dim=1)[1].cpu().detach().numpy()
@@ -216,22 +217,23 @@ def test(loader):
         i, u = i_and_u(pred, data.y, test_dataset.num_classes, data.batch)
         intersections.append(i.to(torch.device('cpu')))
         unions.append(u.to(torch.device('cpu')))
+
         # categories.append(data.category.to(torch.device('cpu')))
 
     # category = torch.cat(categories, dim=0)
-    # intersection = torch.cat(intersections, dim=0)
-    # union = torch.cat(unions, dim=0)
-    #
-    # ious = [[] for _ in range(len(loader.dataset.categories))]
-    # for j in range(len(loader.dataset)):
-    #     i = intersection[j, loader.dataset.y_mask[category[j]]]
-    #     u = union[j, loader.dataset.y_mask[category[j]]]
-    #     iou = i.to(torch.float) / u.to(torch.float)
-    #     iou[torch.isnan(iou)] = 1
-    #     ious[category[j]].append(iou.mean().item())
-    #
-    # for cat in range(len(loader.dataset.categories)):
-    #     ious[cat] = torch.tensor(ious[cat]).mean().item()
+    intersection = torch.cat(intersections, dim=0)
+    union = torch.cat(unions, dim=0)
+
+    ious = []
+    for j in range(len(loader.dataset)):
+        i = intersection[j, loader.dataset.y_mask[category[j]]]
+        u = union[j, loader.dataset.y_mask[category[j]]]
+        iou = i.to(torch.float) / u.to(torch.float)
+        iou[torch.isnan(iou)] = 1
+        ious[category[j]].append(iou.mean().item())
+
+    for cat in range(len(loader.dataset.categories)):
+        ious[cat] = torch.tensor(ious[cat]).mean().item()
 
     return correct_nodes / total_nodes #, torch.tensor(ious).mean().item()
 
@@ -242,7 +244,10 @@ if __name__ == '__main__':
     # path = osp.join(osp.dirname(osp.realpath(__file__)), '..', 'data', 'ShapeNet')
 
     transform = T.Compose([
-        T.RandomTranslate(0.01),
+        T.RandomTranslate(0.1),
+        T.RandomFlip(0, p=0.3),
+        T.RandomFlip(1, p=0.3),
+        T.RandomFlip(2, p=0.3),
         T.RandomRotate(15, axis=0),
         T.RandomRotate(15, axis=1),
         T.RandomRotate(15, axis=2)
@@ -250,37 +255,16 @@ if __name__ == '__main__':
 
     pre_transform = T.NormalizeScale()
 
-    # train_dataset = ShapeNet(path, category, transform=transform,
-    #                          pre_transform=pre_transform)
-    # test_dataset = ShapeNet(path, category,
-    #                         pre_transform=pre_transform)
-    # train_loader = DataLoader(train_dataset, batch_size=12, shuffle=True,
-    #                           num_workers=6)
-    # test_loader = DataLoader(test_dataset, batch_size=12, shuffle=False,
-    #                          num_workers=6)
-
     path = osp.join(
         osp.dirname(osp.realpath(__file__)), '..', 'data')
 
-    # DEFINE TRANSFORMS HERE.
-    # transform = T.Compose([
-        # T.FixedPoints(1024)
-        # T.SamplePoints(1024)  # THIS ONE DOESN'T KEEP FEATURES(x)
-    # ])
-
-    # TRANSFORMS DONE BEFORE SAVING THE DATA IF THE DATA IS NOT YET PROCESSED.
-    # pre_transform = T.NormalizeScale()
-    # pre_transform = None
-    #
-    # TODO: DEFINE TEST/TRAIN SPLIT (WHEN MORE DATA IS AVAILABLE). NOW TESTING == TRAINING
-
     train_dataset = OurDataset(path, task='segmentation', target_class='gender', train=True,
                                transform=transform, pre_transform=pre_transform, pre_filter=None,
-                               data_folder=None, add_birth_weight=False, add_features=False)
+                               data_folder=None, add_features=False)
 
     test_dataset = OurDataset(path, task='segmentation', target_class='gender', train=False,
                                transform=transform, pre_transform=pre_transform, pre_filter=None,
-                               data_folder=None, add_birth_weight=False, add_features=False)
+                               data_folder=None, add_features=False)
 
     # TODO: EXPERIMENT WITH BATCH_SIZE AND NUM_WORKERS
     train_loader = DataLoader(train_dataset, batch_size=4, shuffle=True, num_workers=4)
@@ -295,7 +279,7 @@ if __name__ == '__main__':
     model = Net(18).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-    for epoch in range(1, 10):
+    for epoch in range(1, 20):
         train()
         # acc, iou = test(test_loader)
         acc = test(test_loader)
