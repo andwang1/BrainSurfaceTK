@@ -3,6 +3,8 @@
 ## run the training
 python3 train.py \
 --dataroot datasets/brains_reduced_90_gender \
+--checkpoints_dir checkpoints/regression_models \
+--export_folder checkpoints/mesh_collapses \
 --name brains \
 --epoch_count 1 \
 --batch_size 1 \
