@@ -216,7 +216,7 @@ class OurDataset(InMemoryDataset):
                                                                 test_size=self.test_size,
                                                                 random_state=self.random_state,
                                                                 stratify=meta_data[:, self.meta_column_idx])
-            if self.validation_size > 0:
+            if self.val_size > 0:
                 X_train, X_val, y_train, y_test = train_test_split(X_train, X_train[:, self.meta_column_idx],
                                                                    test_size=self.val_size,
                                                                    random_state=self.random_state,
@@ -247,6 +247,56 @@ class OurDataset(InMemoryDataset):
 
         return meta_data
 
+
+    def get_all_unique_labels(self, meta_data):
+        '''
+        Return unique mapping of drawem features such that
+            Original: [0, 3, 5, 7, 9 ...]
+            Required: [0, 1, 2, 3, 4 ...]
+            Mapping: [0:0, 3:1, 5:2, 7:3, 9:4, ...]
+        :return: Mapping
+        '''
+        ys = []
+        lens = []
+        # 3. Iterate through all patient ids
+        for idx, patient_id in enumerate(meta_data[:, 0]):
+
+            # Get file path to .vtk/.vtp for one patient
+            file_path = self.get_file_path(patient_id, meta_data[idx, 1])
+
+            # If file exists
+            if os.path.isfile(file_path):
+
+                mesh = pv.read(file_path)
+                y = torch.tensor(mesh.get_array(0))
+                lens.append(y.size(0))
+                ys.append(y)
+
+        # Now process the uniqueness of ys
+        ys_concatenated = torch.cat(ys)
+        unique_labels = torch.unique(ys_concatenated)
+        unique_labels_normalised = unique_labels.unique(return_inverse=True)[1]
+
+        # Create the mapping
+        label_mapping = {}
+        for original, normalised in zip(unique_labels, unique_labels_normalised):
+            label_mapping[original.item()] = normalised.item()
+
+        return label_mapping
+
+
+    def normalise_labels(self, y_tensor, label_mapping):
+        '''
+        Normalises labels in the format necessary for segmentation
+        :return: tensor vector of normalised labels ([0, 3, 1, 2, 4, ...])
+        '''
+        # Having received y_tensor, use label_mapping
+        temporary_list = []
+        for y in y_tensor:
+            temporary_list.append(label_mapping[y.item()])
+        return torch.tensor(temporary_list)
+
+
     def process_set(self):
         '''Reads and processes the data. Collates the processed data which is later saved.'''
         # 0. Get meta data
@@ -254,6 +304,9 @@ class OurDataset(InMemoryDataset):
 
         # Cleaning data. Dropping rows, that we don't have files for.
         meta_data = self.clean_data(meta_data)
+
+        # Get the mapping for the entire dataset, in order to normalise DRAWEM labels for segmentation
+        label_mapping = self.get_all_unique_labels(meta_data)
 
         # Splitting data.
         meta_data = self.split_data(meta_data)
@@ -265,6 +318,13 @@ class OurDataset(InMemoryDataset):
         # 2. Create category dictionary (mapping: category --> class), e.g. 'male' --> 0, 'female' --> 1
         for class_num, category in enumerate(categories):
             self.classes[category] = class_num
+
+        # 3. These lists will collect all the information for each patient in order
+        lens = []
+        xs = []
+        poss = []
+        ys = []
+        faces_list = []
 
         # 3. Iterate through all patient ids
         for idx, patient_id in enumerate(meta_data[:, 0]):
@@ -296,16 +356,29 @@ class OurDataset(InMemoryDataset):
 
                 elif self.task == 'segmentation':
                     y = torch.tensor(mesh.get_array(0))
-                    y = y.unique(return_inverse=True)[1].squeeze(0)
-                    self.unique_labels.append(y.unique())
+
+                    # Retrieve the lengths of each label tensor (i.e. number of labelled points)
+                    lens.append(y.size(0))
 
                 # Else, regression
                 else:
                     y = torch.tensor([[float(meta_data[idx, self.meta_column_idx])] + global_x])
 
-                # Create a data object and add to data_list
-                data = Data(x=x, pos=points, y=y, face=faces)
-                data_list.append(data)
+                # Add the data to the lists
+                xs.append(x)
+                poss.append(points)
+                ys.append(y)
+                faces_list.append(faces)
+
+        # Now process the uniqueness of ys
+        ys_normalised = self.normalise_labels(torch.cat(ys), label_mapping)
+        ys = ys_normalised.split(lens)
+
+        # Now add all patient data to the list
+        for x, points, y, faces in zip(xs, poss, ys, faces_list):
+            # Create a data object and add to data_list
+            data = Data(x=x, pos=points, y=y, face=faces)
+            data_list.append(data)
 
         # Do any pre-processing that is required
         if self.pre_filter is not None:
@@ -314,14 +387,16 @@ class OurDataset(InMemoryDataset):
         if self.pre_transform is not None:
             data_list = [self.pre_transform(d) for d in data_list]
 
-        # Keeping information to look up later.
-        if self.task == 'segmentation':
-
-            # Get a set of unique labels (already standardized)
-            self.unique_labels = torch.cat(self.unique_labels).unique()
-
-            # Get the number of unique labels
-            self.num_labels = len(self.unique_labels)
+        # # Keeping information to look up later.
+        # if self.task == 'segmentation':
+        #
+        #     y = torch.cat(ys).unique(return_inverse=True)[1]
+        #
+        #     # Get a set of unique labels (already standardized)
+        #     self.unique_labels = torch.cat(self.unique_labels).unique()
+        #
+        #     # Get the number of unique labels
+        #     self.num_labels = len(self.unique_labels)
 
         return self.collate(data_list)
 
