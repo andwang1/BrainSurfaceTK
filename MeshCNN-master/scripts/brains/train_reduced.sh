@@ -3,7 +3,7 @@
 ## run the training
 python3 train.py \
 --dataroot datasets/brains_reduced_90_gender \
---checkpoints_dir checkpoints/regression_models \
+--checkpoints_dir checkpoints/classification_models \
 --export_folder checkpoints/mesh_collapses \
 --name brains \
 --epoch_count 1 \
@@ -16,4 +16,4 @@ python3 train.py \
 --slide_verts 0.2 \
 --num_aug 1 \
 --verbose_plot \
---dataset_mode regression \
+--dataset_mode classification \
