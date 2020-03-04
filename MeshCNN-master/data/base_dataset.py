@@ -58,12 +58,16 @@ def collate_fn(batch):
     """
     meta = {}
     keys = batch[0].keys()
+
     for key in keys:
-        #meta.update({key: np.array([d[key] for d in batch])})
-        #print('~~~~~~~~~~~~~~~~')
-        #print(len(meta))
-        #print(len(key))
-        #print([d[key] for d in batch])
-        #[print(type(d[key])) for d in batch]
-        meta.update({key: np.array([d[key] for d in batch])})
+        temp = [d[key] for d in batch]
+        ## have to resize number of edge features when we have different shapes - fill with zeros
+        if key == 'edge_features':
+            max_num_faces = max([t.shape[1] for t in temp])
+            [t.resize((5, max_num_faces), refcheck=False) for t in temp if t.shape[1] != max_num_faces]
+            a = np.array(temp)
+            meta.update({key: a})
+        else:
+            a = np.array(temp)
+            meta.update({key: a})
     return meta
