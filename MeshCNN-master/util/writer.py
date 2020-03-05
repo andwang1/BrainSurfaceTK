@@ -72,15 +72,19 @@ class Writer:
         """
         counts # of correct examples
         """
+        self.count = 0
         self.ncorrect = 0
         self.nexamples = 0
 
     def update_counter(self, ncorrect, nexamples):
+        self.count += 1
         self.ncorrect += ncorrect
         self.nexamples += nexamples
 
     @property
     def acc(self):
+        if self.opt.dataset_mode == "regression":
+            return self.ncorrect / self.count
         return float(self.ncorrect) / self.nexamples
 
     def close(self):

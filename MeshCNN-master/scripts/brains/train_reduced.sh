@@ -3,6 +3,8 @@
 ## run the training
 python3 train.py \
 --dataroot datasets/brains_reduced_90_gender \
+--checkpoints_dir checkpoints/regression_models \
+--export_folder checkpoints/mesh_collapses \
 --name brains \
 --epoch_count 1 \
 --niter 5 \
@@ -14,7 +16,6 @@ python3 train.py \
 --flip_edges 0.2 \
 --slide_verts 0.2 \
 --num_aug 1 \
---niter_decay 100 \
 --verbose_plot \
 --dataset_mode regression \
 --print_freq 14 \

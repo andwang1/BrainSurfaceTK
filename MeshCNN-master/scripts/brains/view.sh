@@ -2,6 +2,8 @@
 
 python3 util/mesh_viewer.py \
 --files \
-checkpoints/brains/meshes/T74_0.obj \
-checkpoints/brains/meshes/T74_3.obj \
-checkpoints/brains/meshes/T74_4.obj
+checkpoints/classification_models/brains/checkpoints/mesh_collapses/CC00170XX06_56100_0.obj \
+checkpoints/classification_models/brains/checkpoints/mesh_collapses/CC00170XX06_56100_1.obj \
+checkpoints/classification_models/brains/checkpoints/mesh_collapses/CC00170XX06_56100_2.obj \
+checkpoints/classification_models/brains/checkpoints/mesh_collapses/CC00170XX06_56100_3.obj \
+checkpoints/classification_models/brains/checkpoints/mesh_collapses/CC00170XX06_56100_4.obj

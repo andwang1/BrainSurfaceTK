@@ -121,12 +121,16 @@ class ClassifierModel:
                 pred_class = out.view(-1)
             else:
                 pred_class = out.data.max(1)[1]
+            #pred_class = self.forward()
+            # compute number of correct
+            #pred_class.reshape((pred_class.shape[0]))
             label_class = self.labels
             self.export_segmentation(pred_class.cpu())
-            #print('-------')
-            #print('Predicted class:  ', pred_class)
-            #print('Label:  ', label_class)
+            print('-------')
+            print('Predicted class:  ', pred_class)
+            print('Label:  ', label_class)
             correct = self.get_accuracy(pred_class, label_class)
+            print('Mean abs error ', correct.item())
         return correct, len(label_class)
 
     def get_accuracy(self, pred, labels):
@@ -136,7 +140,8 @@ class ClassifierModel:
         elif self.opt.dataset_mode == 'segmentation':
             correct = seg_accuracy(pred, self.soft_label, self.mesh)
         elif self.opt.dataset_mode == 'regression':
-            correct = torch.nn.functional.l1_loss(pred, labels)
+            mean_abs_err = torch.nn.functional.l1_loss(pred, labels, reduction='mean')
+            correct = mean_abs_err
         return correct
 
     def export_segmentation(self, pred_seg):

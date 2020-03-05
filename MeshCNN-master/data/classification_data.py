@@ -56,8 +56,8 @@ class ClassificationData(BaseDataset):
         class_to_idx = {classes[i]: i for i in range(len(classes))}
         return classes, class_to_idx
 
-    @staticmethod
-    def make_dataset_by_class(dir, class_to_idx, phase, dataset_mode, retrieve_patient_func):
+    # removed staticmethod
+    def make_dataset_by_class(self, dir, class_to_idx, phase, dataset_mode, retrieve_patient_func):
         meshes = []
         dir = os.path.expanduser(dir)
         for target in sorted(os.listdir(dir)):
