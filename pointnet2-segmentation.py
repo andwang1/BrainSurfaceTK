@@ -249,6 +249,7 @@ def test(loader, experiment_description, epoch=None, test=False, id=None):
         d = data.pos.cpu().detach().numpy()
         _y = data.y.cpu().detach().numpy()
         _out = out.max(dim=1)[1].cpu().detach().numpy()
+        print(len(d), end=', ')
         # plot(d, _y, _out)
 
         # 3. Create directory where to place the data
