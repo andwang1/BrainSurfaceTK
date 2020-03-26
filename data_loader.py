@@ -173,14 +173,15 @@ class OurDataset(InMemoryDataset):
         else:
             return None
 
+
     def get_global_features(self, list_features, meta_data, patient_idx):
         '''Returns list of global features to add to label, later to be used in fully connected layers.
         :param list_features: list of features to add. Mapping is in self.categories
         :param meta_data: meta_data.
         :param patient_idx: index of the patient from the metadata.
         :return list: list of features from meta data.'''
-
         return [float(meta_data[patient_idx, self.categories[feature]]) for feature in list_features]
+
 
     def split_data(self, meta_data):
         '''Split data into training and testing maintaining the same distribution for labels. Splitting is done
