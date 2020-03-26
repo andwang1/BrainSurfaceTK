@@ -236,7 +236,7 @@ def test(loader, experiment_description, epoch=None, test=False, id=None):
     correct_nodes = total_nodes = 0
     intersections, unions, categories = [], [], []
 
-    for data in loader:
+    for brain_idx, data in enumerate(loader):
 
         # 1. Get predictions and loss
         data = data.to(device)
@@ -249,7 +249,6 @@ def test(loader, experiment_description, epoch=None, test=False, id=None):
         d = data.pos.cpu().detach().numpy()
         _y = data.y.cpu().detach().numpy()
         _out = out.max(dim=1)[1].cpu().detach().numpy()
-        print(len(d), end=', ')
         # plot(d, _y, _out)
 
         # 3. Create directory where to place the data
@@ -257,7 +256,7 @@ def test(loader, experiment_description, epoch=None, test=False, id=None):
             os.makedirs('./{}/'.format(id))
 
         # 4. Save the segmented brain in ./[...comment...]/data_valiation3.pkl (3 is for epoch)
-        with open('./{}/data{}.pkl'.format(id, mode+epoch), 'wb') as file:
+        with open('./{}/data{}-{}.pkl'.format(id, mode+epoch, brain_idx), 'wb') as file:
             pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
 
         # 5. Get accuracy
