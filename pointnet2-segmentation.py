@@ -354,7 +354,7 @@ if __name__ == '__main__':
         # T.RandomFlip(0, p=0.3),
         # T.RandomFlip(1, p=0.1),
         # T.RandomFlip(2, p=0.3),
-        T.RandomRotate(30, axis=0),
+        # T.RandomRotate(180, axis=0),
         # T.RandomRotate(15, axis=1),
         # T.RandomRotate(15, axis=2)
     ])
