@@ -1,1 +1,2 @@
 LOG OF ALL THE EXPERIMENTS.
+#2 ::: LR=0.001		Batch=8		Num Workers=2		Local features:['corr_thickness', 'myelin_map']		Global features:['weight']		Data used: reduced_50_inflated		Split class: gender
