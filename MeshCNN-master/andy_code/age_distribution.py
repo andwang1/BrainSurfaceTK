@@ -17,7 +17,7 @@ meta.drop(['participant_id', 'session_id', 'sedation', 'scan_number'], axis=1, i
 # obj_files = os.listdir(".")
 
 # Due to corona - extracted filenames from above dir
-with open("present_obj.txt", "r") as f:
+with open("present_obj_50.txt", "r") as f:
     obj_files = f.readlines()
 obj_files = [obj.strip() for obj in obj_files]
 
@@ -27,7 +27,7 @@ unique_key_files = [obj_name[:-4] for obj_name in obj_files]
 # Filter meta based on files we have
 present_files_meta = meta.loc[unique_key_files]
 # Some weird data issue prob from copying files, dropping noisy row
-present_files_meta.drop(['present_obj'], inplace=True)
+present_files_meta.drop(['present_obj_50'], inplace=True)
 
 # General stats, who doesn't love numbers
 print(present_files_meta.describe())
@@ -58,5 +58,5 @@ plt.show()
 
 # Pickle this to reuse in scripts to split the data
 indices = {"Train": train_indices, "Test": test_indices, "Val": val_indices}
-with open("indices.pk", "wb") as f:
+with open("indices_50.pk", "wb") as f:
     pickle.dump(indices, f)
