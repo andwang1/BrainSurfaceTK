@@ -38,8 +38,9 @@ for patient in train_indices:
     file_name = f"{patient}.obj"
     gender = meta.loc[patient]['gender']
     source_path = f"{source_dir}/{file_name}"
-    dest_path = f"{target_dir}/{gender}/train"
-    print("Attempting copy ", source_path)
+    dest_path = f"{target_dir}/{gender}/train/{file_name}"
+    print("Attempting copy source", source_path)
+    print("Attempting copy dest", dest_path)
     copyfile(source_path, dest_path)
     print("Copy success")
 
@@ -48,7 +49,8 @@ for patient in test_indices:
     file_name = f"{patient}.obj"
     gender = meta.loc[patient]['gender']
     source_path = f"{source_dir}/{file_name}"
-    dest_path = f"{target_dir}/{gender}/test"
-    print("Attempting copy ", source_path)
+    dest_path = f"{target_dir}/{gender}/test/{file_name}"
+    print("Attempting copy source", source_path)
+    print("Attempting copy dest", dest_path)
     copyfile(source_path, dest_path)
     print("Copy success")
