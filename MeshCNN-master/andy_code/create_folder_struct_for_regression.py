@@ -10,13 +10,14 @@ target_dir = r"/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-
 
 #### This is for MeshCNN specifically
 try:
-    os.chdir(target_dir)
+    os.access(target_dir, mode=os.F_OK)
 except FileNotFoundError:
     os.makedirs(f"{target_dir}/Male/train")
     os.makedirs(f"{target_dir}/Male/test")
     os.makedirs(f"{target_dir}/Female/train")
     os.makedirs(f"{target_dir}/Femle/test")
 ####
+
 
 # Load indices
 with open("indices.pk", "rb") as f:
@@ -36,11 +37,18 @@ test_indices = indices["Test"]
 for patient in train_indices:
     file_name = f"{patient}.obj"
     gender = meta.loc[patient]['gender']
+    source_path = f"{source_dir}/{file_name}"
     dest_path = f"{target_dir}/{gender}/train"
-    copyfile(f"{source_dir}/{file_name}", dest_path)
+    print("Attempting copy ", source_path)
+    copyfile(source_path, dest_path)
+    print("Copy success")
+
 
 for patient in test_indices:
     file_name = f"{patient}.obj"
     gender = meta.loc[patient]['gender']
+    source_path = f"{source_dir}/{file_name}"
     dest_path = f"{target_dir}/{gender}/test"
-    copyfile(f"{source_dir}/{file_name}", dest_path)
+    print("Attempting copy ", source_path)
+    copyfile(source_path, dest_path)
+    print("Copy success")
