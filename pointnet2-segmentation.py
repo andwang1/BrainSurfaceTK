@@ -197,7 +197,7 @@ def train(epoch):
         correct_nodes += out.max(dim=1)[1].eq(data.y).sum().item()
         total_nodes += data.num_nodes
 
-        # Mean Jaccard index = index averaged over all classes
+        # Mean Jaccard index = index averaged over all classes (HENCE, this shows the IoU of a batch)
         mean_jaccard_indeces = mean_iou(out.max(dim=1)[1], data.y, 18, batch=data.batch)
 
         # Mean Jaccard indeces PER LABEL
@@ -256,8 +256,8 @@ def test(loader, experiment_description, epoch=None, test=False, id=None):
             os.makedirs('./{}/'.format(id))
 
         # 4. Save the segmented brain in ./[...comment...]/data_valiation3.pkl (3 is for epoch)
-        with open('./{}/data{}-{}.pkl'.format(id, mode+epoch, brain_idx), 'wb') as file:
-            pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
+        # with open('./{}/data{}-{}.pkl'.format(id, mode+epoch, brain_idx), 'wb') as file:
+        #     pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
 
         # 5. Get accuracy
         correct_nodes += pred.eq(data.y).sum().item()
@@ -305,7 +305,7 @@ if __name__ == '__main__':
 
     # Model Parameters
     lr = 0.001
-    batch_size = 1
+    batch_size = 8
     num_workers = 2
     local_features = ['corr_thickness', 'myelin_map']#, 'curvature']#, 'sulc']
     global_features = ['weight']
