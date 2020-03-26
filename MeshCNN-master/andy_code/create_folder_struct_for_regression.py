@@ -15,7 +15,7 @@ except FileNotFoundError:
     os.makedirs(f"{target_dir}/Male/train")
     os.makedirs(f"{target_dir}/Male/test")
     os.makedirs(f"{target_dir}/Female/train")
-    os.makedirs(f"{target_dir}/Femle/test")
+    os.makedirs(f"{target_dir}/Female/test")
 ####
 
 
@@ -34,6 +34,8 @@ meta.set_index('unique_key', inplace=True)
 train_indices = indices["Train"] + indices["Val"]
 test_indices = indices["Test"]
 
+file_counter = 0
+
 for patient in train_indices:
     file_name = f"{patient}.obj"
     gender = meta.loc[patient]['gender']
@@ -42,8 +44,8 @@ for patient in train_indices:
     print("Attempting copy source", source_path)
     print("Attempting copy dest", dest_path)
     copyfile(source_path, dest_path)
-    print("Copy success")
-
+    file_counter += 1
+    print(f"Copy success, file {file_counter}")
 
 for patient in test_indices:
     file_name = f"{patient}.obj"
@@ -53,4 +55,5 @@ for patient in test_indices:
     print("Attempting copy source", source_path)
     print("Attempting copy dest", dest_path)
     copyfile(source_path, dest_path)
-    print("Copy success")
+    file_counter += 1
+    print(f"Copy success, file {file_counter}")
