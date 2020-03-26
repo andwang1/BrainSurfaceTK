@@ -4,7 +4,7 @@ from pyvista_examples import plot
 
 if __name__ == '__main__':
 
-    with open('./5/data_validation1.pkl', 'rb') as file:
+    with open('./6/data_validation2.pkl', 'rb') as file:
         data, labels, pred = pickle.load(file)
 
     plot(data, labels, pred)
