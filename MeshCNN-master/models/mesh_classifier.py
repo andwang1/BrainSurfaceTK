@@ -115,7 +115,6 @@ class ClassifierModel:
         """
         with torch.no_grad():
             out = self.forward()
-            print("TESTOUTPUT", out.view(-1), "TESTLABELS", self.labels)
             # compute number of correct
             if self.opt.dataset_mode == 'regression':
                 pred_class = out.view(-1)
@@ -127,10 +126,10 @@ class ClassifierModel:
             label_class = self.labels
             self.export_segmentation(pred_class.cpu())
             print('-------')
-            print('Predicted class:  ', pred_class)
-            print('Label:  ', label_class)
+            print('Predicted:\t', pred_class.item())
+            print('Label:\t', label_class.item())
             correct = self.get_accuracy(pred_class, label_class)
-            print('Mean abs error ', correct.item())
+            print('Abs Error\t', correct.item())
         return correct, len(label_class)
 
     def get_accuracy(self, pred, labels):
