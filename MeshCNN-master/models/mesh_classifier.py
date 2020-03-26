@@ -127,7 +127,7 @@ class ClassifierModel:
             self.export_segmentation(pred_class.cpu())
             print('-------')
             print('Predicted:\t', pred_class.item())
-            print('Label:\t', label_class.item())
+            print('Label:\t\t', label_class.item())
             correct = self.get_accuracy(pred_class, label_class)
             print('Abs Error\t', correct.item())
         return correct, len(label_class)
