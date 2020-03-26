@@ -305,7 +305,7 @@ if __name__ == '__main__':
 
     # Model Parameters
     lr = 0.001
-    batch_size = 8
+    batch_size = 1
     num_workers = 2
     local_features = ['corr_thickness', 'myelin_map']#, 'curvature']#, 'sulc']
     global_features = ['weight']
@@ -354,7 +354,7 @@ if __name__ == '__main__':
         # T.RandomFlip(0, p=0.3),
         # T.RandomFlip(1, p=0.1),
         # T.RandomFlip(2, p=0.3),
-        # T.RandomRotate(180, axis=0),
+        T.RandomRotate(180, axis=0),
         # T.RandomRotate(180, axis=1),
         # T.RandomRotate(15, axis=2)
     ])
