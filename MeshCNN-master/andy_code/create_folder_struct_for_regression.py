@@ -9,9 +9,7 @@ source_dir = r"/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-
 target_dir = r"/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/datasets/brains_reg_red90"
 
 #### This is for MeshCNN specifically
-try:
-    os.access(target_dir, mode=os.F_OK)
-except FileNotFoundError:
+if not os.access(target_dir, mode=os.F_OK):
     os.makedirs(f"{target_dir}/Male/train")
     os.makedirs(f"{target_dir}/Male/test")
     os.makedirs(f"{target_dir}/Female/train")
