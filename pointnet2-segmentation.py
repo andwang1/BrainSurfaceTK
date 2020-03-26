@@ -317,7 +317,7 @@ if __name__ == '__main__':
 
     test_size = 0.09
     val_size = 0.1
-    reprocess = False
+    reprocess = True
 
     data = "reduced_50"
     type_data = "inflated"
