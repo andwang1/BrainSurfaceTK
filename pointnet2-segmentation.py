@@ -209,7 +209,7 @@ def train(epoch):
 
 
         if (idx + 1) % 10 == 0:
-            print('[{}/{}] Loss: {:.4f}, Train Accuracy: {:.4f}, IoU per label: '.format(
+            print('[{}/{}] Loss: {:.4f}, Train Accuracy: {:.4f}, Mean IoU (over all labels, per batch): {}'.format(
                 idx + 1, len(train_loader), total_loss / 10,
                 correct_nodes / total_nodes, mean_jaccard_index_per_class))
 
@@ -218,8 +218,8 @@ def train(epoch):
             writer.add_scalar('Mean IoU/train', torch.sum(mean_jaccard_indeces)/len(mean_jaccard_indeces), epoch)
             for label, iou in enumerate(mean_jaccard_index_per_class):
                 writer.add_scalar('IoU{}/train'.format(label), iou, epoch)
-                print('\t\tLabel {}: {}'.format(label, iou))
-            print('\n')
+                # print('\t\tLabel {}: {}'.format(label, iou))
+            # print('\n')
             total_loss = correct_nodes = total_nodes = 0
 
 
@@ -322,16 +322,16 @@ if __name__ == '__main__':
     val_size = 0.1
     reprocess = True
 
-    data_nativeness = 'native' # 'aligned'
+    data_nativeness = 'aligned' # 'native'
     data = "reduced_50"
     type_data = "inflated"
 
-    comment = "---LR_" + str(lr) \
+    comment = data_nativeness + '---' + data + "---" + type_data \
+              + "---LR_" + str(lr) \
               + "---BATCH_" + str(batch_size) \
               + "---NUM_WORKERS_" + str(num_workers) \
               + "---local_features_" + str(local_features) \
               + "---global_features_" + str(global_features) \
-              + '---' + data + "---" + type_data
 
     # Tensorboard writer.
     writer = SummaryWriter(comment='ID' + get_id() + '_' + comment)
@@ -409,18 +409,19 @@ if __name__ == '__main__':
 
         # 3. Validate the performance after each epoch
         loss, acc, iou = test(val_loader, comment+'val'+str(epoch), epoch=epoch, id=id)
-        print('Epoch: {:02d}, Val Loss/nll: {}, Val Acc: {:.4f}'.format(epoch, loss, acc))
+        print('Epoch: {:02d}, Val Loss/nll: {}, Val Acc: {:.4f}, Validation IoU (per class):'.format(epoch, loss, acc))
 
         # 4. Record valiation metrics in Tensorboard
         writer.add_scalar('Loss/val_nll', loss, epoch)
         for label, value in enumerate(iou):
             writer.add_scalar('IoU{}/validation'.format(label), value, epoch)
+            print('\t\tLabel {}: {}'.format(label, value))
 
         # 5. Stop recording time
         end = time.time()
         print('Time: ' + str(end - start))
         writer.add_scalar('Time/epoch', end-start, epoch)
-
+        print('='*60)
     # 6. Test the performance after training
     loss, acc, iou = test(test_loader, comment, test=True, id=id)
 
