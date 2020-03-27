@@ -303,140 +303,162 @@ def test(loader, experiment_description, epoch=None, test=False, id=None):
     return loss, accuracy, mean_jaccard_index_per_class
 
 
+import itertools
+def get_grid_search_local_features(local_feats):
+    '''
+    Return all permutations of parameters passed
+
+    :return: [ [], [cortical], [myelin], ..., [cortical, myelin], ... ]
+    '''
+
+    # 1. Get all permutations of local features
+    local_fs = [[],]
+    for l in range(1, len(local_feats) + 1):
+        for i in itertools.combinations(local_feats, l):
+            local_fs.append(list(i))
+
+    return local_fs
+
+
 if __name__ == '__main__':
 
-    # Model Parameters
-    lr = 0.001
-    batch_size = 8
     num_workers = 2
-    local_features = ['corr_thickness']#, 'myelin_map']#, 'curvature']#, 'sulc']
-    global_features = []#['weight']
+    local_features = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
+    grid_features = get_grid_search_local_features(local_features)
 
-    target_class = 'gender'
-    task = 'segmentation'
+    for local_feature_combo in grid_features:
+        for global_feature in [[], ['weight']]:
 
-    id = get_id()
-    # number_of_points = 12000
+            # Model Parameters
+            lr = 0.001
+            batch_size = 8
+            global_features = global_feature
 
-    test_size = 0.09
-    val_size = 0.1
-    reprocess = True
+            target_class = 'gender'
+            task = 'segmentation'
 
-    data_nativeness = 'aligned' # 'native'
-    data = "reduced_50"
-    type_data = "inflated"
+            id = get_id()
+            # number_of_points = 12000
 
-    comment = data_nativeness + '---' + data + "---" + type_data \
-              + "---LR_" + str(lr) \
-              + "---BATCH_" + str(batch_size) \
-              + "---NUM_WORKERS_" + str(num_workers) \
-              + "---local_features_" + str(local_features) \
-              + "---global_features_" + str(global_features) \
+            test_size = 0.09
+            val_size = 0.1
+            reprocess = True
 
-    # Tensorboard writer.
-    writer = SummaryWriter(comment='ID' + get_id() + '_' + comment)
+            data_nativeness = 'aligned' # 'native'
+            data = "reduced_50"
+            type_data = "inflated"
 
-    print(comment)
+            comment = data_nativeness + '---' + data + "---" + type_data \
+                      + "---LR_" + str(lr) \
+                      + "---BATCH_" + str(batch_size) \
+                      + "---NUM_WORKERS_" + str(num_workers) \
+                      + "---local_features_" + str(local_features) \
+                      + "---global_features_" + str(global_features) \
 
-    # 0. Save to log_record.txt
-    log_descr = "LR=" + str(lr) + '\t\t'\
-              + "Batch=" + str(batch_size) + '\t\t'\
-              + "Num Workers=" + str(num_workers) + '\t\t'\
-              + "Local features:" + str(local_features) + '\t\t'\
-              + "Global features:" + str(global_features) + '\t\t'\
-              + "Data used: " + data + '_' + type_data + '\t\t'\
-              + "Split class: " + target_class
+            # Tensorboard writer.
+            writer = SummaryWriter(comment='ID' + get_id() + '_' + comment)
 
-    save_to_log(log_descr)
+            print(comment)
 
-    path = osp.join(
-        osp.dirname(osp.realpath(__file__)), '..', 'data/' + target_class + '/Reduced50/inflated')
+            # 0. Save to log_record.txt
+            log_descr = "LR=" + str(lr) + '\t\t'\
+                      + "Batch=" + str(batch_size) + '\t\t'\
+                      + "Num Workers=" + str(num_workers) + '\t\t'\
+                      + "Local features:" + str(local_features) + '\t\t'\
+                      + "Global features:" + str(global_features) + '\t\t'\
+                      + "Data used: " + data + '_' + type_data + '\t\t'\
+                      + "Split class: " + target_class
 
-    # Transformations
-    transform = T.Compose([
-        # T.RandomTranslate(0.1),
-        # T.RandomFlip(0, p=0.3),
-        # T.RandomFlip(1, p=0.1),
-        # T.RandomFlip(2, p=0.3),
-        T.RandomRotate(360, axis=0),
-        T.RandomRotate(360, axis=1),
-        T.RandomRotate(360, axis=2)
-    ])
-    pre_transform = T.NormalizeScale()
+            save_to_log(log_descr)
 
-    # DATASETS
-    train_dataset = OurDataset(path, train=True, transform=transform, pre_transform=pre_transform,
-                                                 target_class=target_class, task=task, reprocess=reprocess,
-                                                 local_features=local_features, global_feature=global_features,
-                                                 test_size=test_size, val_size=val_size, val=False)# files_ending='_left_inflated_reduce50.vtk',
-                                     #data_folder='/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native/reduced_50/inflated/vtk')
+            path = osp.join(
+                osp.dirname(osp.realpath(__file__)), '..', 'data/' + target_class + '/Reduced50/inflated')
 
-    test_dataset = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform,
-                                                 target_class=target_class, task=task, reprocess=reprocess,
-                                                 local_features=local_features, global_feature=global_features,
-                                                 test_size=test_size, val_size=val_size, val=False)#, files_ending='_left_inflated_reduce50.vtk',
-                                     #data_folder='/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native/reduced_50/inflated/vtk')
+            # Transformations
+            transform = T.Compose([
+                # T.RandomTranslate(0.1),
+                # T.RandomFlip(0, p=0.3),
+                # T.RandomFlip(1, p=0.1),
+                # T.RandomFlip(2, p=0.3),
+                T.RandomRotate(360, axis=0),
+                T.RandomRotate(360, axis=1),
+                T.RandomRotate(360, axis=2)
+            ])
+            pre_transform = T.NormalizeScale()
 
-    validation_dataset = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform,
-                                                 target_class=target_class, task=task, reprocess=reprocess,
-                                                 local_features=local_features, global_feature=global_features,
-                                                 test_size=test_size, val_size=val_size, val=True)#, files_ending='_left_inflated_reduce50.vtk',
-                                    #data_folder='/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native/reduced_50/inflated/vtk')
+            # DATASETS
+            train_dataset = OurDataset(path, train=True, transform=transform, pre_transform=pre_transform,
+                                                         target_class=target_class, task=task, reprocess=reprocess,
+                                                         local_features=local_features, global_feature=global_features,
+                                                         test_size=test_size, val_size=val_size, val=False)# files_ending='_left_inflated_reduce50.vtk',
+                                             #data_folder='/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native/reduced_50/inflated/vtk')
 
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
-    val_loader = DataLoader(validation_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+            test_dataset = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform,
+                                                         target_class=target_class, task=task, reprocess=reprocess,
+                                                         local_features=local_features, global_feature=global_features,
+                                                         test_size=test_size, val_size=val_size, val=False)#, files_ending='_left_inflated_reduce50.vtk',
+                                             #data_folder='/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native/reduced_50/inflated/vtk')
 
-    # Getting the number of features to adapt the architecture
-    num_local_features = train_dataset[0].x.size(1)
-    # numb_global_features = train_dataset[0].y.size(1) - 1
-    num_classes = train_dataset.num_labels
+            validation_dataset = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform,
+                                                         target_class=target_class, task=task, reprocess=reprocess,
+                                                         local_features=local_features, global_feature=global_features,
+                                                         test_size=test_size, val_size=val_size, val=True)#, files_ending='_left_inflated_reduce50.vtk',
+                                            #data_folder='/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native/reduced_50/inflated/vtk')
 
-    if not torch.cuda.is_available():
-        print('YOU ARE RUNNING ON A CPU!!!!')
+            train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
+            test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+            val_loader = DataLoader(validation_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = Net(18, num_local_features, num_global_features=None).to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+            # Getting the number of features to adapt the architecture
+            num_local_features = train_dataset[0].x.size(1)
+            # numb_global_features = train_dataset[0].y.size(1) - 1
+            num_classes = train_dataset.num_labels
 
-    for epoch in range(1, 50):
+            if not torch.cuda.is_available():
+                print('YOU ARE RUNNING ON A CPU!!!!')
 
-        # 1. Start recording time
-        start = time.time()
+            device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+            model = Net(18, num_local_features, num_global_features=None).to(device)
+            optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-        # 2. Make a training step
-        train(epoch)
+            for epoch in range(1, 50):
 
-        # 3. Validate the performance after each epoch
-        loss, acc, iou = test(val_loader, comment+'val'+str(epoch), epoch=epoch, id=id)
-        print('Epoch: {:02d}, Val Loss/nll: {}, Val Acc: {:.4f}, Validation IoU (per class):'.format(epoch, loss, acc))
+                # 1. Start recording time
+                start = time.time()
 
-        # 4. Record valiation metrics in Tensorboard
-        writer.add_scalar('Loss/val_nll', loss, epoch)
-        for label, value in enumerate(iou):
-            writer.add_scalar('IoU{}/validation'.format(label), value, epoch)
-            print('\t\tLabel {}: {}'.format(label, value))
+                # 2. Make a training step
+                train(epoch)
 
-        # 5. Stop recording time
-        end = time.time()
-        print('Time: ' + str(end - start))
-        writer.add_scalar('Time/epoch', end-start, epoch)
-        print('='*60)
-    # 6. Test the performance after training
-    loss, acc, iou = test(test_loader, comment, test=True, id=id)
+                # 3. Validate the performance after each epoch
+                loss, acc, iou = test(val_loader, comment+'val'+str(epoch), epoch=epoch, id=id)
+                print('Epoch: {:02d}, Val Loss/nll: {}, Val Acc: {:.4f}, Validation IoU (per class):'.format(epoch, loss, acc))
 
-    # 7. Record test metrics in Tensorboard
-    writer.add_scalar('Loss/test', loss)
-    writer.add_scalar('Accuracy/test', acc)
-    for label, value in enumerate(iou):
-        writer.add_scalar('IoU{}/test'.format(label), value)
+                # 4. Record valiation metrics in Tensorboard
+                writer.add_scalar('Loss/val_nll', loss, epoch)
+                for label, value in enumerate(iou):
+                    writer.add_scalar('IoU{}/validation'.format(label), value, epoch)
+                    print('\t\tLabel {}: {}'.format(label, value))
 
-    # 8. Save the model with its unique id
-    torch.save(model.state_dict(), '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/{}/'.format(get_id()) + 'model' + '_id' + get_id() + '.pt')
+                # 5. Stop recording time
+                end = time.time()
+                print('Time: ' + str(end - start))
+                writer.add_scalar('Time/epoch', end-start, epoch)
+                print('='*60)
+            # 6. Test the performance after training
+            loss, acc, iou = test(test_loader, comment, test=True, id=id)
+
+            # 7. Record test metrics in Tensorboard
+            writer.add_scalar('Loss/test', loss)
+            writer.add_scalar('Accuracy/test', acc)
+            for label, value in enumerate(iou):
+                writer.add_scalar('IoU{}/test'.format(label), value)
+
+            # 8. Save the model with its unique id
+            torch.save(model.state_dict(), '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/{}/'.format(get_id()) + 'model' + '_id' + get_id() + '.pt')
 
 
 
-
+        
 
 
 
