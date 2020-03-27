@@ -211,7 +211,7 @@ def train(epoch):
         if (idx + 1) % 10 == 0:
             print('[{}/{}] Loss: {:.4f}, Train Accuracy: {:.4f}, Mean IoU (over all labels, per batch): {}'.format(
                 idx + 1, len(train_loader), total_loss / 10,
-                correct_nodes / total_nodes, mean_jaccard_index_per_class))
+                correct_nodes / total_nodes, mean_jaccard_indeces.tolist()))
 
             # Write to tensorboard: LOSS and IoU per class
             writer.add_scalar('Loss/train', total_loss / 10, epoch)
@@ -326,7 +326,7 @@ if __name__ == '__main__':
     grid_features = get_grid_search_local_features(local_features)
 
     for local_feature_combo in grid_features:
-        for global_feature in [[], ['weight']]:
+        for global_feature in [[]]:#, ['weight']]:
 
             # Model Parameters
             lr = 0.001
@@ -355,12 +355,13 @@ if __name__ == '__main__':
                       + "---global_features_" + str(global_features) \
 
             # Tensorboard writer.
-            writer = SummaryWriter(comment='ID' + get_id() + '_' + comment)
+            writer = SummaryWriter(comment='ID' + id + '_' + comment)
 
             print(comment)
 
             # 0. Save to log_record.txt
-            log_descr = "LR=" + str(lr) + '\t\t'\
+            log_descr = data_nativeness + '  ' + data + "  " + type_data + '  ' \
+                      +  "LR=" + str(lr) + '\t\t'\
                       + "Batch=" + str(batch_size) + '\t\t'\
                       + "Num Workers=" + str(num_workers) + '\t\t'\
                       + "Local features:" + str(local_features) + '\t\t'\
@@ -443,6 +444,7 @@ if __name__ == '__main__':
                 print('Time: ' + str(end - start))
                 writer.add_scalar('Time/epoch', end-start, epoch)
                 print('='*60)
+
             # 6. Test the performance after training
             loss, acc, iou = test(test_loader, comment, test=True, id=id)
 
@@ -453,7 +455,7 @@ if __name__ == '__main__':
                 writer.add_scalar('IoU{}/test'.format(label), value)
 
             # 8. Save the model with its unique id
-            torch.save(model.state_dict(), '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/{}/'.format(get_id()) + 'model' + '_id' + get_id() + '.pt')
+            torch.save(model.state_dict(), '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/{}/'.format(id) + 'model' + '_id' + str(id) + '.pt')
 
 
 
