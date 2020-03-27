@@ -339,7 +339,8 @@ if __name__ == '__main__':
     print(comment)
 
     # 0. Save to log_record.txt
-    log_descr = "LR=" + str(lr) + '\t\t'\
+    log_descr = data_nativeness + '  ' + data + '  ' + type_data + '  ' \
+              + "LR=" + str(lr) + '\t\t'\
               + "Batch=" + str(batch_size) + '\t\t'\
               + "Num Workers=" + str(num_workers) + '\t\t'\
               + "Local features:" + str(local_features) + '\t\t'\
