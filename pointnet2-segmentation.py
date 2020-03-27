@@ -307,7 +307,6 @@ import itertools
 def get_grid_search_local_features(local_feats):
     '''
     Return all permutations of parameters passed
-
     :return: [ [], [cortical], [myelin], ..., [cortical, myelin], ... ]
     '''
 
