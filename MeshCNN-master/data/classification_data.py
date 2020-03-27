@@ -42,6 +42,7 @@ class ClassificationData(BaseDataset):
         # get edge features
         edge_features = mesh.extract_features()
         #edge_features = pad(edge_features, self.opt.ninput_edges)
+        print("shape", edge_features.shape)
         meta['edge_features'] = (edge_features - self.mean) / self.std
         return meta
 
