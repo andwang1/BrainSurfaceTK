@@ -209,16 +209,17 @@ def train(epoch):
 
 
         if (idx + 1) % 10 == 0:
-            print('[{}/{}] Loss: {:.4f}, Train Accuracy: {:.4f}, Mean Jaccard Index (per batch): {}'.format(
+            print('[{}/{}] Loss: {:.4f}, Train Accuracy: {:.4f}, IoU per label: '.format(
                 idx + 1, len(train_loader), total_loss / 10,
-                correct_nodes / total_nodes, mean_jaccard_indeces))
+                correct_nodes / total_nodes, mean_jaccard_index_per_class))
 
             # Write to tensorboard: LOSS and IoU per class
             writer.add_scalar('Loss/train', total_loss / 10, epoch)
             writer.add_scalar('Mean IoU/train', torch.sum(mean_jaccard_indeces)/len(mean_jaccard_indeces), epoch)
             for label, iou in enumerate(mean_jaccard_index_per_class):
                 writer.add_scalar('IoU{}/train'.format(label), iou, epoch)
-
+                print('\t\tLabel {}: {}'.format(label, iou))
+            print('\n')
             total_loss = correct_nodes = total_nodes = 0
 
 
@@ -306,7 +307,7 @@ if __name__ == '__main__':
 
     # Model Parameters
     lr = 0.001
-    batch_size = 2
+    batch_size = 8
     num_workers = 2
     local_features = ['corr_thickness']#, 'myelin_map']#, 'curvature']#, 'sulc']
     global_features = []#['weight']
@@ -319,17 +320,18 @@ if __name__ == '__main__':
 
     test_size = 0.09
     val_size = 0.1
-    reprocess = False
+    reprocess = True
 
+    data_nativeness = 'native' # 'aligned'
     data = "reduced_50"
     type_data = "inflated"
 
-    comment = "LR_" + str(lr) \
-              + "_BATCH_" + str(batch_size) \
-              + "_NUM_WORKERS_" + str(num_workers) \
-              + "_local_features_" + str(local_features) \
-              + "_global_features_" + str(global_features) \
-              + data + "_" + type_data
+    comment = "---LR_" + str(lr) \
+              + "---BATCH_" + str(batch_size) \
+              + "---NUM_WORKERS_" + str(num_workers) \
+              + "---local_features_" + str(local_features) \
+              + "---global_features_" + str(global_features) \
+              + '---' + data + "---" + type_data
 
     # Tensorboard writer.
     writer = SummaryWriter(comment='ID' + get_id() + '_' + comment)
@@ -366,17 +368,20 @@ if __name__ == '__main__':
     train_dataset = OurDataset(path, train=True, transform=transform, pre_transform=pre_transform,
                                                  target_class=target_class, task=task, reprocess=reprocess,
                                                  local_features=local_features, global_feature=global_features,
-                                                 test_size=test_size, val_size=val_size, val=False)
+                                                 test_size=test_size, val_size=val_size, val=False)# files_ending='_left_inflated_reduce50.vtk',
+                                     #data_folder='/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native/reduced_50/inflated/vtk')
 
     test_dataset = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform,
                                                  target_class=target_class, task=task, reprocess=reprocess,
                                                  local_features=local_features, global_feature=global_features,
-                                                 test_size=test_size, val_size=val_size, val=False)
+                                                 test_size=test_size, val_size=val_size, val=False)#, files_ending='_left_inflated_reduce50.vtk',
+                                     #data_folder='/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native/reduced_50/inflated/vtk')
 
     validation_dataset = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform,
                                                  target_class=target_class, task=task, reprocess=reprocess,
                                                  local_features=local_features, global_feature=global_features,
-                                                 test_size=test_size, val_size=val_size, val=True)
+                                                 test_size=test_size, val_size=val_size, val=True)#, files_ending='_left_inflated_reduce50.vtk',
+                                    #data_folder='/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native/reduced_50/inflated/vtk')
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
@@ -394,7 +399,7 @@ if __name__ == '__main__':
     model = Net(18, num_local_features, num_global_features=None).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-    for epoch in range(1, 2):
+    for epoch in range(1, 50):
 
         # 1. Start recording time
         start = time.time()
