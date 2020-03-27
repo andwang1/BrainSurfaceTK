@@ -19,7 +19,6 @@ def pad(input_arr, target_length, val=0, dim=1):
     shp = input_arr.shape
     npad = [(0, 0) for _ in range(len(shp))]
     npad[dim] = (0, target_length - shp[dim])
-    print("num_edges", shp[dim])
     print('@@@@@')
     print(input_arr)
     print('min', np.min(input_arr))
