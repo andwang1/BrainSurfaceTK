@@ -236,7 +236,7 @@ def test(loader, experiment_description, epoch=None, test=False, id=None):
     correct_nodes = total_nodes = 0
     intersections, unions, categories = [], [], []
 
-    for brain_idx, data in enumerate(loader):
+    for batch_idx, data in enumerate(loader):
 
         # 1. Get predictions and loss
         data = data.to(device)
@@ -256,8 +256,9 @@ def test(loader, experiment_description, epoch=None, test=False, id=None):
             os.makedirs('./{}/'.format(id))
 
         # 4. Save the segmented brain in ./[...comment...]/data_valiation3.pkl (3 is for epoch)
-        # with open('./{}/data{}-{}.pkl'.format(id, mode+epoch, brain_idx), 'wb') as file:
-        #     pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
+        # for brain_idx, brain in data:
+        with open('./{}/data{}.pkl'.format(id, mode+epoch), 'wb') as file:
+            pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
 
         # 5. Get accuracy
         correct_nodes += pred.eq(data.y).sum().item()
@@ -305,19 +306,20 @@ if __name__ == '__main__':
 
     # Model Parameters
     lr = 0.001
-    batch_size = 8
+    batch_size = 2
     num_workers = 2
-    local_features = ['corr_thickness', 'myelin_map']#, 'curvature']#, 'sulc']
-    global_features = ['weight']
-    # global_features = None
+    local_features = ['corr_thickness']#, 'myelin_map']#, 'curvature']#, 'sulc']
+    global_features = []#['weight']
+
     target_class = 'gender'
     task = 'segmentation'
+
     id = get_id()
     # number_of_points = 12000
 
     test_size = 0.09
     val_size = 0.1
-    reprocess = True
+    reprocess = False
 
     data = "reduced_50"
     type_data = "inflated"
@@ -354,9 +356,9 @@ if __name__ == '__main__':
         # T.RandomFlip(0, p=0.3),
         # T.RandomFlip(1, p=0.1),
         # T.RandomFlip(2, p=0.3),
-        T.RandomRotate(180, axis=0),
-        # T.RandomRotate(180, axis=1),
-        # T.RandomRotate(15, axis=2)
+        T.RandomRotate(360, axis=0),
+        T.RandomRotate(360, axis=1),
+        T.RandomRotate(360, axis=2)
     ])
     pre_transform = T.NormalizeScale()
 
@@ -392,7 +394,7 @@ if __name__ == '__main__':
     model = Net(18, num_local_features, num_global_features=None).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-    for epoch in range(1, 50):
+    for epoch in range(1, 2):
 
         # 1. Start recording time
         start = time.time()
@@ -424,7 +426,7 @@ if __name__ == '__main__':
         writer.add_scalar('IoU{}/test'.format(label), value)
 
     # 8. Save the model with its unique id
-    torch.save(model.state_dict(), './{}/'.format(get_id()) + 'model' + '_id' + get_id() + '.pt')
+    torch.save(model.state_dict(), '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/{}/'.format(get_id()) + 'model' + '_id' + get_id() + '.pt')
 
 
 
