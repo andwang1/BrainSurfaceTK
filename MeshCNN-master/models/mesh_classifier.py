@@ -24,6 +24,11 @@ class ClassifierModel:
         self.mesh = None
         self.soft_label = None
         self.loss = None
+        self.test_log_file =
+        self.save_dir = join(opt.checkpoints_dir, opt.name)
+        self.testacc_log = join(self.save_dir, 'testacc_full_log.txt')
+        # MAKE THIS CSV
+
 
         #
         self.nclasses = opt.nclasses
@@ -127,12 +132,20 @@ class ClassifierModel:
             #pred_class.reshape((pred_class.shape[0]))
             label_class = self.labels
             self.export_segmentation(pred_class.cpu())
+
+            patient_id = self.path[-1][36:-4]
+
             print('-------')
-            print('File name:\t', self.path[-1][36:-3])
+            print('Patient ID:\t', patient_id)
             print('Predicted:\t', pred_class.item())
             print('Label:\t\t', label_class.item())
             correct = self.get_accuracy(pred_class, label_class)
             print('Abs Error:\t', correct.item())
+
+            # MAKE FILE FOR EACH EPOCH
+            if not self.opt.is_train:
+                with open(self.testacc_log, "a") as log_file:
+                    log_file.write(f"{patient_id},{pred_class.item()},{label_class.item()},{correct.item()}")
         return correct, len(label_class)
 
     def get_accuracy(self, pred, labels):
