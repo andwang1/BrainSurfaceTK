@@ -25,7 +25,7 @@ class ClassifierModel:
         self.soft_label = None
         self.loss = None
         self.save_dir = join(opt.checkpoints_dir, opt.name)
-        self.testacc_log = join(self.save_dir, 'testacc_full_log.txt')
+        self.testacc_log = join(self.save_dir, 'testacc_full_log_')
         # MAKE THIS CSV
 
 
@@ -115,7 +115,7 @@ class ClassifierModel:
         lr = self.optimizer.param_groups[0]['lr']
         print('learning rate = %.7f' % lr)
 
-    def test(self):
+    def test(self, epoch):
         """tests model
         returns: number correct and total number
         """
@@ -143,8 +143,8 @@ class ClassifierModel:
 
             # MAKE FILE FOR EACH EPOCH
             if not self.opt.is_train:
-                with open(self.testacc_log, "a") as log_file:
-                    log_file.write(f"{patient_id},{pred_class.item()},{label_class.item()},{correct.item()}")
+                with open(f"{self.testacc_log}{epoch}.csv", "a") as log_file:
+                    log_file.write(f"{patient_id},{pred_class.item()},{label_class.item()},{correct.item()}\n")
         return correct, len(label_class)
 
     def get_accuracy(self, pred, labels):
