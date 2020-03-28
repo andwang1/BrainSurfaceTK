@@ -208,10 +208,10 @@ def train(epoch):
         mean_jaccard_index_per_class = torch.sum(iou_per_class, dim=0) / iou_per_class.shape[0]
 
 
-        if (idx + 1) % 10 == 0:
-            print('[{}/{}] Loss: {:.4f}, Train Accuracy: {:.4f}, Mean IoU (over all labels, per batch): {}'.format(
+        if (idx + 1) % 20 == 0:
+            print('[{}/{}] Loss: {:.4f}, Train Accuracy: {:.4f}, Mean IoU: {}'.format(
                 idx + 1, len(train_loader), total_loss / 10,
-                correct_nodes / total_nodes, mean_jaccard_indeces.tolist()))
+                correct_nodes / total_nodes, np.mean(mean_jaccard_indeces.tolist())))
 
             # Write to tensorboard: LOSS and IoU per class
             writer.add_scalar('Loss/train', total_loss / 10, epoch)
@@ -352,7 +352,7 @@ if __name__ == '__main__':
                       + "---LR_" + str(lr) \
                       + "---BATCH_" + str(batch_size) \
                       + "---NUM_WORKERS_" + str(num_workers) \
-                      + "---local_features_" + str(local_features) \
+                      + "---local_features_" + str(local_feature_combo) \
                       + "---global_features_" + str(global_features) \
 
             # Tensorboard writer.
@@ -365,7 +365,7 @@ if __name__ == '__main__':
                       +  "LR=" + str(lr) + '\t\t'\
                       + "Batch=" + str(batch_size) + '\t\t'\
                       + "Num Workers=" + str(num_workers) + '\t\t'\
-                      + "Local features:" + str(local_features) + '\t\t'\
+                      + "Local features:" + str(local_feature_combo) + '\t\t'\
                       + "Global features:" + str(global_features) + '\t\t'\
                       + "Data used: " + data + '_' + type_data + '\t\t'\
                       + "Split class: " + target_class
