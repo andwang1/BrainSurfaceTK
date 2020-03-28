@@ -24,7 +24,6 @@ class ClassifierModel:
         self.mesh = None
         self.soft_label = None
         self.loss = None
-        self.test_log_file =
         self.save_dir = join(opt.checkpoints_dir, opt.name)
         self.testacc_log = join(self.save_dir, 'testacc_full_log.txt')
         # MAKE THIS CSV
