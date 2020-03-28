@@ -141,7 +141,6 @@ class ClassifierModel:
             correct = self.get_accuracy(pred_class, label_class)
             print('Abs Error:\t', correct.item())
 
-            # MAKE FILE FOR EACH EPOCH
             if not self.opt.is_train:
                 with open(f"{self.testacc_log}{epoch}.csv", "a") as log_file:
                     log_file.write(f"{patient_id},{pred_class.item()},{label_class.item()},{correct.item()}\n")
