@@ -128,7 +128,7 @@ class ClassifierModel:
             label_class = self.labels
             self.export_segmentation(pred_class.cpu())
             print('-------')
-            print('File name:\t', self.path[-1][15:])
+            print('File name:\t', self.path[-1][36:-3])
             print('Predicted:\t', pred_class.item())
             print('Label:\t\t', label_class.item())
             correct = self.get_accuracy(pred_class, label_class)
