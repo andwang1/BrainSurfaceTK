@@ -1,29 +1,25 @@
+import os
 import os.path as osp
+import pickle
+import time
 
+import numpy as np
 import torch
 import torch.nn.functional as F
 # from deepl_brain_surfaces.shapenet_fake import ShapeNet
 import torch_geometric.transforms as T
+from torch.nn import Sequential as Seq, Linear as Lin, ReLU, BatchNorm1d as BN
+from torch.utils.tensorboard import SummaryWriter
 from torch_geometric.data import DataLoader
+from torch_geometric.nn import PointConv, fps, radius, global_max_pool
 from torch_geometric.nn import knn_interpolate
-
 # Metrics
 from torch_geometric.utils import intersection_and_union as i_and_u
-from torch_geometric.utils.metric import accuracy, precision, recall, f1_score, mean_iou
-from sklearn.metrics import confusion_matrix
+from torch_geometric.utils.metric import mean_iou
 
-from data_loader import OurDataset
-from torch_geometric.nn import PointConv, fps, radius, global_max_pool
-from torch.nn import Sequential as Seq, Linear as Lin, ReLU, BatchNorm1d as BN
-from pyvista_examples import plot
-import pickle
-import os
-from torch.utils.tensorboard import SummaryWriter
-import time
-from plot_confusion_matrix import plot_confusion_matrix
-from log_saver import get_id, save_to_log
-import numpy as np
-
+from src.data_loader import OurDataset
+from src.log_saver import get_id, save_to_log
+from src.plot_confusion_matrix import plot_confusion_matrix
 
 # Global variables
 all_labels = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8 , 9, 10, 11, 12, 13, 14, 15, 16, 17])

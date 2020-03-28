@@ -1,16 +1,15 @@
 import os.path as osp
+import time
 
 import torch
 import torch.nn.functional as F
-
-from torch.nn import Sequential as Seq, Linear as Lin, ReLU, BatchNorm1d as BN
-
 import torch_geometric.transforms as T
+from torch.nn import Sequential as Seq, Linear as Lin, ReLU, BatchNorm1d as BN
+from torch.utils.tensorboard import SummaryWriter
 from torch_geometric.data import DataLoader
 from torch_geometric.nn import PointConv, fps, radius, global_max_pool
-import time
-from data_loader import OurDataset
-from torch.utils.tensorboard import SummaryWriter
+
+from src.data_loader import OurDataset
 
 
 class SAModule(torch.nn.Module):

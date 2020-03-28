@@ -20,7 +20,7 @@ while mode is None:
         print('Select either [p / m / Enter].')
 
 
-file_name = "sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtk"
+file_name = "./random/sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtk"
 file_path = file_name
 mesh = pv.read(file_path)
 
@@ -37,7 +37,7 @@ not_over = True
 
 while not_over:
 
-    label_mode = input('You can select ALL labels to view or a particular one. Simply type "all" or the number you want (0-17)')
+    label_mode = input('You can select ALL labels to view or a particular one. Simply type "all" or the number you want (0-17): ')
 
     if label_mode == 'all':
         for label in np.unique(drawem):
@@ -59,7 +59,7 @@ while not_over:
             drawem = mesh.get_array(0).copy()
 
     else:
-        label_mode = int(label_mode)
+        label_mode = np.unique(drawem)[int(label_mode)]
         for idx, value in enumerate(drawem):
             if value != label_mode:
                 drawem[idx] = 100
@@ -71,8 +71,6 @@ while not_over:
             surf_points.plot(eye_dome_lighting=False, render_points_as_spheres=True)
         elif mode == 'm':
             surf_faces.plot(eye_dome_lighting=False, show_edges=False)
-
-        # surf_faces.plot(eye_dome_lighting=True, show_edges=True)
 
         drawem = mesh.get_array(0).copy()
 

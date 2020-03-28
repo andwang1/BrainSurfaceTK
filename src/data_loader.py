@@ -4,13 +4,13 @@ import os.path as osp
 import numpy as np
 import pandas as pd
 import pyvista as pv
-
-from read_meta import read_meta
 import torch
-from torch_geometric.data import InMemoryDataset
 from sklearn.model_selection import train_test_split
-from torch_geometric.data import DataLoader
 from torch_geometric.data import Data
+from torch_geometric.data import DataLoader
+from torch_geometric.data import InMemoryDataset
+
+from src.read_meta import read_meta
 
 
 class OurDataset(InMemoryDataset):
@@ -340,6 +340,7 @@ class OurDataset(InMemoryDataset):
 
                 # Get points
                 points = torch.tensor(mesh.points)
+
                 # Get faces
                 n_faces = mesh.n_cells
                 faces = mesh.faces.reshape((n_faces, -1))
