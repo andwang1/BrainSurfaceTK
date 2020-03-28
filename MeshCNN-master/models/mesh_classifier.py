@@ -52,6 +52,8 @@ class ClassifierModel:
         self.edge_features = input_edge_features.to(self.device).requires_grad_(self.is_train)
         self.labels = labels.to(self.device)
         self.mesh = data['mesh']
+        # Adding path
+        self.path = data['path']
         if self.opt.dataset_mode == 'segmentation' and not self.is_train:
             self.soft_label = torch.from_numpy(data['soft_label'])
 
@@ -126,10 +128,11 @@ class ClassifierModel:
             label_class = self.labels
             self.export_segmentation(pred_class.cpu())
             print('-------')
+            print('File name:\t', self.path)
             print('Predicted:\t', pred_class.item())
             print('Label:\t\t', label_class.item())
             correct = self.get_accuracy(pred_class, label_class)
-            print('Abs Error\t', correct.item())
+            print('Abs Error:\t', correct.item())
         return correct, len(label_class)
 
     def get_accuracy(self, pred, labels):
