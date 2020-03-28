@@ -1,6 +1,6 @@
 import pickle
-from pyvista_examples import plot
 
+from src.pyvista_examples import plot
 
 if __name__ == '__main__':
 

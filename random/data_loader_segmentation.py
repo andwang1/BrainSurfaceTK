@@ -1,17 +1,13 @@
 import os
 import os.path as osp
 
-import numpy as np
 import pyvista as pv
-
-from read_meta import read_meta
 import torch
-from torch_geometric.data import InMemoryDataset
-from torch_geometric.io import read_off
-from torch_geometric.data import DataLoader
 from torch_geometric.data import Data
-import torch_geometric.transforms as T
-from torch_geometric.io import read_txt_array
+from torch_geometric.data import DataLoader
+from torch_geometric.data import InMemoryDataset
+
+from src.read_meta import read_meta
 
 
 class OurDataset(InMemoryDataset):
