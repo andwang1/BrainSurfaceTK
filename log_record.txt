@@ -1,1 +1,2 @@
 LOG OF ALL THE EXPERIMENTS.
+#2 ::: aligned  reduced_50  inflated  LR=0.001		Batch=8		Num Workers=2		Local features:[]		Global features:[]		Data used: reduced_50_inflated		Split class: gender

@@ -183,8 +183,7 @@ class Net(torch.nn.Module):
 
 def train(epoch):
     model.train()
-    epoch_length = len(train_loader)
-    print(epoch_length)
+
     total_loss = correct_nodes = total_nodes = 0
     for idx, data in enumerate(train_loader):
         data = data.to(device)
@@ -215,11 +214,11 @@ def train(epoch):
                 correct_nodes / total_nodes, mean_jaccard_indeces.tolist()))
 
             # Write to tensorboard: LOSS and IoU per class
-            writer.add_scalar('Loss/train', total_loss / 10, idx/epoch_length)
-            writer.add_scalar('Mean IoU/train', torch.sum(mean_jaccard_indeces)/len(mean_jaccard_indeces), idx/epoch_length)
-            writer.add_scalar('Accuracy/train', correct_nodes/total_nodes, idx/epoch_length)
+            writer.add_scalar('Loss/train', total_loss / 10, epoch)
+            writer.add_scalar('Mean IoU/train', torch.sum(mean_jaccard_indeces)/len(mean_jaccard_indeces), epoch)
+            writer.add_scalar('Accuracy/train', correct_nodes/total_nodes, epoch)
             for label, iou in enumerate(mean_jaccard_index_per_class):
-                writer.add_scalar('IoU{}/train'.format(label), iou, idx/epoch_length)
+                writer.add_scalar('IoU{}/train'.format(label), iou, epoch)
                 # print('\t\tLabel {}: {}'.format(label, iou))
             # print('\n')
             total_loss = correct_nodes = total_nodes = 0
@@ -343,7 +342,7 @@ if __name__ == '__main__':
 
             test_size = 0.09
             val_size = 0.1
-            reprocess = False
+            reprocess = True
 
             data_nativeness = 'aligned' # 'native'
             data = "reduced_50"
@@ -440,7 +439,7 @@ if __name__ == '__main__':
                 writer.add_scalar('Accuracy/val', acc, epoch)
                 for label, value in enumerate(iou):
                     writer.add_scalar('IoU{}/validation'.format(label), value, epoch)
-                    print('\t\tLabel {}: {}'.format(label, value))
+                    # print('\t\tLabel {}: {}'.format(label, value))
 
                 # 5. Stop recording time
                 end = time.time()
@@ -456,6 +455,7 @@ if __name__ == '__main__':
             writer.add_scalar('Accuracy/test', acc)
             for label, value in enumerate(iou):
                 writer.add_scalar('IoU{}/test'.format(label), value)
+                print('\t\tLabel {}: {}'.format(label, value))
 
             # 8. Save the model with its unique id
             torch.save(model.state_dict(), '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/{}/'.format(id) + 'model' + '_id' + str(id) + '.pt')
