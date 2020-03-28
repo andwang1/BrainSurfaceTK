@@ -1,4 +1,5 @@
 import torch
+import re
 from . import networks
 from os.path import join
 from util.util import seg_accuracy, print_network
@@ -132,7 +133,11 @@ class ClassifierModel:
             label_class = self.labels
             self.export_segmentation(pred_class.cpu())
 
-            patient_id = self.path[-1][38:-4]
+            re_pattern = r".*\/(CC[a-zA-Z0-9_]+)\.obj$"
+            re_matcher = re.compile(re_pattern)
+            matched_path = re_matcher.match(self.path[-1])
+            patient_id = matched_path.group(1)
+            # patient_id = self.path[-1][38:-4]
 
             print('-------')
             print('Patient ID:\t', patient_id)
