@@ -1,4 +1,11 @@
 48735 edges at red50
 
-testfiles have format
+testfiles csv have format
 {patient_id},{pred_class.item()},{label_class.item()},{correct.item()}
+
+had to exclude from full res run because some faces had 0 area
+
+CC00284AN13_90701.obj
+CC00418AN14_130200.obj
+CC00455XX10_137700.obj
+CC00802XX10_1000.obj

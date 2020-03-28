@@ -132,7 +132,7 @@ class ClassifierModel:
             label_class = self.labels
             self.export_segmentation(pred_class.cpu())
 
-            patient_id = self.path[-1][36:-4]
+            patient_id = self.path[-1][38:-4]
 
             print('-------')
             print('Patient ID:\t', patient_id)
