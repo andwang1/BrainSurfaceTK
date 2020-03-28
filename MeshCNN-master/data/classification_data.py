@@ -39,7 +39,7 @@ class ClassificationData(BaseDataset):
         print("DEBUG path", path)
         label = self.paths[index][1]
         mesh = Mesh(file=path, opt=self.opt, hold_history=False, export_folder=self.opt.export_folder)
-        meta = {'mesh': mesh, 'label': label}
+        meta = {'mesh': mesh, 'label': label, 'path': path}
         # get edge features
         edge_features = mesh.extract_features()
         #edge_features = pad(edge_features, self.opt.ninput_edges)
