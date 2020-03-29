@@ -92,6 +92,24 @@ def read_meta(path=path):
     return data
 
 
+def clean_data(meta_data):
+    '''Cleans the meta_data. Removes rows in the data that we don't have files from.
+    :param meta_data: meta data.
+    :return data: cleaned version of meta data'''
+
+    missing_idx = []
+
+    for idx, patient_id in enumerate(meta_data[:, 1]):
+        file_path = get_file_path(patient_id, meta_data[idx, 2])
+        if not os.path.isfile(file_path):
+            missing_idx.append(idx)
+
+    # for idx in missing_idx:
+    meta_data = np.delete(meta_data, missing_idx, 0)
+
+    return meta_data
+
+
 def get_file_path(patient_id, session_id):
     # sub-CC00050XX01_ses-7201_T2w_graymatter.nii.gz
     file_name = "sub-" + patient_id +"_ses-" + session_id + '_T2w_graymatter.nii.gz'

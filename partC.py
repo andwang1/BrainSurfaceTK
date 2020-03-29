@@ -30,7 +30,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import seaborn as sns
 from models import ImageSegmentationDataset, Part3, resample_image, PrintTensor
-from utils import read_meta, split_data, get_file_path, zero_mean_unit_var,
+from utils import read_meta, split_data, get_file_path, zero_mean_unit_var, clean_data
 ########################################
 # End Imports
 ########################################
@@ -44,32 +44,58 @@ meta_column_idx = categories['scan_age']
 # 1. Read the data
 meta_data = read_meta()
 
+# Cleaning data. Dropping rows, that we don't have files for.
+meta_data = clean_data(meta_data)
+
 # 2. Split the data
-X_train, X_val, X_test = split_data(meta_data, meta_column_idx)
+# X_train, X_val, X_test = split_data(meta_data, meta_column_idx)
 
 # 3. Iterate through all patient ids
 ids = []
 ages = []
 for idx, patient_id in enumerate(meta_data[:, 1]):
-    file_path = get_file_path(patient_id, meta_data[idx, 2])
+    session_id = meta_data[idx, 2]
+    file_path = get_file_path(patient_id, session_id)
     if os.path.isfile(file_path):
-        ids.append(patient_id)
+        ids.append((patient_id, session_id))
         ages.append(float(meta_data[idx, meta_column_idx]))
-
 
 # data_dir = 'data/brain_age/'
 training_size = 0.50
 smoothen = 8
 edgen = False
+test_size = 0.09
+val_size = 0.1
+random_state = 42
+
 # meta_data_reg_train = pd.read_csv(data_dir + 'meta/meta_data_reg_train.csv')
 # ids = meta_data_reg_train['subject_id'].tolist()
 # ages = meta_data_reg_train['age'].tolist()
-X_fold1, X_fold2, y_fold1, y_fold2 = train_test_split(ids, ages, train_size=0.5, random_state=42)
+# X_fold1, X_fold2, y_fold1, y_fold2 = train_test_split(ids, ages, train_size=0.5, random_state=42)
+print(type(meta_data[:, meta_column_idx]))
+_, bins = np.histogram(meta_data[:, meta_column_idx].astype(float), bins='doane')
+y_binned = np.digitize(meta_data[:, meta_column_idx].astype(float), bins)
+print(len(ids), len(ages), len(y_binned))
+X_train, X_test, y_train, y_test = train_test_split(ids, ages,
+                                                    test_size=test_size,
+                                                    random_state=random_state,
+                                                    stratify=y_binned)
+
+print(type(y_train))
+
+if val_size > 0:
+    _, bins = np.histogram(np.array(y_train).astype(float), bins='doane')
+    y_binned = np.digitize(np.array(y_train).astype(float), bins)
+
+    X_train, X_val, y_train, y_val = train_test_split(X_train, y_train,
+                                                       test_size=val_size,
+                                                       random_state=random_state,
+                                                       stratify=y_binned)
 
 
 # ImageSegmentationDataset
-dataset1 = ImageSegmentationDataset(X_fold1, y_fold1, smoothen, edgen)
-dataset2 = ImageSegmentationDataset(X_fold2, y_fold2, smoothen, edgen)
+dataset_train = ImageSegmentationDataset(X_train, y_train, smoothen, edgen)
+dataset_val = ImageSegmentationDataset(X_val, y_val, smoothen, edgen)
 
 
 
@@ -119,16 +145,17 @@ loss_function = L1Loss()
 
 print(f"Learning Rate: {lr} and Feature Amplifier: {feats}, Num_epochs: {num_epochs}, Gamma: {gamma}")
 folds_val_scores = []
-for i in [0, 1]:
+
+for i in [0]:#, 1]:
     training_loss = []
     val_loss_epoch5 = []
     i_fold_val_scores = []
     if i == 0:
-        train_loader = DataLoader(dataset1, batch_size=batch_size)
-        val_loader = DataLoader(dataset2, batch_size=batch_size)
+        train_loader = DataLoader(dataset_train, batch_size=batch_size)
+        val_loader = DataLoader(dataset_val, batch_size=batch_size)
     else:
-        train_loader = DataLoader(dataset2, batch_size=batch_size)
-        val_loader = DataLoader(dataset1, batch_size=batch_size)
+        train_loader = DataLoader(dataset_val, batch_size=batch_size)
+        val_loader = DataLoader(dataset_train, batch_size=batch_size)
 
     model = Part3(feats, dropout_p).to(device=device)
 
@@ -253,8 +280,8 @@ with open(f'{fn}/log.txt', 'a+') as log:
 
 plt.plot([epoch for epoch in range(num_epochs)], train_0, color='b', label='Train-0')
 plt.plot([5*i for i in range(len(val_0))], val_0, color='r', label='Val-0')
-plt.plot([epoch for epoch in range(num_epochs)], train_1, '--', color='b', label='Train-1')
-plt.plot([5*i for i in range(len(val_1))], val_1, '-', color='r', label='Val-1')
+# plt.plot([epoch for epoch in range(num_epochs)], train_1, '--', color='b', label='Train-1')
+# plt.plot([5*i for i in range(len(val_1))], val_1, '-', color='r', label='Val-1')
 plt.title("Loss")
 plt.xlabel("Number of Epochs")
 plt.ylabel("Loss")
@@ -270,12 +297,14 @@ with open(f'{fn}/log.txt', 'a+') as log:
     log.write('\n')
     torch.save(model, f'{fn}/model.pth')
 
+
+
+
 """# Full Train & Final Test"""
 
 ########################################
 # User Parameters:
 ########################################
-data_dir = 'data/brain_age/'
 USE_GPU = True
 dtype = torch.float32
 
@@ -292,193 +321,198 @@ dropout_p = 0.5
 # End User Parameters
 ########################################
 
-meta_data_reg_train = pd.read_csv(data_dir + 'meta/meta_data_reg_train.csv')
-train_ids = meta_data_reg_train['subject_id'].tolist()
-train_ages = meta_data_reg_train['age'].tolist()
+print('='*60)
+print('='*60)
+print('------- TESTING STAGE -------')
+print('='*60)
+print('='*60)
 
-meta_data_reg_test = pd.read_csv('meta_data_reg_test.csv')
-test_ids = meta_data_reg_test['subject_id'].tolist()
-test_ages = meta_data_reg_test['age'].tolist()
+_, bins = np.histogram(meta_data[:, meta_column_idx].astype(float), bins='doane')
+y_binned = np.digitize(meta_data[:, meta_column_idx].astype(float), bins)
+X_train, X_test, y_train, y_test = train_test_split(ids, ages,
+                                                    test_size=test_size,
+                                                    random_state=random_state,
+                                                    stratify=y_binned)
 
 # ImageSegmentationDataset
-train_ds = ImageSegmentationDataset(train_ids, train_ages, smoothen, edgen)
-test_ds = ImageSegmentationDataset(test_ids, test_ages, smoothen, edgen)
+train_ds = ImageSegmentationDataset(X_train, y_train, smoothen, edgen)
+test_ds = ImageSegmentationDataset(X_test, y_test, smoothen, edgen)
 
 # Display GPU Settings:
-cuda_dev = '0' #GPU device 0 (can be changed if multiple GPUs are available)
+cuda_dev = '1' #GPU device 0 (can be changed if multiple GPUs are available)
 use_cuda = torch.cuda.is_available()
-# device = torch.device("cuda:" + cuda_dev if use_cuda else "cpu")
-# print('Device: ' + str(device))
-# if use_cuda:
-#     print('GPU: ' + str(torch.cuda.get_device_name(int(cuda_dev))))
-#
-# print("Creating Subject Folder")
-# number_here = 0
-# while True:
-#     fn = f'Test_{number_here}'
-#     if not os.path.exists(fn):
-#         print(f"Making {number_here}")
-#         os.makedirs(fn)
-#         with open(f'{fn}/log.txt', 'w+') as log:
-#             log.write('\n')
-#         break
-#     else:
-#         print(f"Test_{number_here} exists")
-#         number_here += 1
-# print("Created Subject Folder")
-#
-# loss_function = L1Loss()
-# train_loader = DataLoader(train_ds, batch_size=batch_size)
-# test_loader = DataLoader(test_ds, batch_size=batch_size)
-# print(f"Learning Rate: {lr} and Feature Amplifier: {feats}, Num_epochs: {num_epochs}, Gamma: {gamma}")
-#
-# training_loss = []
-# test_loss_epoch5 = []
-#
-# model = Part3(feats, dropout_p).to(device=device)
-# params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-# print(f"Total Params: {params}")
-#
-# optimizer = Adam(model.parameters(), lr, weight_decay=0.005)
-# scheduler = lr_scheduler.StepLR(optimizer, step_size=1, gamma=gamma, last_epoch=-1)
-#
-# for epoch in range(num_epochs):
-#     model.train()
-#     epoch_loss = []
-#     for batch_data, batch_labels in train_loader:
-#
-#         batch_labels = batch_labels.to(device=device)
-#         batch_data = batch_data.to(device=device)  # move to device, e.g. GPU
-#         batch_preds = model(batch_data)
-#         loss = loss_function(batch_preds, batch_labels)
-#         optimizer.zero_grad()
-#         loss.backward()
-#         optimizer.step()
-#         epoch_loss.append(loss.item())
-#
-#     training_MAE = np.mean(epoch_loss)
-#     training_loss.append(training_MAE)
-#
-#     scheduler.step()
-#
-#     if (epoch%5==0):
-#         test_loss = []
-#         model.eval()
-#         with torch.no_grad():
-#             for batch_data, batch_labels in test_loader:
-#                 batch_data = batch_data.to(device=device)  # move to device, e.g. GPU
-#                 batch_labels = batch_labels.to(device=device)
-#                 batch_preds = model(batch_data)
-#                 loss = loss_function(batch_preds, batch_labels)
-#                 test_loss.append(loss.item())
-#             mean_test_error5 = np.mean(test_loss)
-#             test_loss_epoch5.append(mean_test_error5)
-#         print(f"Epoch: {epoch}:: Learning Rate: {scheduler.get_lr()[0]}")
-#         print(f"{number_here}:: Maxiumum Age Error: {np.round(np.max(epoch_loss))} Average Age Error: {training_MAE}, MAE Test: {mean_test_error5}")
-#
-# model.eval()
-# test_scores = []
-# with torch.no_grad():
-#     for batch_data, batch_labels in test_loader:
-#         batch_data = batch_data.to(device=device)  # move to device, e.g. GPU
-#         batch_labels = batch_labels.to(device=device)
-#         batch_preds = model(batch_data)
-#         loss = loss_function(batch_preds, batch_labels)
-#         test_scores.append(loss.item())
-#
-# score = np.mean(test_scores)
-# test_loss_epoch5.append(score)
-# print(f"Mean Age Error: {score}")
-#
-# plt.plot([epoch for epoch in range(num_epochs)], training_loss, color='b', label='Train')
-# plt.plot([5*i for i in range(len(test_loss_epoch5))], test_loss_epoch5, color='r', label='Test')
-# plt.title("Loss")
-# plt.xlabel("Number of Epochs")
-# plt.ylabel("Loss")
-# plt.ylim(0, 30)
-# plt.xlim(-5, num_epochs+5)
-# plt.legend()
-# plt.savefig(f'{fn}/test_loss_graph.png')
-# plt.close()
-#
-# print(f"Average Loss on whole test set: {score}")
-#
-# result = f"""
-# ########################################################################
-# # Score = {score}
-#
-# # Number of epochs:
-# num_epochs = {num_epochs}
-#
-# # Batch size during training
-# batch_size = {batch_size}
-#
-# # Learning rate for optimizers
-# lr = {lr}
-#
-# # Size of feature amplifier
-# Feature Amplifier: {feats}
-#
-# # Gamma (using sched)
-# Gamma: {gamma}
-#
-# # Smooth:
-# smoothen = {smoothen}
-#
-# # Edgen:
-# edgen = {edgen}
-#
-# # Amount of dropout:
-# dropout_p = {dropout_p}
-#
-# Total number of parameters is: {params}
-#
-# # Model:
-# {model.__str__()}
-# ########################################################################
-# """
-#
-# with open(f'{fn}/test_log.txt', 'a+') as log:
-#     log.write('\n')
-#     log.write(result)
-#     log.write('\n')
-#     torch.save(model, f'{fn}/test_model.pth')
-#
-# model.eval()
-# pred_ages = []
-# actual_ages = []
-# with torch.no_grad():
-#     # for batch_data, batch_labels in train_loader:
-#     #     batch_data = batch_data.to(device=device)  # move to device, e.g. GPU
-#     #     batch_labels = batch_labels.to(device=device)
-#     #     batch_preds = model(batch_data)
-#     #     pred_ages.append([batch_preds[i].item() for i in range(len(batch_preds))])
-#     #     actual_ages.append([batch_labels[i].item() for i in range(len(batch_labels))])
-#
-#     for batch_data, batch_labels in test_loader:
-#         batch_data = batch_data.to(device=device)  # move to device, e.g. GPU
-#         batch_labels = batch_labels.to(device=device)
-#         batch_preds = model(batch_data)
-#         pred_ages.append([batch_preds[i].item() for i in range(len(batch_preds))])
-#         actual_ages.append([batch_labels[i].item() for i in range(len(batch_labels))])
-#
-# pred_ages = np.array(pred_ages).flatten()
-# actual_ages = np.array(actual_ages).flatten()
-#
-# pred_array = []
-# age_array = []
-# for i in range(len(pred_ages)):
-#     for j in range(len(pred_ages[i])):
-#         pred_array.append(pred_ages[i][j])
-#         age_array.append(actual_ages[i][j])
-#
-# y = age_array
-# predicted = pred_array
-#
-# fig, ax = plt.subplots()
-# ax.scatter(y, predicted, marker='.')
-# ax.plot([min(y), max(y)], [min(y), max(y)], 'k--', lw=2)
-# ax.set_xlabel('Real Age')
-# ax.set_ylabel('Predicted Age')
-# plt.savefig(f'{fn}/scatter_part_c.png')
-# plt.close()
+device = torch.device("cuda:" + cuda_dev if use_cuda else "cpu")
+print('Device: ' + str(device))
+if use_cuda:
+    print('GPU: ' + str(torch.cuda.get_device_name(int(cuda_dev))))
+
+print("Creating Subject Folder")
+number_here = 0
+while True:
+    fn = f'Test_{number_here}'
+    if not os.path.exists(fn):
+        print(f"Making {number_here}")
+        os.makedirs(fn)
+        with open(f'{fn}/log.txt', 'w+') as log:
+            log.write('\n')
+        break
+    else:
+        print(f"Test_{number_here} exists")
+        number_here += 1
+print("Created Subject Folder")
+
+loss_function = L1Loss()
+train_loader = DataLoader(train_ds, batch_size=batch_size)
+test_loader = DataLoader(test_ds, batch_size=batch_size)
+print(f"Learning Rate: {lr} and Feature Amplifier: {feats}, Num_epochs: {num_epochs}, Gamma: {gamma}")
+
+training_loss = []
+test_loss_epoch5 = []
+
+model = Part3(feats, dropout_p).to(device=device)
+params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+print(f"Total Params: {params}")
+
+optimizer = Adam(model.parameters(), lr, weight_decay=0.005)
+scheduler = lr_scheduler.StepLR(optimizer, step_size=1, gamma=gamma, last_epoch=-1)
+
+for epoch in range(num_epochs):
+    model.train()
+    epoch_loss = []
+    for batch_data, batch_labels in train_loader:
+
+        batch_labels = batch_labels.to(device=device)
+        batch_data = batch_data.to(device=device)  # move to device, e.g. GPU
+        batch_preds = model(batch_data)
+        loss = loss_function(batch_preds, batch_labels)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        epoch_loss.append(loss.item())
+
+    training_MAE = np.mean(epoch_loss)
+    training_loss.append(training_MAE)
+
+    scheduler.step()
+
+    if (epoch%5==0):
+        test_loss = []
+        model.eval()
+        with torch.no_grad():
+            for batch_data, batch_labels in test_loader:
+                batch_data = batch_data.to(device=device)  # move to device, e.g. GPU
+                batch_labels = batch_labels.to(device=device)
+                batch_preds = model(batch_data)
+                loss = loss_function(batch_preds, batch_labels)
+                test_loss.append(loss.item())
+            mean_test_error5 = np.mean(test_loss)
+            test_loss_epoch5.append(mean_test_error5)
+        print(f"Epoch: {epoch}:: Learning Rate: {scheduler.get_lr()[0]}")
+        print(f"{number_here}:: Maxiumum Age Error: {np.round(np.max(epoch_loss))} Average Age Error: {training_MAE}, MAE Test: {mean_test_error5}")
+
+model.eval()
+test_scores = []
+with torch.no_grad():
+    for batch_data, batch_labels in test_loader:
+        batch_data = batch_data.to(device=device)  # move to device, e.g. GPU
+        batch_labels = batch_labels.to(device=device)
+        batch_preds = model(batch_data)
+        loss = loss_function(batch_preds, batch_labels)
+        test_scores.append(loss.item())
+
+score = np.mean(test_scores)
+test_loss_epoch5.append(score)
+print(f"Mean Age Error: {score}")
+
+plt.plot([epoch for epoch in range(num_epochs)], training_loss, color='b', label='Train')
+plt.plot([5*i for i in range(len(test_loss_epoch5))], test_loss_epoch5, color='r', label='Test')
+plt.title("Loss")
+plt.xlabel("Number of Epochs")
+plt.ylabel("Loss")
+plt.ylim(0, 30)
+plt.xlim(-5, num_epochs+5)
+plt.legend()
+plt.savefig(f'{fn}/test_loss_graph.png')
+plt.close()
+
+print(f"Average Loss on whole test set: {score}")
+
+result = f"""
+########################################################################
+# Score = {score}
+
+# Number of epochs:
+num_epochs = {num_epochs}
+
+# Batch size during training
+batch_size = {batch_size}
+
+# Learning rate for optimizers
+lr = {lr}
+
+# Size of feature amplifier
+Feature Amplifier: {feats}
+
+# Gamma (using sched)
+Gamma: {gamma}
+
+# Smooth:
+smoothen = {smoothen}
+
+# Edgen:
+edgen = {edgen}
+
+# Amount of dropout:
+dropout_p = {dropout_p}
+
+Total number of parameters is: {params}
+
+# Model:
+{model.__str__()}
+########################################################################
+"""
+
+with open(f'{fn}/test_log.txt', 'a+') as log:
+    log.write('\n')
+    log.write(result)
+    log.write('\n')
+    torch.save(model, f'{fn}/test_model.pth')
+
+model.eval()
+pred_ages = []
+actual_ages = []
+with torch.no_grad():
+    # for batch_data, batch_labels in train_loader:
+    #     batch_data = batch_data.to(device=device)  # move to device, e.g. GPU
+    #     batch_labels = batch_labels.to(device=device)
+    #     batch_preds = model(batch_data)
+    #     pred_ages.append([batch_preds[i].item() for i in range(len(batch_preds))])
+    #     actual_ages.append([batch_labels[i].item() for i in range(len(batch_labels))])
+
+    for batch_data, batch_labels in test_loader:
+        batch_data = batch_data.to(device=device)  # move to device, e.g. GPU
+        batch_labels = batch_labels.to(device=device)
+        batch_preds = model(batch_data)
+        pred_ages.append([batch_preds[i].item() for i in range(len(batch_preds))])
+        actual_ages.append([batch_labels[i].item() for i in range(len(batch_labels))])
+
+pred_ages = np.array(pred_ages).flatten()
+actual_ages = np.array(actual_ages).flatten()
+
+pred_array = []
+age_array = []
+for i in range(len(pred_ages)):
+    for j in range(len(pred_ages[i])):
+        pred_array.append(pred_ages[i][j])
+        age_array.append(actual_ages[i][j])
+
+y = age_array
+predicted = pred_array
+
+fig, ax = plt.subplots()
+ax.scatter(y, predicted, marker='.')
+ax.plot([min(y), max(y)], [min(y), max(y)], 'k--', lw=2)
+ax.set_xlabel('Real Age')
+ax.set_ylabel('Predicted Age')
+plt.savefig(f'{fn}/scatter_part_c.png')
+plt.close()
