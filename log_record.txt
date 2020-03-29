@@ -5,3 +5,4 @@ LOG OF ALL THE EXPERIMENTS.
 #5 ::: aligned  reduced_50  inflated  LR=0.001		Batch=8		Num Workers=2		Local features:['curvature']		Global features:[]		Data used: reduced_50_inflated		Split class: gender
 #6 ::: aligned  reduced_50  inflated  LR=0.001		Batch=8		Num Workers=2		Local features:['sulc']		Global features:[]		Data used: reduced_50_inflated		Split class: gender
 #7 ::: aligned  reduced_50  inflated  LR=0.001		Batch=8		Num Workers=2		Local features:['corr_thickness', 'myelin_map']		Global features:[]		Data used: reduced_50_inflated		Split class: gender
+#8 ::: aligned  reduced_50  inflated  LR=0.001		Batch=8		Num Workers=2		Local features:['corr_thickness', 'curvature']		Global features:[]		Data used: reduced_50_inflated		Split class: gender
