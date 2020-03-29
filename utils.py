@@ -1,0 +1,130 @@
+import csv
+import numpy as np
+from sklearn.model_selection import train_test_split
+import os
+import numpy as np
+import SimpleITK as sitk
+import matplotlib.pyplot as plt
+from ipywidgets import interact, fixed
+from IPython.display import display
+import os
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.utils.data import Dataset, DataLoader
+from tqdm import tqdm
+
+
+def zero_mean_unit_var(image, mask):
+    """Normalizes an image to zero mean and unit variance."""
+
+    img_array = sitk.GetArrayFromImage(image)
+    img_array = img_array.astype(np.float32)
+
+    msk_array = sitk.GetArrayFromImage(mask)
+
+    mean = np.mean(img_array[msk_array>0])
+    std = np.std(img_array[msk_array>0])
+
+    if std > 0:
+        img_array = (img_array - mean) / std
+        img_array[msk_array==0] = 0
+
+    image_normalised = sitk.GetImageFromArray(img_array)
+    image_normalised.CopyInformation(image)
+
+    return image_normalised
+
+
+def resample_image(image, out_spacing=(1.0, 1.0, 1.0), out_size=None, is_label=False, pad_value=0):
+    """Resamples an image to given element spacing and output size."""
+
+    original_spacing = np.array(image.GetSpacing())
+    original_size = np.array(image.GetSize())
+
+    if out_size is None:
+        out_size = np.round(np.array(original_size * original_spacing / np.array(out_spacing))).astype(int)
+    else:
+        out_size = np.array(out_size)
+
+    original_direction = np.array(image.GetDirection()).reshape(len(original_spacing),-1)
+    original_center = (np.array(original_size, dtype=float) - 1.0) / 2.0 * original_spacing
+    out_center = (np.array(out_size, dtype=float) - 1.0) / 2.0 * np.array(out_spacing)
+
+    original_center = np.matmul(original_direction, original_center)
+    out_center = np.matmul(original_direction, out_center)
+    out_origin = np.array(image.GetOrigin()) + (original_center - out_center)
+
+    resample = sitk.ResampleImageFilter()
+    resample.SetOutputSpacing(out_spacing)
+    resample.SetSize(out_size.tolist())
+    resample.SetOutputDirection(image.GetDirection())
+    resample.SetOutputOrigin(out_origin.tolist())
+    resample.SetTransform(sitk.Transform())
+    resample.SetDefaultPixelValue(pad_value)
+
+    if is_label:
+        resample.SetInterpolator(sitk.sitkNearestNeighbor)
+    else:
+        resample.SetInterpolator(sitk.sitkBSpline)
+
+    return resample.Execute(image)
+
+
+
+path = 'combined_exist.tsv'
+data_dir = './gm_volume3d/'
+
+def read_meta(path=path):
+    '''Correctly reads a .tsv} file into a numpy array'''
+    data = []
+
+    with open(path) as fd:
+        rd = csv.reader(fd, delimiter=",", quotechar='"')
+        data = []
+        for idx, row in enumerate(rd):
+            if idx == 0:
+                continue
+            data.append(row)
+
+    data = np.array(data)
+
+    return data
+
+
+def get_file_path(patient_id, session_id):
+    # sub-CC00050XX01_ses-7201_T2w_graymatter.nii.gz
+    file_name = "sub-" + patient_id +"_ses-" + session_id + '_T2w_graymatter.nii.gz'
+    file_path = data_dir + file_name
+
+    return file_path
+
+
+# Metadata categories
+test_size = 0.09
+val_size = 0.1
+random_state = 42
+
+def split_data(meta_data, meta_column_idx):
+    '''Split data into training and testing maintaining the same distribution for labels. Splitting is done
+    based on the task and the target labels.
+    :param meta_data: meta_data that is going to be split.
+    :returns: Train or test meta_data.'''
+
+    _, bins = np.histogram(meta_data[:, meta_column_idx].astype(float), bins='doane')
+    y_binned = np.digitize(meta_data[:, meta_column_idx].astype(float), bins)
+
+    X_train, X_test, y_train, y_test = train_test_split(meta_data, meta_data[:, meta_column_idx],
+                                                        test_size=test_size,
+                                                        random_state=random_state,
+                                                        stratify=y_binned)
+    if val_size > 0:
+        _, bins = np.histogram(X_train[:, meta_column_idx].astype(float), bins='doane')
+        y_binned = np.digitize(X_train[:, meta_column_idx].astype(float), bins)
+
+        X_train, X_val, y_train, y_test = train_test_split(X_train, X_train[:, meta_column_idx],
+                                                            test_size=val_size,
+                                                            random_state=random_state,
+                                                            stratify=y_binned)
+
+    return X_train, X_val, X_test
