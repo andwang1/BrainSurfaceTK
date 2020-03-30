@@ -1,50 +1,49 @@
 import os
 import os.path as osp
 
+import random
+import pickle
 import numpy as np
 import pandas as pd
 import pyvista as pv
 import torch
 from sklearn.model_selection import train_test_split
+import torch_geometric.transforms as T
 from torch_geometric.data import Data
 from torch_geometric.data import DataLoader
 from torch_geometric.data import InMemoryDataset
 
-from src.read_meta import read_meta
+from read_meta import read_meta
 
 
 class OurDataset(InMemoryDataset):
     def __init__(self, root, task='classification', target_class='gender', train=True, transform=None,
-                        pre_transform=None, pre_filter=None, data_folder=None, add_features=True, local_features=[],
-                        global_feature=[], files_ending=None, test_size=0.1, random_state=42, reprocess=False,
-                        val_size=-1.0, val=False):
+                    pre_transform=None, pre_filter=None, data_folder=None, add_features=True, local_features=[],
+                    global_feature=[], files_ending=None, reprocess=False, val=False, indices=None):
         '''
         Creates a Pytorch dataset from the .vtk/.vtp brain data.
 
         :param root: Root path, where processed data objects will be placed
         :param task: Possible tasks include: {'classification', 'regression', 'segmentation'}
         :param target_class: Target class that is being predicted (if applicable).
-        :param train: If true, returns train data
+        :param indices: indices of patients that are going to be loaded from meta data.
+        :param train: If true, save data as training
+        :param val: If true and train is false, saves data as validation, test if both are false.
         :param transform: Transformation applied
         :param pre_transform: Pre-transformation applied
         :param pre_filter: Pre-filter applied
         :param data_folder: Path to the data folder with the dataset
         :param add_features: If true, adds all features from .vtp/.vtk files to x in Dataset
-        :param test_size: relative size of the training set
-        :param random_state: Random seed for recreating results
         :param reprocess: Flag to reprocess the data even if it was processed before and saved in the root folder.
         :param local_features: Local features that should be added to every point.
         :param global_feature: Global features that should be added to the label for later use.
-        :param val_size: size of the validation set (fraction of the remaining training data after train/test split).
                IF THIS IS NOT ZERO, THE PROCESSING IS DONE FOR VALIDATION SET.
         '''
 
         # Train, test, validation
         self.train = train
-        self.test_size = test_size
-        self.random_state = random_state
-        self.val_size = val_size
         self.val = val
+        self.indices = indices
 
         # Metadata categories
         self.categories = {'gender': 2, 'birth_age': 3, 'weight': 4, 'scan_age': 6, 'scan_num': 7}
@@ -71,7 +70,8 @@ class OurDataset(InMemoryDataset):
 
         # Initialise path to data
         if data_folder is None:
-            self.data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_fsavg32k/reduced_50/vtk/inflated"
+            self.data_folder =\
+                "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_fsavg32k/reduced_50/vtk/inflated"
         else:
             self.data_folder = data_folder
 
@@ -180,55 +180,60 @@ class OurDataset(InMemoryDataset):
         :param meta_data: meta_data.
         :param patient_idx: index of the patient from the metadata.
         :return list: list of features from meta data.'''
-        return [float(meta_data[patient_idx, self.categories[feature]]) for feature in list_features]
+        patient_data = meta_data[
+            (meta_data[:, 0] == patient_idx[:11]) & (meta_data[:, 1] == patient_idx[12:])][0]
+        print(patient_data)
+        print(self.categories)
+        return [float(patient_data[self.categories[feature]]) for feature in list_features]
+        # return [float(meta_data[patient_idx, self.categories[feature]]) for feature in list_features] #TODO
 
 
-    def split_data(self, meta_data):
-        '''Split data into training and testing maintaining the same distribution for labels. Splitting is done
-        based on the task and the target labels.
-        :param meta_data: meta_data that is going to be split.
-        :returns: Train or test meta_data.'''
-
-        if self.test_size == 0:
-            if self.train:
-                return meta_data
-            else:
-                raise ValueError('Test size is zero. Can not create test data')
-
-        if self.task == 'regression':
-            _, bins = np.histogram(meta_data[:, self.meta_column_idx].astype(float), bins='doane')
-            y_binned = np.digitize(meta_data[:, self.meta_column_idx].astype(float), bins)
-
-            X_train, X_test, y_train, y_test = train_test_split(meta_data, meta_data[:, self.meta_column_idx],
-                                                                test_size=self.test_size,
-                                                                random_state=self.random_state,
-                                                                stratify=y_binned)
-            if self.val_size > 0:
-                _, bins = np.histogram(X_train[:, self.meta_column_idx].astype(float), bins='doane')
-                y_binned = np.digitize(X_train[:, self.meta_column_idx].astype(float), bins)
-
-                X_train, X_val, y_train, y_test = train_test_split(X_train, X_train[:, self.meta_column_idx],
-                                                                    test_size=self.val_size,
-                                                                    random_state=self.random_state,
-                                                                    stratify=y_binned)
-
-        else:
-            X_train, X_test, y_train, y_test = train_test_split(meta_data, meta_data[:, self.meta_column_idx],
-                                                                test_size=self.test_size,
-                                                                random_state=self.random_state,
-                                                                stratify=meta_data[:, self.meta_column_idx])
-            if self.val_size > 0:
-                X_train, X_val, y_train, y_test = train_test_split(X_train, X_train[:, self.meta_column_idx],
-                                                                   test_size=self.val_size,
-                                                                   random_state=self.random_state,
-                                                                   stratify=X_train[:, self.meta_column_idx])
-        if self.train:
-            return X_train
-        else:
-            if self.val:
-                return X_val
-            else:
-                return X_test
+    # def split_data(self, meta_data): # TODO
+    #     '''Split data into training and testing maintaining the same distribution for labels. Splitting is done
+    #     based on the task and the target labels.
+    #     :param meta_data: meta_data that is going to be split.
+    #     :returns: Train or test meta_data.'''
+    #
+    #     if self.test_size == 0:
+    #         if self.train:
+    #             return meta_data
+    #         else:
+    #             raise ValueError('Test size is zero. Can not create test data')
+    #
+    #     if self.task == 'regression':
+    #         _, bins = np.histogram(meta_data[:, self.meta_column_idx].astype(float), bins='doane')
+    #         y_binned = np.digitize(meta_data[:, self.meta_column_idx].astype(float), bins)
+    #
+    #         X_train, X_test, y_train, y_test = train_test_split(meta_data, meta_data[:, self.meta_column_idx],
+    #                                                             test_size=self.test_size,
+    #                                                             random_state=self.random_state,
+    #                                                             stratify=y_binned)
+    #         if self.val_size > 0:
+    #             _, bins = np.histogram(X_train[:, self.meta_column_idx].astype(float), bins='doane')
+    #             y_binned = np.digitize(X_train[:, self.meta_column_idx].astype(float), bins)
+    #
+    #             X_train, X_val, y_train, y_test = train_test_split(X_train, X_train[:, self.meta_column_idx],
+    #                                                                 test_size=self.val_size,
+    #                                                                 random_state=self.random_state,
+    #                                                                 stratify=y_binned)
+    #
+    #     else:
+    #         X_train, X_test, y_train, y_test = train_test_split(meta_data, meta_data[:, self.meta_column_idx],
+    #                                                             test_size=self.test_size,
+    #                                                             random_state=self.random_state,
+    #                                                             stratify=meta_data[:, self.meta_column_idx])
+    #         if self.val_size > 0:
+    #             X_train, X_val, y_train, y_test = train_test_split(X_train, X_train[:, self.meta_column_idx],
+    #                                                                test_size=self.val_size,
+    #                                                                random_state=self.random_state,
+    #                                                                stratify=X_train[:, self.meta_column_idx])
+    #     if self.train:
+    #         return X_train
+    #     else:
+    #         if self.val:
+    #             return X_val
+    #         else:
+    #             return X_test
 
 
     def clean_data(self, meta_data):
@@ -304,13 +309,13 @@ class OurDataset(InMemoryDataset):
         meta_data = read_meta()
 
         # Cleaning data. Dropping rows, that we don't have files for.
-        meta_data = self.clean_data(meta_data)
+        # meta_data = self.clean_data(meta_data)
 
         # Get the mapping for the entire dataset, in order to normalise DRAWEM labels for segmentation
         label_mapping = self.get_all_unique_labels(meta_data)
 
-        # Splitting data.
-        meta_data = self.split_data(meta_data)
+        # Splitting data. #TODO: Delete when tested
+        # meta_data = self.split_data(meta_data)
 
         # 1. Initialise the variables
         data_list = []
@@ -328,10 +333,11 @@ class OurDataset(InMemoryDataset):
         faces_list = []
 
         # 3. Iterate through all patient ids
-        for idx, patient_id in enumerate(meta_data[:, 0]):
+        # for idx, patient_id in enumerate(meta_data[:, 0]):
+        for patient_idx in self.indices:
 
-            # Get file path to .vtk/.vtp for one patient
-            file_path = self.get_file_path(patient_id, meta_data[idx, 1])
+            # Get file path to .vtk/.vtp for one patient #TODO: Maybe do something more beautiful
+            file_path = self.get_file_path(patient_idx[:11], patient_idx[12:])
 
             # If file exists
             if os.path.isfile(file_path):
@@ -350,11 +356,14 @@ class OurDataset(InMemoryDataset):
                 x = self.get_features(self.local_features, mesh)
 
                 # Global features
-                global_x = self.get_global_features(self.global_feature, meta_data, idx)
+                global_x = self.get_global_features(self.global_feature, meta_data, patient_idx)
 
                 # Generating label based on the task. By default regression.
                 if self.task == 'classification':
-                    y = torch.tensor([[self.classes[meta_data[idx, self.meta_column_idx]]] + global_x])
+                    patient_data = meta_data[
+                        (meta_data[:, 0] == patient_idx[:11]) & (meta_data[:, 1] == patient_idx[12:])][0]
+                    y = torch.tensor([[self.classes[patient_data[self.meta_column_idx]]] + global_x])
+                    # y = torch.tensor([[self.classes[meta_data[idx, self.meta_column_idx]]] + global_x]) #TODO
 
                 elif self.task == 'segmentation':
                     y = torch.tensor(mesh.get_array(0))
@@ -364,17 +373,21 @@ class OurDataset(InMemoryDataset):
 
                 # Else, regression
                 else:
-                    y = torch.tensor([[float(meta_data[idx, self.meta_column_idx])] + global_x])
+                    patient_data = meta_data[
+                        (meta_data[:, 0] == patient_idx[:11]) & (meta_data[:, 1] == patient_idx[12:])][0]
+                    y = torch.tensor([[float(patient_data[self.meta_column_idx])] + global_x])
+                    # y = torch.tensor([[float(meta_data[idx, self.meta_column_idx])] + global_x]) #TODO
 
                 # Add the data to the lists
                 xs.append(x)
                 poss.append(points)
                 ys.append(y)
                 faces_list.append(faces)
-
+        # TODO: ASK ALEX IF NEEDS TO BE WRAPPED IN IF
         # Now process the uniqueness of ys
-        ys_normalised = self.normalise_labels(torch.cat(ys), label_mapping)
-        ys = ys_normalised.split(lens)
+        if self.task == 'segmentation':
+            ys_normalised = self.normalise_labels(torch.cat(ys), label_mapping)
+            ys = ys_normalised.split(lens)
 
         # Now add all patient data to the list
         for x, points, y, faces in zip(xs, poss, ys, faces_list):
@@ -399,53 +412,48 @@ class OurDataset(InMemoryDataset):
         #
         #     # Get the number of unique labels
         #     self.num_labels = len(self.unique_labels)
-
+        print(data_list[0].pos)
         return self.collate(data_list)
 
 
 if __name__ == '__main__':
-
+    pass
     # Path to where the data will be saved.
     path = osp.join(osp.dirname(osp.realpath(__file__)), '..', 'data/test_reduce')
 
-    data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_fsavg32k/reduced_90/vtk/inflated"
-    files_ending = "_hemi-L_inflated_reduce90.vtk"
+    # data_folder = "/home/vital/Group Project/deepl_brain_surfaces/random"
+    data_folder = None
+    files_ending = "_hemi-L_inflated_reduce50.vtk"
     # Transformations, scaling and sampling 102 points (doesn't sample faces).
     pre_transform, transform = None, None  # T.NormalizeScale(), T.SamplePoints(1024) #T .FixedPoints(1024)
 
-    # myDataset = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform,
-    #                        target_class='scan_age', task='regression', reprocess=True,
-    #                        local_features=['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc']
-    #                        , global_feature=['weight'], data_folder=data_folder, files_ending=files_ending,
-    #                        val_size=0.1, test_size=0.09)
-    #
-    # myDataset2 = OurDataset(path, train=True, transform=transform, pre_transform=pre_transform,
-    #                        target_class='scan_age', task='regression', reprocess=True,
-    #                        local_features=['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc']
-    #                        , global_feature=['weight'], data_folder=data_folder, files_ending=files_ending,
-    #                        val_size=0.1, test_size=0.09)
+    # with open('../src/indices_50.pk', 'rb') as f:
+    #     indices = pickle.load(f)
 
-    myDataset3 = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform,
+    indices = {'Train': ['CC00050XX01_7201', 'CC00050XX01_7201']}
+    print(indices)
+    myDataset = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform, indices=indices['Train'],
                             target_class='scan_age', task='regression', reprocess=False,
-                            local_features=['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc']
-                            , global_feature=['weight'], data_folder=data_folder, files_ending=files_ending,
-                            val_size=0.1, test_size=0.09, val=True)
+                            local_features=['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc'],
+                            global_feature=['weight'], data_folder=data_folder, files_ending=files_ending, val=True)
 
-    # print(myDataset)
-    # print(myDataset2)
-    print(myDataset3)
-    print(myDataset3[0].x.size(1))
-    print(myDataset3[0].y.size(1))
-
-    # train_loader = DataLoader(myDataset, batch_size=1, shuffle=False)
-    # train_loader2 = DataLoader(myDataset2, batch_size=1, shuffle=False)
-    train_loader3 = DataLoader(myDataset3, batch_size=1, shuffle=False)
-
+    # # print(myDataset)
+    # # print(myDataset2)
+    print(myDataset.get(0))
+    # print(myDataset[0].x.size(1))
+    # print(myDataset[0].y.size(1))
+    #
+    # # train_loader = DataLoader(myDataset, batch_size=1, shuffle=False)
+    # # train_loader2 = DataLoader(myDataset2, batch_size=1, shuffle=False)
+    train_loader3 = DataLoader(myDataset, batch_size=1, shuffle=False)
+    print(train_loader3)
+    #
     #
     #  # Printing dataset without sampling points. Will include faces.
-    # for i, (batch, face, pos, x, y) in enumerate(train_loader3):
+    for i, (batch, face, pos, x, y) in myDataset:
+        print(i)
     #     # print(batch)
-    #     print(face[1].size())
+    #     print(face)
     #     # print(pos[1].size())
     #     # print(x)
     #     # print(y)
