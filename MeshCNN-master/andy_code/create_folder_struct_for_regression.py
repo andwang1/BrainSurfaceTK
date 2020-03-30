@@ -2,11 +2,10 @@ import pickle
 import os
 import pandas as pd
 from shutil import copyfile
-
 # Where them brains at
-source_dir = r"/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/datasets/all_brains_full"
+source_dir = r"/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/datasets/all_brains_native_50"
 # Where them brains should be at
-target_dir = r"/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/datasets/brains_reg_full"
+target_dir = r"/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/datasets/brains_reg_red50_native"
 
 #### This is for MeshCNN specifically
 if not os.access(target_dir, mode=os.F_OK):

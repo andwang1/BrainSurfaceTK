@@ -56,6 +56,11 @@ axes[1, 0].title.set_text('Train')
 axes[1, 1].title.set_text('Val')
 plt.show()
 
+# Have a look at certain ranges
+train_val_comb_df = present_files_meta.loc[train_indices + test_indices]
+print(train_val_comb_df[train_val_comb_df['scan_age'] > 40].describe())
+
+
 # Pickle this to reuse in scripts to split the data
 indices = {"Train": train_indices, "Test": test_indices, "Val": val_indices}
 with open("indices_50.pk", "wb") as f:
