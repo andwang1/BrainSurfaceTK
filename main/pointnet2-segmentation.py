@@ -322,7 +322,7 @@ if __name__ == '__main__':
     local_features = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
     grid_features = get_grid_search_local_features(local_features)
 
-    for local_feature_combo in grid_features:
+    for local_feature_combo in grid_features[10:]:
         for global_feature in [[]]:#, ['weight']]:
 
             # Model Parameters
