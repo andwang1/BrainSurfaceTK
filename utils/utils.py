@@ -1,10 +1,6 @@
 import csv
-import numpy as np
 from sklearn.model_selection import train_test_split
 import os
-import numpy as np
-import SimpleITK as sitk
-import matplotlib.pyplot as plt
 from ipywidgets import interact, fixed
 from IPython.display import display
 import os
@@ -12,7 +8,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
-from tqdm import tqdm
+from utils.models import ImageSegmentationDataset
+import numpy as np
+import SimpleITK as sitk
+import matplotlib.pyplot as plt
 
 
 def zero_mean_unit_var(image, mask):
@@ -76,8 +75,7 @@ path = 'combined_exist.tsv'
 data_dir = './gm_volume3d/'
 
 def read_meta(path=path):
-    '''Correctly reads a .tsv} file into a numpy array'''
-    data = []
+    '''Correctly reads a .tsv file into a numpy array'''
 
     with open(path) as fd:
         rd = csv.reader(fd, delimiter=",", quotechar='"')
@@ -88,7 +86,6 @@ def read_meta(path=path):
             data.append(row)
 
     data = np.array(data)
-
     return data
 
 
@@ -123,37 +120,59 @@ test_size = 0.09
 val_size = 0.1
 random_state = 42
 
-def split_data(meta_data, meta_column_idx):
-    '''Split data into training and testing maintaining the same distribution for labels. Splitting is done
-    based on the task and the target labels.
-    :param meta_data: meta_data that is going to be split.
-    :returns: Train or test meta_data.'''
+
+def split_data(meta_data, meta_column_idx, ids, ages, smoothen, edgen, val_size, test_size, random_state=42):
+    '''
+    Splits the data
+
+    :param meta_data:
+    :param meta_column_idx: the column index of the label
+    :param ids:
+    :param ages:
+    :param val_size:
+    :param test_size:
+    :param random_state:
+    :return:
+    '''
 
     _, bins = np.histogram(meta_data[:, meta_column_idx].astype(float), bins='doane')
     y_binned = np.digitize(meta_data[:, meta_column_idx].astype(float), bins)
 
-    X_train, X_test, y_train, y_test = train_test_split(meta_data, meta_data[:, meta_column_idx],
+    X_train, X_test, y_train, y_test = train_test_split(ids, ages,
                                                         test_size=test_size,
                                                         random_state=random_state,
                                                         stratify=y_binned)
+
     if val_size > 0:
-        _, bins = np.histogram(X_train[:, meta_column_idx].astype(float), bins='doane')
-        y_binned = np.digitize(X_train[:, meta_column_idx].astype(float), bins)
+        _, bins = np.histogram(np.array(y_train).astype(float), bins='doane')
+        y_binned = np.digitize(np.array(y_train).astype(float), bins)
 
-        X_train, X_val, y_train, y_test = train_test_split(X_train, X_train[:, meta_column_idx],
-                                                            test_size=val_size,
-                                                            random_state=random_state,
-                                                            stratify=y_binned)
+        X_train, X_val, y_train, y_val = train_test_split(X_train, y_train,
+                                                          test_size=val_size,
+                                                          random_state=random_state,
+                                                          stratify=y_binned)
 
-    return X_train, X_val, X_test
+    # ImageSegmentationDataset
+    dataset_train = ImageSegmentationDataset(X_train, y_train, smoothen, edgen)
+    dataset_val = ImageSegmentationDataset(X_val, y_val, smoothen, edgen)
+    dataset_test = ImageSegmentationDataset(X_test, y_test, smoothen, edgen)
+
+    return dataset_train, dataset_val, dataset_test
 
 
-import numpy as np
-import SimpleITK as sitk
-import matplotlib.pyplot as plt
+def get_ids_and_ages(meta_data, meta_column_idx):
+    # 3. Iterate through all patient ids
+    ids = []
+    ages = []
+    for idx, patient_id in enumerate(meta_data[:, 1]):
+        session_id = meta_data[idx, 2]
+        file_path = get_file_path(patient_id, session_id)
+        if os.path.isfile(file_path):
+            ids.append((patient_id, session_id))
+            ages.append(float(meta_data[idx, meta_column_idx]))
 
-from ipywidgets import interact, fixed
-from IPython.display import display
+    return ids, ages
+
 
 
 # Calculate parameters low and high from window and level
