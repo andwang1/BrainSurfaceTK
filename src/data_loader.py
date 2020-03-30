@@ -10,10 +10,10 @@ import torch
 from sklearn.model_selection import train_test_split
 import torch_geometric.transforms as T
 from torch_geometric.data import Data
-from torch_geometric.data import DataLoader
+from torch_geometric.data import DataLoader, DataListLoader
 from torch_geometric.data import InMemoryDataset
 
-from read_meta import read_meta
+from src.read_meta import read_meta
 
 
 class OurDataset(InMemoryDataset):
@@ -43,7 +43,7 @@ class OurDataset(InMemoryDataset):
         # Train, test, validation
         self.train = train
         self.val = val
-        self.indices = indices
+        self.indices_ = indices
 
         # Metadata categories
         self.categories = {'gender': 2, 'birth_age': 3, 'weight': 4, 'scan_age': 6, 'scan_num': 7}
@@ -182,77 +182,7 @@ class OurDataset(InMemoryDataset):
         :return list: list of features from meta data.'''
         patient_data = meta_data[
             (meta_data[:, 0] == patient_idx[:11]) & (meta_data[:, 1] == patient_idx[12:])][0]
-        print(patient_data)
-        print(self.categories)
         return [float(patient_data[self.categories[feature]]) for feature in list_features]
-        # return [float(meta_data[patient_idx, self.categories[feature]]) for feature in list_features] #TODO
-
-
-    # def split_data(self, meta_data): # TODO
-    #     '''Split data into training and testing maintaining the same distribution for labels. Splitting is done
-    #     based on the task and the target labels.
-    #     :param meta_data: meta_data that is going to be split.
-    #     :returns: Train or test meta_data.'''
-    #
-    #     if self.test_size == 0:
-    #         if self.train:
-    #             return meta_data
-    #         else:
-    #             raise ValueError('Test size is zero. Can not create test data')
-    #
-    #     if self.task == 'regression':
-    #         _, bins = np.histogram(meta_data[:, self.meta_column_idx].astype(float), bins='doane')
-    #         y_binned = np.digitize(meta_data[:, self.meta_column_idx].astype(float), bins)
-    #
-    #         X_train, X_test, y_train, y_test = train_test_split(meta_data, meta_data[:, self.meta_column_idx],
-    #                                                             test_size=self.test_size,
-    #                                                             random_state=self.random_state,
-    #                                                             stratify=y_binned)
-    #         if self.val_size > 0:
-    #             _, bins = np.histogram(X_train[:, self.meta_column_idx].astype(float), bins='doane')
-    #             y_binned = np.digitize(X_train[:, self.meta_column_idx].astype(float), bins)
-    #
-    #             X_train, X_val, y_train, y_test = train_test_split(X_train, X_train[:, self.meta_column_idx],
-    #                                                                 test_size=self.val_size,
-    #                                                                 random_state=self.random_state,
-    #                                                                 stratify=y_binned)
-    #
-    #     else:
-    #         X_train, X_test, y_train, y_test = train_test_split(meta_data, meta_data[:, self.meta_column_idx],
-    #                                                             test_size=self.test_size,
-    #                                                             random_state=self.random_state,
-    #                                                             stratify=meta_data[:, self.meta_column_idx])
-    #         if self.val_size > 0:
-    #             X_train, X_val, y_train, y_test = train_test_split(X_train, X_train[:, self.meta_column_idx],
-    #                                                                test_size=self.val_size,
-    #                                                                random_state=self.random_state,
-    #                                                                stratify=X_train[:, self.meta_column_idx])
-    #     if self.train:
-    #         return X_train
-    #     else:
-    #         if self.val:
-    #             return X_val
-    #         else:
-    #             return X_test
-
-
-    def clean_data(self, meta_data):
-        '''Cleans the meta_data. Removes rows in the data that we don't have files from.
-        :param meta_data: meta data.
-        :return data: cleaned version of meta data'''
-
-        missing_idx = []
-
-        for idx, patient_id in enumerate(meta_data[:, 0]):
-            file_path = self.get_file_path(patient_id, meta_data[idx, 1])
-            if not os.path.isfile(file_path):
-                missing_idx.append(idx)
-
-        # for idx in missing_idx:
-        meta_data = np.delete(meta_data, missing_idx, 0)
-
-        return meta_data
-
 
     def get_all_unique_labels(self, meta_data):
         '''
@@ -308,14 +238,8 @@ class OurDataset(InMemoryDataset):
         # 0. Get meta data
         meta_data = read_meta()
 
-        # Cleaning data. Dropping rows, that we don't have files for.
-        # meta_data = self.clean_data(meta_data)
-
         # Get the mapping for the entire dataset, in order to normalise DRAWEM labels for segmentation
         label_mapping = self.get_all_unique_labels(meta_data)
-
-        # Splitting data. #TODO: Delete when tested
-        # meta_data = self.split_data(meta_data)
 
         # 1. Initialise the variables
         data_list = []
@@ -334,7 +258,7 @@ class OurDataset(InMemoryDataset):
 
         # 3. Iterate through all patient ids
         # for idx, patient_id in enumerate(meta_data[:, 0]):
-        for patient_idx in self.indices:
+        for patient_idx in self.indices_:
 
             # Get file path to .vtk/.vtp for one patient #TODO: Maybe do something more beautiful
             file_path = self.get_file_path(patient_idx[:11], patient_idx[12:])
@@ -412,12 +336,12 @@ class OurDataset(InMemoryDataset):
         #
         #     # Get the number of unique labels
         #     self.num_labels = len(self.unique_labels)
-        print(data_list[0].pos)
+
         return self.collate(data_list)
 
 
 if __name__ == '__main__':
-    pass
+    ################## SANDBOX ######################
     # Path to where the data will be saved.
     path = osp.join(osp.dirname(osp.realpath(__file__)), '..', 'data/test_reduce')
 
@@ -439,22 +363,21 @@ if __name__ == '__main__':
 
     # # print(myDataset)
     # # print(myDataset2)
-    print(myDataset.get(0))
+    print(myDataset[0])
     # print(myDataset[0].x.size(1))
     # print(myDataset[0].y.size(1))
     #
     # # train_loader = DataLoader(myDataset, batch_size=1, shuffle=False)
     # # train_loader2 = DataLoader(myDataset2, batch_size=1, shuffle=False)
     train_loader3 = DataLoader(myDataset, batch_size=1, shuffle=False)
-    print(train_loader3)
-    #
+
     #
     #  # Printing dataset without sampling points. Will include faces.
-    for i, (batch, face, pos, x, y) in myDataset:
+    for i, (batch, face, pos, x, y) in enumerate(train_loader3):
         print(i)
-    #     # print(batch)
-    #     print(face)
-    #     # print(pos[1].size())
-    #     # print(x)
-    #     # print(y)
+        print(batch)
+        print(face)
+        # print(pos[1].size())
+        print(x)
+        print(y)
     #     print('_____________')

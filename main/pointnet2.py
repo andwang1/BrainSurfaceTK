@@ -1,6 +1,10 @@
 import os.path as osp
+import os
 import time
+import pickle
+import csv
 
+import datetime as datetime
 import torch
 import torch.nn.functional as F
 import torch_geometric.transforms as T
@@ -102,7 +106,7 @@ def train(epoch):
 
         loss_train += loss.item()
 
-    writer.add_scalar('Loss/train', loss_train / len(train_loader), epoch)
+    writer.add_scalar('Loss/train_mse', loss_train / len(train_loader), epoch)
 
 def test_classification(loader):
     model.eval()
@@ -117,20 +121,37 @@ def test_classification(loader):
     return correct / len(loader.dataset)
 
 
-def test_regression(loader):
-    model.eval()
+def test_regression(loader, indices, results_folder, val=True, epoch=0):
 
-    mse = 0
-    l1 = 0
-    for data in loader:
-        data = data.to(device)
-        with torch.no_grad():
-            pred = model(data)
-            print(pred.t(), data.y[:, 0])
-            loss_test_mse = F.mse_loss(pred, data.y[:, 0])
-            loss_test_l1 = F.l1_loss(pred, data.y[:, 0])
-        mse += loss_test_mse.item()
-        l1 += loss_test_l1.item()
+    model.eval()
+    with open(results_folder + '/results.csv', 'a', newline='') as results_file:
+        result_writer = csv.writer(results_file, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+        if val:
+            print('Validation'.center(60, '-'))
+            result_writer.writerow(['Val scores Epoch - ' + str(epoch)])
+        else:
+            print('Test'.center(60, '-'))
+            result_writer.writerow(['Test scores'])
+
+        mse = 0
+        l1 = 0
+        for idx, data in enumerate(loader):
+            data = data.to(device)
+            with torch.no_grad():
+                pred = model(data)
+                print(str(pred.t().item()).center(20, ' '), str(data.y[:, 0].item()).center(20, ' '), indices[idx])
+                result_writer.writerow([indices[idx][:11], indices[idx][12:],
+                                        str(pred.t().item()), str(data.y[:, 0].item()),
+                                        str(abs(pred.t().item() - data.y[:, 0].item()))])
+                loss_test_mse = F.mse_loss(pred, data.y[:, 0])
+                loss_test_l1 = F.l1_loss(pred, data.y[:, 0])
+            mse += loss_test_mse.item()
+            l1 += loss_test_l1.item()
+        if val:
+            result_writer.writerow(['Epoch average error:', str(l1 / len(loader))])
+        else:
+            result_writer.writerow(['Test average error:', str(l1 / len(loader))])
+
     return mse / len(loader), l1 / len(loader)
 
 
@@ -138,65 +159,99 @@ if __name__ == '__main__':
 
     # Model Parameters
     lr = 0.001
-    batch_size = 8
+    batch_size = 1
     num_workers = 2
 
     local_features = ['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc']
     global_features = ['weight']
     target_class = 'scan_age'
     task = 'regression'
-    number_of_points = 12000
+    number_of_points = 1200
 
-    test_size = 0.09
-    val_size = 0.1
+    with open('../src/indices_50.pk', 'rb') as f:
+        indices = pickle.load(f)
+
+    # For quick tests
+    # indices = {'Train': ['CC00050XX01_7201', 'CC00050XX01_7201'],
+    #            'Test': ['CC00050XX01_7201', 'CC00050XX01_7201'],
+    #            'Val': ['CC00050XX01_7201', 'CC00050XX01_7201']}
+
     reprocess = True
 
     data = "reduced_50"
     type_data = "inflated"
+    data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_fsavg32k/reduced_50/vtk/inflated"
 
-    comment = "LR_" + str(lr) \
-            + "_BATCH_" + str(batch_size) \
-            + "_NUM_WORKERS_" + str(num_workers)\
-            + "_local_features_" + str(local_features)\
-            + "_glogal_features_" + str(global_features) \
-            + "number_of_points" + str(number_of_points)\
-            + data + "_" + type_data
+    # data_folder = "/home/vital/Group Project/deepl_brain_surfaces/random"
+    files_ending = "_hemi-L_inflated_reduce50.vtk"
+
+    comment = str(datetime.datetime.now()) \
+            + "__LR__" + str(lr) \
+            + "__BATCH_" + str(batch_size) \
+            + "__local_features__" + str(local_features)\
+            + "__glogal_features__" + str(global_features) \
+            + "__number_of_points__" + str(number_of_points)\
+            + "__" + data + "__" + type_data + '__No_rotate'
+
+    results_folder = 'runs/' + task + '/' + comment + '/results'
+    model_dir = 'runs/' + task + '/' + comment + '/models'
+
+    if not osp.exists(results_folder):
+        os.makedirs(results_folder)
+
+    if not osp.exists(model_dir):
+        os.makedirs(model_dir)
+
+    with open(results_folder + '/configuration.txt', 'w', newline='') as config_file:
+        config_file.write('Learning rate - ' + str(lr) + '\n')
+        config_file.write('Batch size - ' + str(batch_size) + '\n')
+        config_file.write('Local features - ' + str(local_features) + '\n')
+        config_file.write('Global feature - ' + str(global_features) + '\n')
+        config_file.write('Number of points - ' + str(number_of_points) + '\n')
+        config_file.write('Data res - ' + data + '\n')
+        config_file.write('Data type - ' + type_data + '\n')
+        config_file.write('Additional comments - No rotate transforms' + '\n')
+
+    with open(results_folder + '/results.csv', 'w', newline='') as results_file:
+        result_writer = csv.writer(results_file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        result_writer.writerow(['Patient ID', 'Session ID', 'Prediction', 'Label', 'Error'])
 
     # Tensorboard writer.
-    writer = SummaryWriter(comment=comment)
-
-    print(comment)
+    writer = SummaryWriter(log_dir='runs/' + task + '/' + comment, comment=comment)
 
     path = osp.join(
         osp.dirname(osp.realpath(__file__)), '..', 'data/'+target_class+'/Reduced50/inflated')
 
     # DEFINE TRANSFORMS HERE.
     transform = T.Compose([
-        T.FixedPoints(number_of_points)
+        T.FixedPoints(number_of_points),
+        # T.RandomRotate(360, axis=0),
+        # T.RandomRotate(360, axis=1),
+        # T.RandomRotate(360, axis=2)
     ])
 
     # TRANSFORMS DONE BEFORE SAVING THE DATA IF THE DATA IS NOT YET PROCESSED.
     pre_transform = T.NormalizeScale()
 
     # Creating datasets and dataloaders for train/test/val.
-    train_dataset = OurDataset(path, train=True, transform=transform, pre_transform=pre_transform,
-                                                 target_class=target_class, task=task, reprocess=reprocess,
-                                                 local_features=local_features, global_feature=global_features,
-                                                 test_size=test_size, val_size=val_size, val=False)
+    train_dataset = OurDataset(path, train=True, transform=transform, pre_transform=pre_transform, val=False,
+                               target_class=target_class, task=task, reprocess=reprocess, files_ending=files_ending,
+                               local_features=local_features, global_feature=global_features,
+                               indices=indices['Train'], data_folder=data_folder)
 
-    test_dataset = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform,
-                                                 target_class=target_class, task=task, reprocess=reprocess,
-                                                 local_features=local_features, global_feature=global_features,
-                                                 test_size=test_size, val_size=val_size, val=False)
+    test_dataset = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform, val=False,
+                              target_class=target_class, task=task, reprocess=reprocess, files_ending=files_ending,
+                              local_features=local_features, global_feature=global_features,
+                              indices=indices['Test'], data_folder=data_folder)
 
-    validation_dataset = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform,
-                                                 target_class=target_class, task=task, reprocess=reprocess,
-                                                 local_features=local_features, global_feature=global_features,
-                                                 test_size=test_size, val_size=val_size, val=True)
+    val_dataset = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform, val=True,
+                             target_class=target_class, task=task, reprocess=reprocess, files_ending=files_ending,
+                             local_features=local_features, global_feature=global_features,
+                             indices=indices['Val'], data_folder=data_folder)
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
-    val_loader = DataLoader(validation_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+    test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False, num_workers=num_workers)
+    val_loader = DataLoader(val_dataset, batch_size=1, shuffle=False, num_workers=num_workers)
 
     # Getting the number of features to adapt the architecture
     numb_local_features = train_dataset[0].x.size(1)
@@ -209,21 +264,36 @@ if __name__ == '__main__':
     model = Net(numb_local_features, numb_global_features).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
+    best_val_loss = 999
+
     # MAIN TRAINING LOOP
-    for epoch in range(1, 51):
+    for epoch in range(1, 5):
         start = time.time()
         train(epoch)
-        test_mse, test_l1 = test_regression(val_loader)
+        val_mse, val_l1 = test_regression(val_loader, indices['Val'], results_folder, epoch=epoch)
 
-        writer.add_scalar('Loss/val_mse', test_mse, epoch)
-        writer.add_scalar('Loss/val_l1', test_l1, epoch)
+        writer.add_scalar('Loss/val_mse', val_mse, epoch)
+        writer.add_scalar('Loss/val_l1', val_l1, epoch)
 
-        print('Epoch: {:03d}, Test loss l1: {:.4f}'.format(epoch, test_l1))
+        print('Epoch: {:03d}, Test loss l1: {:.4f}'.format(epoch, val_l1))
         end = time.time()
         print('Time: ' + str(end - start))
+        if val_l1 < best_val_loss:
+            best_val_loss = val_l1
+            torch.save(model.state_dict(), model_dir + '/model_best.pt')
+            print('Saving Model'.center(60, '-'))
         writer.add_scalar('Time/epoch', end - start, epoch)
 
-    writer.add_scalar('Final Test Loss (L1)', test_regression(test_loader))
+    test_regression(test_loader, indices['Test'], results_folder, val=False)
 
-    # save the model
-    torch.save(model.state_dict(), 'model' + comment + '.pt')
+    # save the last model
+    torch.save(model.state_dict(), model_dir + '/model_last.pt')
+
+    # Eval best model on test
+    model.load_state_dict(torch.load(model_dir + '/model_best.pt'))
+
+    with open(results_folder + '/results.csv', 'a', newline='') as results_file:
+        result_writer = csv.writer(results_file, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+        result_writer.writerow(['Best model!'])
+
+    test_regression(test_loader, indices['Test'], results_folder, val=False)
