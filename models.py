@@ -25,17 +25,22 @@ variances = [i for i in range(30)]
 
 
 class ImageSegmentationDataset(Dataset):
-    """Dataset for image segmentation."""
+    """Dataset for image segmentation.
+        selected_ids: tuples with patient id and session id [ (,) ,  (,) ,  ... ]
+        id_ages: labels
+        """
 
     def __init__(self, selected_ids, id_ages, smoothen=None, edgen=False):
         if smoothen is None:
             smoothen = 0
         print("Initialising Dataset")
         self.ids = selected_ids
+        self.smoothen = smoothen
+        self.display(2) # Save an example
         if edgen:  # resample_image(dts[0][0], [3, 3, 3], [60, 60, 50])
-            self.samples = [torch.from_numpy(sitk.GetArrayFromImage(sitk.SobelEdgeDetection(sitk.DiscreteGaussian(resample_image(sitk.ReadImage(f"gm_volume3d/sub-{ID[0]}_ses-{ID[1]}_T2w_graymatter.nii.gz", sitk.sitkFloat32), [3, 3, 3], [60, 60, 50]), smoothen)))).unsqueeze(0) for ID in self.ids]
+            self.samples = [torch.from_numpy(sitk.GetArrayFromImage(sitk.SobelEdgeDetection(sitk.DiscreteGaussian(resample_image(sitk.ReadImage(f"gm_volume3d/sub-{ID[0]}_ses-{ID[1]}_T2w_graymatter.nii.gz", sitk.sitkFloat32), [2.5, 2.5, 2.5], [60, 60, 50]), smoothen)))).unsqueeze(0) for ID in self.ids]
         else:
-            self.samples = [torch.from_numpy(sitk.GetArrayFromImage(sitk.DiscreteGaussian(resample_image(sitk.ReadImage(f"gm_volume3d/sub-{ID[0]}_ses-{ID[1]}_T2w_graymatter.nii.gz", sitk.sitkFloat32), [3, 3, 3], [60, 60, 50]), smoothen))).unsqueeze(0) for ID in self.ids]
+            self.samples = [torch.from_numpy(sitk.GetArrayFromImage(sitk.DiscreteGaussian(resample_image(sitk.ReadImage(f"gm_volume3d/sub-{ID[0]}_ses-{ID[1]}_T2w_graymatter.nii.gz", sitk.sitkFloat32), [2.5, 2.5, 2.5], [60, 60, 50]), smoothen))).unsqueeze(0) for ID in self.ids]
 
         # self.samples = [(sitk.DiscreteGaussian(sitk.ReadImage(f"{data_dir}/greymatter/wc1sub-{ID}_T1w.nii.gz", sitk.sitkFloat32), smoothen)) for ID in self.ids]
         self.targets = torch.tensor(id_ages, dtype=torch.float).view((-1, 1))
@@ -46,6 +51,12 @@ class ImageSegmentationDataset(Dataset):
 
     def __getitem__(self, item):
         return self.samples[item], self.targets[item]
+
+    def display(self, item):
+        from utils import display_image
+        ID = self.ids[item]
+        img = sitk.SobelEdgeDetection(sitk.DiscreteGaussian(resample_image(sitk.ReadImage(f"gm_volume3d/sub-{ID[0]}_ses-{ID[1]}_T2w_graymatter.nii.gz", sitk.sitkFloat32), [2.5, 2.5, 2.5], [60, 60, 50]), self.smoothen))
+        display_image(img)
 
 
 #

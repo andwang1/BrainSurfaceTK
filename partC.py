@@ -30,7 +30,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import seaborn as sns
 from models import ImageSegmentationDataset, Part3, resample_image, PrintTensor
-from utils import read_meta, split_data, get_file_path, zero_mean_unit_var, clean_data
+from utils import read_meta, split_data, get_file_path, zero_mean_unit_var, clean_data, display_image
 ########################################
 # End Imports
 ########################################
@@ -47,9 +47,6 @@ meta_data = read_meta()
 # Cleaning data. Dropping rows, that we don't have files for.
 meta_data = clean_data(meta_data)
 
-# 2. Split the data
-# X_train, X_val, X_test = split_data(meta_data, meta_column_idx)
-
 # 3. Iterate through all patient ids
 ids = []
 ages = []
@@ -60,28 +57,29 @@ for idx, patient_id in enumerate(meta_data[:, 1]):
         ids.append((patient_id, session_id))
         ages.append(float(meta_data[idx, meta_column_idx]))
 
-# data_dir = 'data/brain_age/'
+
 training_size = 0.50
-smoothen = 8
+smoothen = 5
 edgen = False
 test_size = 0.09
 val_size = 0.1
 random_state = 42
 
+for smoothen in [0, 2, 4, 6, 8]:
+
 # meta_data_reg_train = pd.read_csv(data_dir + 'meta/meta_data_reg_train.csv')
 # ids = meta_data_reg_train['subject_id'].tolist()
 # ages = meta_data_reg_train['age'].tolist()
 # X_fold1, X_fold2, y_fold1, y_fold2 = train_test_split(ids, ages, train_size=0.5, random_state=42)
-print(type(meta_data[:, meta_column_idx]))
+
 _, bins = np.histogram(meta_data[:, meta_column_idx].astype(float), bins='doane')
 y_binned = np.digitize(meta_data[:, meta_column_idx].astype(float), bins)
-print(len(ids), len(ages), len(y_binned))
+
 X_train, X_test, y_train, y_test = train_test_split(ids, ages,
                                                     test_size=test_size,
                                                     random_state=random_state,
                                                     stratify=y_binned)
 
-print(type(y_train))
 
 if val_size > 0:
     _, bins = np.histogram(np.array(y_train).astype(float), bins='doane')
@@ -96,7 +94,6 @@ if val_size > 0:
 # ImageSegmentationDataset
 dataset_train = ImageSegmentationDataset(X_train, y_train, smoothen, edgen)
 dataset_val = ImageSegmentationDataset(X_val, y_val, smoothen, edgen)
-
 
 
 ########################################
@@ -115,6 +112,7 @@ sns.set(style='darkgrid')
 ########################################
 # End User Parameters
 ########################################
+
 
 
 
