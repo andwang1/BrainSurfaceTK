@@ -1,16 +1,12 @@
 import os
 import os.path as osp
 
-import random
-import pickle
-import numpy as np
 import pandas as pd
 import pyvista as pv
 import torch
-from sklearn.model_selection import train_test_split
-import torch_geometric.transforms as T
+
 from torch_geometric.data import Data
-from torch_geometric.data import DataLoader, DataListLoader
+from torch_geometric.data import DataLoader
 from torch_geometric.data import InMemoryDataset
 
 from src.read_meta import read_meta
@@ -346,8 +342,8 @@ if __name__ == '__main__':
     path = osp.join(osp.dirname(osp.realpath(__file__)), '..', 'data/test_reduce')
 
     # data_folder = "/home/vital/Group Project/deepl_brain_surfaces/random"
-    data_folder = None
-    files_ending = "_hemi-L_inflated_reduce50.vtk"
+    data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_fsavg32k/reduced_90/vtk/inflated"
+    files_ending = "_hemi-L_inflated_reduce90.vtk"
     # Transformations, scaling and sampling 102 points (doesn't sample faces).
     pre_transform, transform = None, None  # T.NormalizeScale(), T.SamplePoints(1024) #T .FixedPoints(1024)
 

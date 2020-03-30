@@ -161,15 +161,13 @@ if __name__ == '__main__':
     lr = 0.001
     batch_size = 1
     num_workers = 2
-
-    local_features = ['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc']
-    global_features = ['weight']
+    # ['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc'] + ['weight']
+    local_features = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
+    # local_features = []
+    global_features = []
     target_class = 'scan_age'
     task = 'regression'
-    number_of_points = 1200
-
-    with open('../src/indices_50.pk', 'rb') as f:
-        indices = pickle.load(f)
+    number_of_points = 1200  # 16247
 
     # For quick tests
     # indices = {'Train': ['CC00050XX01_7201', 'CC00050XX01_7201'],
@@ -178,12 +176,41 @@ if __name__ == '__main__':
 
     reprocess = True
 
-    data = "reduced_50"
-    type_data = "inflated"
-    data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_fsavg32k/reduced_50/vtk/inflated"
+    #inflated  midthickness  pial  sphere  veryinflated  white
 
+    data = "reduced_50"
+    data_ending = "reduce50.vtk"
+    type_data = "inflated"
+
+    # data = "reduced_90"
+    # data_ending = "reduce90.vtk"
+    # type_data = "pial"
+    #
+    # data = "reduced_50"
+    # data_ending = "reduce50.vtk"
+    # type_data = "pial"
+    #
+    # data = "reduced_50"
+    # data_ending = "reduce50.vtk"
+    # type_data = "white"
+
+    # folder in data/stored for data.
+    stored = type_data + '/' + data + '/' + str(local_features + global_features)
+
+    data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_fsavg32k/" + data \
+                  + "/vtk/" + type_data
+
+    files_ending = "_hemi-L_inflated_" + data_ending
+
+    # From quick local test
     # data_folder = "/home/vital/Group Project/deepl_brain_surfaces/random"
-    files_ending = "_hemi-L_inflated_reduce50.vtk"
+
+    if data == "reduced_90":
+        with open('src/indices_90.pk', 'rb') as f:
+            indices = pickle.load(f)
+    else:
+        with open('src/indices_50.pk', 'rb') as f:
+            indices = pickle.load(f)
 
     comment = str(datetime.datetime.now()) \
             + "__LR__" + str(lr) \
@@ -220,7 +247,7 @@ if __name__ == '__main__':
     writer = SummaryWriter(log_dir='runs/' + task + '/' + comment, comment=comment)
 
     path = osp.join(
-        osp.dirname(osp.realpath(__file__)), '..', 'data/'+target_class+'/Reduced50/inflated')
+        osp.dirname(osp.realpath(__file__)), '..', 'data/' + stored)
 
     # DEFINE TRANSFORMS HERE.
     transform = T.Compose([
@@ -267,7 +294,7 @@ if __name__ == '__main__':
     best_val_loss = 999
 
     # MAIN TRAINING LOOP
-    for epoch in range(1, 5):
+    for epoch in range(1, 51):
         start = time.time()
         train(epoch)
         val_mse, val_l1 = test_regression(val_loader, indices['Val'], results_folder, epoch=epoch)
