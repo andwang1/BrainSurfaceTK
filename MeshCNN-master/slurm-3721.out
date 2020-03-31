@@ -1,0 +1,96 @@
+Mon Mar 30 23:47:45 2020       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 435.21       Driver Version: 435.21       CUDA Version: 10.1     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|===============================+======================+======================|
+|   0  TITAN Xp            On   | 00000000:B2:00.0 Off |                  N/A |
+| 23%   31C    P8     8W / 250W |      0MiB / 12196MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                       GPU Memory |
+|  GPU       PID   Type   Process name                             Usage      |
+|=============================================================================|
+|  No running processes found                                                 |
++-----------------------------------------------------------------------------+
+ 23:47:45 up 88 days,  9:01,  2 users,  load average: 4.63, 4.67, 4.71
+/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master
+------------ Options -------------
+arch: mconvnet
+batch_size: 1
+beta1: 0.9
+checkpoints_dir: checkpoints/red50_native_run1
+continue_train: False
+dataroot: datasets/brains_reg_red50_native
+dataset_mode: regression
+epoch_count: 1
+export_folder: checkpoints/red50_native_run1/brains/checkpoints/mesh_collapses
+fc_n: 100
+flip_edges: 0.2
+gpu_ids: [0]
+init_gain: 0.02
+init_type: normal
+is_train: True
+lr: 0.0002
+lr_decay_iters: 50
+lr_policy: lambda
+max_dataset_size: inf
+name: brains
+ncf: [64, 112, 128]
+ninput_edges: 9000
+niter: 5
+niter_decay: 2000
+no_vis: False
+norm: group
+num_aug: 1
+num_groups: 16
+num_threads: 3
+phase: train
+pool_res: [3000, 2500, 2000]
+print_freq: 14
+resblocks: 1
+run_test_freq: 1
+save_epoch_freq: 1
+save_latest_freq: 250
+scale_verts: False
+seed: None
+serial_batches: False
+slide_verts: 0.2
+verbose_plot: True
+which_epoch: latest
+-------------- End ----------------
+computing mean std from train data...
+0 of 610
+500 of 610
+saved:  datasets/brains_reg_red50_native/mean_std_cache.p
+loaded mean / std from cache
+#training meshes = 610
+---------- Network initialized -------------
+[Network] Total number of parameters : 0.288 M
+-----------------------------------------------
+Traceback (most recent call last):
+  File "train.py", line 30, in <module>
+    model.optimize_parameters()
+  File "/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/models/mesh_classifier.py", line 80, in optimize_parameters
+    out = self.forward()
+  File "/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/models/mesh_classifier.py", line 67, in forward
+    out = self.net(self.edge_features, self.mesh)
+  File "/vol/biomedic2/aa16914/shared/MScAI_brain_surface/venv/lib/python3.6/site-packages/torch/nn/modules/module.py", line 532, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/vol/biomedic2/aa16914/shared/MScAI_brain_surface/venv/lib/python3.6/site-packages/torch/nn/parallel/data_parallel.py", line 150, in forward
+    return self.module(*inputs[0], **kwargs[0])
+  File "/vol/biomedic2/aa16914/shared/MScAI_brain_surface/venv/lib/python3.6/site-packages/torch/nn/modules/module.py", line 532, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/models/networks.py", line 152, in forward
+    x = getattr(self, 'pool{}'.format(i))(x, mesh)
+  File "/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/models/layers/mesh_pool.py", line 21, in __call__
+    return self.forward(fe, meshes)
+  File "/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/models/layers/mesh_pool.py", line 34, in forward
+    self.__pool_main(mesh_index)
+  File "/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/models/layers/mesh_pool.py", line 51, in __pool_main
+    edge_groups = MeshUnion(mesh.edges_count, self.__fe.device)
+  File "/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/models/layers/mesh_union.py", line 10, in __init__
+    self.groups = torch.eye(n, device=device)
+RuntimeError: CUDA out of memory. Tried to allocate 76.42 GiB (GPU 0; 11.91 GiB total capacity; 523.77 MiB already allocated; 10.78 GiB free; 570.00 MiB reserved in total by PyTorch)

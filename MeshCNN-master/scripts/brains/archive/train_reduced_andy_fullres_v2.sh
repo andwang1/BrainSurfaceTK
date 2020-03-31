@@ -9,8 +9,8 @@ python3 train.py \
 --epoch_count 1 \
 --niter 5 \
 --batch_size 1 \
---ncf 64 112 128 \
---pool_res 3000 2500 2000 \
+--ncf 16 \
+--pool_res 1 \
 --norm group \
 --resblocks 1 \
 --flip_edges 0.2 \

@@ -2,8 +2,8 @@
 
 ## run the training
 python3 train.py \
---dataroot datasets/brains_reg_red50 \
---checkpoints_dir checkpoints/red50_run2 \
+--dataroot datasets/brains_reg_red50_native \
+--checkpoints_dir checkpoints/red50_native_run1 \
 --export_folder checkpoints/mesh_collapses \
 --name brains \
 --epoch_count 1 \
