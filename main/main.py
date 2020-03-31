@@ -12,7 +12,7 @@ from torch.nn import Module, Conv3d, ConvTranspose3d, Linear, ReLU, Sequential, 
     Dropout, BatchNorm1d
 from torch.optim import Adam, lr_scheduler
 from torch.utils.data import Dataset, DataLoader
-from utils.utils import read_meta, get_file_path, zero_mean_unit_var, clean_data, display_image, split_data, get_ids_and_ages
+from utils.utils import read_meta, clean_data, split_data, get_ids_and_ages, plot_to_tensorboard
 from utils.models import ImageSegmentationDataset, Part3, resample_image, PrintTensor
 import os.path as osp
 from main.train_validate import train_validate, save_to_log
@@ -141,7 +141,8 @@ if __name__ == '__main__':
                         gamma, smoothen,
                         edgen, dropout_p,
                         spacing, image_size,
-                        scheduler_frequency)
+                        scheduler_frequency,
+                        writer=writer)
 
 
             """# Full Train & Final Test"""
@@ -158,7 +159,10 @@ if __name__ == '__main__':
                                                                          writer=writer)
 
             # 4. Record the TEST results
-            save_to_log_test(model, params, fn, score, num_epochs, batch_size, lr, feats, gamma, smoothen, edgen, dropout_p, spacing, image_size, scheduler_frequency)
+            save_to_log_test(model, params, fn, score, num_epochs, batch_size,
+                             lr, feats, gamma, smoothen, edgen, dropout_p, spacing,
+                             image_size, scheduler_frequency,
+                             writer=writer)
 
 
             # 5. Perform the final testing
@@ -193,5 +197,6 @@ if __name__ == '__main__':
             ax.plot([min(y), max(y)], [min(y), max(y)], 'k--', lw=2)
             ax.set_xlabel('Real Age')
             ax.set_ylabel('Predicted Age')
-            plt.savefig(path + '/scatter_part_c.png')
+            img = plt.savefig(path + '/scatter_part_c.png')
+            plot_to_tensorboard(writer, img, 'Scatter Plot Prediction')
             plt.close()

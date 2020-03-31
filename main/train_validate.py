@@ -12,17 +12,17 @@ from torch.nn import Module, Conv3d, ConvTranspose3d, Linear, ReLU, Sequential, 
     Dropout, BatchNorm1d
 from torch.optim import Adam, lr_scheduler
 from torch.utils.data import Dataset, DataLoader
-from utils.utils import read_meta, get_file_path, zero_mean_unit_var, clean_data, display_image, split_data, get_ids_and_ages
+from utils.utils import read_meta, get_file_path, zero_mean_unit_var, clean_data, display_image, split_data, get_ids_and_ages, plot_to_tensorboard
 from utils.models import ImageSegmentationDataset, Part3, resample_image, PrintTensor
 import os.path as osp
 
 
-def save_graphs_train(fn, num_epochs, training_loss, val_loss_epoch5):
+def save_graphs_train(fn, num_epochs, training_loss, val_loss_epoch5, writer):
 
 
     path = osp.join(osp.dirname(osp.realpath(__file__)), '..', f'{fn}/')
 
-
+    img = plt.figure()
     plt.plot([epoch for epoch in range(num_epochs)], training_loss, color='b', label='Train')
     plt.plot([5 * i for i in range(len(val_loss_epoch5))], val_loss_epoch5, color='r', label='Val')
     plt.title("Loss")
@@ -32,6 +32,7 @@ def save_graphs_train(fn, num_epochs, training_loss, val_loss_epoch5):
     plt.xlim(-5, num_epochs + 5)
     plt.legend()
     plt.savefig(path + f'graph.png')
+    plot_to_tensorboard(writer, img, 'Loss Graph/train')
     plt.close()
 
 
@@ -194,6 +195,6 @@ def train_validate(lr, feats, num_epochs, gamma, batch_size, dropout_p, dataset_
 
     final_MAE = np.mean(folds_val_scores)
 
-    save_graphs_train(fn, num_epochs, training_loss, val_loss_epoch5)
+    save_graphs_train(fn, num_epochs, training_loss, val_loss_epoch5, writer=writer)
 
     return model, params, final_MAE
