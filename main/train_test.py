@@ -22,7 +22,6 @@ def save_graphs_train_test(fn, num_epochs, training_loss, test_loss_epoch5, writ
 
     path = osp.join(osp.dirname(osp.realpath(__file__)), '..', f'{fn}/')
 
-    img = plt.figure()
     plt.plot([epoch for epoch in range(num_epochs)], training_loss, color='b', label='Train')
     plt.plot([5*i for i in range(len(test_loss_epoch5))], test_loss_epoch5, color='r', label='Test')
     plt.title("Loss")
@@ -32,7 +31,7 @@ def save_graphs_train_test(fn, num_epochs, training_loss, test_loss_epoch5, writ
     plt.xlim(-5, num_epochs+5)
     plt.legend()
     plt.savefig(path + f'graph.png')
-    plot_to_tensorboard(writer, img, 'Loss Graph/train')
+
     plt.close()
 
 

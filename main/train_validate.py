@@ -17,12 +17,12 @@ from utils.models import ImageSegmentationDataset, Part3, resample_image, PrintT
 import os.path as osp
 
 
-def save_graphs_train(fn, num_epochs, training_loss, val_loss_epoch5, writer):
+def save_graphs_train(fn, num_epochs, training_loss, val_loss_epoch5):
 
 
     path = osp.join(osp.dirname(osp.realpath(__file__)), '..', f'{fn}/')
 
-    img = plt.figure()
+
     plt.plot([epoch for epoch in range(num_epochs)], training_loss, color='b', label='Train')
     plt.plot([5 * i for i in range(len(val_loss_epoch5))], val_loss_epoch5, color='r', label='Val')
     plt.title("Loss")
@@ -32,7 +32,7 @@ def save_graphs_train(fn, num_epochs, training_loss, val_loss_epoch5, writer):
     plt.xlim(-5, num_epochs + 5)
     plt.legend()
     plt.savefig(path + f'graph.png')
-    plot_to_tensorboard(writer, img, 'Loss Graph/train')
+
     plt.close()
 
 
@@ -195,6 +195,6 @@ def train_validate(lr, feats, num_epochs, gamma, batch_size, dropout_p, dataset_
 
     final_MAE = np.mean(folds_val_scores)
 
-    save_graphs_train(fn, num_epochs, training_loss, val_loss_epoch5, writer=writer)
+    save_graphs_train(fn, num_epochs, training_loss, val_loss_epoch5)
 
     return model, params, final_MAE
