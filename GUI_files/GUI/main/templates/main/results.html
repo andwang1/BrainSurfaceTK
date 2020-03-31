@@ -1,0 +1,48 @@
+{% extends 'main/header.html' %}
+
+{% block content %}
+    <h1>Session-{{ session_id }}</h1>
+
+    {{ image | safe }}
+
+    <table>
+        <thead>
+        <tr>
+            {% for col in column_names %}
+                <th>{{ col }}</th>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {#        <td>#}
+        {% for value in values %}
+            <td>{{ value }}</td>
+        {% endfor %}
+        {#        </td>#}
+
+        </tbody>
+    </table>
+
+{% endblock %}
+
+{#{% block content %}#}
+{#    <h1>Patient-{{ patient_id }}</h1>#}
+{#    <table>#}
+{#        <thead>#}
+{#        <tr>#}
+{#            <th>Task</th>#}
+{#            <th>Prediction</th>#}
+{#<th>Label</th>#}
+{#        </tr>#}
+{#        </thead>#}
+{#        <tbody>#}
+{#        {% for cnt in main_content %}#}
+{#            <tr>#}
+{#                <td>{{ cnt.0 }}</td>#}
+{#                <td>{{ cnt.1 }}</td>#}
+{#<td>$0.87</td>#}
+{#            </tr>#}
+{#        {% endfor %}#}
+{#        </tbody>#}
+{#    </table>#}
+{#{% endblock %}#}

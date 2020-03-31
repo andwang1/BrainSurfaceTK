@@ -1,0 +1,23 @@
+{% extends 'main/header.html' %}
+
+{% block content %}
+    <h1>Patient-{{ patient_id }}</h1>
+    <table>
+        <thead>
+        <tr>
+            <th>Task</th>
+            <th>Prediction</th>
+            {#<th>Label</th>#}
+        </tr>
+        </thead>
+        <tbody>
+        {% for cnt in content %}
+            <tr>
+                <td>{{ cnt.0 }}</td>
+                <td>{{ cnt.1 }}</td>
+                {#<td>$0.87</td>#}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

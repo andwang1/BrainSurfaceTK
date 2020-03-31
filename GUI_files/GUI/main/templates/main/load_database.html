@@ -1,0 +1,10 @@
+{% extends "main/header.html" %}
+
+{% block content %}
+    <h1>Do you want to load the patient database?</h1>
+    <br>
+    <form method="POST">
+        {% csrf_token %}
+        <button class="waves-effect waves-light btn-small" , type="submit" , name="load_data">Load!</button>
+    </form>
+{% endblock %}

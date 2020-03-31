@@ -1,0 +1,20 @@
+{% extends "main/header.html" %}
+
+{% block content %}
+    <div class="row">
+        {% for opt in options %}
+            <div class="col s12 m6">
+                <div class="card blue-grey darken-1">
+                    <div class="card-content white-text">
+                        <span class="card-title">{{ opt.name }}</span>
+                        <p>{{ opt.summary|safe }}</p>
+                    </div>
+                    <div class="card-action">
+                        <a href={{ opt.slug }}>Visit</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
