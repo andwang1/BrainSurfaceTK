@@ -34,6 +34,24 @@ if use_cuda:
 sns.set(style='darkgrid')
 
 
+def plot_to_image(figure):
+
+    """Converts the matplotlib plot specified by 'figure' to a PNG image and
+    returns it. The supplied figure is closed and inaccessible after this call."""
+    # Save the plot to a PNG in memory.
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    # Closing the figure prevents it from being displayed directly inside
+    # the notebook.
+    plt.close(figure)
+    buf.seek(0)
+    # Convert PNG buffer to TF image
+    image = tf.image.decode_png(buf.getvalue(), channels=4)
+    # Add the batch dimension
+    image = tf.expand_dims(image, 0)
+    return image
+
+
 def create_subject_folder(test=False):
     '''
     Creates a folder according to the number of previous tests performed
@@ -199,19 +217,12 @@ if __name__ == '__main__':
             ax.plot([min(y), max(y)], [min(y), max(y)], 'k--', lw=2)
             ax.set_xlabel('Real Age')
             ax.set_ylabel('Predicted Age')
-            plt.savefig(path + '/scatter_part_c.png')
+            plt.savefig(path + '/scatter_test.png')
+            img = plot_to_image(fig)
 
-            buf = io.BytesIO()
-            plt.savefig(buf, format='png')
-            buf.seek(0)
-
-            # Convert PNG buffer to TF image
-            image = tf.image.decode_png(buf.getvalue(), channels=4)
-
-            # Add the batch dimension
-            image = tf.expand_dims(image, 0)
+            tf.summary.image('Scatter Plot Test Predictions', img)
 
             # Add image summary
-            summary_op = writer.add_images("Scatter Plot Test Predictions", image)
+            # summary_op = writer.add_images("Scatter Plot Test Predictions", image)
 
             plt.close()
