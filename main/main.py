@@ -220,7 +220,7 @@ if __name__ == '__main__':
             plt.savefig(path + '/scatter_test.png')
             img = plot_to_image(fig)
 
-            tf.summary.image('Scatter Plot Test Predictions', img)
+            writer.add_image('Scatter Plot Test Predictions', img)
 
             # Add image summary
             # summary_op = writer.add_images("Scatter Plot Test Predictions", image)
