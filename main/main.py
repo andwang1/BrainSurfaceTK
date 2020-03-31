@@ -21,6 +21,7 @@ from torch.utils.tensorboard import SummaryWriter
 import io
 import PIL.Image
 from torchvision.transforms import ToTensor
+import tensorflow as tf
 
 
 cuda_dev = '0'  # GPU device 0 (can be changed if multiple GPUs are available)
@@ -201,12 +202,18 @@ if __name__ == '__main__':
             plt.savefig(path + '/scatter_part_c.png')
 
             buf = io.BytesIO()
-            plt.savefig(buf, format='jpeg')
+            plt.savefig(buf, format='png')
             buf.seek(0)
 
-            image = PIL.Image.open(buf)
-            image = ToTensor()(image).unsqueeze(0)
+            # Convert PNG buffer to TF image
+            image = tf.image.decode_png(buf.getvalue(), channels=4)
 
-            writer.add_image('Scatter Plot Test Predictions', image)
+            # Add the batch dimension
+            image = tf.expand_dims(image, 0)
+
+            # Add image summary
+            summary_op = tf.summary.image("Scatter Plot Test Predictions", image)
+
+            writer.add_summary('Scatter Plot Test Predictions', image)
 
             plt.close()
