@@ -4,6 +4,7 @@ import os
 from ipywidgets import interact, fixed
 from IPython.display import display
 import os
+import os.path as osp
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -12,7 +13,7 @@ from utils.models import ImageSegmentationDataset
 import numpy as np
 import SimpleITK as sitk
 import matplotlib.pyplot as plt
-
+import pickle
 
 def zero_mean_unit_var(image, mask):
     """Normalizes an image to zero mean and unit variance."""
@@ -121,7 +122,7 @@ val_size = 0.1
 random_state = 42
 
 
-def split_data(meta_data, meta_column_idx, ids, ages, smoothen, edgen, val_size, test_size, random_state=42):
+def split_data(meta_data, meta_column_idx, ids, ages, spacing, image_size, smoothen, edgen, val_size, test_size, random_state=42, path='./', reprocess=True):
     '''
     Splits the data
 
@@ -152,10 +153,28 @@ def split_data(meta_data, meta_column_idx, ids, ages, smoothen, edgen, val_size,
                                                           random_state=random_state,
                                                           stratify=y_binned)
 
+    path = osp.join(osp.dirname(osp.realpath(__file__)), '../')
+
     # ImageSegmentationDataset
-    dataset_train = ImageSegmentationDataset(X_train, y_train, smoothen, edgen)
-    dataset_val = ImageSegmentationDataset(X_val, y_val, smoothen, edgen)
-    dataset_test = ImageSegmentationDataset(X_test, y_test, smoothen, edgen)
+    if os.path.exists(path + 'dataset_train.pkl') and reprocess == False:
+
+        with open(path + 'dataset_train.pkl', 'rb') as file:
+            dataset_train = pickle.load(file)
+        with open(path + 'dataset_val.pkl', 'rb') as file:
+            dataset_val = pickle.load(file)
+        with open(path + 'dataset_test.pkl', 'rb') as file:
+            dataset_test = pickle.load(file)
+    else:
+        dataset_train = ImageSegmentationDataset(path, X_train, y_train, spacing, image_size, smoothen, edgen)
+        dataset_val = ImageSegmentationDataset(path, X_val, y_val, spacing, image_size, smoothen, edgen)
+        dataset_test = ImageSegmentationDataset(path, X_test, y_test, spacing, image_size, smoothen, edgen)
+
+        with open('dataset_train.pkl', 'wb') as file:
+            pickle.dump(dataset_train, file)
+        with open('dataset_val.pkl', 'wb') as file:
+            pickle.dump(dataset_val, file)
+        with open('dataset_test.pkl', 'wb') as file:
+            pickle.dump(dataset_test, file)
 
     return dataset_train, dataset_val, dataset_test
 
@@ -182,7 +201,7 @@ def wl_to_lh(window, level):
     return low, high
 
 
-def display_image(img, x=None, y=None, z=None, window=None, level=None, colormap='gray', crosshair=False):
+def display_image(path, img, img_idx, x=None, y=None, z=None, window=None, level=None, colormap='gray', crosshair=False):
     # Convert SimpleITK image to NumPy array
     img_array = sitk.GetArrayFromImage(img)
 
@@ -225,7 +244,7 @@ def display_image(img, x=None, y=None, z=None, window=None, level=None, colormap
         ax3.axvline(y * spacing[1], lw=1)
 
     plt.show()
-    plt.savefig('preprocessed_exemplar.png')
+    plt.savefig(path + f'preprocessed_exemplar{img_idx}.png')
     plt.close()
 
 

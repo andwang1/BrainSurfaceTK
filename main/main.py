@@ -18,12 +18,14 @@ import os.path as osp
 from main.train_validate import train_validate, save_to_log
 from main.train_test import train_test, save_to_log_test
 
-cuda_dev = '1'  # GPU device 0 (can be changed if multiple GPUs are available)
+cuda_dev = '0'  # GPU device 0 (can be changed if multiple GPUs are available)
 use_cuda = torch.cuda.is_available()
 device = torch.device("cuda:" + cuda_dev if use_cuda else "cpu")
 print('Device: ' + str(device))
 if use_cuda:
     print('GPU: ' + str(torch.cuda.get_device_name(int(cuda_dev))))
+
+sns.set(style='darkgrid')
 
 
 def create_subject_folder(test=False):
@@ -60,8 +62,6 @@ def create_subject_folder(test=False):
 
 
 
-
-
 if __name__ == '__main__':
 
     # 1. What are you predicting?
@@ -76,119 +76,115 @@ if __name__ == '__main__':
     ids, ages = get_ids_and_ages(meta_data, meta_column_idx)
 
     # 4. Set the parameters for the data pre-processing and split
+    spacing = [3, 3, 3]
+    image_size = [60, 60, 50]
     smoothen = 8
     edgen = False
     test_size = 0.09
     val_size = 0.1
     random_state = 42
+    REPROCESS = False
+
+    # 4. Create subject folder
+    fn = create_subject_folder()
+    path = osp.join(osp.dirname(osp.realpath(__file__)), '..', f'{fn}/')
 
     # 5. Split the data
     dataset_train, dataset_val, dataset_test = split_data(meta_data,
                                                           meta_column_idx,
                                                           ids,
                                                           ages,
+                                                          spacing,
+                                                          image_size,
                                                           smoothen,
                                                           edgen,
                                                           val_size,
                                                           test_size,
-                                                          random_state=42)
+                                                          random_state=42,
+                                                          path=path,
+                                                          reprocess=REPROCESS)
 
 
+    for feats in [5, 7, 8]:
+        for scheduler_frequency in [1, 3]:
 
-    # 6. Create CNN Model parameters
-    USE_GPU = True
-    dtype = torch.float32
-    feats = 5
-    num_epochs = 200
-    lr = 0.006882801723742766
-    gamma = 0.97958263796472
-    batch_size = 32
-    dropout_p = 0.5
-    sns.set(style='darkgrid')
+            # 6. Create CNN Model parameters
+            USE_GPU = True
+            dtype = torch.float32
+            feats = feats
+            num_epochs = 1000
+            lr = 0.006882801723742766
+            gamma = 0.97958263796472
+            batch_size = 32
+            dropout_p = 0.5
+            scheduler_frequency = scheduler_frequency
 
-    # 6. Create subject folder
-    fn = create_subject_folder()
+            # 7. Run TRAINING + VALIDATION after every N epochs
+            model, params, final_MAE = train_validate(lr, feats, num_epochs,
+                                                      gamma, batch_size,
+                                                      dropout_p, dataset_train,
+                                                      dataset_val, fn, fn[-1],
+                                                      scheduler_frequency)
 
-    # 7. Run TRAINING + VALIDATION after every N epochs
-    model, params, final_MAE = train_validate(lr, feats, num_epochs, gamma, batch_size, dropout_p, dataset_train, dataset_val, fn, fn[-1])
-
-    # 8. Save the results
-    save_to_log(model, params,
-                fn, final_MAE,
-                num_epochs,
-                batch_size,
-                lr, feats,
-                gamma, smoothen,
-                edgen, dropout_p)
-
-
-
-
-
-    """# Full Train & Final Test"""
-
-    # 1. Define MODEL parameters
-    USE_GPU = True
-    dtype = torch.float32
-    feats = 5
-    num_epochs = 200
-    lr = 0.006882801723742766
-    gamma = 0.97958263796472
-    batch_size = 32
-    dropout_p = 0.5
+            # 8. Save the results
+            save_to_log(model, params,
+                        fn, final_MAE,
+                        num_epochs,
+                        batch_size,
+                        lr, feats,
+                        gamma, smoothen,
+                        edgen, dropout_p,
+                        spacing, image_size,
+                        scheduler_frequency)
 
 
-    # 2. Create subject folder
-    fn = create_subject_folder(test=True)
+            """# Full Train & Final Test"""
 
-    # 3. Run TRAINING + TESTING after every N epochs
-    model, params, score, train_loader, test_loader = train_test(lr, feats, num_epochs, gamma,
-                                                                 batch_size, dropout_p,
-                                                                 dataset_train, dataset_val,
-                                                                 fn, fn[-1])
+            # 2. Create TEST folder
+            fn = create_subject_folder(test=True)
 
-    # 4. Record the results
-    save_to_log_test(model, params, fn, score, num_epochs, batch_size, lr, feats, gamma, smoothen, edgen, dropout_p)
+            # 3. Run TRAINING + TESTING after every N epochs
+            model, params, score, train_loader, test_loader = train_test(lr, feats, num_epochs, gamma,
+                                                                         batch_size, dropout_p,
+                                                                         dataset_train, dataset_test,
+                                                                         fn, fn[-1],
+                                                                         scheduler_frequency)
+
+            # 4. Record the TEST results
+            save_to_log_test(model, params, fn, score, num_epochs, batch_size, lr, feats, gamma, smoothen, edgen, dropout_p, spacing, image_size, scheduler_frequency)
 
 
-    # 5. Perform the final testing
-    model.eval()
-    pred_ages = []
-    actual_ages = []
-    with torch.no_grad():
-        # for batch_data, batch_labels in train_loader:
-        #     batch_data = batch_data.to(device=device)  # move to device, e.g. GPU
-        #     batch_labels = batch_labels.to(device=device)
-        #     batch_preds = model(batch_data)
-        #     pred_ages.append([batch_preds[i].item() for i in range(len(batch_preds))])
-        #     actual_ages.append([batch_labels[i].item() for i in range(len(batch_labels))])
+            # 5. Perform the final testing
+            model.eval()
+            pred_ages = []
+            actual_ages = []
+            with torch.no_grad():
+                for batch_data, batch_labels in test_loader:
+                    batch_data = batch_data.to(device=device)  # move to device, e.g. GPU
+                    batch_labels = batch_labels.to(device=device)
+                    batch_preds = model(batch_data)
+                    pred_ages.append([batch_preds[i].item() for i in range(len(batch_preds))])
+                    actual_ages.append([batch_labels[i].item() for i in range(len(batch_labels))])
 
-        for batch_data, batch_labels in test_loader:
-            batch_data = batch_data.to(device=device)  # move to device, e.g. GPU
-            batch_labels = batch_labels.to(device=device)
-            batch_preds = model(batch_data)
-            pred_ages.append([batch_preds[i].item() for i in range(len(batch_preds))])
-            actual_ages.append([batch_labels[i].item() for i in range(len(batch_labels))])
+            pred_ages = np.array(pred_ages).flatten()
+            actual_ages = np.array(actual_ages).flatten()
 
-    pred_ages = np.array(pred_ages).flatten()
-    actual_ages = np.array(actual_ages).flatten()
+            pred_array = []
+            age_array = []
+            for i in range(len(pred_ages)):
+                for j in range(len(pred_ages[i])):
+                    pred_array.append(pred_ages[i][j])
+                    age_array.append(actual_ages[i][j])
 
-    pred_array = []
-    age_array = []
-    for i in range(len(pred_ages)):
-        for j in range(len(pred_ages[i])):
-            pred_array.append(pred_ages[i][j])
-            age_array.append(actual_ages[i][j])
+            y = age_array
+            predicted = pred_array
 
-    y = age_array
-    predicted = pred_array
+            path = osp.join(osp.dirname(osp.realpath(__file__)), '..', f'{fn}/')
 
-    path = osp.join(osp.dirname(osp.realpath(__file__)), '..', f'{fn}/')
-
-    fig, ax = plt.subplots()
-    ax.scatter(y, predicted, marker='.')
-    ax.plot([min(y), max(y)], [min(y), max(y)], 'k--', lw=2)
-    ax.set_xlabel('Real Age')
-    ax.set_ylabel('Predicted Age')
-    plt.savefig(f'{fn}/scatter_part_c.png')
-    plt.close()
+            fig, ax = plt.subplots()
+            ax.scatter(y, predicted, marker='.')
+            ax.plot([min(y), max(y)], [min(y), max(y)], 'k--', lw=2)
+            ax.set_xlabel('Real Age')
+            ax.set_ylabel('Predicted Age')
+            plt.savefig(path + '/scatter_part_c.png')
+            plt.close()

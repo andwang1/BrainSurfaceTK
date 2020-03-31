@@ -28,43 +28,49 @@ def save_graphs_train_test(fn, num_epochs, training_loss, test_loss_epoch5):
     plt.title("Loss")
     plt.xlabel("Number of Epochs")
     plt.ylabel("Loss")
-    plt.ylim(0, 30)
+    plt.ylim(0, 5)
     plt.xlim(-5, num_epochs+5)
     plt.legend()
     plt.savefig(path + f'graph.png')
     plt.close()
 
 
-def save_to_log_test(model, params, fn, score, num_epochs, batch_size, lr, feats, gamma, smoothen, edgen, dropout_p):
+def save_to_log_test(model, params, fn, score, num_epochs, batch_size, lr, feats, gamma, smoothen, edgen, dropout_p, img_spacing, img_size, scheduler_freq):
 
     print(f"Average Loss on whole test set: {score}")
 
     result = f"""
         ########################################################################
-        # Score = {score}
+        
+        *****   Score = {score}   *****
 
-        # Number of epochs:
+        2. Number of epochs:
         num_epochs = {num_epochs}
 
-        # Batch size during training
+        3. Batch size during training
         batch_size = {batch_size}
 
-        # Learning rate for optimizers
+        4. Learning rate for optimizers
         lr = {lr}
 
-        # Size of feature amplifier
+        5. Size of feature amplifier
         Feature Amplifier: {feats}
 
-        # Gamma (using sched)
+        6. Gamma (using sched)
         Gamma: {gamma}
+        Frequency of step: {scheduler_freq}
 
-        # Smooth:
+        7. Image spacing and size
+        img_spacing = {img_spacing}
+        img_size = {img_size}
+
+        7. Smooth:
         smoothen = {smoothen}
 
-        # Edgen:
+        8. Edgen:
         edgen = {edgen}
 
-        # Amount of dropout:
+        9. Dropout:
         dropout_p = {dropout_p}
 
         Total number of parameters is: {params}
@@ -82,13 +88,17 @@ def save_to_log_test(model, params, fn, score, num_epochs, batch_size, lr, feats
         log.write('\n')
         torch.save(model, path + '/test_model.pth')
 
+    with open('all_log.txt', 'a+') as log:
+        log.write(f'Test = {score} .')
+        log.write('\n')
 
 
-def train_test(lr, feats, num_epochs, gamma, batch_size, dropout_p, dataset_train, dataset_test, fn, number_here):
+
+def train_test(lr, feats, num_epochs, gamma, batch_size, dropout_p, dataset_train, dataset_test, fn, number_here, scheduler_freq):
 
 
     # 1. Display GPU Settings:
-    cuda_dev = '1'  # GPU device 0 (can be changed if multiple GPUs are available)
+    cuda_dev = '0'  # GPU device 0 (can be changed if multiple GPUs are available)
     use_cuda = torch.cuda.is_available()
     device = torch.device("cuda:" + cuda_dev if use_cuda else "cpu")
     print('Device: ' + str(device))
@@ -137,7 +147,8 @@ def train_test(lr, feats, num_epochs, gamma, batch_size, dropout_p, dataset_trai
         training_MAE = np.mean(epoch_loss)
         training_loss.append(training_MAE)
 
-        scheduler.step()
+        if epoch % scheduler_freq == 0:
+            scheduler.step()
 
         # 10. Validate every N epochs
         if (epoch % 5 == 0):

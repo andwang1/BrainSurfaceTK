@@ -379,7 +379,7 @@ Here we set some default hyper-parameters and a starting configuration for the i
 **TASK: This needs to be revisited to optimise these values. In particular, you may want to run your final model on higher resolution images.**
 """
 
-rnd_seed = 42 #fixed random seed
+rnd_seed = 42 #fixed rand seed
 
 # img_size = [32, 32, 32]
 img_size = [64, 64, 64]
@@ -832,7 +832,7 @@ model_dir = os.path.join(out_dir, 'model')
 if not os.path.exists(model_dir):
     os.makedirs(model_dir)
 
-torch.manual_seed(rnd_seed) #fix random seed
+torch.manual_seed(rnd_seed) #fix rand seed
 
 num_epochs = 200
 
