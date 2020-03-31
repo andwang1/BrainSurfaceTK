@@ -8,6 +8,10 @@ def run_test(epoch=-1):
     print('Running Test')
     opt = TestOptions().parse()
     opt.serial_batches = True  # no shuffle
+    print("DEBUG epoch", epoch)
+    if epoch == -1:
+        epoch = opt.which_epoch
+    print("DEBUG epoch", epoch)
     # Hardcode batchsize to 1
     opt.batch_size = 1
     dataset = DataLoader(opt)
