@@ -6,6 +6,7 @@ from shutil import copyfile
 source_dir = r"/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/datasets/all_brains_native_50"
 # Where them brains should be at
 target_dir = r"/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/datasets/brains_reg_red50_native"
+target_test_dir = r"/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/datasets/brains_reg_red50_native_test"
 
 #### This is for MeshCNN specifically
 if not os.access(target_dir, mode=os.F_OK):
@@ -28,7 +29,8 @@ meta['unique_key'] = meta['participant_id'] + "_" + meta['session_id'].astype(st
 meta.set_index('unique_key', inplace=True)
 
 # This will merge train and val
-train_indices = indices["Train"] + indices["Val"]
+train_indices = indices["Train"]
+val_indices = indices["Val"]
 test_indices = indices["Test"]
 
 file_counter = 0
@@ -44,11 +46,22 @@ for patient in train_indices:
     file_counter += 1
     print(f"Copy success, file {file_counter}")
 
-for patient in test_indices:
+for patient in val_indices:
     file_name = f"{patient}.obj"
     gender = meta.loc[patient]['gender']
     source_path = f"{source_dir}/{file_name}"
     dest_path = f"{target_dir}/{gender}/test/{file_name}"
+    print("Attempting copy source", source_path)
+    print("Attempting copy dest", dest_path)
+    copyfile(source_path, dest_path)
+    file_counter += 1
+    print(f"Copy success, file {file_counter}")
+
+for patient in test_indices:
+    file_name = f"{patient}.obj"
+    gender = meta.loc[patient]['gender']
+    source_path = f"{source_dir}/{file_name}"
+    dest_path = f"{target_test_dir}/{gender}/train/{file_name}"
     print("Attempting copy source", source_path)
     print("Attempting copy dest", dest_path)
     copyfile(source_path, dest_path)
