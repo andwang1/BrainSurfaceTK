@@ -9,3 +9,7 @@ CC00284AN13_90701.obj
 CC00418AN14_130200.obj
 CC00455XX10_137700.obj
 CC00802XX10_1000.obj
+
+
+In straight testing mode, the files need to be in train! not in test
+move all the train related testoutput files away first, they will be overwritten

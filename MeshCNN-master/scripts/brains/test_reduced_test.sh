@@ -13,4 +13,3 @@ python3 test.py \
 --export_folder meshes \
 --dataset_mode regression \
 --verbose_plot \
---results_dir results/testing \
