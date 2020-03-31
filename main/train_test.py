@@ -94,7 +94,7 @@ def save_to_log_test(model, params, fn, score, num_epochs, batch_size, lr, feats
 
 
 
-def train_test(lr, feats, num_epochs, gamma, batch_size, dropout_p, dataset_train, dataset_test, fn, number_here, scheduler_freq):
+def train_test(lr, feats, num_epochs, gamma, batch_size, dropout_p, dataset_train, dataset_test, fn, number_here, scheduler_freq, writer):
 
 
     # 1. Display GPU Settings:
@@ -165,6 +165,10 @@ def train_test(lr, feats, num_epochs, gamma, batch_size, dropout_p, dataset_trai
                 test_loss_epoch5.append(mean_test_error5)
             print(f"Epoch: {epoch}:: Learning Rate: {scheduler.get_lr()[0]}")
             print(f"{number_here}:: Maxiumum Age Error: {np.round(np.max(epoch_loss))} Average Age Error: {training_MAE}, MAE Test: {mean_test_error5}")
+
+            writer.add_scalar('Max Age Error/test', np.round(np.max(epoch_loss)), epoch)
+            writer.add_scalar('MAE Loss/test', mean_test_error5, epoch)
+
 
     # 11. Validate the last time
     model.eval()

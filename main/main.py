@@ -17,6 +17,8 @@ from utils.models import ImageSegmentationDataset, Part3, resample_image, PrintT
 import os.path as osp
 from main.train_validate import train_validate, save_to_log
 from main.train_test import train_test, save_to_log_test
+from torch.utils.tensorboard import SummaryWriter
+
 
 cuda_dev = '0'  # GPU device 0 (can be changed if multiple GPUs are available)
 use_cuda = torch.cuda.is_available()
@@ -85,28 +87,28 @@ if __name__ == '__main__':
     random_state = 42
     REPROCESS = False
 
-    # 4. Create subject folder
-    fn = create_subject_folder()
-    path = osp.join(osp.dirname(osp.realpath(__file__)), '..', f'{fn}/')
-
-    # 5. Split the data
-    dataset_train, dataset_val, dataset_test = split_data(meta_data,
-                                                          meta_column_idx,
-                                                          ids,
-                                                          ages,
-                                                          spacing,
-                                                          image_size,
-                                                          smoothen,
-                                                          edgen,
-                                                          val_size,
-                                                          test_size,
-                                                          random_state=42,
-                                                          path=path,
-                                                          reprocess=REPROCESS)
-
 
     for feats in [5, 7, 8]:
         for scheduler_frequency in [1, 3]:
+
+            # 4. Create subject folder
+            fn = create_subject_folder()
+            path = osp.join(osp.dirname(osp.realpath(__file__)), '..', f'{fn}/')
+
+            # 5. Split the data
+            dataset_train, dataset_val, dataset_test = split_data(meta_data,
+                                                                  meta_column_idx,
+                                                                  ids,
+                                                                  ages,
+                                                                  spacing,
+                                                                  image_size,
+                                                                  smoothen,
+                                                                  edgen,
+                                                                  val_size,
+                                                                  test_size,
+                                                                  random_state=42,
+                                                                  path=path,
+                                                                  reprocess=REPROCESS)
 
             # 6. Create CNN Model parameters
             USE_GPU = True
@@ -119,12 +121,16 @@ if __name__ == '__main__':
             dropout_p = 0.5
             scheduler_frequency = scheduler_frequency
 
+            # 6. Create tensorboard writer
+            writer = SummaryWriter(comment=f'Subject {fn[-1]}')
+
             # 7. Run TRAINING + VALIDATION after every N epochs
             model, params, final_MAE = train_validate(lr, feats, num_epochs,
                                                       gamma, batch_size,
                                                       dropout_p, dataset_train,
                                                       dataset_val, fn, fn[-1],
-                                                      scheduler_frequency)
+                                                      scheduler_frequency,
+                                                      writer=writer)
 
             # 8. Save the results
             save_to_log(model, params,
@@ -148,7 +154,8 @@ if __name__ == '__main__':
                                                                          batch_size, dropout_p,
                                                                          dataset_train, dataset_test,
                                                                          fn, fn[-1],
-                                                                         scheduler_frequency)
+                                                                         scheduler_frequency,
+                                                                         writer=writer)
 
             # 4. Record the TEST results
             save_to_log_test(model, params, fn, score, num_epochs, batch_size, lr, feats, gamma, smoothen, edgen, dropout_p, spacing, image_size, scheduler_frequency)

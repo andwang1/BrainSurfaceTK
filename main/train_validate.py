@@ -92,7 +92,7 @@ def save_to_log(model, params, fn, final_MAE, num_epochs, batch_size, lr, feats,
         log.write(f'SUBJECT #{fn[-1]}:    Validation = {final_MAE},    ')
 
 
-def train_validate(lr, feats, num_epochs, gamma, batch_size, dropout_p, dataset_train, dataset_val, fn, number_here, scheduler_freq):
+def train_validate(lr, feats, num_epochs, gamma, batch_size, dropout_p, dataset_train, dataset_val, fn, number_here, scheduler_freq, writer):
 
     # 1. Display GPU Settings:
     cuda_dev = '0'  # GPU device 0 (can be changed if multiple GPUs are available)
@@ -143,8 +143,12 @@ def train_validate(lr, feats, num_epochs, gamma, batch_size, dropout_p, dataset_
             optimizer.step()
             epoch_loss.append(loss.item())
 
+
         training_MAE = np.mean(epoch_loss)
         training_loss.append(training_MAE)
+
+        writer.add_scalar('MAE Loss/train', training_MAE, epoch)
+
 
         if epoch % scheduler_freq == 0:
             scheduler.step()
@@ -160,11 +164,16 @@ def train_validate(lr, feats, num_epochs, gamma, batch_size, dropout_p, dataset_
                     batch_preds = model(batch_data)
                     loss = loss_function(batch_preds, batch_labels)
                     val_loss.append(loss.item())
+
                 mean_val_error5 = np.mean(val_loss)
                 val_loss_epoch5.append(mean_val_error5)
             print(f"Epoch: {epoch}:: Learning Rate: {scheduler.get_lr()[0]}")
             print(
                 f"{number_here}:: Maxiumum Age Error: {np.round(np.max(epoch_loss))} Average Age Error: {training_MAE}, MAE Validation: {mean_val_error5}")
+
+            writer.add_scalar('Max Age Error/validate', np.round(np.max(epoch_loss)), epoch)
+            writer.add_scalar('MAE Loss/validate', mean_val_error5, epoch)
+
 
     # 11. Validate the last time
     model.eval()
