@@ -2,15 +2,15 @@
 
 ## run the test and export collapses
 python3 test.py \
---dataroot datasets/brains_reduced_90_gender \
---checkpoints_dir checkpoints/regression_models \
+--dataroot datasets/brains_testing \
+--checkpoints_dir checkpoints/testing \
 --export_folder checkpoints/mesh_collapses \
 --name brains \
---ncf 64 128 256 256 \
---pool_res 6000 4500 3000 1800 \
+--ncf 64 112 128 \
+--pool_res 3000 2500 2000 \
 --norm group \
 --resblocks 1 \
 --export_folder meshes \
 --dataset_mode regression \
 --verbose_plot \
---results_dir results/regression_results \
+--results_dir results/testing \
