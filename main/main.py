@@ -118,7 +118,7 @@ if __name__ == '__main__':
             USE_GPU = True
             dtype = torch.float32
             feats = feats
-            num_epochs = 1000
+            num_epochs = 5
             lr = 0.006882801723742766
             gamma = 0.97958263796472
             batch_size = 32
@@ -212,8 +212,6 @@ if __name__ == '__main__':
             image = tf.expand_dims(image, 0)
 
             # Add image summary
-            summary_op = tf.summary.image("Scatter Plot Test Predictions", image)
-
-            writer.add_summary('Scatter Plot Test Predictions', image)
+            summary_op = writer.add_images("Scatter Plot Test Predictions", image)
 
             plt.close()
