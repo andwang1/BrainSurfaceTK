@@ -17,5 +17,5 @@ python3 train.py \
 --niter 5 \
 --niter_decay 100 \
 --batch_size 1 \
---ncf 112 256 256 \
---pool_res 5000 4000 3000 \
+--ncf 512 1024 2048 2048  \
+--pool_res 10000 8000 6000 4000 \

@@ -9,4 +9,4 @@ source /vol/cuda/10.0.130/setup.sh
 /usr/bin/nvidia-smi
 uptime
 pwd
-/bin/bash ./scripts/brains/train_exp_red50_12gb_both_halves.sh
+/bin/bash ./scripts/brains/train_exp_red50_12gb_batch2.sh
