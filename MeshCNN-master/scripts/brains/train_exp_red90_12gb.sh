@@ -6,6 +6,7 @@ python3 train.py \
 --checkpoints_dir checkpoints/red50_run2 \
 --export_folder checkpoints/mesh_collapses \
 --name brains \
+--ninput_edges 9000 \
 --epoch_count 1 \
 --norm group \
 --num_aug 1 \
