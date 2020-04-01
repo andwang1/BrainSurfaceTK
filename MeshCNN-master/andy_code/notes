@@ -13,3 +13,7 @@ CC00802XX10_1000.obj
 
 In straight testing mode, the files need to be in train! not in test
 move all the train related testoutput files away first, they will be overwritten
+
+
+gpu10 is new LR batch1
+gpu08 is new LR batch2

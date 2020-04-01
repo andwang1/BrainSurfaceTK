@@ -63,5 +63,5 @@ print(train_val_comb_df[train_val_comb_df['scan_age'] > 40].describe())
 
 # Pickle this to reuse in scripts to split the data
 indices = {"Train": train_indices, "Test": test_indices, "Val": val_indices}
-with open("indices_50.pk", "wb") as f:
+with open("indices_oldsplit.pk", "wb") as f:
     pickle.dump(indices, f)
