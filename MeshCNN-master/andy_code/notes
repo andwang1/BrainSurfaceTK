@@ -15,10 +15,6 @@ In straight testing mode, the files need to be in train! not in test
 move all the train related testoutput files away first, they will be overwritten
 
 
-gpu10 is new LR batch1
-gpu08 is new LR batch2
-
-
 STATS
 
 red90
@@ -37,4 +33,6 @@ both halves
 
 kingfisher
 batch2
+
+
 
