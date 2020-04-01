@@ -200,17 +200,13 @@ if __name__ == '__main__':
     data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_fsavg32k/" + data \
                   + "/vtk/" + type_data
 
-    files_ending = "_hemi-L_" + type_data  + "_" + data_ending
+    files_ending = "_hemi-L_" + type_data + "_" + data_ending
 
     # From quick local test
     # data_folder = "/home/vital/Group Project/deepl_brain_surfaces/random"
 
-    if data == "reduced_90":
-        with open('src/indices_90.pk', 'rb') as f:
-            indices = pickle.load(f)
-    else:
-        with open('src/indices_50.pk', 'rb') as f:
-            indices = pickle.load(f)
+    with open('src/names.pk', 'rb') as f:
+        indices = pickle.load(f)
 
     comment = 'TEST RUN' + str(datetime.datetime.now()) \
             + "__LR__" + str(lr) \
@@ -281,7 +277,7 @@ if __name__ == '__main__':
     val_loader = DataLoader(val_dataset, batch_size=1, shuffle=False, num_workers=num_workers)
     
     # Getting the number of features to adapt the architecture
-    numb_local_features = len(local_features)
+    numb_local_features = train_dataset[0].x.size(1)
     numb_global_features = len(global_features)
 
     if not torch.cuda.is_available():
