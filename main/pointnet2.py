@@ -159,40 +159,40 @@ if __name__ == '__main__':
 
     # Model Parameters
     lr = 0.001
-    batch_size = 1
+    batch_size = 2
     num_workers = 2
     # ['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc'] + ['weight']
-    local_features = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
-    # local_features = []
-    global_features = []
+    local_features = ['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc']
+    #local_features = []
+    global_features = ['weight']
     target_class = 'scan_age'
     task = 'regression'
-    number_of_points = 1200  # 16247
+    number_of_points = 16247 #3251# 12000  # 16247
 
     # For quick tests
     # indices = {'Train': ['CC00050XX01_7201', 'CC00050XX01_7201'],
     #            'Test': ['CC00050XX01_7201', 'CC00050XX01_7201'],
     #            'Val': ['CC00050XX01_7201', 'CC00050XX01_7201']}
 
-    reprocess = True
+    reprocess = False
 
     #inflated  midthickness  pial  sphere  veryinflated  white
 
+    #data = "reduced_50"
+    #data_ending = "reduce50.vtk"
+    #type_data = "inflated"
+
+    #data = "reduced_90"
+    #data_ending = "reduce90.vtk"
+    #type_data = "pial"
+    #
     data = "reduced_50"
     data_ending = "reduce50.vtk"
-    type_data = "inflated"
-
-    # data = "reduced_90"
-    # data_ending = "reduce90.vtk"
-    # type_data = "pial"
+    type_data = "pial"
     #
-    # data = "reduced_50"
-    # data_ending = "reduce50.vtk"
-    # type_data = "pial"
-    #
-    # data = "reduced_50"
-    # data_ending = "reduce50.vtk"
-    # type_data = "white"
+    #data = "reduced_50"
+    #data_ending = "reduce50.vtk"
+    #type_data = "white"
 
     # folder in data/stored for data.
     stored = type_data + '/' + data + '/' + str(local_features + global_features)
@@ -200,7 +200,7 @@ if __name__ == '__main__':
     data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_fsavg32k/" + data \
                   + "/vtk/" + type_data
 
-    files_ending = "_hemi-L_inflated_" + data_ending
+    files_ending = "_hemi-L_" + type_data  + "_" + data_ending
 
     # From quick local test
     # data_folder = "/home/vital/Group Project/deepl_brain_surfaces/random"
@@ -212,13 +212,13 @@ if __name__ == '__main__':
         with open('src/indices_50.pk', 'rb') as f:
             indices = pickle.load(f)
 
-    comment = str(datetime.datetime.now()) \
+    comment = 'TEST RUN' + str(datetime.datetime.now()) \
             + "__LR__" + str(lr) \
             + "__BATCH_" + str(batch_size) \
             + "__local_features__" + str(local_features)\
             + "__glogal_features__" + str(global_features) \
             + "__number_of_points__" + str(number_of_points)\
-            + "__" + data + "__" + type_data + '__No_rotate'
+            + "__" + data + "__" + type_data + '___rotate'
 
     results_folder = 'runs/' + task + '/' + comment + '/results'
     model_dir = 'runs/' + task + '/' + comment + '/models'
@@ -252,9 +252,9 @@ if __name__ == '__main__':
     # DEFINE TRANSFORMS HERE.
     transform = T.Compose([
         T.FixedPoints(number_of_points),
-        # T.RandomRotate(360, axis=0),
-        # T.RandomRotate(360, axis=1),
-        # T.RandomRotate(360, axis=2)
+        T.RandomRotate(360, axis=0),
+        T.RandomRotate(360, axis=1),
+        T.RandomRotate(360, axis=2)
     ])
 
     # TRANSFORMS DONE BEFORE SAVING THE DATA IF THE DATA IS NOT YET PROCESSED.
@@ -279,10 +279,10 @@ if __name__ == '__main__':
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
     test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False, num_workers=num_workers)
     val_loader = DataLoader(val_dataset, batch_size=1, shuffle=False, num_workers=num_workers)
-
+    
     # Getting the number of features to adapt the architecture
-    numb_local_features = train_dataset[0].x.size(1)
-    numb_global_features = train_dataset[0].y.size(1) - 1
+    numb_local_features = len(local_features)
+    numb_global_features = len(global_features)
 
     if not torch.cuda.is_available():
         print('YOU ARE RUNNING ON A CPU!!!!')
@@ -294,7 +294,7 @@ if __name__ == '__main__':
     best_val_loss = 999
 
     # MAIN TRAINING LOOP
-    for epoch in range(1, 51):
+    for epoch in range(1, 2):
         start = time.time()
         train(epoch)
         val_mse, val_l1 = test_regression(val_loader, indices['Val'], results_folder, epoch=epoch)
