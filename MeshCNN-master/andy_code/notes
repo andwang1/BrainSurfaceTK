@@ -17,3 +17,24 @@ move all the train related testoutput files away first, they will be overwritten
 
 gpu10 is new LR batch1
 gpu08 is new LR batch2
+
+
+STATS
+
+red90
+[Network] Total number of parameters : 0.561 M
+9404MiB
+GPU13
+
+red50
+gpu08
+batch1
+/red90_12gb.sh
+
+
+gpu21
+both halves
+
+kingfisher
+batch2
+
