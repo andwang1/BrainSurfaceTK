@@ -8,10 +8,6 @@ move all the train related testoutput files away first, they will be overwritten
 
 STATS
 
-red90
-[Network] Total number of parameters : 0.561 M
-9404MiB
-GPU13
 
 red50
 gpu08
@@ -34,10 +30,17 @@ red90
 larger arch
 ep50
 
+monal04
+red50
+big arch, 24GB.sh
+
+GPU13
+red50
+birthage
+
 
 NEXT
-red50
-batch2 ep50
-
+red50 batch2 ep50
+red50 lower starting LR, fewer epochs
 
 get rid of lr decay?

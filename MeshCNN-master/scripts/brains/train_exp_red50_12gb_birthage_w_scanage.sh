@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-## run the training
+ ## run the training
 python3 train.py \
 --dataroot datasets/brains_reg_red50 \
---checkpoints_dir checkpoints/red50_birth_age \
+--checkpoints_dir checkpoints/red50_birth_age_with_scan_age \
 --export_folder checkpoints/mesh_collapses \
 --name brains \
 --ninput_edges 48735 \
@@ -21,3 +21,4 @@ python3 train.py \
 --batch_size 1 \
 --ncf 64 112 128 \
 --pool_res 3000 2750 2500 \
+--lr 0.0001 \
