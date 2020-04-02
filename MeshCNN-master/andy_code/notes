@@ -3,17 +3,8 @@
 testfiles csv have format
 {patient_id},{pred_class.item()},{label_class.item()},{correct.item()}
 
-had to exclude from full res run because some faces had 0 area
-
-CC00284AN13_90701.obj
-CC00418AN14_130200.obj
-CC00455XX10_137700.obj
-CC00802XX10_1000.obj
-
-
 In straight testing mode, the files need to be in train! not in test
 move all the train related testoutput files away first, they will be overwritten
-
 
 STATS
 
@@ -34,5 +25,19 @@ both halves
 kingfisher
 batch2
 
+kingfisher second
+ep50
+batch1
+
+gpu10
+red90
+larger arch
+ep50
 
 
+NEXT
+red50
+batch2 ep50
+
+
+get rid of lr decay?

@@ -3,7 +3,7 @@
 ## run the training
 python3 train.py \
 --dataroot datasets/brains_reg_red50 \
---checkpoints_dir checkpoints/red50_24gb_conv \
+--checkpoints_dir checkpoints/red50_24gb \
 --export_folder checkpoints/mesh_collapses \
 --name brains \
 --ninput_edges 48735 \
@@ -17,5 +17,5 @@ python3 train.py \
 --niter 5 \
 --niter_decay 100 \
 --batch_size 1 \
---ncf 512 1024 2048 2048  \
---pool_res 10000 8000 6000 4000 \
+--ncf 1024 2048 2048 2560 \
+--pool_res 15000 12500 10000 7500 \
