@@ -3,7 +3,6 @@ import torch
 from data.base_dataset import BaseDataset
 from util.util import is_mesh_file, pad
 from models.layers.mesh import Mesh
-import pickle
 import re
 from data.get_feature_dict import get_feature_dict
 
@@ -17,7 +16,6 @@ class ClassificationData(BaseDataset):
         self.dir = os.path.join(opt.dataroot)
 
         if opt.dataset_mode == 'regression':
-           ## self.load_patient_age_dict()
            self.class_to_idx = get_feature_dict(opt.label)
         else:
             # ORIG CODE
@@ -87,6 +85,3 @@ class ClassificationData(BaseDataset):
         session_name = result.group(2)
         return patient_name + "_" + session_name
 
-    def load_patient_age_dict(self):
-        with open(r"/vol/biomedic2/aa16914/shared/MScAI_brain_surface/andy/patient_to_age.pk", "rb") as f:
-            self.class_to_idx = pickle.load(f)
