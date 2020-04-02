@@ -93,13 +93,13 @@ def init_net(net, init_type, init_gain, gpu_ids):
     return net
 
 
-def define_classifier(input_nc, ncf, ninput_edges, nclasses, opt, gpu_ids, arch, init_type, init_gain):
+def define_classifier(input_nc, ncf, ninput_edges, nclasses, opt, gpu_ids, arch, init_type, init_gain, num_features=0):
     net = None
     norm_layer = get_norm_layer(norm_type=opt.norm, num_groups=opt.num_groups)
 
     if arch == 'mconvnet':
         net = MeshConvNet(norm_layer, input_nc, ncf, nclasses, ninput_edges, opt.pool_res, opt.fc_n,
-                          opt.resblocks)
+                          opt.resblocks, num_features)
     elif arch == 'meshunet':
         down_convs = [input_nc] + ncf
         up_convs = ncf[::-1] + [nclasses]
@@ -127,7 +127,7 @@ class MeshConvNet(nn.Module):
     """Network for learning a global shape descriptor (classification)
     """
     def __init__(self, norm_layer, nf0, conv_res, nclasses, input_res, pool_res, fc_n,
-                 nresblocks=3):
+                 nresblocks=3, num_features=0):
         super(MeshConvNet, self).__init__()
         self.k = [nf0] + conv_res
         self.res = [input_res] + pool_res
@@ -138,14 +138,12 @@ class MeshConvNet(nn.Module):
             setattr(self, 'norm{}'.format(i), norm_layer(**norm_args[i]))
             setattr(self, 'pool{}'.format(i), MeshPool(self.res[i + 1]))
 
-
         self.gp = torch.nn.AvgPool1d(self.res[-1])
         # self.gp = torch.nn.MaxPool1d(self.res[-1])
-        self.fc1 = nn.Linear(self.k[-1], fc_n)
+        self.fc1 = nn.Linear(self.k[-1]+num_features, fc_n)
         self.fc2 = nn.Linear(fc_n, nclasses)
 
-    def forward(self, x, mesh):
-
+    def forward(self, x, mesh, feature_values):
         for i in range(len(self.k) - 1):
             x = getattr(self, 'conv{}'.format(i))(x, mesh)
             x = F.relu(getattr(self, 'norm{}'.format(i))(x))
@@ -153,6 +151,11 @@ class MeshConvNet(nn.Module):
 
         x = self.gp(x)
         x = x.view(-1, self.k[-1])
+
+        ## add extra features
+        if feature_values != []:
+            features = torch.tensor([feature_values]).to(x.device)
+            x = torch.cat((x, features), 1)
 
         x = F.relu(self.fc1(x))
         x = self.fc2(x)

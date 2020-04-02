@@ -3,6 +3,7 @@ import re
 from . import networks
 from os.path import join
 from util.util import seg_accuracy, print_network
+from data.get_feature_dict import get_feature_dict
 
 
 class ClassifierModel:
@@ -23,6 +24,12 @@ class ClassifierModel:
         self.edge_features = None
         self.labels = None
         self.mesh = None
+        ## to add input features:
+        self.feature_keys = opt.features
+        if self.feature_keys != []:
+            self.feature_dictionaries = {feature:get_feature_dict(feature) for feature in self.feature_keys}
+        self.feature_values = None
+
         self.soft_label = None
         self.loss = None
         self.save_dir = join(opt.checkpoints_dir, opt.name)
@@ -34,8 +41,7 @@ class ClassifierModel:
         self.nclasses = opt.nclasses
 
         # load/define networks
-        self.net = networks.define_classifier(opt.input_nc, opt.ncf, opt.ninput_edges, opt.nclasses, opt,
-                                              self.gpu_ids, opt.arch, opt.init_type, opt.init_gain)
+        self.net = networks.define_classifier(opt.input_nc, opt.ncf, opt.ninput_edges, opt.nclasses, opt, self.gpu_ids, opt.arch, opt.init_type, opt.init_gain, num_features=len(self.feature_keys))
         self.net.train(self.is_train)
         self.criterion = networks.define_loss(opt).to(self.device)
 
@@ -59,12 +65,16 @@ class ClassifierModel:
         self.mesh = data['mesh']
         # Adding path
         self.path = data['path']
+        ##to get extra input features
+        if self.feature_keys != []:
+            unique_id = self.path[0].split("/")[-1][:-4]
+            self.feature_values = [self.feature_dictionaries[feature][unique_id] for feature in self.feature_keys]
         if self.opt.dataset_mode == 'segmentation' and not self.is_train:
             self.soft_label = torch.from_numpy(data['soft_label'])
 
 
     def forward(self):
-        out = self.net(self.edge_features, self.mesh)
+        out = self.net(self.edge_features, self.mesh, self.feature_values)
         return out
 
     def backward(self, out):
