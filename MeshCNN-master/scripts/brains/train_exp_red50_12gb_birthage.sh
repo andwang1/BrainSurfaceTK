@@ -15,7 +15,6 @@ python3 train.py \
 --seed 0 \
 --dataset_mode regression \
 --label birth_age \
---features scan_age \
 --niter 5 \
 --niter_decay 100 \
 --batch_size 1 \

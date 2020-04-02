@@ -21,4 +21,3 @@ python3 train.py \
 --batch_size 1 \
 --ncf 64 112 128 \
 --pool_res 3000 2750 2500 \
---lr 0.0001 \
