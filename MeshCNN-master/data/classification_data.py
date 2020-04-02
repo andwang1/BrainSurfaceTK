@@ -5,6 +5,7 @@ from util.util import is_mesh_file, pad
 from models.layers.mesh import Mesh
 import pickle
 import re
+from data.get_feature_dict import get_feature_dict
 
 class ClassificationData(BaseDataset):
 
@@ -16,7 +17,8 @@ class ClassificationData(BaseDataset):
         self.dir = os.path.join(opt.dataroot)
 
         if opt.dataset_mode == 'regression':
-            self.load_patient_age_dict()
+           ## self.load_patient_age_dict()
+           self.class_to_idx = get_feature_dict(opt.label)
         else:
             # ORIG CODE
             self.classes, self.class_to_idx = self.find_classes(self.dir)
