@@ -81,7 +81,7 @@ class ClassificationData(BaseDataset):
         return meshes
 
     def retrieve_patient_and_session(self, fname):
-        re_pattern = "(\w+)_(\d+)\.obj"
+        re_pattern = "(\w+)_(\d+).*\.obj"
         result = re.search(re_pattern, fname)
         patient_name = result.group(1)
         session_name = result.group(2)

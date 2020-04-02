@@ -13,3 +13,26 @@ CC00802XX10_1000.obj
 
 In straight testing mode, the files need to be in train! not in test
 move all the train related testoutput files away first, they will be overwritten
+
+
+STATS
+
+red90
+[Network] Total number of parameters : 0.561 M
+9404MiB
+GPU13
+
+red50
+gpu08
+batch1
+/red90_12gb.sh
+
+
+gpu21
+both halves
+
+kingfisher
+batch2
+
+
+
