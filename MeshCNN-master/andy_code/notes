@@ -27,8 +27,17 @@ batch2
 
 kingfisher second
 ep50
+batch1
 
 gpu10
 red90
 larger arch
 ep50
+
+
+NEXT
+red50
+batch2 ep50
+
+
+get rid of lr decay?

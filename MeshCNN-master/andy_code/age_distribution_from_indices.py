@@ -16,6 +16,7 @@ with open("indices.pk", "rb") as f:
     indices = pickle.load(f)
 
 train_indices = indices['Train']
+print(train_indices)
 val_indices = indices['Val']
 test_indices = indices['Test']
 
@@ -33,5 +34,5 @@ axes[1, 1].title.set_text('Val')
 plt.show()
 
 # Have a look at certain ranges
-train_val_comb_df = meta.loc[val_indices]
-print(train_val_comb_df[train_val_comb_df['scan_age'] < 30].describe())
+specific_df = meta.loc[test_indices]
+print(specific_df[specific_df['scan_age'] < 30].describe())
