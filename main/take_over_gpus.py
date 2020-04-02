@@ -22,7 +22,7 @@ from src.log_saver import get_id, save_to_log
 from src.plot_confusion_matrix import plot_confusion_matrix
 
 # Global variables
-all_labels = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8 , 9, 10, 11, 12, 13, 14, 15, 16, 17])
+all_labels = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17])
 
 
 class SAModule(torch.nn.Module):
@@ -200,28 +200,20 @@ def train(epoch):
         i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
         i = i.type(torch.FloatTensor)
         u = u.type(torch.FloatTensor)
-        iou_per_class = i/u
+        iou_per_class = i / u
         mean_jaccard_index_per_class = torch.sum(iou_per_class, dim=0) / iou_per_class.shape[0]
-
 
         if (idx + 1) % 20 == 0:
             print('[{}/{}] Loss: {:.4f}, Train Accuracy: {:.4f}, Mean IoU: {}'.format(
                 idx + 1, len(train_loader), total_loss / 10,
                 correct_nodes / total_nodes, np.mean(mean_jaccard_indeces.tolist())))
 
-            # Write to tensorboard: LOSS and IoU per class
-            writer.add_scalar('Loss/train', total_loss / 10, epoch)
-            writer.add_scalar('Mean IoU/train', torch.sum(mean_jaccard_indeces)/len(mean_jaccard_indeces), epoch)
-            writer.add_scalar('Accuracy/train', correct_nodes/total_nodes, epoch)
-            for label, iou in enumerate(mean_jaccard_index_per_class):
-                writer.add_scalar('IoU{}/train'.format(label), iou, epoch)
                 # print('\t\tLabel {}: {}'.format(label, iou))
             # print('\n')
             total_loss = correct_nodes = total_nodes = 0
 
 
 def test(loader, experiment_description, epoch=None, test=False, id=None):
-
     # 1. Use this as the identifier for testing or validating
     mode = '_validation'
     epoch = str(epoch)
@@ -250,12 +242,12 @@ def test(loader, experiment_description, epoch=None, test=False, id=None):
         # plot(d, _y, _out)
 
         # 3. Create directory where to place the data
-        if not os.path.exists('experiment_data/{}/'.format(id)):
-            os.makedirs('experiment_data/{}/'.format(id))
+        if not os.path.exists('./{}/'.format(id)):
+            os.makedirs('./{}/'.format(id))
 
         # 4. Save the segmented brain in ./[...comment...]/data_valiation3.pkl (3 is for epoch)
         # for brain_idx, brain in data:
-        with open('experiment_data/n{}/data{}.pkl'.format(id, mode+epoch), 'wb') as file:
+        with open('./{}/data{}.pkl'.format(id, mode + epoch), 'wb') as file:
             pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
 
         # 5. Get accuracy
@@ -268,12 +260,11 @@ def test(loader, experiment_description, epoch=None, test=False, id=None):
         i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
         i = i.type(torch.FloatTensor)
         u = u.type(torch.FloatTensor)
-        iou_per_class = i/u
+        iou_per_class = i / u
         mean_jaccard_index_per_class = torch.sum(iou_per_class, dim=0) / iou_per_class.shape[0]
 
         # 7. Get confusion matrix
         cm = plot_confusion_matrix(data.y, pred, labels=all_labels)
-        writer.add_figure('Confusion Matrix', cm)
 
         # intersections.append(i.to(torch.device('cpu')))
         # unions.append(u.to(torch.device('cpu')))
@@ -281,7 +272,6 @@ def test(loader, experiment_description, epoch=None, test=False, id=None):
         # categories.append(data.category.to(torch.device('cpu')))
 
     # category = torch.cat(categories, dim=0)
-
 
     # intersection = torch.cat(intersections, dim=0)
     # union = torch.cat(unions, dim=0)
@@ -301,6 +291,8 @@ def test(loader, experiment_description, epoch=None, test=False, id=None):
 
 
 import itertools
+
+
 def get_grid_search_local_features(local_feats):
     '''
     Return all permutations of parameters passed
@@ -308,7 +300,7 @@ def get_grid_search_local_features(local_feats):
     '''
 
     # 1. Get all permutations of local features
-    local_fs = [[],]
+    local_fs = [[], ]
     for l in range(1, len(local_feats) + 1):
         for i in itertools.combinations(local_feats, l):
             local_fs.append(list(i))
@@ -322,39 +314,40 @@ if __name__ == '__main__':
     local_features = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
     grid_features = get_grid_search_local_features(local_features)
 
-    prefix = 'aligned_inflated_'
-
-    for local_feature_combo in grid_features[10:]:
-        for global_feature in [[]]:#, ['weight']]:
+    for local_feature_combo in grid_features:
+        for global_feature in [[]]:  # , ['weight']]:
 
             # Model Parameters
             lr = 0.001
             batch_size = 8
             global_features = global_feature
+
             target_class = 'gender'
             task = 'segmentation'
-            id = get_id(prefix=prefix)
 
+            id = get_id()
             with open('src/names.pk', 'rb') as f:
                 indices = pickle.load(f)
+            # number_of_points = 12000
 
-            reprocess = True
+            test_size = 0.09
+            val_size = 0.1
+            reprocess = False
 
-            data_nativeness = 'native'
+            data_nativeness = 'aligned'  # 'native'
             data = "reduced_50"
-            type_data = "inflated"
+            type_data = "pial"
 
             comment = data_nativeness + '---' + data + "---" + type_data \
                       + "---LR_" + str(lr) \
                       + "---BATCH_" + str(batch_size) \
                       + "---NUM_WORKERS_" + str(num_workers) \
                       + "---local_features_" + str(local_feature_combo) \
-                      + "---global_features_" + str(global_features) \
+                      + "---global_features_" + str(global_features)
 
-            print(comment)
 
             path = osp.join(
-                osp.dirname(osp.realpath(__file__)), '..', 'data/' + target_class + f'/Reduced50/{type_data}')
+                osp.dirname(osp.realpath(__file__)), '..', 'data/' + target_class + '/Reduced50/inflated')
 
             # Transformations
             transform = T.Compose([
@@ -367,18 +360,17 @@ if __name__ == '__main__':
                 T.RandomRotate(360, axis=1),
                 T.RandomRotate(360, axis=2)
             ])
-
             pre_transform = T.NormalizeScale()
 
+            # sub-CC00051XX02_ses-7702_hemi-L_inflated_reduce50
+            # sub-CC00051XX02_ses-7702_hemi-L_pial_reduce50
 
             # DATASETS
             # data_folder = '/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_fsavg32k/reduced_50/vtk/pial'
             data_folder = '/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native/reduced_50/inflated/vtk'
-            # data_folder = '/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native/reduced_50/inflated/vtk'
 
             # files_ending = '_hemi-L_pial_reduce50.vtk'
             files_ending = '_left_inflated_reduce50.vtk'
-            # files_ending = '_left_inflated_reduce50.vtk',
 
             train_dataset = OurDataset(path, train=True, transform=transform, pre_transform=pre_transform,
                                                          target_class=target_class, task=task, reprocess=reprocess,
@@ -418,9 +410,6 @@ if __name__ == '__main__':
             model = Net(18, num_local_features, num_global_features=None).to(device)
             optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-            # Tensorboard writer.
-            writer = SummaryWriter('runs/ID' + id + '-' + prefix)
-
             # 0. Save to log_record.txt
             log_descr = data_nativeness + '  ' + data + "  " + type_data + '  ' \
                         + "LR=" + str(lr) + '\t\t' \
@@ -431,8 +420,6 @@ if __name__ == '__main__':
                         + "Data used: " + data + '_' + type_data + '\t\t' \
                         + "Split class: " + target_class
 
-            save_to_log(log_descr, prefix=prefix)
-            writer.add_text(f'{prefix} ID #{id}', log_descr)
 
             for epoch in range(1, 50):
 
@@ -443,38 +430,32 @@ if __name__ == '__main__':
                 train(epoch)
 
                 # 3. Validate the performance after each epoch
-                loss, acc, iou = test(val_loader, comment+'val'+str(epoch), epoch=epoch, id=id)
-                print('Epoch: {:02d}, Val Loss/nll: {}, Val Acc: {:.4f}, Validation IoU (per class):'.format(epoch, loss, acc))
+                loss, acc, iou = test(val_loader, comment + 'val' + str(epoch), epoch=epoch, id=id)
+                print(
+                    'Epoch: {:02d}, Val Loss/nll: {}, Val Acc: {:.4f}, Validation IoU (per class):'.format(epoch, loss,
+                                                                                                           acc))
 
-                # 4. Record valiation metrics in Tensorboard
-                writer.add_scalar('Loss/val_nll', loss, epoch)
-                writer.add_scalar('Accuracy/val', acc, epoch)
-                for label, value in enumerate(iou):
-                    writer.add_scalar('IoU{}/validation'.format(label), value, epoch)
-                    print('\t\tLabel {}: {}'.format(label, value))
+                    # print('\t\tLabel {}: {}'.format(label, value))
 
                 # 5. Stop recording time
                 end = time.time()
                 print('Time: ' + str(end - start))
-                writer.add_scalar('Time/epoch', end-start, epoch)
-                print('='*60)
+                print('=' * 60)
 
             # 6. Test the performance after training
             loss, acc, iou = test(test_loader, comment, test=True, id=id)
 
-            # 7. Record test metrics in Tensorboard
-            writer.add_scalar('Loss/test', loss)
-            writer.add_scalar('Accuracy/test', acc)
             for label, value in enumerate(iou):
-                writer.add_scalar('IoU{}/test'.format(label), value)
                 print('\t\tLabel {}: {}'.format(label, value))
 
             # 8. Save the model with its unique id
-            torch.save(model.state_dict(), '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/{}/'.format(id) + 'model' + '_id' + str(id) + '.pt')
+            torch.save(model.state_dict(),
+                       '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/{}/'.format(
+                           id) + 'model' + '_id' + str(id) + '.pt')
 
 
 
-        
+
 
 
 

@@ -1,21 +1,31 @@
+import os
 
-def get_id():
+def get_id(prefix=''):
     '''
     :return: The next expected id number of an experiment
              that hasn't yet been recorded!
     '''
-    with open('log_record.txt', 'r') as log_record:
+    with open(f'{prefix}log_record.txt', 'r') as log_record:
         next_id = len(log_record.readlines()) + 1
 
     return str(next_id)
 
-def save_to_log(experiment_description):
+def save_to_log(experiment_description, prefix=''):
     '''
     Saves the experiment description into the log
     :param experiment_description: all the variables in a nice format
     '''
-    next_id = get_id()
-    with open('log_record.txt', 'a+') as log_record:
+
+    add_first_line = False
+    if not os.path.exists(f'{prefix}log_record.txt'):
+        add_first_line = True
+
+    if add_first_line:
+        with open(f'{prefix}log_record.txt', 'a+') as log_record:
+            log_record.write(f'LOG OF ALL THE EXPERIMENTS for {prefix}')
+
+    with open(f'{prefix}log_record.txt', 'a+') as log_record:
+        next_id = get_id(prefix=prefix)
         log_record.write('\n#{} ::: {}'.format(next_id, experiment_description))
 
 
