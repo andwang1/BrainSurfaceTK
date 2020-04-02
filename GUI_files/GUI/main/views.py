@@ -8,17 +8,17 @@ from .forms import NewUserForm
 import os
 from nilearn.plotting import view_img
 import nibabel as nib
-import numpy as np
-
 import csv
 
-DATA_DIR = "/home/cemlyn/Documents/Projects/MScGroupProject/data/"
+DATA_DIR = "../data/"
 VOL_DIR = f"{DATA_DIR}gm_volume3d/"
-TMP_DIR = "/home/cemlyn/Documents/Projects/MScGroupProject/GUI/main/static/tmp/"
 
 
 # Create your views here.
 def homepage(request):
+    if Option.objects.count() == 0:
+        Option.objects.create(name="Look-up", summary="Look-up session ids", slug="lookup")
+        Option.objects.create(name="Upload", summary="Upload session id", slug="upload")
     options = Option.objects.all()
     return render(request, "main/start_page.html", context={"options": options})
 
@@ -40,13 +40,20 @@ def view_session_data(request, session_id):
     file_path = list(*GreyMatterVolume.objects.filter(session_id=session_id).values_list())[-1]
     img = nib.load(file_path)
     img_html = view_img(img, colorbar=False, bg_img=False, cmap='gray')
+    surf_html = None
+    # Ask Alex
+    # surf_html = view_surf(img, bg_map=False, ).save_as_html()
     return render(request, "main/results.html",
                   context={"session_id": session_id, "column_names": column_names, "values": values,
-                           "image": img_html})
+                           "image": img_html, "surf": surf_html})
 
 
 def load_data(request):
     if request.method == "POST":
+
+        SessionDatabase.objects.all().delete()
+        GreyMatterVolume.objects.all().delete()
+
         with open(f"{DATA_DIR}meta_data.tsv") as foo:
             reader = csv.reader(foo, delimiter='\t')
             for i, row in enumerate(reader):
@@ -54,13 +61,17 @@ def load_data(request):
                     continue
                 (participant_id, session_id, gender, birth_age, birth_weight, singleton, scan_age,
                  scan_number, radiology_score, sedation) = row
-                SessionDatabase.objects.get_or_create(participant_id=participant_id, session_id=session_id,
-                                                      gender=gender,
-                                                      birth_age=birth_age, birth_weight=birth_weight,
-                                                      singleton=singleton,
-                                                      scan_age=scan_age,
-                                                      scan_number=scan_number, radiology_score=radiology_score,
-                                                      sedation=sedation)
+                try:
+                    SessionDatabase.objects.get_or_create(participant_id=participant_id, session_id=session_id,
+                                                          gender=gender,
+                                                          birth_age=birth_age, birth_weight=birth_weight,
+                                                          singleton=singleton,
+                                                          scan_age=scan_age,
+                                                          scan_number=scan_number, radiology_score=radiology_score,
+                                                          sedation=sedation)
+                except:
+                    # This is a temporary patch because we have two session ids of 1000
+                    print('here')
 
         session_ids = sorted([session.session_id for session in SessionDatabase.objects.all()])
         potential_files = []
