@@ -289,7 +289,7 @@ if __name__ == '__main__':
     ########### EXPERIMENT DESCRIPTION ##############
     #################################################
 
-    data_nativeness = 'native'
+    data_nativeness = 'aligned'
     data_compression = "reduced_50"
     data_type = "inflated"
 
@@ -310,7 +310,6 @@ if __name__ == '__main__':
             global_features = global_feature
             target_class = 'gender'
             task = 'segmentation'
-            id = get_id(prefix=experiment_name)
             REPROCESS = True
 
 
@@ -357,16 +356,15 @@ if __name__ == '__main__':
             optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
 
-            # 8. Tensorboard writer.
-            writer = SummaryWriter('runs/ID' + id + '-' + experiment_name)
-
-
             # 9. Save to log_record.txt
             log_descr = get_comment(data_nativeness, data_compression, data_type,
                                     lr, batch_size, local_feature_combo, global_features, target_class,
                                     log_descr=True)
 
             save_to_log(log_descr, prefix=experiment_name)
+            id = get_id(prefix=experiment_name)
+
+            writer = SummaryWriter('runs/ID' + id + '-' + experiment_name)
             writer.add_text(f'{experiment_name} ID #{id}', comment)
 
 
