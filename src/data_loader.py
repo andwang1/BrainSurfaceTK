@@ -127,10 +127,8 @@ class OurDataset(InMemoryDataset):
 
 
     def get_file_path(self, patient_id, session_id):
-
         file_name = "sub-" + patient_id +"_ses-" + session_id + self.files_ending
         file_path = self.data_folder + '/' + file_name
-
         return file_path
 
 

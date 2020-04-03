@@ -9,14 +9,14 @@ def get_comment(data_nativeness, data_compression, data_type,
                 lr, batch_size, local_feature_combo, global_features,
                 target_class, log_descr=False):
 
-    comment = f'Data nativeness: {data_nativeness}\n' \
+    comment = f'\nData nativeness: {data_nativeness}\n' \
               f'Data compression: {data_compression}\n' \
               f'Data type: {data_type}\n' \
               f'Local features: {local_feature_combo}\n' \
               f'Global features: {global_features}\n' \
               f'\n' \
               f'Learning rate: {lr}\n' \
-              f'Batch size: {batch_size}'
+              f'Batch size: {batch_size}\n'
 
     if log_descr == True:
         # 0. Save to log_record.txt
@@ -110,22 +110,22 @@ def get_data_path(data_nativeness, data_compression, data_type, hemisphere='left
                        'veryinflated': 'veryinflated/',
                        'white': 'white/'}
 
-    hemisphere_paths = {'left_aligned_original': f'_left_{data_type}.vtk',
-                        'left_aligned_50':       f'_left_{data_type}_reduce50.vtk',
-                        'left_aligned_90':       f'_left_{data_type}_reduce90.vtk',
+    hemisphere_paths = {'left_native_original': f'_left_{data_type}.vtk',
+                        'left_native_50':       f'_left_{data_type}_reduce50.vtk',
+                        'left_native_90':       f'_left_{data_type}_reduce90.vtk',
 
-                        'right_aligned_original': f'_right_{data_type}.vtk',
-                        'right_aligned_50':       f'_right_{data_type}_reduce50.vtk',
-                        'right_aligned_90':       f'_right_{data_type}_reduce90.vtk',
+                        'right_native_original': f'_right_{data_type}.vtk',
+                        'right_native_50':       f'_right_{data_type}_reduce50.vtk',
+                        'right_native_90':       f'_right_{data_type}_reduce90.vtk',
 
 
-                        'left_native_original': f'_hemi-L_{data_type}.vtk',
-                        'left_native_50':       f'_hemi-L_{data_type}_reduce50.vtk',
-                        'left_native_90':       f'_hemi-L_{data_type}_reduce90.vtk',
+                        'left_aligned_original': f'_hemi-L_{data_type}.vtk',
+                        'left_aligned_50':       f'_hemi-L_{data_type}_reduce50.vtk',
+                        'left_aligned_90':       f'_hemi-L_{data_type}_reduce90.vtk',
 
-                        'right_native_original': f'_hemi-R_{data_type}.vtk',
-                        'right_native_50':       f'_hemi-R_{data_type}_reduce50.vtk',
-                        'right_native_90':       f'_hemi-R_{data_type}_reduce90.vtk'}
+                        'right_aligned_original': f'_hemi-R_{data_type}.vtk',
+                        'right_aligned_50':       f'_hemi-R_{data_type}_reduce50.vtk',
+                        'right_aligned_90':       f'_hemi-R_{data_type}_reduce90.vtk'}
 
     if data_nativeness == 'native':
 
@@ -136,7 +136,7 @@ def get_data_path(data_nativeness, data_compression, data_type, hemisphere='left
 
     elif data_nativeness == 'aligned':
 
-        data_folder = root + data_nativeness_paths[data_nativeness] + data_compression_paths[data_compression] + data_type_paths[data_type] + 'vtk'
+        data_folder = root + data_nativeness_paths[data_nativeness] + data_compression_paths[data_compression] + 'vtk/' + data_type_paths[data_type][:-1]
         files_ending = hemisphere_paths[hemisphere + f'_{data_nativeness}_{data_compression}']
 
         return data_folder, files_ending
