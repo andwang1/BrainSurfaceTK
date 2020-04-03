@@ -120,11 +120,19 @@ class ClassifierModel:
         else:
             torch.save(self.net.cpu().state_dict(), save_path)
 
-    def update_learning_rate(self):
+    def update_learning_rate(self, val_acc, epoch):
         """update learning rate (called once every epoch)"""
-        self.scheduler.step()
+        if self.opt.lr_policy == 'plateau':
+            self.scheduler.step(val_acc)
+        elif self.opt.lr_policy == 'cosine_restarts':
+            self.scheduler.step(epoch)
+        else:
+            self.scheduler.step()
         lr = self.optimizer.param_groups[0]['lr']
+        # with open("lr_log.txt", "a") as lr_logger:
+        #     lr_logger.write(f"{lr}\n")
         print('learning rate = %.7f' % lr)
+        return lr
 
     def test(self, epoch):
         """tests model

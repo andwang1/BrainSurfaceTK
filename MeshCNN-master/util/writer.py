@@ -18,7 +18,7 @@ class Writer:
         self.nexamples = 0
         self.ncorrect = 0
         #
-        if opt.is_train and not opt.no_vis and SummaryWriter is not None:
+        if opt.is_train and not opt.no_vis and SummaryWriter is not None and opt.tensorboard:
             self.display = SummaryWriter(comment=opt.name)
         else:
             self.display = None
@@ -67,6 +67,10 @@ class Writer:
     def plot_acc(self, acc, epoch):
         if self.display:
             self.display.add_scalar('data/test_acc', acc, epoch)
+
+    def plot_lr(self, lr, epoch):
+        if self.display:
+            self.display.add_scalar('data/lr', lr, epoch)
 
     def reset_counter(self):
         """

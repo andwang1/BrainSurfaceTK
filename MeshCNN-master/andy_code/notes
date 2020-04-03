@@ -6,6 +6,9 @@ testfiles csv have format
 In straight testing mode, the files need to be in train! not in test
 move all the train related testoutput files away first, they will be overwritten
 
+
+
+
 STATS
 
 
@@ -36,9 +39,25 @@ birthage
 
 17-40-57
 kingfisher
+red50
 third
 birthage with scanage
 
 
-NEXT
-red50 lower starting LR, fewer epochs
+kingfisher
+fourth
+Apr03_13-58-27_kingfisher.doc.ic.ac.ukbrains
+red50, batch1
+ep30, lower LR, init
+
+next
+lower LR linear = lambda
+stepLR (might be too aggressive, so try with lower number of epochs in total but more often updates)
+ReduceLROnPlateau - need to implement val loss?
+
+add
+CyclicLR
+CosineAnnealingWarmRestarts
+
+
+https://pytorch.org/docs/stable/optim.html
