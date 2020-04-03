@@ -18,7 +18,7 @@ from torch_geometric.utils import intersection_and_union as i_and_u
 from torch_geometric.utils.metric import mean_iou
 
 from src.data_loader import OurDataset
-from src.log_saver import get_id, save_to_log
+from src.utils import get_id, save_to_log, get_comment, get_data_path, data, get_grid_search_local_features
 from src.plot_confusion_matrix import plot_confusion_matrix
 
 # Global variables
@@ -220,7 +220,7 @@ def train(epoch):
             total_loss = correct_nodes = total_nodes = 0
 
 
-def test(loader, experiment_description, epoch=None, test=False, id=None):
+def test(loader, experiment_description, epoch=None, test=False, id=None, experiment_name=''):
 
     # 1. Use this as the identifier for testing or validating
     mode = '_validation'
@@ -250,12 +250,12 @@ def test(loader, experiment_description, epoch=None, test=False, id=None):
         # plot(d, _y, _out)
 
         # 3. Create directory where to place the data
-        if not os.path.exists('experiment_data/{}/'.format(id)):
-            os.makedirs('experiment_data/{}/'.format(id))
+        if not os.path.exists(f'experiment_data/{id}-{experiment_name}/'):
+            os.makedirs(f'experiment_data/{id}-{experiment_name}/')
 
         # 4. Save the segmented brain in ./[...comment...]/data_valiation3.pkl (3 is for epoch)
         # for brain_idx, brain in data:
-        with open('experiment_data/n{}/data{}.pkl'.format(id, mode+epoch), 'wb') as file:
+        with open(f'experiment_data/{id}-{experiment_name}/data{mode+epoch}.pkl', 'wb') as file:
             pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
 
         # 5. Get accuracy
@@ -273,47 +273,10 @@ def test(loader, experiment_description, epoch=None, test=False, id=None):
 
         # 7. Get confusion matrix
         cm = plot_confusion_matrix(data.y, pred, labels=all_labels)
-        writer.add_figure('Confusion Matrix', cm)
-
-        # intersections.append(i.to(torch.device('cpu')))
-        # unions.append(u.to(torch.device('cpu')))
-
-        # categories.append(data.category.to(torch.device('cpu')))
-
-    # category = torch.cat(categories, dim=0)
-
-
-    # intersection = torch.cat(intersections, dim=0)
-    # union = torch.cat(unions, dim=0)
-    #
-    # ious = []
-    # for j in range(len(loader.dataset)):
-    #     i = intersection[j, loader.dataset.y_mask[category[j]]]
-    #     u = union[j, loader.dataset.y_mask[category[j]]]
-    #     iou = i.to(torch.float) / u.to(torch.float)
-    #     iou[torch.isnan(iou)] = 1
-    #     ious[category[j]].append(iou.mean().item())
-    #
-    # for cat in range(len(loader.dataset.categories)):
-    #     ious[cat] = torch.tensor(ious[cat]).mean().item()
+        writer.add_figure(f'Confusion Matrix - ID{id}-{experiment_name}', cm)
 
     return loss, accuracy, mean_jaccard_index_per_class
 
-
-import itertools
-def get_grid_search_local_features(local_feats):
-    '''
-    Return all permutations of parameters passed
-    :return: [ [], [cortical], [myelin], ..., [cortical, myelin], ... ]
-    '''
-
-    # 1. Get all permutations of local features
-    local_fs = [[],]
-    for l in range(1, len(local_feats) + 1):
-        for i in itertools.combinations(local_feats, l):
-            local_fs.append(list(i))
-
-    return local_fs
 
 
 if __name__ == '__main__':
@@ -322,91 +285,65 @@ if __name__ == '__main__':
     local_features = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
     grid_features = get_grid_search_local_features(local_features)
 
-    prefix = 'aligned_inflated_'
+    #################################################
+    ########### EXPERIMENT DESCRIPTION ##############
+    #################################################
+
+    data_nativeness = 'native'
+    data_compression = "reduced_50"
+    data_type = "inflated"
+
+    additional_comment = ''
+
+    experiment_name = f'{data_nativeness}_{data_type}_{data_compression}_{additional_comment}'
+
+    #################################################
+    ############ EXPERIMENT DESCRIPTION #############
+    #################################################
 
     for local_feature_combo in grid_features[10:]:
         for global_feature in [[]]:#, ['weight']]:
 
-            # Model Parameters
+            # 1. Model Parameters
             lr = 0.001
             batch_size = 8
             global_features = global_feature
             target_class = 'gender'
             task = 'segmentation'
-            id = get_id(prefix=prefix)
+            id = get_id(prefix=experiment_name)
+            REPROCESS = True
 
+
+            # 2. Get the data splits indices
             with open('src/names.pk', 'rb') as f:
                 indices = pickle.load(f)
 
-            reprocess = True
 
-            data_nativeness = 'native'
-            data = "reduced_50"
-            type_data = "inflated"
+            # 4. Get experiment description
+            comment = get_comment(data_nativeness, data_compression, data_type,
+                                  lr, batch_size, local_feature_combo, global_features, target_class)
 
-            comment = data_nativeness + '---' + data + "---" + type_data \
-                      + "---LR_" + str(lr) \
-                      + "---BATCH_" + str(batch_size) \
-                      + "---NUM_WORKERS_" + str(num_workers) \
-                      + "---local_features_" + str(local_feature_combo) \
-                      + "---global_features_" + str(global_features) \
 
             print(comment)
 
-            path = osp.join(
-                osp.dirname(osp.realpath(__file__)), '..', 'data/' + target_class + f'/Reduced50/{type_data}')
 
-            # Transformations
-            transform = T.Compose([
-                # T.RandomTranslate(0.1),
-                # T.RandomFlip(0, p=0.3),
-                # T.RandomFlip(1, p=0.1),
-                # T.RandomFlip(2, p=0.3),
-                T.FixedPoints(16247),
-                T.RandomRotate(360, axis=0),
-                T.RandomRotate(360, axis=1),
-                T.RandomRotate(360, axis=2)
-            ])
+            # 5. Perform data processing
+            data_folder, files_ending = get_data_path(data_nativeness, data_compression, data_type, hemisphere='left')
 
-            pre_transform = T.NormalizeScale()
-
-
-            # DATASETS
-            # data_folder = '/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_fsavg32k/reduced_50/vtk/pial'
-            data_folder = '/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native/reduced_50/inflated/vtk'
-            # data_folder = '/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native/reduced_50/inflated/vtk'
-
-            # files_ending = '_hemi-L_pial_reduce50.vtk'
-            files_ending = '_left_inflated_reduce50.vtk'
-            # files_ending = '_left_inflated_reduce50.vtk',
-
-            train_dataset = OurDataset(path, train=True, transform=transform, pre_transform=pre_transform,
-                                                         target_class=target_class, task=task, reprocess=reprocess,
-                                                         local_features=local_features, global_feature=global_features,
-                                                         val=False, indices=indices['Train'],
-                                                         data_folder=data_folder,
-                                                         files_ending=files_ending)
+            train_dataset, test_dataset, validation_dataset, train_loader, test_loader, val_loader = data(data_folder,
+                                                                                                          files_ending,
+                                                                                                          data_type,
+                                                                                                          target_class,
+                                                                                                          task,
+                                                                                                          REPROCESS,
+                                                                                                          local_features,
+                                                                                                          global_features,
+                                                                                                          indices,
+                                                                                                          batch_size,
+                                                                                                          num_workers=2)
 
 
-            test_dataset = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform,
-                                                         target_class=target_class, task=task, reprocess=reprocess,
-                                                         local_features=local_features, global_feature=global_features,
-                                                         val=False, indices=indices['Test'],
-                                                         data_folder=data_folder,
-                                                         files_ending=files_ending)
-
-            validation_dataset = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform,
-                                                         target_class=target_class, task=task, reprocess=reprocess,
-                                                         local_features=local_features, global_feature=global_features,
-                                                         val=True, indices=indices['Val'],
-                                                         data_folder=data_folder,
-                                                         files_ending=files_ending)
-
-            train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
-            test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
-            val_loader = DataLoader(validation_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
-
-            # Getting the number of features to adapt the architecture
+            # 6. Getting the number of features to adapt the architecture
             num_local_features = train_dataset[0].x.size(1)
             # numb_global_features = train_dataset[0].y.size(1) - 1
             num_classes = train_dataset.num_labels
@@ -414,26 +351,26 @@ if __name__ == '__main__':
             if not torch.cuda.is_available():
                 print('YOU ARE RUNNING ON A CPU!!!!')
 
+            # 7. Create the model
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
             model = Net(18, num_local_features, num_global_features=None).to(device)
             optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-            # Tensorboard writer.
-            writer = SummaryWriter('runs/ID' + id + '-' + prefix)
 
-            # 0. Save to log_record.txt
-            log_descr = data_nativeness + '  ' + data + "  " + type_data + '  ' \
-                        + "LR=" + str(lr) + '\t\t' \
-                        + "Batch=" + str(batch_size) + '\t\t' \
-                        + "Num Workers=" + str(num_workers) + '\t\t' \
-                        + "Local features:" + str(local_feature_combo) + '\t\t' \
-                        + "Global features:" + str(global_features) + '\t\t' \
-                        + "Data used: " + data + '_' + type_data + '\t\t' \
-                        + "Split class: " + target_class
+            # 8. Tensorboard writer.
+            writer = SummaryWriter('runs/ID' + id + '-' + experiment_name)
 
-            save_to_log(log_descr, prefix=prefix)
-            writer.add_text(f'{prefix} ID #{id}', log_descr)
 
+            # 9. Save to log_record.txt
+            log_descr = get_comment(data_nativeness, data_compression, data_type,
+                                    lr, batch_size, local_feature_combo, global_features, target_class,
+                                    log_descr=True)
+
+            save_to_log(log_descr, prefix=experiment_name)
+            writer.add_text(f'{experiment_name} ID #{id}', comment)
+
+
+            # 10. TRAINING
             for epoch in range(1, 50):
 
                 # 1. Start recording time
@@ -443,7 +380,7 @@ if __name__ == '__main__':
                 train(epoch)
 
                 # 3. Validate the performance after each epoch
-                loss, acc, iou = test(val_loader, comment+'val'+str(epoch), epoch=epoch, id=id)
+                loss, acc, iou = test(val_loader, comment+'val'+str(epoch), epoch=epoch, id=id, experiment_name=experiment_name)
                 print('Epoch: {:02d}, Val Loss/nll: {}, Val Acc: {:.4f}, Validation IoU (per class):'.format(epoch, loss, acc))
 
                 # 4. Record valiation metrics in Tensorboard
@@ -470,7 +407,7 @@ if __name__ == '__main__':
                 print('\t\tLabel {}: {}'.format(label, value))
 
             # 8. Save the model with its unique id
-            torch.save(model.state_dict(), '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/{}/'.format(id) + 'model' + '_id' + str(id) + '.pt')
+            torch.save(model.state_dict(), f'/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/{id}-{experiment_name}/' + 'model' + '_id' + str(id) + '.pt')
 
 
 

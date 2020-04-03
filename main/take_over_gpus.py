@@ -18,7 +18,7 @@ from torch_geometric.utils import intersection_and_union as i_and_u
 from torch_geometric.utils.metric import mean_iou
 
 from src.data_loader import OurDataset
-from src.log_saver import get_id, save_to_log
+from src.utils import get_id, save_to_log
 from src.plot_confusion_matrix import plot_confusion_matrix
 
 # Global variables

@@ -8,7 +8,7 @@ from sklearn.metrics import confusion_matrix
 
 
 
-def plot_confusion_matrix(correct_labels, predict_labels, labels, title='Confusion matrix', tensor_name = 'MyFigure/image', normalize=False):
+def plot_confusion_matrix(correct_labels, predict_labels, labels, title='Confusion matrix', tensor_name = 'MyFigure/image', normalize=True):
     '''
     Parameters:
         correct_labels                  : These are your true classification categories.
