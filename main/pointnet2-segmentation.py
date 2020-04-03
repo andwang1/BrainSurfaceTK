@@ -270,8 +270,8 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
             print(f'First preds: {all_preds}\n\nFirst data: {all_datay}')
 
         else:
-            all_preds = all_preds.concatenate(pred)
-            all_datay = all_datay.concatenate(data.y)
+            all_preds = torch.cat(all_preds, pred)
+            all_datay = torch.cat(all_datay, data.y)
 
             print(f'Next preds: {all_preds}\n\nNext data: {all_datay}')
 
