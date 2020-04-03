@@ -127,14 +127,14 @@ def get_data_path(data_nativeness, data_compression, data_type, hemisphere='left
                         'right_native_50':       f'_hemi-R_{data_type}_reduce50.vtk',
                         'right_native_90':       f'_hemi-R_{data_type}_reduce90.vtk'}
 
-    if data_compression == 'native':
+    if data_nativeness == 'native':
 
         data_folder = root + data_nativeness_paths[data_nativeness] + data_compression_paths[data_compression] + data_type_paths[data_type] + 'vtk'
         files_ending = hemisphere_paths[hemisphere + f'_{data_nativeness}_{data_compression}']
 
         return data_folder, files_ending
 
-    elif data_compression == 'aligned':
+    elif data_nativeness == 'aligned':
 
         data_folder = root + data_nativeness_paths[data_nativeness] + data_compression_paths[data_compression] + data_type_paths[data_type] + 'vtk'
         files_ending = hemisphere_paths[hemisphere + f'_{data_nativeness}_{data_compression}']
