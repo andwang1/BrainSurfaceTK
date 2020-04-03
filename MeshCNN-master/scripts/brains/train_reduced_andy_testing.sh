@@ -10,9 +10,8 @@ python3 train.py \
 --niter 5 \
 --batch_size 1 \
 --ncf 64 112 128 \
---pool_res 3000 2500 2000 \
+--pool_res 3000 2750 2500 \
 --norm group \
---resblocks 1 \
 --flip_edges 0.2 \
 --slide_verts 0.2 \
 --num_aug 1 \
@@ -20,5 +19,5 @@ python3 train.py \
 --dataset_mode regression \
 --print_freq 14 \
 --ninput_edges 9000 \
---lr_policy plateau \
+--lr_policy cyclic \
 
