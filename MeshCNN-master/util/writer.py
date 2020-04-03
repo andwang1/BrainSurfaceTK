@@ -18,7 +18,7 @@ class Writer:
         self.nexamples = 0
         self.ncorrect = 0
         #
-        if opt.is_train and not opt.no_vis and SummaryWriter is not None and opt.tensorboard:
+        if opt.is_train and not opt.no_vis and SummaryWriter is not None:
             self.display = SummaryWriter(comment=opt.name)
         else:
             self.display = None
