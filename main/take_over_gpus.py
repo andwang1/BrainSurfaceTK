@@ -321,11 +321,11 @@ if __name__ == '__main__':
             lr = 0.001
             batch_size = 8
             global_features = global_feature
+            id = 0
 
             target_class = 'gender'
             task = 'segmentation'
 
-            id = get_id()
             with open('src/names.pk', 'rb') as f:
                 indices = pickle.load(f)
             # number_of_points = 12000
@@ -448,10 +448,6 @@ if __name__ == '__main__':
             for label, value in enumerate(iou):
                 print('\t\tLabel {}: {}'.format(label, value))
 
-            # 8. Save the model with its unique id
-            torch.save(model.state_dict(),
-                       '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/{}/'.format(
-                           id) + 'model' + '_id' + str(id) + '.pt')
 
 
 

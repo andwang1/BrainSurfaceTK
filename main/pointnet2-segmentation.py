@@ -301,7 +301,7 @@ if __name__ == '__main__':
     ############ EXPERIMENT DESCRIPTION #############
     #################################################
 
-    for local_feature_combo in grid_features[10:]:
+    for local_feature_combo in grid_features:
         for global_feature in [[]]:#, ['weight']]:
 
             # 1. Model Parameters
@@ -364,7 +364,7 @@ if __name__ == '__main__':
             save_to_log(log_descr, prefix=experiment_name)
             id = get_id(prefix=experiment_name)
 
-            writer = SummaryWriter('runs/ID' + id + '-' + experiment_name)
+            writer = SummaryWriter(f'runs/{experiment_name}ID' + id)
             writer.add_text(f'{experiment_name} ID #{id}', comment)
 
 
