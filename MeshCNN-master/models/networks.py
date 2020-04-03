@@ -56,11 +56,11 @@ def get_scheduler(optimizer, opt):
     elif opt.lr_policy == 'step':
         scheduler = lr_scheduler.StepLR(optimizer, step_size=opt.lr_decay_iters, gamma=0.1)
     elif opt.lr_policy == 'plateau':
-        scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.2, threshold=0.01, patience=3)
+        scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, threshold=0.01, patience=2)
     elif opt.lr_policy == 'cyclic':
-        scheduler = lr_scheduler.CyclicLR(optimizer, 0.00001, opt.lr, step_size_up=1800, step_size_down=None, mode='triangular2')
+        scheduler = lr_scheduler.CyclicLR(optimizer, 0.00001, opt.lr, step_size_up=1800, step_size_down=None, mode='triangular2', cycle_momentum=False)
     elif opt.lr_policy == 'cosine_restarts':
-        scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer, 1, T_mult=1, eta_min=0, last_epoch=-1)
+        scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer, 10, T_mult=1, eta_min=0)
     else:
         return NotImplementedError('learning rate policy [%s] is not implemented', opt.lr_policy)
     return scheduler
