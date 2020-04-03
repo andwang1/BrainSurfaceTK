@@ -24,7 +24,7 @@ class ClassifierModel:
         self.edge_features = None
         self.labels = None
         self.mesh = None
-        ## to add input features:
+        # Adding input features
         self.feature_keys = opt.features
         if self.feature_keys:
             self.feature_dictionaries = {feature:get_feature_dict(feature) for feature in self.feature_keys}
@@ -34,10 +34,6 @@ class ClassifierModel:
         self.loss = None
         self.save_dir = join(opt.checkpoints_dir, opt.name)
         self.testacc_log = join(self.save_dir, 'testacc_full_log_')
-        # MAKE THIS CSV
-
-
-        #
         self.nclasses = opt.nclasses
 
         # load/define networks
@@ -65,7 +61,7 @@ class ClassifierModel:
         self.mesh = data['mesh']
         # Adding path
         self.path = data['path']
-        ##to get extra input features
+        # Adding input features
         if self.feature_keys:
             unique_id = self.path[0].split("/")[-1][:-4]
             self.feature_values = [self.feature_dictionaries[feature][unique_id] for feature in self.feature_keys]
@@ -79,7 +75,6 @@ class ClassifierModel:
 
     def backward(self, out):
         if self.opt.dataset_mode == "regression":
-            # print("OUTPUT", out.view(-1), "LABEL", self.labels)
             self.loss = self.criterion(out.view(-1), self.labels)
         else:
             self.loss = self.criterion(out, self.labels)
@@ -90,9 +85,6 @@ class ClassifierModel:
         out = self.forward()
         self.backward(out)
         self.optimizer.step()
-
-
-##################
 
     def load_network(self, which_epoch):
         """load model from disk"""
@@ -108,7 +100,6 @@ class ClassifierModel:
         if hasattr(state_dict, '_metadata'):
             del state_dict._metadata
         net.load_state_dict(state_dict)
-
 
     def save_network(self, which_epoch):
         """save model to disk"""
@@ -147,7 +138,6 @@ class ClassifierModel:
             re_matcher = re.compile(re_pattern)
             matched_path = re_matcher.match(self.path[-1])
             patient_id = matched_path.group(1)
-            # patient_id = self.path[-1][38:-4]
 
             print('-------')
             print('Patient ID:\t', patient_id)
