@@ -183,16 +183,9 @@ def train(epoch):
     total_loss = correct_nodes = total_nodes = 0
     for idx, data in enumerate(train_loader):
 
-        start = time.time()
-
-
         data = data.to(device)
         optimizer.zero_grad()
         out = model(data)
-
-
-        print(f'Time taken for forward train pass: {time.time() - start}s')
-        start = time.time()
 
 
         loss = F.nll_loss(out, data.y)
@@ -203,22 +196,18 @@ def train(epoch):
         total_nodes += data.num_nodes
 
 
-        print(f'Time taken for loss and gradients: {time.time() - start}s')
-        start = time.time()
-
-
         # Mean Jaccard index = index averaged over all classes (HENCE, this shows the IoU of a batch)
         mean_jaccard_indeces = mean_iou(out.max(dim=1)[1], data.y, 18, batch=data.batch)
 
         # Mean Jaccard indeces PER LABEL
         i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
+
         i = i.type(torch.FloatTensor)
         u = u.type(torch.FloatTensor)
+
         iou_per_class = i/u
         mean_jaccard_index_per_class = torch.sum(iou_per_class, dim=0) / iou_per_class.shape[0]
 
-
-        print(f'Time taken for Jaccard indices: {time.time() - start}')
 
         if (idx + 1) % 20 == 0:
             print('[{}/{}] Loss: {:.4f}, Train Accuracy: {:.4f}, Mean IoU: {}'.format(
@@ -249,10 +238,10 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
 
     correct_nodes = total_nodes = 0
     intersections, unions, categories = [], [], []
+    all_preds = None
+    all_datay = None
 
     for batch_idx, data in enumerate(loader):
-
-        start = time.time()
 
 
         # 1. Get predictions and loss
@@ -260,16 +249,10 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
         with torch.no_grad():
             out = model(data)
 
-        print(f'Time taken for forward {mode} pass: {time.time() - start}')
-        start = time.time()
-
 
         pred = out.max(dim=1)[1]
+
         loss = F.nll_loss(out, data.y)
-
-
-        print(f'Time taken for loss {mode}: {time.time() - start}')
-        start = time.time()
 
 
         # 2. Get d (positions), _y (actual labels), _out (predictions)
@@ -278,9 +261,17 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
         _out = out.max(dim=1)[1].cpu().detach().numpy()
         # plot(d, _y, _out)
 
+        if batch_idx == 0:
+            all_preds = pred
+            all_datay = data.y
 
-        print(f'Time taken for getting data {mode}: {time.time() - start}')
-        start = time.time()
+            print(f'First preds: {all_preds}\n\nFirst data: {all_datay}')
+
+        else:
+            all_preds = all_preds.concatenate(pred)
+            all_datay = all_datay.concatenate(data.y)
+
+            print(f'Next preds: {all_preds}\n\nNext data: {all_datay}')
 
 
         # 3. Create directory where to place the data
@@ -292,11 +283,6 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
         with open(f'experiment_data/{id}-{experiment_name}/data{mode+epoch}.pkl', 'wb') as file:
             pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
 
-
-        print(f'Time taken for saving data {mode}: {time.time() - start}')
-        start = time.time()
-
-
         # 5. Get accuracy
         correct_nodes += pred.eq(data.y).sum().item()
         total_nodes += data.num_nodes
@@ -305,23 +291,22 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
         # 6. Get IoU metric per class
         # Mean Jaccard indeces PER LABEL
         i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
-        i = i.type(torch.FloatTensor)
-        u = u.type(torch.FloatTensor)
-        iou_per_class = i/u
-        mean_jaccard_index_per_class = torch.sum(iou_per_class, dim=0) / iou_per_class.shape[0]
+
+        if batch_idx == 0:
+            i_total = i.type(torch.FloatTensor)
+            u_total = u.type(torch.FloatTensor)
+        else:
+            i_total += i.type(torch.FloatTensor)
+            u_total += u.type(torch.FloatTensor)
 
 
-        print(f'Time taken for Jaccard indices: {time.time() - start}')
-        start = time.time()
+    # Mean IoU over all batches
+    iou_per_class = i_total/u_total
+    mean_jaccard_index_per_class = torch.sum(iou_per_class, dim=0) / iou_per_class.shape[0]
 
-
-        # 7. Get confusion matrix
-        cm = plot_confusion_matrix(data.y, pred, labels=all_labels)
-        writer.add_figure(f'Confusion Matrix - ID{id}-{experiment_name}', cm)
-
-        
-        print(f'Time taken for confusion matrix: {time.time() - start}')
-
+    # 7. Get confusion matrix
+    cm = plot_confusion_matrix(all_datay, all_preds, labels=all_labels)
+    writer.add_figure(f'Confusion Matrix - ID{id}-{experiment_name}', cm)
 
     return loss, accuracy, mean_jaccard_index_per_class
 
@@ -373,7 +358,6 @@ if __name__ == '__main__':
 
             print(comment)
 
-            start = time.time()
             # 5. Perform data processing
             data_folder, files_ending = get_data_path(data_nativeness, data_compression, data_type, hemisphere='left')
 
@@ -389,8 +373,6 @@ if __name__ == '__main__':
                                                                                                           batch_size,
                                                                                                           num_workers=2)
 
-            print(f'Time to load data: {time.time() - start}s')
-
             # 6. Getting the number of features to adapt the architecture
             num_local_features = train_dataset[0].x.size(1)
             # numb_global_features = train_dataset[0].y.size(1) - 1
@@ -399,7 +381,6 @@ if __name__ == '__main__':
             if not torch.cuda.is_available():
                 print('YOU ARE RUNNING ON A CPU!!!!')
 
-            start = time.time()
             # 7. Create the model
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
             model = Net(18, num_local_features, num_global_features=None).to(device)
@@ -417,8 +398,6 @@ if __name__ == '__main__':
             writer = SummaryWriter(f'runs/{experiment_name}ID' + id)
             writer.add_text(f'{experiment_name} ID #{id}', comment)
 
-
-            print(f'Time taken to create model: {time.time() - start}s')
 
             # 10. TRAINING
             for epoch in range(1, 50):

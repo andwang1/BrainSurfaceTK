@@ -1,3 +1,3 @@
-until python3 -m main.take_over_gpus; do
+until python3 -m main.sample; do
     sleep 5
 done
