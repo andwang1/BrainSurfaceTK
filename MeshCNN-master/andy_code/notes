@@ -52,6 +52,9 @@ ep30, lower LR, init
 
 next
 inflated run
+
+FOR LR RUNS, ADD KAIMING INIT? look at fourth kingfisher run
+
 lower LR linear = lambda
 stepLR (might be too aggressive, so try with lower number of epochs in total but more often updates)
 ReduceLROnPlateau - need to implement val loss?
