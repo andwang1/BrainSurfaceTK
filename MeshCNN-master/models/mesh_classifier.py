@@ -26,7 +26,7 @@ class ClassifierModel:
         self.mesh = None
         ## to add input features:
         self.feature_keys = opt.features
-        if self.feature_keys != []:
+        if self.feature_keys:
             self.feature_dictionaries = {feature:get_feature_dict(feature) for feature in self.feature_keys}
         self.feature_values = None
 
@@ -66,7 +66,7 @@ class ClassifierModel:
         # Adding path
         self.path = data['path']
         ##to get extra input features
-        if self.feature_keys != []:
+        if self.feature_keys:
             unique_id = self.path[0].split("/")[-1][:-4]
             self.feature_values = [self.feature_dictionaries[feature][unique_id] for feature in self.feature_keys]
         if self.opt.dataset_mode == 'segmentation' and not self.is_train:

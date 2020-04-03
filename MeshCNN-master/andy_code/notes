@@ -25,10 +25,6 @@ Apr01_23-34-26
 ep50
 batch1
 
-gpu10
-red90
-larger arch
-ep50
 
 monal04
 red50
@@ -45,5 +41,4 @@ birthage with scanage
 
 
 NEXT
-red50 batch2 ep50
 red50 lower starting LR, fewer epochs

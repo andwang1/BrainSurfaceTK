@@ -153,7 +153,7 @@ class MeshConvNet(nn.Module):
         x = x.view(-1, self.k[-1])
 
         ## add extra features
-        if feature_values != []:
+        if feature_values:
             features = torch.tensor([feature_values]).to(x.device)
             x = torch.cat((x, features), 1)
 
