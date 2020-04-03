@@ -240,6 +240,7 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
     intersections, unions, categories = [], [], []
     all_preds = None
     all_datay = None
+    total_loss = []
 
     for batch_idx, data in enumerate(loader):
 
@@ -253,6 +254,7 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
         pred = out.max(dim=1)[1]
 
         loss = F.nll_loss(out, data.y)
+        total_loss.append(loss)
 
 
         # 2. Get d (positions), _y (actual labels), _out (predictions)
@@ -286,19 +288,24 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
         # 5. Get accuracy
         correct_nodes += pred.eq(data.y).sum().item()
         total_nodes += data.num_nodes
-        accuracy = correct_nodes / total_nodes
 
         # 6. Get IoU metric per class
         # Mean Jaccard indeces PER LABEL
         i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
 
         if batch_idx == 0:
-            i_total = i.type(torch.FloatTensor)
-            u_total = u.type(torch.FloatTensor)
+            i_total = i
+            u_total = u
         else:
-            i_total += i.type(torch.FloatTensor)
-            u_total += u.type(torch.FloatTensor)
+            i_total += i
+            u_total += u
 
+    i_total = i_total.type(torch.FloatTensor)
+    u_total = u_total.type(torch.FloatTensor)
+
+    accuracy = correct_nodes / total_nodes
+
+    loss = torch.mean(total_loss)
 
     # Mean IoU over all batches
     iou_per_class = i_total/u_total
@@ -410,14 +417,14 @@ if __name__ == '__main__':
 
                 # 3. Validate the performance after each epoch
                 loss, acc, iou = test(val_loader, comment+'val'+str(epoch), epoch=epoch, id=id, experiment_name=experiment_name)
-                print('Epoch: {:02d}, Val Loss/nll: {}, Val Acc: {:.4f}, Validation IoU (per class):'.format(epoch, loss, acc))
+                print('Epoch: {:02d}, Val Loss/nll: {}, Val Acc: {:.4f}'.format(epoch, loss, acc))
 
                 # 4. Record valiation metrics in Tensorboard
                 writer.add_scalar('Loss/val_nll', loss, epoch)
                 writer.add_scalar('Accuracy/val', acc, epoch)
                 for label, value in enumerate(iou):
                     writer.add_scalar('IoU{}/validation'.format(label), value, epoch)
-                    print('\t\tLabel {}: {}'.format(label, value))
+                    print('\t\tValidation Label {}: {}'.format(label, value))
 
                 # 5. Stop recording time
                 end = time.time()
@@ -433,7 +440,7 @@ if __name__ == '__main__':
             writer.add_scalar('Accuracy/test', acc)
             for label, value in enumerate(iou):
                 writer.add_scalar('IoU{}/test'.format(label), value)
-                print('\t\tLabel {}: {}'.format(label, value))
+                print('\t\tTest Label {}: {}'.format(label, value))
 
             # 8. Save the model with its unique id
             torch.save(model.state_dict(), f'/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/{id}-{experiment_name}/' + 'model' + '_id' + str(id) + '.pt')
