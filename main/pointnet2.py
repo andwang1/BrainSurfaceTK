@@ -7,6 +7,7 @@ import csv
 import datetime as datetime
 import torch
 import torch.nn.functional as F
+from torch.optim.lr_scheduler import StepLR
 import torch_geometric.transforms as T
 from torch.nn import Sequential as Seq, Linear as Lin, ReLU, BatchNorm1d as BN
 from torch.utils.tensorboard import SummaryWriter
@@ -159,15 +160,16 @@ if __name__ == '__main__':
 
     # Model Parameters
     lr = 0.001
-    batch_size = 2
-    num_workers = 2
+    batch_size = 16
+    num_workers = 4
     # ['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc'] + ['weight']
-    local_features = ['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc']
+    local_features = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
     #local_features = []
-    global_features = ['weight']
-    target_class = 'scan_age'
+    global_features = ['scan_age']
+    #target_class = 'scan_age'
+    target_class = 'birth_age'
     task = 'regression'
-    number_of_points = 16247 #3251# 12000  # 16247
+    number_of_points = 3251  #3251# 12000  # 16247
 
     # For quick tests
     # indices = {'Train': ['CC00050XX01_7201', 'CC00050XX01_7201'],
@@ -182,25 +184,32 @@ if __name__ == '__main__':
     #data_ending = "reduce50.vtk"
     #type_data = "inflated"
 
-    #data = "reduced_90"
-    #data_ending = "reduce90.vtk"
-    #type_data = "pial"
-    #
-    data = "reduced_50"
-    data_ending = "reduce50.vtk"
+    data = "reduced_90"
+    data_ending = "reduce90.vtk"
     type_data = "pial"
+    native = "surface_fsavg32k"#"surface_native" #surface_fsavg32k
+    #
+    #data = "reduced_50"
+    #data_ending = "reduce50.vtk"
+    #type_data = "pial"
     #
     #data = "reduced_50"
     #data_ending = "reduce50.vtk"
     #type_data = "white"
 
     # folder in data/stored for data.
-    stored = type_data + '/' + data + '/' + str(local_features + global_features)
+    stored = target_class + type_data + '/' + data + '/' + str(local_features + global_features) + '/' + native
 
-    data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_fsavg32k/" + data \
+    data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/" + native + "/" + data \
                   + "/vtk/" + type_data
-
+    
+#    data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/" + native + "/" + data \
+#                  + "/" + type_data + "/vtk"
+    print(data_folder)
+   # sub-CC00466AN13_ses-138400_right_pial_reduce90.vtk
     files_ending = "_hemi-L_" + type_data + "_" + data_ending
+#    files_ending = "_left_" + type_data + "_" + data_ending
+
 
     # From quick local test
     # data_folder = "/home/vital/Group Project/deepl_brain_surfaces/random"
@@ -208,13 +217,16 @@ if __name__ == '__main__':
     with open('src/names.pk', 'rb') as f:
         indices = pickle.load(f)
 
-    comment = 'TEST RUN' + str(datetime.datetime.now()) \
+    # TESTING PURPOSES
+    # indices['Train'] = indices['Train'][:2]
+
+    comment = 'Birth_age_90' + str(datetime.datetime.now()) \
             + "__LR__" + str(lr) \
             + "__BATCH_" + str(batch_size) \
             + "__local_features__" + str(local_features)\
             + "__glogal_features__" + str(global_features) \
             + "__number_of_points__" + str(number_of_points)\
-            + "__" + data + "__" + type_data + '___rotate'
+            + "__" + data + "__" + type_data + '__no_rotate'
 
     results_folder = 'runs/' + task + '/' + comment + '/results'
     model_dir = 'runs/' + task + '/' + comment + '/models'
@@ -233,7 +245,7 @@ if __name__ == '__main__':
         config_file.write('Number of points - ' + str(number_of_points) + '\n')
         config_file.write('Data res - ' + data + '\n')
         config_file.write('Data type - ' + type_data + '\n')
-        config_file.write('Additional comments - No rotate transforms' + '\n')
+        config_file.write('Additional comments - With no rotate transforms' + '\n')
 
     with open(results_folder + '/results.csv', 'w', newline='') as results_file:
         result_writer = csv.writer(results_file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
@@ -248,9 +260,9 @@ if __name__ == '__main__':
     # DEFINE TRANSFORMS HERE.
     transform = T.Compose([
         T.FixedPoints(number_of_points),
-        T.RandomRotate(360, axis=0),
-        T.RandomRotate(360, axis=1),
-        T.RandomRotate(360, axis=2)
+        #T.RandomRotate(360, axis=0),
+        #T.RandomRotate(360, axis=1),
+        #T.RandomRotate(360, axis=2)
     ])
 
     # TRANSFORMS DONE BEFORE SAVING THE DATA IF THE DATA IS NOT YET PROCESSED.
@@ -277,7 +289,10 @@ if __name__ == '__main__':
     val_loader = DataLoader(val_dataset, batch_size=1, shuffle=False, num_workers=num_workers)
     
     # Getting the number of features to adapt the architecture
-    numb_local_features = train_dataset[0].x.size(1)
+    if len(local_features) > 0:
+        numb_local_features = train_dataset[0].x.size(1)
+    else:
+        numb_local_features = 0
     numb_global_features = len(global_features)
 
     if not torch.cuda.is_available():
@@ -286,14 +301,17 @@ if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = Net(numb_local_features, numb_global_features).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    scheduler = StepLR(optimizer, step_size=1, gamma=0.985)
 
     best_val_loss = 999
 
     # MAIN TRAINING LOOP
-    for epoch in range(1, 2):
+    for epoch in range(1, 201):
         start = time.time()
         train(epoch)
         val_mse, val_l1 = test_regression(val_loader, indices['Val'], results_folder, epoch=epoch)
+        
+        scheduler.step()
 
         writer.add_scalar('Loss/val_mse', val_mse, epoch)
         writer.add_scalar('Loss/val_l1', val_l1, epoch)
