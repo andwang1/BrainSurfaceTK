@@ -51,13 +51,12 @@ red50, batch1
 ep30, lower LR, init
 
 next
+inflated run
 lower LR linear = lambda
 stepLR (might be too aggressive, so try with lower number of epochs in total but more often updates)
 ReduceLROnPlateau - need to implement val loss?
-
-add
-CyclicLR
-CosineAnnealingWarmRestarts
+cyclic - check cylic is doing 5 epochs, not 5 batches
+cosine
 
 
 https://pytorch.org/docs/stable/optim.html
