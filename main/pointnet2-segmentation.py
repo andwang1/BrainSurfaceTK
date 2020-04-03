@@ -290,7 +290,7 @@ if __name__ == '__main__':
     #################################################
 
     data_nativeness = 'aligned'
-    data_compression = "reduced_50"
+    data_compression = "50"
     data_type = "inflated"
 
     additional_comment = ''
