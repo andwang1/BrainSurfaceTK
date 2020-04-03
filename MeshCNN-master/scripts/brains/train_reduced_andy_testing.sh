@@ -20,3 +20,5 @@ python3 train.py \
 --dataset_mode regression \
 --print_freq 14 \
 --ninput_edges 9000 \
+--lr_policy plateau \
+
