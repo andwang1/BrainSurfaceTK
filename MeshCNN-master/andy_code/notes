@@ -57,6 +57,3 @@ stepLR (might be too aggressive, so try with lower number of epochs in total but
 ReduceLROnPlateau - need to implement val loss?
 cyclic - check cylic is doing 5 epochs, not 5 batches
 cosine
-
-
-https://pytorch.org/docs/stable/optim.html
