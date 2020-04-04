@@ -267,13 +267,9 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
             all_preds = pred
             all_datay = data.y
 
-            print(f'First preds: {all_preds}\n\nFirst data: {all_datay}')
-
         else:
             all_preds = torch.cat(all_preds, pred)
             all_datay = torch.cat(all_datay, data.y)
-
-            print(f'Next preds: {all_preds}\n\nNext data: {all_datay}')
 
 
         # 3. Create directory where to place the data
@@ -293,6 +289,10 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
         # Mean Jaccard indeces PER LABEL
         i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
 
+        # Sum i and u along the batch dimension (gives value per class)
+        i = torch.sum(i, dim=1)
+        u = torch.sum(u, dim=1)
+
         if batch_idx == 0:
             i_total = i
             u_total = u
@@ -310,6 +310,7 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
     # Mean IoU over all batches
     iou_per_class = i_total/u_total
     mean_jaccard_index_per_class = torch.sum(iou_per_class, dim=0) / iou_per_class.shape[0]
+    print(mean_jaccard_index_per_class)
 
     # 7. Get confusion matrix
     cm = plot_confusion_matrix(all_datay, all_preds, labels=all_labels)
@@ -324,6 +325,7 @@ if __name__ == '__main__':
     num_workers = 2
     local_features = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
     grid_features = get_grid_search_local_features(local_features)
+
 
     #################################################
     ########### EXPERIMENT DESCRIPTION ##############
@@ -340,6 +342,7 @@ if __name__ == '__main__':
     #################################################
     ############ EXPERIMENT DESCRIPTION #############
     #################################################
+
 
     for local_feature_combo in grid_features:
         for global_feature in [[]]:#, ['weight']]:
