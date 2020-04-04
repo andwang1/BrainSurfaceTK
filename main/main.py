@@ -128,7 +128,6 @@ if __name__ == '__main__':
                                                                   edgen,
                                                                   val_size,
                                                                   test_size,
-                                                                  random_state=42,
                                                                   path=path,
                                                                   reprocess=REPROCESS)
 

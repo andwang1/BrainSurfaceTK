@@ -152,7 +152,7 @@ val_size = 0.1
 random_state = 42
 
 
-def split_data(meta_data, meta_column_idx, ids, ages, spacing, image_size, smoothen, edgen, val_size, test_size, random_state=42, path='./', reprocess=True):
+def split_data(meta_data, meta_column_idx, ids, ages, spacing, image_size, smoothen, edgen, val_size, test_size, path='./', reprocess=True):
     '''
     Splits the data
 
@@ -166,8 +166,15 @@ def split_data(meta_data, meta_column_idx, ids, ages, spacing, image_size, smoot
     :return:
     '''
 
-    _, bins = np.histogram(meta_data[:, meta_column_idx].astype(float), bins='doane')
-    y_binned = np.digitize(meta_data[:, meta_column_idx].astype(float), bins)
+
+    indices_path = '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/src/'
+
+    # 2. Get the data splits indices
+    with open(indices_path + 'names.pk', 'rb') as f:
+        indices = pickle.load(f)
+
+
+    print(indices)
 
     X_train, X_test, y_train, y_test = train_test_split(ids, ages,
                                                         test_size=test_size,
