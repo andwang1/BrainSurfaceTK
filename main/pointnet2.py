@@ -109,18 +109,6 @@ def train(epoch):
 
     writer.add_scalar('Loss/train_mse', loss_train / len(train_loader), epoch)
 
-def test_classification(loader):
-    model.eval()
-
-    correct = 0
-    for data in loader:
-        data = data.to(device)
-        with torch.no_grad():
-            pred = model(data).max(1)[1]
-            print(pred.t(), data.y[:, 0])
-        correct += pred.eq(data.y[:, 0].long()).sum().item()
-    return correct / len(loader.dataset)
-
 
 def test_regression(loader, indices, results_folder, val=True, epoch=0):
 
