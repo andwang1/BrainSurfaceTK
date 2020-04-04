@@ -152,7 +152,7 @@ val_size = 0.1
 random_state = 42
 
 
-def split_data(meta_data, meta_column_idx, ids, ages, spacing, image_size, smoothen, edgen, val_size, test_size, path='./', reprocess=True):
+def split_data(meta_data, meta_column_idx, spacing, image_size, smoothen, edgen, val_size, test_size, path='./', reprocess=True):
     '''
     Splits the data
 
@@ -174,21 +174,39 @@ def split_data(meta_data, meta_column_idx, ids, ages, spacing, image_size, smoot
         indices = pickle.load(f)
 
 
-    print(indices)
+    train_indices = indices['Train']
+    val_indices = indices['Val']
+    test_indices = indices['Test']
 
-    X_train, X_test, y_train, y_test = train_test_split(ids, ages,
-                                                        test_size=test_size,
-                                                        random_state=random_state,
-                                                        stratify=y_binned)
+    X_train = []
+    y_train = []
+    for pat_ses_id in train_indices:
+        patient_id = pat_ses_id[:11]
+        session_id = pat_ses_id[12:]
+        patient_data = meta_data[(meta_data[:, 0] == patient_id) & (meta_data[:, 1] == session_id)][0]
 
-    if val_size > 0:
-        _, bins = np.histogram(np.array(y_train).astype(float), bins='doane')
-        y_binned = np.digitize(np.array(y_train).astype(float), bins)
+        y_train.append(float(patient_data[meta_column_idx]))
+        X_train.append((patient_id, session_id))
 
-        X_train, X_val, y_train, y_val = train_test_split(X_train, y_train,
-                                                          test_size=val_size,
-                                                          random_state=random_state,
-                                                          stratify=y_binned)
+    X_test = []
+    y_test = []
+    for pat_ses_id in test_indices:
+        patient_id = pat_ses_id[:11]
+        session_id = pat_ses_id[12:]
+        patient_data = meta_data[(meta_data[:, 0] == patient_id) & (meta_data[:, 1] == session_id)][0]
+
+        y_test.append(float(patient_data[meta_column_idx]))
+        X_test.append((patient_id, session_id))
+
+    X_val = []
+    y_val = []
+    for pat_ses_id in val_indices:
+        patient_id = pat_ses_id[:11]
+        session_id = pat_ses_id[12:]
+        patient_data = meta_data[(meta_data[:, 0] == patient_id) & (meta_data[:, 1] == session_id)][0]
+
+        y_val.append(float(patient_data[meta_column_idx]))
+        X_val.append((patient_id, session_id))
 
     path = osp.join(osp.dirname(osp.realpath(__file__)), '../')
 

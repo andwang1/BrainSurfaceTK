@@ -96,8 +96,8 @@ if __name__ == '__main__':
     meta_data = read_meta()
     meta_data = clean_data(meta_data)
 
-    # 3. Get a list of ids and ages (labels)
-    ids, ages = get_ids_and_ages(meta_data, meta_column_idx)
+    ## 3. Get a list of ids and ages (labels)
+    # ids, ages = get_ids_and_ages(meta_data, meta_column_idx)
 
     # 4. Set the parameters for the data pre-processing and split
     spacing = [3, 3, 3]
@@ -120,8 +120,6 @@ if __name__ == '__main__':
             # 5. Split the data
             dataset_train, dataset_val, dataset_test = split_data(meta_data,
                                                                   meta_column_idx,
-                                                                  ids,
-                                                                  ages,
                                                                   spacing,
                                                                   image_size,
                                                                   smoothen,
