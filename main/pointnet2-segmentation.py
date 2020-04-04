@@ -290,8 +290,8 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
         i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
 
         # Sum i and u along the batch dimension (gives value per class)
-        i = torch.sum(i, dim=1)
-        u = torch.sum(u, dim=1)
+        i = torch.sum(i, dim=0) / i.shape[0]
+        u = torch.sum(u, dim=0) / u.shape[0]
 
         if batch_idx == 0:
             i_total = i
@@ -303,20 +303,19 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
     i_total = i_total.type(torch.FloatTensor)
     u_total = u_total.type(torch.FloatTensor)
 
+    # Mean IoU over all batches and per class (i.e. array of shape 18 - [0.5, 0.7, 0.85, ... ]
+    mean_IoU_per_class = i_total/u_total
+    # mean_jaccard_index_per_class = torch.sum(iou_per_class, dim=0) / iou_per_class.shape[0]
+
+
     accuracy = correct_nodes / total_nodes
-
     loss = torch.mean(total_loss)
-
-    # Mean IoU over all batches
-    iou_per_class = i_total/u_total
-    mean_jaccard_index_per_class = torch.sum(iou_per_class, dim=0) / iou_per_class.shape[0]
-    print(mean_jaccard_index_per_class)
 
     # 7. Get confusion matrix
     cm = plot_confusion_matrix(all_datay, all_preds, labels=all_labels)
     writer.add_figure(f'Confusion Matrix - ID{id}-{experiment_name}', cm)
 
-    return loss, accuracy, mean_jaccard_index_per_class
+    return loss, accuracy, mean_IoU_per_class
 
 
 
