@@ -54,9 +54,14 @@ def get_scheduler(optimizer, opt):
             return lr_l
         scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda_rule)
     elif opt.lr_policy == 'step':
-        scheduler = lr_scheduler.StepLR(optimizer, step_size=opt.lr_decay_iters, gamma=0.1)
+        scheduler = lr_scheduler.StepLR(optimizer, step_size=opt.lr_decay_iters, gamma=0.5)
     elif opt.lr_policy == 'plateau':
-        scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.2, threshold=0.01, patience=5)
+        scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, threshold=0.01, patience=2)
+    elif opt.lr_policy == 'cyclic':
+        scheduler = lr_scheduler.CyclicLR(optimizer, 0.00001, opt.lr, step_size_up=5, step_size_down=None, mode='triangular2', cycle_momentum=False)
+    elif opt.lr_policy == 'cosine_restarts':
+        # restart after arg1 episodes, multiply starting value with T_mult at restart
+        scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer, 5, T_mult=0.5, eta_min=0)
     else:
         return NotImplementedError('learning rate policy [%s] is not implemented', opt.lr_policy)
     return scheduler
@@ -153,7 +158,7 @@ class MeshConvNet(nn.Module):
         x = x.view(-1, self.k[-1])
 
         ## add extra features
-        if feature_values != []:
+        if feature_values:
             features = torch.tensor([feature_values]).to(x.device)
             x = torch.cat((x, features), 1)
 

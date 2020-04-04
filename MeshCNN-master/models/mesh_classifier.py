@@ -26,7 +26,7 @@ class ClassifierModel:
         self.mesh = None
         ## to add input features:
         self.feature_keys = opt.features
-        if self.feature_keys != []:
+        if self.feature_keys:
             self.feature_dictionaries = {feature:get_feature_dict(feature) for feature in self.feature_keys}
         self.feature_values = None
 
@@ -66,7 +66,7 @@ class ClassifierModel:
         # Adding path
         self.path = data['path']
         ##to get extra input features
-        if self.feature_keys != []:
+        if self.feature_keys:
             unique_id = self.path[0].split("/")[-1][:-4]
             self.feature_values = [self.feature_dictionaries[feature][unique_id] for feature in self.feature_keys]
         if self.opt.dataset_mode == 'segmentation' and not self.is_train:
@@ -120,11 +120,19 @@ class ClassifierModel:
         else:
             torch.save(self.net.cpu().state_dict(), save_path)
 
-    def update_learning_rate(self):
+    def update_learning_rate(self, val_acc, epoch):
         """update learning rate (called once every epoch)"""
-        self.scheduler.step()
+        if self.opt.lr_policy == 'plateau':
+            self.scheduler.step(val_acc)
+        elif self.opt.lr_policy == 'cosine_restarts':
+            self.scheduler.step(epoch)
+        else:
+            self.scheduler.step()
         lr = self.optimizer.param_groups[0]['lr']
+        # with open("lr_log.txt", "a") as lr_logger:
+        #     lr_logger.write(f"{lr}\n")
         print('learning rate = %.7f' % lr)
+        return lr
 
     def test(self, epoch):
         """tests model

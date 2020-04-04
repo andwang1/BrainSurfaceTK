@@ -68,6 +68,10 @@ class Writer:
         if self.display:
             self.display.add_scalar('data/test_acc', acc, epoch)
 
+    def plot_lr(self, lr, epoch):
+        if self.display:
+            self.display.add_scalar('data/lr', lr, epoch)
+
     def reset_counter(self):
         """
         counts # of correct examples
