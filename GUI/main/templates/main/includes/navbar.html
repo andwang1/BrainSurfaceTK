@@ -1,0 +1,19 @@
+<nav>
+    <div class="nav-wrapper">
+        <ul id="nav-mobile" class="left">
+            <a href="/" class="brand-logo">Brains</a>
+        </ul>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li><a href="/">Home</a></li>
+            {% if user.is_authenticated %}
+                <li><a href="/account">{{ user.username }}</a></li>
+                <li><a href="/logout">Logout</a></li>
+            {% else %}
+                <li><a href="/register">Register</a></li>
+                <li><a href="/login"><strong>Login</strong></a></li>
+            {% endif %}
+        {% if user.is_superuser %}
+        {% endif %}
+        </ul>
+    </div>
+</nav>
