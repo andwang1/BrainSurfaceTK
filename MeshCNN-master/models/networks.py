@@ -61,7 +61,7 @@ def get_scheduler(optimizer, opt):
         scheduler = lr_scheduler.CyclicLR(optimizer, 0.00001, opt.lr, step_size_up=5, step_size_down=None, mode='triangular2', cycle_momentum=False)
     elif opt.lr_policy == 'cosine_restarts':
         # restart after arg1 episodes, multiply starting value with T_mult at restart
-        scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer, 5, T_mult=0.7, eta_min=0)
+        scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer, 5, T_mult=1, eta_min=0)
     else:
         return NotImplementedError('learning rate policy [%s] is not implemented', opt.lr_policy)
     return scheduler

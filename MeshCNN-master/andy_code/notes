@@ -7,48 +7,27 @@ In straight testing mode, the files need to be in train! not in test
 move all the train related testoutput files away first, they will be overwritten
 
 
-
-
-STATS
-
-
-red50
-gpu08
-batch1
-/red90_12gb.sh
-
 gpu21
 both halves
-
-kingfisher
-batch2
 
 monal04
 red50
 big arch, 24GB.sh
 
-17-40-57
-kingfisher
-red50
-second
-birthage with scanage
+gpu08
+ep70_plateau
 
-kingfisher
-third
-red50, batch1, ep30, plateau
+213742 kingfisher
+ep20_step
+
+213752 kingfisher
+ep70_cosine
 
 next
 inflated run
 
-FOR LR RUNS, ADD KAIMING INIT? look at red50 ep30 run
 LOOK AT BATCH SIZE 1 vs BATCH SIZE 2
-
-lower LR linear = lambda
-stepLR (might be too aggressive, so try with lower number of epochs in total but more often updates)
-cyclic - check cylic is doing 5 epochs, not 5 batches
-cosine
 
 notes
 seems like starting off at higher lr is better compare both ep30 runs (higher lr even at start?) - start at 0.005?
 plateau might need to change threshold to 0.1, its %
-might need to do 50 epochs instead of 30
