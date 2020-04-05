@@ -211,11 +211,11 @@ def train(epoch):
 
         if (idx + 1) % 20 == 0:
             print('[{}/{}] Loss: {:.4f}, Train Accuracy: {:.4f}, Mean IoU: {}'.format(
-                idx + 1, len(train_loader), total_loss / 10,
+                idx + 1, len(train_loader), total_loss / len(train_loader),
                 correct_nodes / total_nodes, np.mean(mean_jaccard_indeces.tolist())))
 
             # Write to tensorboard: LOSS and IoU per class
-            writer.add_scalar('Loss/train', total_loss / 10, epoch)
+            writer.add_scalar('Loss/train', total_loss / len(train_loader), epoch)
             writer.add_scalar('Mean IoU/train', torch.sum(mean_jaccard_indeces)/len(mean_jaccard_indeces), epoch)
             writer.add_scalar('Accuracy/train', correct_nodes/total_nodes, epoch)
             for label, iou in enumerate(mean_jaccard_index_per_class):
@@ -242,78 +242,79 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
     all_datay = None
     total_loss = []
 
-    for batch_idx, data in enumerate(loader):
+    with torch.no_grad():
+
+        for batch_idx, data in enumerate(loader):
 
 
-        # 1. Get predictions and loss
-        data = data.to(device)
-        with torch.no_grad():
+            # 1. Get predictions and loss
+            data = data.to(device)
             out = model(data)
 
 
-        pred = out.max(dim=1)[1]
+            pred = out.max(dim=1)[1]
 
-        loss = F.nll_loss(out, data.y)
-        total_loss.append(loss)
-
-
-        # 2. Get d (positions), _y (actual labels), _out (predictions)
-        d = data.pos.cpu().detach().numpy()
-        _y = data.y.cpu().detach().numpy()
-        _out = out.max(dim=1)[1].cpu().detach().numpy()
-        # plot(d, _y, _out)
-
-        if batch_idx == 0:
-            all_preds = pred
-            all_datay = data.y
-
-        else:
-            all_preds = torch.cat((all_preds, pred))
-            all_datay = torch.cat((all_datay, data.y))
+            loss = F.nll_loss(out, data.y)
+            total_loss.append(loss)
 
 
-        # 3. Create directory where to place the data
-        if not os.path.exists(f'experiment_data/{experiment_name}-{id}/'):
-            os.makedirs(f'experiment_data/{experiment_name}-{id}/')
+            # 2. Get d (positions), _y (actual labels), _out (predictions)
+            d = data.pos.cpu().detach().numpy()
+            _y = data.y.cpu().detach().numpy()
+            _out = out.max(dim=1)[1].cpu().detach().numpy()
+            # plot(d, _y, _out)
 
-        # 4. Save the segmented brain in ./[...comment...]/data_valiation3.pkl (3 is for epoch)
-        # for brain_idx, brain in data:
-        with open(f'experiment_data/{experiment_name}-{id}/data{mode+epoch}.pkl', 'wb') as file:
-            pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
+            if batch_idx == 0:
+                all_preds = pred
+                all_datay = data.y
 
-        # 5. Get accuracy
-        correct_nodes += pred.eq(data.y).sum().item()
-        total_nodes += data.num_nodes
-
-        # 6. Get IoU metric per class
-        # Mean Jaccard indeces PER LABEL
-        i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
-
-        # Sum i and u along the batch dimension (gives value per class)
-        i = torch.sum(i, dim=0) / i.shape[0]
-        u = torch.sum(u, dim=0) / u.shape[0]
-
-        if batch_idx == 0:
-            i_total = i
-            u_total = u
-        else:
-            i_total += i
-            u_total += u
-
-    i_total = i_total.type(torch.FloatTensor)
-    u_total = u_total.type(torch.FloatTensor)
-
-    # Mean IoU over all batches and per class (i.e. array of shape 18 - [0.5, 0.7, 0.85, ... ]
-    mean_IoU_per_class = i_total/u_total
-    # mean_jaccard_index_per_class = torch.sum(iou_per_class, dim=0) / iou_per_class.shape[0]
+            else:
+                all_preds = torch.cat((all_preds, pred))
+                all_datay = torch.cat((all_datay, data.y))
 
 
-    accuracy = correct_nodes / total_nodes
-    loss = torch.mean(torch.tensor(total_loss))
+            # 3. Create directory where to place the data
+            if not os.path.exists(f'experiment_data/{experiment_name}-{id}/'):
+                os.makedirs(f'experiment_data/{experiment_name}-{id}/')
 
-    # 7. Get confusion matrix
-    cm = plot_confusion_matrix(all_datay, all_preds, labels=all_labels)
-    writer.add_figure(f'Confusion Matrix - ID{id}-{experiment_name}', cm)
+            # 4. Save the segmented brain in ./[...comment...]/data_valiation3.pkl (3 is for epoch)
+            # for brain_idx, brain in data:
+            with open(f'experiment_data/{experiment_name}-{id}/data{mode+epoch}.pkl', 'wb') as file:
+                pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
+
+            # 5. Get accuracy
+            correct_nodes += pred.eq(data.y).sum().item()
+            total_nodes += data.num_nodes
+
+            # 6. Get IoU metric per class
+            # Mean Jaccard indeces PER LABEL
+            i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
+
+            # Sum i and u along the batch dimension (gives value per class)
+            i = torch.sum(i, dim=0) / i.shape[0]
+            u = torch.sum(u, dim=0) / u.shape[0]
+
+            if batch_idx == 0:
+                i_total = i
+                u_total = u
+            else:
+                i_total += i
+                u_total += u
+
+        i_total = i_total.type(torch.FloatTensor)
+        u_total = u_total.type(torch.FloatTensor)
+
+        # Mean IoU over all batches and per class (i.e. array of shape 18 - [0.5, 0.7, 0.85, ... ]
+        mean_IoU_per_class = i_total/u_total
+        # mean_jaccard_index_per_class = torch.sum(iou_per_class, dim=0) / iou_per_class.shape[0]
+
+
+        accuracy = correct_nodes / total_nodes
+        loss = torch.mean(torch.tensor(total_loss))
+
+        # 7. Get confusion matrix
+        cm = plot_confusion_matrix(all_datay, all_preds, labels=all_labels)
+        writer.add_figure(f'Confusion Matrix - ID{id}-{experiment_name}', cm)
 
     return loss, accuracy, mean_IoU_per_class
 
