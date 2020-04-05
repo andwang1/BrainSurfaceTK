@@ -211,11 +211,11 @@ def train(epoch):
 
         if (idx + 1) % 20 == 0:
             print('[{}/{}] Loss: {:.4f}, Train Accuracy: {:.4f}, Mean IoU: {}'.format(
-                idx + 1, len(train_loader), total_loss / len(train_loader),
+                idx + 1, len(train_loader), total_loss / 10, # TODO: Change 10 to len of dataloader - do for everything else as well!
                 correct_nodes / total_nodes, np.mean(mean_jaccard_indeces.tolist())))
 
             # Write to tensorboard: LOSS and IoU per class
-            writer.add_scalar('Loss/train', total_loss / len(train_loader), epoch)
+            writer.add_scalar('Loss/train', total_loss / 10, epoch)
             writer.add_scalar('Mean IoU/train', torch.sum(mean_jaccard_indeces)/len(mean_jaccard_indeces), epoch)
             writer.add_scalar('Accuracy/train', correct_nodes/total_nodes, epoch)
             for label, iou in enumerate(mean_jaccard_index_per_class):
@@ -332,8 +332,8 @@ if __name__ == '__main__':
     #################################################
 
     data_nativeness = 'aligned'
-    data_compression = "90"
-    data_type = "inflated"
+    data_compression = "50"
+    data_type = "sphere"
 
     additional_comment = ''
 
@@ -378,14 +378,17 @@ if __name__ == '__main__':
                                                                                                           target_class,
                                                                                                           task,
                                                                                                           REPROCESS,
-                                                                                                          local_features,
+                                                                                                          local_feature_combo,
                                                                                                           global_features,
                                                                                                           indices,
                                                                                                           batch_size,
                                                                                                           num_workers=2)
 
             # 6. Getting the number of features to adapt the architecture
-            num_local_features = train_dataset[0].x.size(1)
+            try:
+                num_local_features = train_dataset[0].x.size(1)
+            except:
+                num_local_features = 0
             # numb_global_features = train_dataset[0].y.size(1) - 1
             num_classes = train_dataset.num_labels
 
