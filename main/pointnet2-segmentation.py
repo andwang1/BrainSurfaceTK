@@ -268,17 +268,17 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
             all_datay = data.y
 
         else:
-            all_preds = torch.cat(all_preds, pred)
-            all_datay = torch.cat(all_datay, data.y)
+            all_preds = torch.cat((all_preds, pred))
+            all_datay = torch.cat((all_datay, data.y))
 
 
         # 3. Create directory where to place the data
-        if not os.path.exists(f'experiment_data/{id}-{experiment_name}/'):
-            os.makedirs(f'experiment_data/{id}-{experiment_name}/')
+        if not os.path.exists(f'experiment_data/{experiment_name}-{id}/'):
+            os.makedirs(f'experiment_data/{experiment_name}-{id}/')
 
         # 4. Save the segmented brain in ./[...comment...]/data_valiation3.pkl (3 is for epoch)
         # for brain_idx, brain in data:
-        with open(f'experiment_data/{id}-{experiment_name}/data{mode+epoch}.pkl', 'wb') as file:
+        with open(f'experiment_data/{experiment_name}-{id}/data{mode+epoch}.pkl', 'wb') as file:
             pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
 
         # 5. Get accuracy
@@ -309,7 +309,7 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
 
 
     accuracy = correct_nodes / total_nodes
-    loss = torch.mean(total_loss)
+    loss = torch.mean(torch.tensor(total_loss))
 
     # 7. Get confusion matrix
     cm = plot_confusion_matrix(all_datay, all_preds, labels=all_labels)
@@ -331,7 +331,7 @@ if __name__ == '__main__':
     #################################################
 
     data_nativeness = 'aligned'
-    data_compression = "50"
+    data_compression = "90"
     data_type = "inflated"
 
     additional_comment = ''
@@ -364,8 +364,9 @@ if __name__ == '__main__':
             comment = get_comment(data_nativeness, data_compression, data_type,
                                   lr, batch_size, local_feature_combo, global_features, target_class)
 
-
+            print('='*50 + '\n' + '='*50)
             print(comment)
+            print('='*50 + '\n' + '='*50)
 
             # 5. Perform data processing
             data_folder, files_ending = get_data_path(data_nativeness, data_compression, data_type, hemisphere='left')
@@ -402,7 +403,7 @@ if __name__ == '__main__':
                                     log_descr=True)
 
             save_to_log(log_descr, prefix=experiment_name)
-            id = get_id(prefix=experiment_name)
+            id = str(int(get_id(prefix=experiment_name)) - 1)
 
             writer = SummaryWriter(f'runs/{experiment_name}ID' + id)
             writer.add_text(f'{experiment_name} ID #{id}', comment)
@@ -435,7 +436,7 @@ if __name__ == '__main__':
                 print('='*60)
 
             # 6. Test the performance after training
-            loss, acc, iou = test(test_loader, comment, test=True, id=id)
+            loss, acc, iou = test(test_loader, comment, test=True, id=id, experiment_name=experiment_name)
 
             # 7. Record test metrics in Tensorboard
             writer.add_scalar('Loss/test', loss)
@@ -445,7 +446,7 @@ if __name__ == '__main__':
                 print('\t\tTest Label {}: {}'.format(label, value))
 
             # 8. Save the model with its unique id
-            torch.save(model.state_dict(), f'/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/{id}-{experiment_name}/' + 'model' + '_id' + str(id) + '.pt')
+            torch.save(model.state_dict(), f'/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/experiment_data/{experiment_name}-{id}/' + 'model' + '_id' + str(id) + '.pt')
 
 
 

@@ -1,14 +1,17 @@
 import pickle
+import os.path as osp
 
 from src.pyvista_examples import plot
 
 if __name__ == '__main__':
 
-    # for brain_idx in range(37):
-    with open('./3/data_validation3.pkl', 'rb') as file:
-        data, labels, pred = pickle.load(file)
+    path = '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/experiment_data/aligned_sphere_50_-2'
 
-        # print(len(data))
-        plot(data, labels, pred)
+    for brain_idx in range(1, 15):
+        with open(path + f'/data_validation{brain_idx}.pkl', 'rb') as file:
+            data, labels, pred = pickle.load(file)
+
+            # print(len(data))
+            plot(data, labels, pred)
 #
 
