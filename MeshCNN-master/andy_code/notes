@@ -23,40 +23,32 @@ both halves
 kingfisher
 batch2
 
-kingfisher second
-Apr01_23-34-26
-ep50
-batch1
-
-
 monal04
 red50
 big arch, 24GB.sh
 
-GPU13
-red50
-birthage
-
 17-40-57
 kingfisher
 red50
-third
+second
 birthage with scanage
 
-
 kingfisher
-fourth
-Apr03_13-58-27_kingfisher.doc.ic.ac.ukbrains
-red50, batch1
-ep30, lower LR, init
+third
+red50, batch1, ep30, plateau
 
 next
 inflated run
 
-FOR LR RUNS, ADD KAIMING INIT? look at fourth kingfisher run
+FOR LR RUNS, ADD KAIMING INIT? look at red50 ep30 run
+LOOK AT BATCH SIZE 1 vs BATCH SIZE 2
 
 lower LR linear = lambda
 stepLR (might be too aggressive, so try with lower number of epochs in total but more often updates)
-ReduceLROnPlateau - need to implement val loss?
 cyclic - check cylic is doing 5 epochs, not 5 batches
 cosine
+
+notes
+seems like starting off at higher lr is better compare both ep30 runs (higher lr even at start?) - start at 0.005?
+plateau might need to change threshold to 0.1, its %
+might need to do 50 epochs instead of 30
