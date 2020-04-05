@@ -22,4 +22,5 @@ python3 train.py \
 --lr 0.0002 \
 --lr_policy step \
 --lr_decay_iters 2 \
+--init_type kaiming \
 
