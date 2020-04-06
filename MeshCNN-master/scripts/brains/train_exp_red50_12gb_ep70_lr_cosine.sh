@@ -3,7 +3,7 @@
 ## run the training
 python3 train.py \
 --dataroot datasets/brains_reg_red50 \
---checkpoints_dir checkpoints/red50_12gb_ep30 \
+--checkpoints_dir checkpoints/red50_12gb_ep70_cosine \
 --export_folder checkpoints/mesh_collapses \
 --name brains \
 --ninput_edges 48735 \
@@ -20,6 +20,6 @@ python3 train.py \
 --ncf 64 112 128 \
 --pool_res 3000 2750 2500 \
 --lr 0.0002 \
---lr_policy cosine \
+--lr_policy cosine_restarts \
 --init_type kaiming \
 

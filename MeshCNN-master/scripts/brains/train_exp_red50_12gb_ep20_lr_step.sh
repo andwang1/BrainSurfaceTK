@@ -3,7 +3,7 @@
 ## run the training
 python3 train.py \
 --dataroot datasets/brains_reg_red50 \
---checkpoints_dir checkpoints/red50_12gb_ep30 \
+--checkpoints_dir checkpoints/red50_12gb_ep20_step \
 --export_folder checkpoints/mesh_collapses \
 --name brains \
 --ninput_edges 48735 \

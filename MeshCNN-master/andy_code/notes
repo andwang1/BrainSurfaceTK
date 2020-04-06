@@ -20,7 +20,7 @@ ep70_plateau
 213742 kingfisher
 ep20_step
 
-213752 kingfisher
+230629 kingfisher
 ep70_cosine
 
 next
@@ -31,3 +31,6 @@ LOOK AT BATCH SIZE 1 vs BATCH SIZE 2
 notes
 seems like starting off at higher lr is better compare both ep30 runs (higher lr even at start?) - start at 0.005?
 plateau might need to change threshold to 0.1, its %
+
+
+instance normalisation
