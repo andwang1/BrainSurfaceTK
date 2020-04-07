@@ -19,7 +19,7 @@ ep70_cosine
 
 Apr06_22-52-20
 kingfisher
-ep50_plateau
+ep50_plateau, factor0.8 (before 0.5)
 
 gpu08
 classification
@@ -27,6 +27,8 @@ classification
 next
 inflated run
 instance normalisation
+static LR
+shuffle data again
 
 LOOK AT BATCH SIZE 1 vs BATCH SIZE 2
 

@@ -5,8 +5,8 @@ from shutil import copyfile
 # Where them brains at
 source_dir = r"/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/datasets/all_brains_50"
 # Where them brains should be at
-target_dir = r"/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/datasets/brains_cls_binary_preterm_red50"
-target_test_dir = r"/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/datasets/brains_cls_binary_preterm_red50_test"
+target_dir = r"/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/datasets/brains_cls_binary_preterm_red50f"
+target_test_dir = r"/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/datasets/brains_cls_binary_preterm_red50_testf"
 
 #### This is for MeshCNN specifically
 if not os.access(target_dir, mode=os.F_OK):
@@ -74,9 +74,9 @@ for patient in test_indices:
     birth_age = meta.loc[patient]['birth_age']
     is_preterm = birth_age <= preterm_age
     if is_preterm:
-        dest_path = f"{target_dir}/preterm/test/{file_name}"
+        dest_path = f"{target_test_dir}/preterm/train/{file_name}"
     else:
-        dest_path = f"{target_dir}/not_preterm/test/{file_name}"
+        dest_path = f"{target_test_dir}/not_preterm/train/{file_name}"
     print("Attempting copy source", source_path)
     print("Attempting copy dest", dest_path)
     copyfile(source_path, dest_path)
