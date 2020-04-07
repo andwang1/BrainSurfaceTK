@@ -15,18 +15,19 @@ meta.drop(['participant_id', 'session_id', 'sedation', 'scan_number'], axis=1, i
 with open("names_preterm.pk", "rb") as f:
     indices = pickle.load(f)
 
+print(indices)
+
 train_indices = indices['Train']
-print(train_indices)
 val_indices = indices['Val']
 test_indices = indices['Test']
 
 # Check distributions are OK
 f, axes = plt.subplots(2, 2, figsize=(7, 7), sharex=True)
 
-sns.distplot(meta['scan_age'], ax=axes[0, 0], label='Full')
-sns.distplot(meta.loc[train_indices, 'scan_age'], ax=axes[1, 0])
-sns.distplot(meta.loc[test_indices, 'scan_age'], ax=axes[0, 1])
-sns.distplot(meta.loc[val_indices, 'scan_age'], ax=axes[1, 1])
+sns.distplot(meta['birth_age'], ax=axes[0, 0], label='Full')
+sns.distplot(meta.loc[train_indices, 'birth_age'], ax=axes[1, 0])
+sns.distplot(meta.loc[test_indices, 'birth_age'], ax=axes[0, 1])
+sns.distplot(meta.loc[val_indices, 'birth_age'], ax=axes[1, 1])
 axes[0, 0].title.set_text('Full')
 axes[0, 1].title.set_text('Test')
 axes[1, 0].title.set_text('Train')
@@ -34,5 +35,6 @@ axes[1, 1].title.set_text('Val')
 plt.show()
 
 # Have a look at certain ranges
-specific_df = meta.loc[test_indices]
-print(specific_df[specific_df['scan_age'] < 30].describe())
+specific_df = meta.loc[train_indices]
+print(specific_df.describe())
+print(specific_df[specific_df['birth_age'] > 38].describe())
