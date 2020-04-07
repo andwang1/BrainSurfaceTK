@@ -211,7 +211,7 @@ def train(epoch):
 
         if (idx + 1) % 20 == 0:
             print('[{}/{}] Loss: {:.4f}, Train Accuracy: {:.4f}, Mean IoU: {}'.format(
-                idx + 1, len(train_loader), total_loss / 10,
+                idx + 1, len(train_loader), total_loss / 10, # TODO: Change 10 to len of dataloader - do for everything else as well!
                 correct_nodes / total_nodes, np.mean(mean_jaccard_indeces.tolist())))
 
             # Write to tensorboard: LOSS and IoU per class
@@ -242,80 +242,81 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
     all_datay = None
     total_loss = []
 
-    for batch_idx, data in enumerate(loader):
+    with torch.no_grad():
+
+        for batch_idx, data in enumerate(loader):
 
 
-        # 1. Get predictions and loss
-        data = data.to(device)
-        with torch.no_grad():
+            # 1. Get predictions and loss
+            data = data.to(device)
             out = model(data)
 
 
-        pred = out.max(dim=1)[1]
+            pred = out.max(dim=1)[1]
 
-        loss = F.nll_loss(out, data.y)
-        total_loss.append(loss)
-
-
-        # 2. Get d (positions), _y (actual labels), _out (predictions)
-        d = data.pos.cpu().detach().numpy()
-        _y = data.y.cpu().detach().numpy()
-        _out = out.max(dim=1)[1].cpu().detach().numpy()
-        # plot(d, _y, _out)
-
-        if batch_idx == 0:
-            all_preds = pred
-            all_datay = data.y
-
-            print(f'First preds: {all_preds}\n\nFirst data: {all_datay}')
-
-        else:
-            all_preds = torch.cat(all_preds, pred)
-            all_datay = torch.cat(all_datay, data.y)
-
-            print(f'Next preds: {all_preds}\n\nNext data: {all_datay}')
+            loss = F.nll_loss(out, data.y)
+            total_loss.append(loss)
 
 
-        # 3. Create directory where to place the data
-        if not os.path.exists(f'experiment_data/{id}-{experiment_name}/'):
-            os.makedirs(f'experiment_data/{id}-{experiment_name}/')
+            # 2. Get d (positions), _y (actual labels), _out (predictions)
+            d = data.pos.cpu().detach().numpy()
+            _y = data.y.cpu().detach().numpy()
+            _out = out.max(dim=1)[1].cpu().detach().numpy()
+            # plot(d, _y, _out)
 
-        # 4. Save the segmented brain in ./[...comment...]/data_valiation3.pkl (3 is for epoch)
-        # for brain_idx, brain in data:
-        with open(f'experiment_data/{id}-{experiment_name}/data{mode+epoch}.pkl', 'wb') as file:
-            pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
+            if batch_idx == 0:
+                all_preds = pred
+                all_datay = data.y
 
-        # 5. Get accuracy
-        correct_nodes += pred.eq(data.y).sum().item()
-        total_nodes += data.num_nodes
+            else:
+                all_preds = torch.cat((all_preds, pred))
+                all_datay = torch.cat((all_datay, data.y))
 
-        # 6. Get IoU metric per class
-        # Mean Jaccard indeces PER LABEL
-        i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
 
-        if batch_idx == 0:
-            i_total = i
-            u_total = u
-        else:
-            i_total += i
-            u_total += u
+            # 3. Create directory where to place the data
+            if not os.path.exists(f'experiment_data/{experiment_name}-{id}/'):
+                os.makedirs(f'experiment_data/{experiment_name}-{id}/')
 
-    i_total = i_total.type(torch.FloatTensor)
-    u_total = u_total.type(torch.FloatTensor)
+            # 4. Save the segmented brain in ./[...comment...]/data_valiation3.pkl (3 is for epoch)
+            # for brain_idx, brain in data:
+            with open(f'experiment_data/{experiment_name}-{id}/data{mode+epoch}.pkl', 'wb') as file:
+                pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
 
-    accuracy = correct_nodes / total_nodes
+            # 5. Get accuracy
+            correct_nodes += pred.eq(data.y).sum().item()
+            total_nodes += data.num_nodes
 
-    loss = torch.mean(total_loss)
+            # 6. Get IoU metric per class
+            # Mean Jaccard indeces PER LABEL
+            i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
 
-    # Mean IoU over all batches
-    iou_per_class = i_total/u_total
-    mean_jaccard_index_per_class = torch.sum(iou_per_class, dim=0) / iou_per_class.shape[0]
+            # Sum i and u along the batch dimension (gives value per class)
+            i = torch.sum(i, dim=0) / i.shape[0]
+            u = torch.sum(u, dim=0) / u.shape[0]
 
-    # 7. Get confusion matrix
-    cm = plot_confusion_matrix(all_datay, all_preds, labels=all_labels)
-    writer.add_figure(f'Confusion Matrix - ID{id}-{experiment_name}', cm)
+            if batch_idx == 0:
+                i_total = i
+                u_total = u
+            else:
+                i_total += i
+                u_total += u
 
-    return loss, accuracy, mean_jaccard_index_per_class
+        i_total = i_total.type(torch.FloatTensor)
+        u_total = u_total.type(torch.FloatTensor)
+
+        # Mean IoU over all batches and per class (i.e. array of shape 18 - [0.5, 0.7, 0.85, ... ]
+        mean_IoU_per_class = i_total/u_total
+        # mean_jaccard_index_per_class = torch.sum(iou_per_class, dim=0) / iou_per_class.shape[0]
+
+
+        accuracy = correct_nodes / total_nodes
+        loss = torch.mean(torch.tensor(total_loss))
+
+        # 7. Get confusion matrix
+        cm = plot_confusion_matrix(all_datay, all_preds, labels=all_labels)
+        writer.add_figure(f'Confusion Matrix - ID{id}-{experiment_name}', cm)
+
+    return loss, accuracy, mean_IoU_per_class
 
 
 
@@ -325,13 +326,14 @@ if __name__ == '__main__':
     local_features = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
     grid_features = get_grid_search_local_features(local_features)
 
+
     #################################################
     ########### EXPERIMENT DESCRIPTION ##############
     #################################################
 
     data_nativeness = 'aligned'
     data_compression = "50"
-    data_type = "inflated"
+    data_type = "sphere"
 
     additional_comment = ''
 
@@ -340,6 +342,7 @@ if __name__ == '__main__':
     #################################################
     ############ EXPERIMENT DESCRIPTION #############
     #################################################
+
 
     for local_feature_combo in grid_features:
         for global_feature in [[]]:#, ['weight']]:
@@ -362,8 +365,9 @@ if __name__ == '__main__':
             comment = get_comment(data_nativeness, data_compression, data_type,
                                   lr, batch_size, local_feature_combo, global_features, target_class)
 
-
+            print('='*50 + '\n' + '='*50)
             print(comment)
+            print('='*50 + '\n' + '='*50)
 
             # 5. Perform data processing
             data_folder, files_ending = get_data_path(data_nativeness, data_compression, data_type, hemisphere='left')
@@ -374,14 +378,17 @@ if __name__ == '__main__':
                                                                                                           target_class,
                                                                                                           task,
                                                                                                           REPROCESS,
-                                                                                                          local_features,
+                                                                                                          local_feature_combo,
                                                                                                           global_features,
                                                                                                           indices,
                                                                                                           batch_size,
                                                                                                           num_workers=2)
 
             # 6. Getting the number of features to adapt the architecture
-            num_local_features = train_dataset[0].x.size(1)
+            try:
+                num_local_features = train_dataset[0].x.size(1)
+            except:
+                num_local_features = 0
             # numb_global_features = train_dataset[0].y.size(1) - 1
             num_classes = train_dataset.num_labels
 
@@ -400,7 +407,7 @@ if __name__ == '__main__':
                                     log_descr=True)
 
             save_to_log(log_descr, prefix=experiment_name)
-            id = get_id(prefix=experiment_name)
+            id = str(int(get_id(prefix=experiment_name)) - 1)
 
             writer = SummaryWriter(f'runs/{experiment_name}ID' + id)
             writer.add_text(f'{experiment_name} ID #{id}', comment)
@@ -433,7 +440,7 @@ if __name__ == '__main__':
                 print('='*60)
 
             # 6. Test the performance after training
-            loss, acc, iou = test(test_loader, comment, test=True, id=id)
+            loss, acc, iou = test(test_loader, comment, test=True, id=id, experiment_name=experiment_name)
 
             # 7. Record test metrics in Tensorboard
             writer.add_scalar('Loss/test', loss)
@@ -443,7 +450,7 @@ if __name__ == '__main__':
                 print('\t\tTest Label {}: {}'.format(label, value))
 
             # 8. Save the model with its unique id
-            torch.save(model.state_dict(), f'/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/{id}-{experiment_name}/' + 'model' + '_id' + str(id) + '.pt')
+            torch.save(model.state_dict(), f'/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/experiment_data/{experiment_name}-{id}/' + 'model' + '_id' + str(id) + '.pt')
 
 
 

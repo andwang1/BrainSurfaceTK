@@ -256,7 +256,7 @@ class OurDataset(InMemoryDataset):
 
             # Get file path to .vtk/.vtp for one patient #TODO: Maybe do something more beautiful
             file_path = self.get_file_path(patient_idx[:11], patient_idx[12:])
-            print(file_path)
+#            print(file_path)
             # If file exists
             if os.path.isfile(file_path):
 

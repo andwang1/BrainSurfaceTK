@@ -160,16 +160,16 @@ if __name__ == '__main__':
 
     # Model Parameters
     lr = 0.001
-    batch_size = 1
+    batch_size = 6
     num_workers = 4
     # ['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc'] + ['weight']
-    local_features = ['corr_thickness']
+    local_features = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
     # local_features = []
     global_features = []
     target_class = 'scan_age'
     # target_class = 'birth_age'
     task = 'regression'
-    number_of_points = 16247  # 3251# 12000  # 16247
+    number_of_points = 3251  # 3251# 12000  # 16247
 
     # For quick tests
     # indices = {'Train': ['CC00050XX01_7201', 'CC00050XX01_7201'],
@@ -219,7 +219,7 @@ if __name__ == '__main__':
     # TESTING PURPOSES
     # indices['Train'] = indices['Train'][:2]
 
-    comment = 'Test_just_features' + str(datetime.datetime.now()) \
+    comment = 'Just_features' + str(datetime.datetime.now()) \
               + "__LR__" + str(lr) \
               + "__BATCH_" + str(batch_size) \
               + "__local_features__" + str(local_features) \
@@ -244,7 +244,7 @@ if __name__ == '__main__':
         config_file.write('Number of points - ' + str(number_of_points) + '\n')
         config_file.write('Data res - ' + data + '\n')
         config_file.write('Data type - ' + type_data + '\n')
-        config_file.write('Additional comments - With no rotate transforms' + '\n')
+        config_file.write('Additional comments - ' + '\n')
 
     with open(results_folder + '/results.csv', 'w', newline='') as results_file:
         result_writer = csv.writer(results_file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
@@ -295,12 +295,12 @@ if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model = Net(numb_local_features, numb_global_features).to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-    scheduler = StepLR(optimizer, step_size=1, gamma=0.985)
+    scheduler = StepLR(optimizer, step_size=2, gamma=0.985)
 
     best_val_loss = 999
 
     # MAIN TRAINING LOOP
-    for epoch in range(1, 2):
+    for epoch in range(1, 501):
         start = time.time()
         train(epoch)
         val_mse, val_l1 = test_regression(val_loader, indices['Val'], results_folder, epoch=epoch)

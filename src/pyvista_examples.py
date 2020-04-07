@@ -49,5 +49,14 @@ def plot(points, labels, predictions):
     surf_points['values'] = predictions
     surf_points.plot(eye_dome_lighting=False, render_points_as_spheres=True)
 
+    intersections = []
+    for label, prediction in zip(labels, predictions):
+        if label == prediction:
+            intersections.append(0)
+        else:
+            intersections.append(100)
+
+    surf_points['values'] = intersections
+    surf_points.plot(eye_dome_lighting=False, render_points_as_spheres=True)
 # def
 

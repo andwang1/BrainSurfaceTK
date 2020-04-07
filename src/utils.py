@@ -85,6 +85,11 @@ def get_data_path(data_nativeness, data_compression, data_type, hemisphere='left
     '''
     Returns the correct path to files
 
+    data_nativeness: {'native', 'aligned'}
+    data_compression: {'50', '90'}
+    data_type: {'inflated', 'pial', 'midthickness', 'sphere', 'veryinflated', 'white'}
+    hemisphere: {'left', 'right'}
+
     Eg.
     data_folder = '/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_fsavg32k/reduced_50/vtk/pial'
     data_folder = '/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native/reduced_50/inflated/vtk'
