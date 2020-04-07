@@ -146,8 +146,7 @@ class ClassifierModel:
             if self.opt.dataset_mode == 'regression':
                 pred_class = out.view(-1)
             elif self.opt.dataset_mode == 'binary_class':
-                print(f"DEBUG pred prob: {out.item()}")
-                pred_class = torch.round(out)
+                pred_class = torch.round(out).long()
             else:
                 pred_class = out.data.max(1)[1]
             #pred_class = self.forward()
@@ -163,6 +162,8 @@ class ClassifierModel:
             # patient_id = self.path[-1][38:-4]
 
             print('-------')
+            if self.opt.dataset_mode == 'binary_class':
+                print(f"DEBUG pred prob: {out.item()}")
             print('Patient ID:\t', patient_id)
             print('Predicted:\t', pred_class.item())
             print('Label:\t\t', label_class.item())
