@@ -183,7 +183,7 @@ class MeshConvNet(nn.Module):
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
         if self.opt.dataset_mode == 'binary_class':
-            x = F.sigmoid(x)
+            x = torch.sigmoid(x)
         return x
 
 
