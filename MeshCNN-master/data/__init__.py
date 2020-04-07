@@ -7,7 +7,7 @@ def CreateDataset(opt):
     if opt.dataset_mode == 'segmentation':
         from data.segmentation_data import SegmentationData
         dataset = SegmentationData(opt)
-    elif opt.dataset_mode == 'classification' or opt.dataset_mode == 'regression':
+    elif opt.dataset_mode == 'classification' or opt.dataset_mode == 'regression' or opt.dataset_mode == 'binary_class':
         from data.classification_data import ClassificationData
         dataset = ClassificationData(opt)
     return dataset
