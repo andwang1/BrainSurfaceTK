@@ -82,7 +82,7 @@ class ClassifierModel:
             # print("OUTPUT", out.view(-1), "LABEL", self.labels)
             self.loss = self.criterion(out.view(-1), self.labels)
         elif self.opt.dataset_mode == "binary_class":
-            self.loss = self.criterion(out, self.labels.float())
+            self.loss = self.criterion(out.view(-1), self.labels.float())
         else:
             self.loss = self.criterion(out, self.labels)
         self.loss.backward()
