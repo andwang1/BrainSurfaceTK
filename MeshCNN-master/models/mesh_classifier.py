@@ -144,6 +144,7 @@ class ClassifierModel:
             if self.opt.dataset_mode == 'regression':
                 pred_class = out.view(-1)
             else:
+                print(f"DEBUG pred prob: {out.item()}")
                 pred_class = out.data.max(1)[1]
             #pred_class = self.forward()
             # compute number of correct

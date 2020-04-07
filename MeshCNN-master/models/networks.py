@@ -111,7 +111,7 @@ def define_classifier(input_nc, ncf, ninput_edges, nclasses, opt, gpu_ids, arch,
     norm_layer = get_norm_layer(norm_type=opt.norm, num_groups=opt.num_groups)
 
     if arch == 'mconvnet':
-        net = MeshConvNet(norm_layer, input_nc, ncf, nclasses, ninput_edges, opt.pool_res, opt.fc_n,
+        net = MeshConvNet(norm_layer, input_nc, ncf, nclasses, ninput_edges, opt.pool_res, opt.fc_n, opt,
                           opt.resblocks, num_features)
     elif arch == 'meshunet':
         down_convs = [input_nc] + ncf
@@ -131,6 +131,9 @@ def define_loss(opt):
         loss = torch.nn.CrossEntropyLoss(ignore_index=-1)
     elif opt.dataset_mode == 'regression':
         loss = torch.nn.MSELoss()
+    elif opt.dataset_mode == 'binary_class':
+        # replace with logits if this works
+        loss = torch.nn.BCELoss()
     return loss
 
 
@@ -142,11 +145,12 @@ class MeshConvNet(nn.Module):
     """Network for learning a global shape descriptor (classification)
     """
 
-    def __init__(self, norm_layer, nf0, conv_res, nclasses, input_res, pool_res, fc_n,
+    def __init__(self, norm_layer, nf0, conv_res, nclasses, input_res, pool_res, fc_n, opt,
                  nresblocks=3, num_features=0):
         super(MeshConvNet, self).__init__()
         self.k = [nf0] + conv_res
         self.res = [input_res] + pool_res
+        self.opt = opt
         norm_args = get_norm_args(norm_layer, self.k[1:])
 
         for i, ki in enumerate(self.k[:-1]):
@@ -157,7 +161,10 @@ class MeshConvNet(nn.Module):
         self.gp = torch.nn.AvgPool1d(self.res[-1])
         # self.gp = torch.nn.MaxPool1d(self.res[-1])
         self.fc1 = nn.Linear(self.k[-1] + num_features, fc_n)
-        self.fc2 = nn.Linear(fc_n, nclasses)
+        if self.opt.dataset_mode == 'binary_class':
+            self.fc2 = nn.Linear(fc_n, 1)
+        else:
+            self.fc2 = nn.Linear(fc_n, nclasses)
 
     def forward(self, x, mesh, feature_values):
         for i in range(len(self.k) - 1):
@@ -175,6 +182,8 @@ class MeshConvNet(nn.Module):
 
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
+        if self.opt.dataset_mode == 'binary_class':
+            x = F.sigmoid(x)
         return x
 
 
