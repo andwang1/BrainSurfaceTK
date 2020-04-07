@@ -1,0 +1,71 @@
+Fri Apr  3 10:56:52 2020       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 435.21       Driver Version: 435.21       CUDA Version: 10.1     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|===============================+======================+======================|
+|   0  Tesla K80           On   | 00000000:87:00.0 Off |                    0 |
+| N/A   27C    P8    26W / 149W |      0MiB / 11441MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                       GPU Memory |
+|  GPU       PID   Type   Process name                             Usage      |
+|=============================================================================|
+|  No running processes found                                                 |
++-----------------------------------------------------------------------------+
+ 10:56:53 up 55 days, 22:59,  3 users,  load average: 5.58, 4.99, 5.16
+/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master
+------------ Options -------------
+arch: mconvnet
+batch_size: 1
+beta1: 0.9
+checkpoints_dir: checkpoints/red50_12gb_ep30
+continue_train: False
+dataroot: datasets/brains_reg_red50
+dataset_mode: regression
+epoch_count: 1
+export_folder: checkpoints/red50_12gb_ep30/brains/checkpoints/mesh_collapses
+fc_n: 100
+features: []
+flip_edges: 0
+gpu_ids: [0]
+init_gain: 0.02
+init_type: kaiming
+is_train: True
+label: scan_age
+lr: 0.0001
+lr_decay_iters: 50
+lr_policy: lambda
+max_dataset_size: inf
+name: brains
+ncf: [64, 112, 128]
+ninput_edges: 48735
+niter: 1
+niter_decay: 30
+no_vis: False
+norm: group
+num_aug: 1
+num_groups: 16
+num_threads: 3
+phase: train
+pool_res: [3000, 2750, 2500]
+print_freq: 10
+resblocks: 0
+run_test_freq: 1
+save_epoch_freq: 1
+save_latest_freq: 250
+scale_verts: False
+seed: 0
+serial_batches: False
+slide_verts: 0
+verbose_plot: True
+which_epoch: latest
+-------------- End ----------------
+loaded mean / std from cache
+#training meshes = 488
+---------- Network initialized -------------
+[Network] Total number of parameters : 0.123 M
+-----------------------------------------------
+slurmstepd: error: *** JOB 3798 ON sicklebill CANCELLED AT 2020-04-03T13:58:04 ***
