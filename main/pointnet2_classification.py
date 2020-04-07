@@ -157,7 +157,7 @@ if __name__ == '__main__':
     # local_features = []
     global_features = []
     # target_class = 'scan_age'
-    target_class = 'gender'
+    target_class = 'pre_term'
     task = 'classification'
     number_of_points = 3251  # 3251# 12000  # 16247
 
@@ -203,7 +203,7 @@ if __name__ == '__main__':
     # From quick local test
     data_folder = "/home/vital/Group Project/deepl_brain_surfaces/random"
 
-    with open('src/names.pk', 'rb') as f:
+    with open('src/names_preterm.pk', 'rb') as f:
         indices = pickle.load(f)
 
     # TESTING PURPOSES
