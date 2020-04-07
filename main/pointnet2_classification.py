@@ -108,7 +108,7 @@ def train(epoch):
         optimizer.step()
         correct += perd_label.eq(data.y[:, 0].long()).sum().item()
         loss_train += loss.item()
-        print(str(perd_label), str(data.y[:, 0]))
+        #print(str(perd_label), str(data.y[:, 0]))
     acc = correct / len(train_loader.dataset)
     writer.add_scalar('Acc/train', acc, epoch)
     writer.add_scalar('Loss/train', loss_train / len(train_loader), epoch)
@@ -201,7 +201,7 @@ if __name__ == '__main__':
     #    files_ending = "_left_" + type_data + "_" + data_ending
 
     # From quick local test
-    data_folder = "/home/vital/Group Project/deepl_brain_surfaces/random"
+    #data_folder = "/home/vital/Group Project/deepl_brain_surfaces/random"
 
     with open('src/names.pk', 'rb') as f:
         indices = pickle.load(f)
