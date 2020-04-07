@@ -145,8 +145,10 @@ class ClassifierModel:
             # compute number of correct
             if self.opt.dataset_mode == 'regression':
                 pred_class = out.view(-1)
-            else:
+            elif self.opt.dataset_mode == 'binary_class':
                 print(f"DEBUG pred prob: {out.item()}")
+                pred_class = torch.round(out)
+            else:
                 pred_class = out.data.max(1)[1]
             #pred_class = self.forward()
             # compute number of correct
