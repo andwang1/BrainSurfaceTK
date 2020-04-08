@@ -6,10 +6,13 @@ gpu01 - same plateau run with resblocks
 gpu08 - cyclic
 gpu21 - classification
 
+gpu05 - waiting
+gpu11 - waiting
+
 next
 inflated run
-
 static LR
+
 LOOK AT BATCH SIZE 1 vs BATCH SIZE 2
 
 notes
