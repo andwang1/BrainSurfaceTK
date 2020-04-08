@@ -170,8 +170,10 @@ class ClassifierModel:
             correct = self.get_accuracy(pred_class, label_class)
             print('Abs Error:\t', correct.item())
 
-            if not self.opt.is_train:
-                with open(f"{self.testacc_log}{epoch}.csv", "a") as log_file:
+            with open(f"{self.testacc_log}{epoch}.csv", "a") as log_file:
+                if self.opt.dataset_mode == 'binary_class':
+                    log_file.write(f"{patient_id},{pred_class.item()},{label_class.item()},{out.item()}\n")
+                else:
                     log_file.write(f"{patient_id},{pred_class.item()},{label_class.item()},{correct.item()}\n")
         return correct, len(label_class)
 
