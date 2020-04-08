@@ -1,38 +1,20 @@
 48735 edges at red50
 
-testfiles csv have format
-{patient_id},{pred_class.item()},{label_class.item()},{correct.item()}
+before testing move all the train related testoutput files away first, they will be overwritten
 
-In straight testing mode, the files need to be in train! not in test
-move all the train related testoutput files away first, they will be overwritten
-
-
-gpu21
-both halves
-
-monal04
-red50
-big arch, 24GB.sh
-
-kingfisher
-ep70_cosine
-
-cloudvm
-ep50_plateau, factor0.8 (before 0.5)
-
-gpu08
-classification
+gpu01 - same plateau run with shuffle
+gpu08 - classification with birthage as feature
+gpu21 - classification
 
 next
 inflated run
+
 instance normalisation
 static LR
-shuffle data again
-
+cyclic
 LOOK AT BATCH SIZE 1 vs BATCH SIZE 2
 
 notes
 seems like starting off at higher lr is better compare both ep30 runs (higher lr even at start?) - start at 0.005?
 plateau might need to change threshold to 0.1, its %
 
-add resblocks again
