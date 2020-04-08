@@ -11,7 +11,6 @@ inflated run
 
 static LR
 LOOK AT BATCH SIZE 1 vs BATCH SIZE 2
-instance normalisation
 
 notes
 seems like starting off at higher lr is better compare both ep30 runs (higher lr even at start?) - start at 0.005?
