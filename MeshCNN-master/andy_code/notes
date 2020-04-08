@@ -18,4 +18,4 @@ seems like starting off at higher lr is better compare both ep30 runs (higher lr
 plateau might need to change threshold to 0.1, its %
 
 
-CLASSIFICATION - might need to start off at a way higher LR
+CLASSIFICATION - might need to start off at a way higher LR + batching, make high at initial LR and then only have a few niters on top of that
