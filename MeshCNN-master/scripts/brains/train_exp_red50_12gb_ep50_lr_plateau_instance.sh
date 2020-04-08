@@ -3,7 +3,7 @@
 ## run the training
 python3 train.py \
 --dataroot datasets/brains_reg_red50 \
---checkpoints_dir checkpoints/red50_12gb_ep50_lr_plateau_resblocks \
+--checkpoints_dir checkpoints/red50_12gb_ep50_lr_plateau_instance \
 --name brains \
 --ninput_edges 48735 \
 --epoch_count 1 \

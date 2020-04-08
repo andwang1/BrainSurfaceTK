@@ -15,7 +15,7 @@ python3 train.py \
 --seed 0 \
 --dataset_mode binary_class \
 --niter 5 \
---niter_decay 100 \
+--niter_decay 500 \
 --batch_size 14 \
 --ncf 64 128 256 \
---pool_res 4000 3500 3250 \
+--pool_res 8000 3500 3250 \
