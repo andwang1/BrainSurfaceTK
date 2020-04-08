@@ -162,13 +162,14 @@ class ClassifierModel:
             # patient_id = self.path[-1][38:-4]
 
             print('-------')
-            if self.opt.dataset_mode == 'binary_class':
-                print(f"DEBUG pred prob: {out.item()}")
             print('Patient ID:\t', patient_id)
             print('Predicted:\t', pred_class.item())
             print('Label:\t\t', label_class.item())
             correct = self.get_accuracy(pred_class, label_class)
-            print('Abs Error:\t', correct.item())
+            if self.opt.dataset_mode == 'binary_class':
+                print(f"DEBUG pred prob: {out.item()}")
+            else:
+                print('Abs Error:\t', correct.item())
 
             with open(f"{self.testacc_log}{epoch}.csv", "a") as log_file:
                 if self.opt.dataset_mode == 'binary_class':

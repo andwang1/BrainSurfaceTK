@@ -182,6 +182,7 @@ class MeshConvNet(nn.Module):
 
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
+        # move this to testing only when move into loss function
         if self.opt.dataset_mode == 'binary_class':
             x = torch.sigmoid(x)
         return x
