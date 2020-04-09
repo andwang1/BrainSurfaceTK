@@ -1,19 +1,22 @@
-from __future__ import print_function
 import torch
 import numpy as np
 import os
+from __future__ import print_function
 
 
 def mkdir(path):
     if not os.path.exists(path):
         os.makedirs(path)
 
+
 MESH_EXTENSIONS = [
     '.obj',
 ]
 
+
 def is_mesh_file(filename):
     return any(filename.endswith(extension) for extension in MESH_EXTENSIONS)
+
 
 def pad(input_arr, target_length, val=0, dim=1):
     shp = input_arr.shape
@@ -23,6 +26,7 @@ def pad(input_arr, target_length, val=0, dim=1):
     print(input_arr)
     print('min', np.min(input_arr))
     return np.pad(input_arr, pad_width=npad, mode='constant', constant_values=val)
+
 
 def seg_accuracy(predicted, ssegs, meshes):
     correct = 0
@@ -34,10 +38,10 @@ def seg_accuracy(predicted, ssegs, meshes):
         correct += (correct_vec.float() * edge_areas).sum()
     return correct
 
+
 def print_network(net):
     """Print the total number of parameters in the network
-    Parameters:
-        network
+    Parameters: network
     """
     print('---------- Network initialized -------------')
     num_params = 0
@@ -46,11 +50,12 @@ def print_network(net):
     print('[Network] Total number of parameters : %.3f M' % (num_params / 1e6))
     print('-----------------------------------------------')
 
+
 def get_heatmap_color(value, minimum=0, maximum=1):
     minimum, maximum = float(minimum), float(maximum)
-    ratio = 2 * (value-minimum) / (maximum - minimum)
-    b = int(max(0, 255*(1 - ratio)))
-    r = int(max(0, 255*(ratio - 1)))
+    ratio = 2 * (value - minimum) / (maximum - minimum)
+    b = int(max(0, 255 * (1 - ratio)))
+    r = int(max(0, 255 * (ratio - 1)))
     g = 255 - b - r
     return r, g, b
 

@@ -7,6 +7,7 @@ except ImportError as error:
     print('tensorboard X not installed, visualizing wont be available')
     SummaryWriter = None
 
+
 class Writer:
     def __init__(self, opt):
         self.name = opt.name
