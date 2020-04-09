@@ -49,14 +49,12 @@ if __name__ == '__main__':
 
         print('End of epoch %d / %d \t Time Taken: %d sec' %
               (epoch, opt.niter + opt.niter_decay, time.time() - epoch_start_time))
-        # model.update_learning_rate()
         if opt.verbose_plot:
             writer.plot_model_wts(model, epoch)
 
         if epoch % opt.run_test_freq == 0:
             acc = run_test(epoch)
             writer.plot_acc(acc, epoch)
-        # adding val loss into function for ReduceLROnPlateau scheduler and epoch for cosine_restarts
         lr = model.update_learning_rate(acc, epoch)
         writer.plot_lr(lr, epoch)
 
