@@ -61,6 +61,7 @@ class ClassificationData(BaseDataset):
                         path = os.path.join(root, fname)
                         if dataset_mode == 'regression':
                             # Retrieves class from metadata file - use filename as key
+                            print(fname)
                             item = (path, class_to_idx[retrieve_patient_func(fname)])
                         else:
                             item = (path, class_to_idx[target])

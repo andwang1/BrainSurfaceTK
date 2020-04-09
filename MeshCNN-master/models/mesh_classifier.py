@@ -1,5 +1,4 @@
 import torch
-import re
 from os.path import join
 from . import networks
 from util.util import seg_accuracy, print_network
@@ -76,7 +75,6 @@ class ClassifierModel:
 
     def backward(self, out):
         if self.opt.dataset_mode == "regression":
-            # print("OUTPUT", out.view(-1), "LABEL", self.labels)
             self.loss = self.criterion(out.view(-1), self.labels)
         elif self.opt.dataset_mode == "binary_class":
             self.loss = self.criterion(out.view(-1), self.labels.float())
@@ -128,8 +126,6 @@ class ClassifierModel:
         else:
             self.scheduler.step()
         lr = self.optimizer.param_groups[0]['lr']
-        # with open("lr_log.txt", "a") as lr_logger:
-        #     lr_logger.write(f"{lr}\n")
         print('learning rate = %.7f' % lr)
         return lr
 
@@ -146,18 +142,9 @@ class ClassifierModel:
                 pred_class = torch.round(out).long()
             else:
                 pred_class = out.data.max(1)[1]
-            # pred_class = self.forward()
-            # compute number of correct
-            # pred_class.reshape((pred_class.shape[0]))
             label_class = self.labels
             self.export_segmentation(pred_class.cpu())
-
-            re_pattern = r".*\/(CC[a-zA-Z0-9_]+)\.obj$"
-            re_matcher = re.compile(re_pattern)
-            matched_path = re_matcher.match(self.path[-1])
-            patient_id = matched_path.group(1)
             patient_id = self.path[0].split("/")[-1][:-4]
-            # patient_id = self.path[-1][38:-4]
 
             print('-------')
             print('Patient ID:\t', patient_id)
