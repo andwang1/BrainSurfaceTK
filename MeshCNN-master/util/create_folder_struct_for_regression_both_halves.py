@@ -24,7 +24,7 @@ with open("indices.pk", "rb") as f:
     indices = pickle.load(f)
 
 # Load metadata
-meta = pd.read_csv("combined.tsv", delimiter='\t')
+meta = pd.read_csv("archive/combined.tsv", delimiter='\t')
 
 # Put participant_id and session_id together to get a unique key and use as index
 meta['unique_key'] = meta['participant_id'] + "_" + meta['session_id'].astype(str)

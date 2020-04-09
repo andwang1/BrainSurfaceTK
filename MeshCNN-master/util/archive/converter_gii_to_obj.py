@@ -4,7 +4,7 @@ import os
 def load_obj_from_vtp(patient,surface_type="pial", hemisphere="L"):
 
     os.chdir(f"/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/sub-{patient}/")
-    session = os.listdir(path='.')[0]
+    session = os.listdir(path='../../andy_code')[0]
     # print(session)
     session_number = session[4:]
 

@@ -1,0 +1,23 @@
+48735 edges at red50
+
+before testing move all the train related testoutput files away first, they will be overwritten
+
+gpu01 - highLR classification
+gpu03 - static LR
+gpu05 - upweight classification
+gpu08 - cyclic
+gpu21 - ep50 plateau
+
+next
+inflated run
+BATCH SIZE 1 vs BATCH SIZE 2
+native runs
+bigger fc layer
+red50_12gb_ep50_lr_instance
+
+
+
+sex classification
+run on native
+
+restrict preterm to 50.50

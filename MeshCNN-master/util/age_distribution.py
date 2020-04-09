@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import pickle
 
 # Read the metadata file
-meta = pd.read_csv("combined.tsv", delimiter='\t')
+meta = pd.read_csv("archive/combined.tsv", delimiter='\t')
 
 # Put participant_id and session_id together to get a unique key and use as index
 meta['unique_key'] = meta['participant_id'] + "_" + meta['session_id'].astype(str)
@@ -17,7 +17,7 @@ meta.drop(['participant_id', 'session_id', 'sedation', 'scan_number'], axis=1, i
 # obj_files = os.listdir(".")
 
 # Due to corona - extracted filenames from above dir
-with open("present_obj_50.txt", "r") as f:
+with open("archive/present_obj_50.txt", "r") as f:
     obj_files = f.readlines()
 obj_files = [obj.strip() for obj in obj_files]
 

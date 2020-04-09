@@ -4,7 +4,7 @@ from shutil import copyfile
 
 os.chdir("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/rhys/MeshCNN-master/datasets/vtk_to_obj/90")
 
-obj_files = os.listdir(".")
+obj_files = os.listdir("../../andy_code")
 
 labels = pd.read_csv("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv", delimiter='\t')
 
