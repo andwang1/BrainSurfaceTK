@@ -1,7 +1,7 @@
+from __future__ import print_function
 import torch
 import numpy as np
 import os
-from __future__ import print_function
 
 
 def mkdir(path):
