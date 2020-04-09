@@ -13,6 +13,7 @@ class ClassifierModel:
     --dataset_mode -> classification / segmentation)
     --arch -> network type
     """
+
     def __init__(self, opt):
         self.opt = opt
         self.gpu_ids = opt.gpu_ids
@@ -36,7 +37,7 @@ class ClassifierModel:
         # Logging results into a file for each testing epoch
         self.save_dir = join(opt.checkpoints_dir, opt.name)
         self.testacc_log = join(self.save_dir, 'testacc_full_log_')
-        # load/define networks
+        # Load/define networks
         self.net = networks.define_classifier(opt.input_nc, opt.ncf, opt.ninput_edges, opt.nclasses, opt, self.gpu_ids,
                                               opt.arch, opt.init_type, opt.init_gain,
                                               num_features=len(self.feature_keys))
@@ -61,7 +62,7 @@ class ClassifierModel:
         self.labels = labels.to(self.device)
         self.mesh = data['mesh']
         self.path = data['path']
-        # Retrieving the additional features specifie from metadata file
+        # Retrieving the additional features specified from metadata file
         if self.feature_keys:
             # Using the filename as unique identifier
             unique_id = self.path[0].split("/")[-1][:-4]
@@ -78,6 +79,7 @@ class ClassifierModel:
             self.loss = self.criterion(out.view(-1), self.labels)
         elif self.opt.dataset_mode == "binary_class":
             self.loss = self.criterion(out.view(-1), self.labels.float())
+            # Upweighting the minority class by 300% in the loss function
             if self.opt.weight_minority and self.labels == 1:
                 self.loss *= 3
         else:
@@ -89,8 +91,6 @@ class ClassifierModel:
         out = self.forward()
         self.backward(out)
         self.optimizer.step()
-
-    ##################
 
     def load_network(self, which_epoch):
         """load model from disk"""
@@ -140,22 +140,26 @@ class ClassifierModel:
                 pred_class = out.view(-1)
             elif self.opt.dataset_mode == 'binary_class':
                 pred_class = torch.round(out).long()
+                # Convert to probability for printing and logging
+                out = torch.sigmoid(out)
             else:
                 pred_class = out.data.max(1)[1]
             label_class = self.labels
             self.export_segmentation(pred_class.cpu())
             patient_id = self.path[0].split("/")[-1][:-4]
 
+            # Print to console
             print('-------')
             print('Patient ID:\t', patient_id)
             print('Predicted:\t', pred_class.item())
             print('Label:\t\t', label_class.item())
             correct = self.get_accuracy(pred_class, label_class)
             if self.opt.dataset_mode == 'binary_class':
-                print(f"DEBUG pred prob: {out.item()}")
+                print(f"Predicted probability: {out.item()}")
             else:
                 print('Abs Error:\t', correct.item())
 
+            # Log results to file
             with open(f"{self.testacc_log}{epoch}.csv", "a") as log_file:
                 if self.opt.dataset_mode == 'binary_class':
                     log_file.write(f"{patient_id},{pred_class.item()},{label_class.item()},{out.item()}\n")

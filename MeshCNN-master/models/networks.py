@@ -1,10 +1,10 @@
+import functools
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.nn import init
-import functools
 from torch.optim import lr_scheduler
 from models.layers.mesh_conv import MeshConv
-import torch.nn.functional as F
 from models.layers.mesh_pool import MeshPool
 from models.layers.mesh_unpool import MeshUnpool
 
@@ -67,7 +67,6 @@ def get_scheduler(optimizer, opt):
         scheduler = lr_scheduler.CyclicLR(optimizer, 0.00001, opt.lr, step_size_up=5, step_size_down=None, gamma=0.99,
                                           mode='exp_range', cycle_momentum=False)
     elif opt.lr_policy == 'cosine_restarts':
-        # restart after arg1 episodes, multiply starting value with T_mult at restart
         scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer, 5, T_mult=1, eta_min=0)
     else:
         return NotImplementedError('learning rate policy [%s] is not implemented', opt.lr_policy)
@@ -132,8 +131,8 @@ def define_loss(opt):
     elif opt.dataset_mode == 'regression':
         loss = torch.nn.MSELoss()
     elif opt.dataset_mode == 'binary_class':
-        # replace with logits if this works
-        loss = torch.nn.BCELoss()
+        # TODO replace with logits and remove sigmoid from output
+        loss = torch.nn.BCEWithLogitsLoss()
     return loss
 
 
@@ -182,9 +181,6 @@ class MeshConvNet(nn.Module):
 
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
-        # move this to testing only when move into loss function
-        if self.opt.dataset_mode == 'binary_class':
-            x = torch.sigmoid(x)
         return x
 
 

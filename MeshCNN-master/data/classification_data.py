@@ -1,6 +1,5 @@
 import os
 import torch
-import re
 from data.base_dataset import BaseDataset
 from util.util import is_mesh_file, pad
 from models.layers.mesh import Mesh
@@ -20,7 +19,7 @@ class ClassificationData(BaseDataset):
             self.classes, self.class_to_idx = self.find_classes(self.dir)
             self.nclasses = len(self.classes)
 
-        self.paths = self.make_dataset_by_class(self.dir, self.class_to_idx, opt.phase, opt.dataset_mode, self.retrieve_patient_and_session)
+        self.paths = self.make_dataset_by_class(self.dir, self.class_to_idx, opt.phase, opt.dataset_mode)
         self.size = len(self.paths)
         self.get_mean_std()
         # modify for network later.
@@ -48,7 +47,7 @@ class ClassificationData(BaseDataset):
         class_to_idx = {classes[i]: i for i in range(len(classes))}
         return classes, class_to_idx
 
-    def make_dataset_by_class(self, dir, class_to_idx, phase, dataset_mode, retrieve_patient_func):
+    def make_dataset_by_class(self, dir, class_to_idx, phase, dataset_mode):
         meshes = []
         dir = os.path.expanduser(dir)
         for target in sorted(os.listdir(dir)):
@@ -60,19 +59,11 @@ class ClassificationData(BaseDataset):
                     if is_mesh_file(fname) and (root.count(phase)==1):
                         path = os.path.join(root, fname)
                         if dataset_mode == 'regression':
-                            # Retrieves class from metadata file - use filename as key
+                            # Retrieves additional info from metadata file as labels - use filename as key
+                            # filename format CC00839XX23_23710.obj
                             filename_key = fname[:-4]
                             item = (path, class_to_idx[filename_key])
                         else:
                             item = (path, class_to_idx[target])
                         meshes.append(item)
         return meshes
-
-    # Retrieves files with specific naming of format CC00839XX23_23710.obj
-    def retrieve_patient_and_session(self, fname):
-        re_pattern = "(\w+)_(\d+).*\.obj"
-        result = re.search(re_pattern, fname)
-        patient_name = result.group(1)
-        session_name = result.group(2)
-        return patient_name + "_" + session_name
-
