@@ -131,7 +131,6 @@ def define_loss(opt):
     elif opt.dataset_mode == 'regression':
         loss = torch.nn.MSELoss()
     elif opt.dataset_mode == 'binary_class':
-        # TODO replace with logits and remove sigmoid from output
         loss = torch.nn.BCEWithLogitsLoss()
     return loss
 
@@ -174,7 +173,7 @@ class MeshConvNet(nn.Module):
         x = self.gp(x)
         x = x.view(-1, self.k[-1])
 
-        # add extra features
+        # Add in extra features into fully connected layer
         if feature_values:
             features = torch.tensor([feature_values]).to(x.device)
             x = torch.cat((x, features), 1)
@@ -210,7 +209,6 @@ class MResConv(nn.Module):
 class MeshEncoderDecoder(nn.Module):
     """Network for fully-convolutional tasks (segmentation)
     """
-
     def __init__(self, pools, down_convs, up_convs, blocks=0, transfer_data=True):
         super(MeshEncoderDecoder, self).__init__()
         self.transfer_data = transfer_data

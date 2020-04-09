@@ -155,7 +155,7 @@ class ClassifierModel:
             print('Label:\t\t', label_class.item())
             correct = self.get_accuracy(pred_class, label_class)
             if self.opt.dataset_mode == 'binary_class':
-                print(f"Predicted probability: {out.item()}")
+                print("Pred. prob.:\t", out.item())
             else:
                 print('Abs Error:\t', correct.item())
 
