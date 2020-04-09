@@ -83,6 +83,8 @@ class ClassifierModel:
             self.loss = self.criterion(out.view(-1), self.labels)
         elif self.opt.dataset_mode == "binary_class":
             self.loss = self.criterion(out.view(-1), self.labels.float())
+            if self.opt.weight_minority and self.labels == 1:
+                self.loss *= 3
         else:
             self.loss = self.criterion(out, self.labels)
         self.loss.backward()
