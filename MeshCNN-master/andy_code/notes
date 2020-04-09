@@ -3,21 +3,17 @@
 before testing move all the train related testoutput files away first, they will be overwritten
 
 gpu01 - same plateau run with resblocks
+gpu03 - constant LR
 gpu08 - cyclic
 gpu21 - classification
 
 gpu05 - waiting
-gpu11 - waiting
 
 next
 inflated run
 static LR
-
-LOOK AT BATCH SIZE 1 vs BATCH SIZE 2
+BATCH SIZE 1 vs BATCH SIZE 2
 
 notes
-seems like starting off at higher lr is better compare both ep30 runs (higher lr even at start?) - start at 0.005?
-plateau might need to change threshold to 0.1, its %
 
-
-CLASSIFICATION - might need to start off at a way higher LR + batching, make high at initial LR and then only have a few niters on top of that
+classification - weight minority
