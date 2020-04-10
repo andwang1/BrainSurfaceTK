@@ -25,7 +25,7 @@ brain_div.appendChild(rootContainer);
 
 // Create render window inside container
 const renderWindow = vtkRenderWindowWithControlBar.newInstance({
-  controlSize: 25,
+    controlSize: 25,
 });
 renderWindow.setContainer(rootContainer);
 
@@ -37,56 +37,56 @@ const reader = vtkXMLPolyDataReader.newInstance();
 const scene = [];
 
 function onClick(event) {
-  const el = event.target;
-  const index = Number(el.dataset.index);
-  const actor = scene[index].actor;
-  const visibility = actor.getVisibility();
+    const el = event.target;
+    const index = Number(el.dataset.index);
+    const actor = scene[index].actor;
+    const visibility = actor.getVisibility();
 
-  actor.setVisibility(!visibility);
-  if (visibility) {
-    el.classList.remove('visible');
-  } else {
-    el.classList.add('visible');
-  }
-  render();
+    actor.setVisibility(!visibility);
+    if (visibility) {
+        el.classList.remove('visible');
+    } else {
+        el.classList.add('visible');
+    }
+    render();
 }
 
 reader
-  .setUrl(`${BASE_PATH}/${fileName}.vtp`)
-  .then(() => {
-    const size = reader.getNumberOfOutputPorts();
-    for (let i = 0; i < size; i++) {
-      const polydata = reader.getOutputData(i);
-      const name = polydata.get('name').name;
-      const mapper = vtkMapper.newInstance();
-      const actor = vtkActor.newInstance();
+    .setUrl(`${BASE_PATH}/${fileName}.vtp`)
+    .then(() => {
+        const size = reader.getNumberOfOutputPorts();
+        for (let i = 0; i < size; i++) {
+            const polydata = reader.getOutputData(i);
+            const name = polydata.get('name').name;
+            const mapper = vtkMapper.newInstance();
+            const actor = vtkActor.newInstance();
 
-      actor.setMapper(mapper);
-      mapper.setInputData(polydata);
+            actor.setMapper(mapper);
+            mapper.setInputData(polydata);
 
-      renderWindow.getRenderer().addActor(actor);
+            renderWindow.getRenderer().addActor(actor);
 
-      scene.push({ name, polydata, mapper, actor });
-    }
-    renderWindow.getRenderer().resetCamera();
-    renderWindow.getRenderWindow().render();
+            scene.push({name, polydata, mapper, actor});
+        }
+        renderWindow.getRenderer().resetCamera();
+        renderWindow.getRenderWindow().render();
 
-    // Build control ui
-    const htmlBuffer = [
-      '<style>.visible { font-weight: bold; } .click { cursor: pointer; min-width: 150px;}</style>',
-    ];
-    scene.forEach((item, idx) => {
-      htmlBuffer.push(
-        `<div class="click visible" data-index="${idx}">${item.name}</div>`
-      );
+        // Build control ui
+        const htmlBuffer = [
+            '<style>.visible { font-weight: bold; } .click { cursor: pointer; min-width: 150px;}</style>',
+        ];
+        scene.forEach((item, idx) => {
+            htmlBuffer.push(
+                `<div class="click visible" data-index="${idx}">${item.name}</div>`
+            );
+        });
+
+        renderWindow.getControlContainer(htmlBuffer.join('\n'));
+        const nodes = document.querySelectorAll('.click');
+        for (let i = 0; i < nodes.length; i++) {
+            const el = nodes[i];
+            el.onclick = onClick;
+        }
     });
-
-    renderWindow.getControlContainer(htmlBuffer.join('\n'));
-    const nodes = document.querySelectorAll('.click');
-    for (let i = 0; i < nodes.length; i++) {
-      const el = nodes[i];
-      el.onclick = onClick;
-    }
-  });
 
 

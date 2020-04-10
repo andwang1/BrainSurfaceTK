@@ -16,12 +16,11 @@ VOL_DIR = f"{DATA_DIR}/gm_volume3d"
 SURF_DIR = f"main/data/vtp"
 
 
-# Create your views here.
-def view_surf(request):
-    return render(request, "main/brain_surf.html", context={"options": None,
-                                                            "fileName": 'ferrari-f1-race-car',
-                                                            "filePath": SURF_DIR})
-
+# # Create your views here.
+# def view_surf(request):
+#     return render(request, "main/brain_surf.html", context={"options": None,
+#                                                             "fileName": 'ferrari-f1-race-car',
+#                                                             "filePath": SURF_DIR})
 
 def homepage(request):
     if Option.objects.count() == 0:
