@@ -7,7 +7,8 @@ The main server has been developed using the Django framework. Please note that 
 Have set up mod_wsgi to serve static files.
 See documentation at: [https://pypi.org/project/mod-wsgi/](url)
 
-To set up the modwsgi, please run:
+To set up the modwsgi, please run: 
+
 `mod_wsgi-express setup-server BasicSite/wsgi.py --port=8080 --user www-data --group www-data --server-root={ABSOLUTE PATH TO PARENT OF *BasicSite*}`
 
 To run the server, use: 
