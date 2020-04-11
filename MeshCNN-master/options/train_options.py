@@ -26,4 +26,5 @@ class TrainOptions(BaseOptions):
         self.parser.add_argument('--no_vis', action='store_true', help='will not use tensorboard')
         self.parser.add_argument('--verbose_plot', action='store_true', help='plots network weights, etc.')
         self.parser.add_argument('--weight_minority', action='store_true', help='if true, upweights binary classification minority class by factor of 3')
+        self.parser.add_argument('--dropout', action='store_true', help='if true, adds dropout layer to fully connected layers')
         self.is_train = True

@@ -8,16 +8,25 @@ gpu05 - upweight classification
 gpu08 - cyclic
 gpu21 - ep50 plateau
 
+cluster - cosine
+cluster - standard classification
+cluster - morefeatures
+
 next
-inflated run
-BATCH SIZE 1 vs BATCH SIZE 2
-native runs
-bigger fc layer
-red50_12gb_ep50_lr_instance
-
-
-
+instance norm
+smaller arch
+dropout
+static highLR
+more features static
+more features cosine
 sex classification
-run on native
+
+add regularisation
 
 restrict preterm to 50.50
+rerun age regression on both havles using best config - more data reduces var error
+native runs
+inflated run
+BATCH SIZE 1 vs BATCH SIZE 2
+
+check outcome of preterm classification of upweighted to see which ones are misclassified

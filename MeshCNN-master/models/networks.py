@@ -158,6 +158,8 @@ class MeshConvNet(nn.Module):
 
         self.gp = torch.nn.AvgPool1d(self.res[-1])
         # self.gp = torch.nn.MaxPool1d(self.res[-1])
+        if self.opt.dropout:
+            self.d = nn.Dropout()
         self.fc1 = nn.Linear(self.k[-1] + num_features, fc_n)
         if self.opt.dataset_mode == 'binary_class':
             self.fc2 = nn.Linear(fc_n, 1)
@@ -177,6 +179,9 @@ class MeshConvNet(nn.Module):
         if feature_values:
             features = torch.tensor([feature_values]).to(x.device)
             x = torch.cat((x, features), 1)
+
+        if self.opt.dropout:
+            x = self.d(x)
 
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
