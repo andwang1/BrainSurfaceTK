@@ -33,7 +33,7 @@ def get_norm_args(norm_layer, nfeats_list):
         norm_args = [{'fake': True} for f in nfeats_list]
     elif norm_layer.func.__name__ == 'GroupNorm':
         norm_args = [{'num_channels': f} for f in nfeats_list]
-    elif norm_layer.func.__name__ == 'BatchNorm':
+    elif norm_layer.func.__name__ == 'BatchNorm2d':
         norm_args = [{'num_features': f} for f in nfeats_list]
     else:
         raise NotImplementedError('normalization layer [%s] is not found' % norm_layer.func.__name__)

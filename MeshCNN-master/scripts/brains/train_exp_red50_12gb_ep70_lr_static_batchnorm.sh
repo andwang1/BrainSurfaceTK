@@ -3,7 +3,7 @@
 ## run the training
 python3 train.py \
 --dataroot datasets/brains_reg_red50 \
---checkpoints_dir checkpoints/red50_12gb_ep70_lr_static_instance \
+--checkpoints_dir checkpoints/red50_12gb_ep70_lr_static_batchnorm \
 --name brains \
 --ninput_edges 48735 \
 --epoch_count 1 \

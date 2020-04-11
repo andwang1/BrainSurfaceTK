@@ -20,4 +20,5 @@ python3 train.py \
 --print_freq 14 \
 --ninput_edges 9000 \
 --lr_policy cyclic \
+--dropout \
 
