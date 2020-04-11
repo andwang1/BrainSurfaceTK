@@ -13,20 +13,18 @@ cluster - standard classification
 cluster - morefeatures
 
 next
-instance norm
-smaller arch
-dropout
-static highLR
+train_exp_red50_12gb_ep70_lr_static_batchnorm.sh
+train_exp_red50_12gb_ep70_lr_static_smallarch.sh
+train_exp_red50_12gb_ep70_lr_static_dropout.sh
+train_exp_red50_12gb_ep70_lr_static_highlr.sh
+train_exp_red50_12gb_cls_binary_sex.sh
+
+
 more features static
 more features cosine
-sex classification
-
-add regularisation
 
 restrict preterm to 50.50
 rerun age regression on both havles using best config - more data reduces var error
 native runs
 inflated run
 BATCH SIZE 1 vs BATCH SIZE 2
-
-check outcome of preterm classification of upweighted to see which ones are misclassified

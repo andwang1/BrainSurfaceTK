@@ -5,8 +5,8 @@ from shutil import copyfile
 # Where them brains at
 source_dir = r"/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/datasets/all_brains_50"
 # Where them brains should be at
-target_dir = r"/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/datasets/brains_cls_binary_preterm_red50f"
-target_test_dir = r"/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/datasets/brains_cls_binary_preterm_red50_testf"
+target_dir = r"/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/datasets/brains_cls_binary_preterm_red50_equal"
+target_test_dir = r"/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/datasets/brains_cls_binary_preterm_red50_equal_test"
 
 #### This is for MeshCNN specifically
 if not os.access(target_dir, mode=os.F_OK):
@@ -20,7 +20,7 @@ if not os.access(target_dir, mode=os.F_OK):
 
 
 # Load indices
-with open("names_preterm.pk", "rb") as f:
+with open("preterm_equal_split.pk", "rb") as f:
     indices = pickle.load(f)
 
 # Load metadata
