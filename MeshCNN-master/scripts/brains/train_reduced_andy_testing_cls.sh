@@ -16,9 +16,8 @@ python3 train.py \
 --slide_verts 0.2 \
 --num_aug 1 \
 --verbose_plot \
---dataset_mode regression \
+--dataset_mode binary_class \
 --print_freq 14 \
 --ninput_edges 9000 \
 --lr_policy cyclic \
---dropout \
 

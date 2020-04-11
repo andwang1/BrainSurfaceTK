@@ -1,7 +1,6 @@
 import torch
-import re
-from . import networks
 from os.path import join
+from . import networks
 from util.util import seg_accuracy, print_network
 from data.get_feature_dict import get_feature_dict
 
@@ -14,6 +13,7 @@ class ClassifierModel:
     --dataset_mode -> classification / segmentation)
     --arch -> network type
     """
+
     def __init__(self, opt):
         self.opt = opt
         self.gpu_ids = opt.gpu_ids
@@ -24,20 +24,23 @@ class ClassifierModel:
         self.edge_features = None
         self.labels = None
         self.mesh = None
-        # Adding input features
-        self.feature_keys = opt.features
-        if self.feature_keys:
-            self.feature_dictionaries = {feature:get_feature_dict(feature) for feature in self.feature_keys}
-        self.feature_values = None
-
         self.soft_label = None
         self.loss = None
-        self.save_dir = join(opt.checkpoints_dir, opt.name)
-        self.testacc_log = join(self.save_dir, 'testacc_full_log_')
+        self.path = None
         self.nclasses = opt.nclasses
 
-        # load/define networks
-        self.net = networks.define_classifier(opt.input_nc, opt.ncf, opt.ninput_edges, opt.nclasses, opt, self.gpu_ids, opt.arch, opt.init_type, opt.init_gain, num_features=len(self.feature_keys))
+        # Adding input features additionally into the fully connected layer
+        self.feature_keys = opt.features
+        if self.feature_keys:
+            self.feature_dictionaries = {feature: get_feature_dict(feature) for feature in self.feature_keys}
+        self.feature_values = None
+        # Logging results into a file for each testing epoch
+        self.save_dir = join(opt.checkpoints_dir, opt.name)
+        self.testacc_log = join(self.save_dir, 'testacc_full_log_')
+        # Load/define networks
+        self.net = networks.define_classifier(opt.input_nc, opt.ncf, opt.ninput_edges, opt.nclasses, opt, self.gpu_ids,
+                                              opt.arch, opt.init_type, opt.init_gain,
+                                              num_features=len(self.feature_keys))
         self.net.train(self.is_train)
         self.criterion = networks.define_loss(opt).to(self.device)
 
@@ -55,19 +58,17 @@ class ClassifierModel:
             labels = torch.from_numpy(data['label']).float()
         else:
             labels = torch.from_numpy(data['label']).long()
-        # set inputs
         self.edge_features = input_edge_features.to(self.device).requires_grad_(self.is_train)
         self.labels = labels.to(self.device)
         self.mesh = data['mesh']
-        # Adding path
         self.path = data['path']
-        # Adding input features
+        # Retrieving the additional features specified from metadata file
         if self.feature_keys:
+            # Using the filename as unique identifier
             unique_id = self.path[0].split("/")[-1][:-4]
             self.feature_values = [self.feature_dictionaries[feature][unique_id] for feature in self.feature_keys]
         if self.opt.dataset_mode == 'segmentation' and not self.is_train:
             self.soft_label = torch.from_numpy(data['soft_label'])
-
 
     def forward(self):
         out = self.net(self.edge_features, self.mesh, self.feature_values)
@@ -76,6 +77,11 @@ class ClassifierModel:
     def backward(self, out):
         if self.opt.dataset_mode == "regression":
             self.loss = self.criterion(out.view(-1), self.labels)
+        elif self.opt.dataset_mode == "binary_class":
+            self.loss = self.criterion(out.view(-1), self.labels.float())
+            # Upweighting the minority class by 300% in the loss function
+            if self.opt.weight_minority and self.labels == 1:
+                self.loss *= 3
         else:
             self.loss = self.criterion(out, self.labels)
         self.loss.backward()
@@ -111,11 +117,17 @@ class ClassifierModel:
         else:
             torch.save(self.net.cpu().state_dict(), save_path)
 
-    def update_learning_rate(self):
+    def update_learning_rate(self, val_acc, epoch):
         """update learning rate (called once every epoch)"""
-        self.scheduler.step()
+        if self.opt.lr_policy == 'plateau':
+            self.scheduler.step(val_acc)
+        elif self.opt.lr_policy == 'cosine_restarts':
+            self.scheduler.step(epoch)
+        else:
+            self.scheduler.step()
         lr = self.optimizer.param_groups[0]['lr']
         print('learning rate = %.7f' % lr)
+        return lr
 
     def test(self, epoch):
         """tests model
@@ -126,34 +138,38 @@ class ClassifierModel:
             # compute number of correct
             if self.opt.dataset_mode == 'regression':
                 pred_class = out.view(-1)
+            elif self.opt.dataset_mode == 'binary_class':
+                pred_class = torch.round(out).long()
+                # Convert to probability for printing and logging
+                out = torch.sigmoid(out)
             else:
                 pred_class = out.data.max(1)[1]
-            #pred_class = self.forward()
-            # compute number of correct
-            #pred_class.reshape((pred_class.shape[0]))
             label_class = self.labels
             self.export_segmentation(pred_class.cpu())
+            patient_id = self.path[0].split("/")[-1][:-4]
 
-            re_pattern = r".*\/(CC[a-zA-Z0-9_]+)\.obj$"
-            re_matcher = re.compile(re_pattern)
-            matched_path = re_matcher.match(self.path[-1])
-            patient_id = matched_path.group(1)
-
+            # Print to console
             print('-------')
             print('Patient ID:\t', patient_id)
             print('Predicted:\t', pred_class.item())
             print('Label:\t\t', label_class.item())
             correct = self.get_accuracy(pred_class, label_class)
-            print('Abs Error:\t', correct.item())
+            if self.opt.dataset_mode == 'binary_class':
+                print("Pred. prob.:\t", out.item())
+            else:
+                print('Abs Error:\t', correct.item())
 
-            if not self.opt.is_train:
-                with open(f"{self.testacc_log}{epoch}.csv", "a") as log_file:
+            # Log results to file
+            with open(f"{self.testacc_log}{epoch}.csv", "a") as log_file:
+                if self.opt.dataset_mode == 'binary_class':
+                    log_file.write(f"{patient_id},{pred_class.item()},{label_class.item()},{out.item()}\n")
+                else:
                     log_file.write(f"{patient_id},{pred_class.item()},{label_class.item()},{correct.item()}\n")
         return correct, len(label_class)
 
     def get_accuracy(self, pred, labels):
         """computes accuracy for classification / segmentation """
-        if self.opt.dataset_mode == 'classification':
+        if self.opt.dataset_mode == 'classification' or self.opt.dataset_mode == 'binary_class':
             correct = pred.eq(labels).sum()
         elif self.opt.dataset_mode == 'segmentation':
             correct = seg_accuracy(pred, self.soft_label, self.mesh)

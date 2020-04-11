@@ -52,51 +52,15 @@ class BaseDataset(data.Dataset):
             self.ninput_channels = transform_dict['ninput_channels']
 
 
-#def collate_fn(batch):
-#    """Creates mini-batch tensors
-#    We should build custom collate_fn rather than using default collate_fn
-#    """
-#    # print("ENTER")
-#    meta = {}
-#    keys = batch[0].keys()
-#    # print(batch[0]['edge_features'].shape)
-#    # print(batch[1]['edge_features'].shape)
-#    # print("BATCH", batch)
-#    # print(batch[0]['edge_features'])
-#    # print(batch[1]['edge_features'])
-#    for key in keys:
-#        if key=='edge_features':
-#            arrays = []
-#            for d in batch:
-#                if d[key].shape[-1] != batch[0][key].shape[-1]:
-#                    continue
-#                arrays.append(d[key])
-#            meta.update({key: np.array(arrays)})
-#        else:
-#            meta.update({key: np.array([d[key] for d in batch])})
-#
-#
-#        #meta.update({key: np.array([d[key] for d in batch])})
-#        #print('~~~~~~~~~~~~~~~~')
-#        #print(len(meta))
-#        #print(len(key))
-#        #print([d[key] for d in batch])
-#        #[print(type(d[key])) for d in batch]
-# #       meta.update({key: np.array([d[key] for d in batch])})
-#    # print("META", meta)
-#    # print("LEAVE")
-#    return meta
-
 def collate_fn(batch):
     """Creates mini-batch tensors
     We should build custom collate_fn rather than using default collate_fn
     """
-    # print("ENTER")
     meta = {}
     keys = batch[0].keys()
     for key in keys:
         temp = [d[key] for d in batch]
-        ## have to resize number of edge features when we have different shapes - fill with zeros
+        # Resize meshes to same size with padding to make sure meshes can be batched
         if key == 'edge_features':
             max_num_faces = max([t.shape[1] for t in temp])
             [t.resize((5, max_num_faces), refcheck=False) for t in temp if t.shape[1] != max_num_faces]

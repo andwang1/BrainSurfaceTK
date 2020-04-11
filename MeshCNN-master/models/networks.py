@@ -1,10 +1,10 @@
+import functools
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.nn import init
-import functools
 from torch.optim import lr_scheduler
 from models.layers.mesh_conv import MeshConv
-import torch.nn.functional as F
 from models.layers.mesh_pool import MeshPool
 from models.layers.mesh_unpool import MeshUnpool
 
@@ -27,36 +27,47 @@ def get_norm_layer(norm_type='instance', num_groups=1):
         raise NotImplementedError('normalization layer [%s] is not found' % norm_type)
     return norm_layer
 
+
 def get_norm_args(norm_layer, nfeats_list):
     if hasattr(norm_layer, '__name__') and norm_layer.__name__ == 'NoNorm':
         norm_args = [{'fake': True} for f in nfeats_list]
     elif norm_layer.func.__name__ == 'GroupNorm':
         norm_args = [{'num_channels': f} for f in nfeats_list]
-    elif norm_layer.func.__name__ == 'BatchNorm':
+    elif norm_layer.func.__name__ == 'BatchNorm2d':
         norm_args = [{'num_features': f} for f in nfeats_list]
     else:
         raise NotImplementedError('normalization layer [%s] is not found' % norm_layer.func.__name__)
     return norm_args
 
-class NoNorm(nn.Module): #todo with abstractclass and pass
+
+class NoNorm(nn.Module):  # todo with abstractclass and pass
     def __init__(self, fake=True):
         self.fake = fake
         super(NoNorm, self).__init__()
+
     def forward(self, x):
         return x
+
     def __call__(self, x):
         return self.forward(x)
+
 
 def get_scheduler(optimizer, opt):
     if opt.lr_policy == 'lambda':
         def lambda_rule(epoch):
             lr_l = 1.0 - max(0, epoch + 1 + opt.epoch_count - opt.niter) / float(opt.niter_decay + 1)
             return lr_l
+
         scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda_rule)
     elif opt.lr_policy == 'step':
-        scheduler = lr_scheduler.StepLR(optimizer, step_size=opt.lr_decay_iters, gamma=0.1)
+        scheduler = lr_scheduler.StepLR(optimizer, step_size=opt.lr_decay_iters, gamma=0.5)
     elif opt.lr_policy == 'plateau':
-        scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.2, threshold=0.01, patience=5)
+        scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.8, threshold=0.01, patience=2)
+    elif opt.lr_policy == 'cyclic':
+        scheduler = lr_scheduler.CyclicLR(optimizer, 0.00001, opt.lr, step_size_up=5, step_size_down=None, gamma=0.99,
+                                          mode='exp_range', cycle_momentum=False)
+    elif opt.lr_policy == 'cosine_restarts':
+        scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer, 5, T_mult=1, eta_min=0)
     else:
         return NotImplementedError('learning rate policy [%s] is not implemented', opt.lr_policy)
     return scheduler
@@ -79,12 +90,13 @@ def init_weights(net, init_type, init_gain):
         elif classname.find('BatchNorm2d') != -1:
             init.normal_(m.weight.data, 1.0, init_gain)
             init.constant_(m.bias.data, 0.0)
+
     net.apply(init_func)
 
 
 def init_net(net, init_type, init_gain, gpu_ids):
     if len(gpu_ids) > 0:
-        assert(torch.cuda.is_available())
+        assert (torch.cuda.is_available())
         net.cuda(gpu_ids[0])
         net = net.cuda()
         net = torch.nn.DataParallel(net, gpu_ids)
@@ -98,7 +110,7 @@ def define_classifier(input_nc, ncf, ninput_edges, nclasses, opt, gpu_ids, arch,
     norm_layer = get_norm_layer(norm_type=opt.norm, num_groups=opt.num_groups)
 
     if arch == 'mconvnet':
-        net = MeshConvNet(norm_layer, input_nc, ncf, nclasses, ninput_edges, opt.pool_res, opt.fc_n,
+        net = MeshConvNet(norm_layer, input_nc, ncf, nclasses, ninput_edges, opt.pool_res, opt.fc_n, opt,
                           opt.resblocks, num_features)
     elif arch == 'meshunet':
         down_convs = [input_nc] + ncf
@@ -110,6 +122,7 @@ def define_classifier(input_nc, ncf, ninput_edges, nclasses, opt, gpu_ids, arch,
         raise NotImplementedError('Encoder model name [%s] is not recognized' % arch)
     return init_net(net, init_type, init_gain, gpu_ids)
 
+
 def define_loss(opt):
     if opt.dataset_mode == 'classification':
         loss = torch.nn.CrossEntropyLoss()
@@ -117,7 +130,10 @@ def define_loss(opt):
         loss = torch.nn.CrossEntropyLoss(ignore_index=-1)
     elif opt.dataset_mode == 'regression':
         loss = torch.nn.MSELoss()
+    elif opt.dataset_mode == 'binary_class':
+        loss = torch.nn.BCEWithLogitsLoss()
     return loss
+
 
 ##############################################################################
 # Classes For Classification / Segmentation Networks
@@ -126,11 +142,13 @@ def define_loss(opt):
 class MeshConvNet(nn.Module):
     """Network for learning a global shape descriptor (classification)
     """
-    def __init__(self, norm_layer, nf0, conv_res, nclasses, input_res, pool_res, fc_n,
+
+    def __init__(self, norm_layer, nf0, conv_res, nclasses, input_res, pool_res, fc_n, opt,
                  nresblocks=3, num_features=0):
         super(MeshConvNet, self).__init__()
         self.k = [nf0] + conv_res
         self.res = [input_res] + pool_res
+        self.opt = opt
         norm_args = get_norm_args(norm_layer, self.k[1:])
 
         for i, ki in enumerate(self.k[:-1]):
@@ -140,8 +158,13 @@ class MeshConvNet(nn.Module):
 
         self.gp = torch.nn.AvgPool1d(self.res[-1])
         # self.gp = torch.nn.MaxPool1d(self.res[-1])
-        self.fc1 = nn.Linear(self.k[-1]+num_features, fc_n)
-        self.fc2 = nn.Linear(fc_n, nclasses)
+        if self.opt.dropout:
+            self.d = nn.Dropout()
+        self.fc1 = nn.Linear(self.k[-1] + num_features, fc_n)
+        if self.opt.dataset_mode == 'binary_class':
+            self.fc2 = nn.Linear(fc_n, 1)
+        else:
+            self.fc2 = nn.Linear(fc_n, nclasses)
 
     def forward(self, x, mesh, feature_values):
         for i in range(len(self.k) - 1):
@@ -152,14 +175,18 @@ class MeshConvNet(nn.Module):
         x = self.gp(x)
         x = x.view(-1, self.k[-1])
 
-        ## add extra features
+        # Add in extra features into fully connected layer
         if feature_values:
             features = torch.tensor([feature_values]).to(x.device)
             x = torch.cat((x, features), 1)
 
+        if self.opt.dropout:
+            x = self.d(x)
+
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
         return x
+
 
 class MResConv(nn.Module):
     def __init__(self, in_channels, out_channels, skips=1):
@@ -202,6 +229,7 @@ class MeshEncoderDecoder(nn.Module):
 
     def __call__(self, x, meshes):
         return self.forward(x, meshes)
+
 
 class DownConv(nn.Module):
     def __init__(self, in_channels, out_channels, blocks=0, pool=0):
@@ -375,7 +403,7 @@ class MeshDecoder(nn.Module):
         for i, up_conv in enumerate(self.up_convs):
             before_pool = None
             if encoder_outs is not None:
-                before_pool = encoder_outs[-(i+2)]
+                before_pool = encoder_outs[-(i + 2)]
             fe = up_conv((fe, meshes), before_pool)
         fe = self.final_conv((fe, meshes))
         return fe
@@ -383,9 +411,11 @@ class MeshDecoder(nn.Module):
     def __call__(self, x, encoder_outs=None):
         return self.forward(x, encoder_outs)
 
-def reset_params(model): # todo replace with my init
+
+def reset_params(model):  # todo replace with my init
     for i, m in enumerate(model.modules()):
         weight_init(m)
+
 
 def weight_init(m):
     if isinstance(m, nn.Conv2d):

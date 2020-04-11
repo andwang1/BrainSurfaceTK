@@ -1,12 +1,12 @@
 import os
 import torch
+import numpy as np
 from data.base_dataset import BaseDataset
 from util.util import is_mesh_file, pad
-import numpy as np
 from models.layers.mesh import Mesh
 
-class SegmentationData(BaseDataset):
 
+class SegmentationData(BaseDataset):
     def __init__(self, opt):
         BaseDataset.__init__(self, opt)
         self.opt = opt
@@ -29,14 +29,12 @@ class SegmentationData(BaseDataset):
         mesh = Mesh(file=path, opt=self.opt, hold_history=True, export_folder=self.opt.export_folder)
         meta = {}
         meta['mesh'] = mesh
-        # Adding filename
         meta['path'] = path
         label = read_seg(self.seg_paths[index]) - self.offset
         label = pad(label, self.opt.ninput_edges, val=-1, dim=0)
         meta['label'] = label
         soft_label = read_sseg(self.sseg_paths[index])
         meta['soft_label'] = pad(soft_label, self.opt.ninput_edges, val=-1, dim=0)
-        # get edge features
         edge_features = mesh.extract_features()
         edge_features = pad(edge_features, self.opt.ninput_edges)
         meta['edge_features'] = (edge_features - self.mean) / self.std
@@ -50,7 +48,7 @@ class SegmentationData(BaseDataset):
         segs = []
         for path in paths:
             segfile = os.path.join(seg_dir, os.path.splitext(os.path.basename(path))[0] + seg_ext)
-            assert(os.path.isfile(segfile))
+            assert (os.path.isfile(segfile))
             segs.append(segfile)
         return segs
 
@@ -77,7 +75,6 @@ class SegmentationData(BaseDataset):
                 if is_mesh_file(fname):
                     path = os.path.join(root, fname)
                     meshes.append(path)
-
         return meshes
 
 

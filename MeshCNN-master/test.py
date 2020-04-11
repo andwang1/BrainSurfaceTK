@@ -7,18 +7,16 @@ from util.writer import Writer
 def run_test(epoch=-1):
     print('Running Test')
     opt = TestOptions().parse()
-    opt.serial_batches = True  # no shuffle
-    # print("DEBUG epoch", epoch)
+    # No shuffling for test set
+    opt.serial_batches = True
     # If testing outside of training, want the epoch number to be correct so the files are created correctly
     if epoch == -1:
         epoch = opt.which_epoch
-    # print("DEBUG epoch", epoch)
-    # Hardcode batchsize to 1
+    # Set batch_size to 1
     opt.batch_size = 1
     dataset = DataLoader(opt)
     model = create_model(opt)
     writer = Writer(opt)
-    # test
     writer.reset_counter()
     for i, data in enumerate(dataset):
         model.set_input(data)
