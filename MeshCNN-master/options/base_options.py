@@ -28,6 +28,7 @@ class BaseOptions:
         self.parser.add_argument('--num_groups', type=int, default=16, help='# of groups for groupnorm')
         self.parser.add_argument('--init_type', type=str, default='normal', help='network initialization [normal|xavier|kaiming|orthogonal]')
         self.parser.add_argument('--init_gain', type=float, default=0.02, help='scaling factor for normal, xavier and orthogonal.')
+        self.parser.add_argument('--dropout', action='store_true', help='if true, adds dropout layer to fully connected layers')
         # general params
         self.parser.add_argument('--num_threads', default=3, type=int, help='# threads for loading data')
         self.parser.add_argument('--gpu_ids', type=str, default='0', help='gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU')
@@ -37,7 +38,6 @@ class BaseOptions:
         self.parser.add_argument('--seed', type=int, help='if specified, uses seed')
         # visualization params
         self.parser.add_argument('--export_folder', type=str, default='', help='exports intermediate collapses to this folder')
-        #
         self.initialized = True
 
     def parse(self):
