@@ -134,8 +134,8 @@ def test_regression(loader, indices, results_folder, val=True, epoch=0):
                                         str(abs(pred.t().item() - data.y[:, 0].item()))])
                 loss_test_mse = F.mse_loss(pred, data.y[:, 0])
                 loss_test_l1 = F.l1_loss(pred, data.y[:, 0])
-            mse += loss_test_mse.item()
-            l1 += loss_test_l1.item()
+                mse += loss_test_mse.item()
+                l1 += loss_test_l1.item()
         if val:
             result_writer.writerow(['Epoch average error:', str(l1 / len(loader))])
         else:
@@ -151,11 +151,11 @@ if __name__ == '__main__':
     batch_size = 16
     num_workers = 4
     # ['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc'] + ['weight']
-    local_features = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
-    #local_features = []
-    global_features = ['scan_age']
-    #target_class = 'scan_age'
-    target_class = 'birth_age'
+   # local_features = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
+    local_features = ['sulc']
+    global_features = []
+    target_class = 'scan_age'
+    #target_class = 'birth_age'
     task = 'regression'
     number_of_points = 3251  #3251# 12000  # 16247
 
@@ -174,7 +174,8 @@ if __name__ == '__main__':
 
     data = "reduced_90"
     data_ending = "reduce90.vtk"
-    type_data = "pial"
+    #type_data = "pial"
+    type_data = "sphere"
     native = "surface_fsavg32k"#"surface_native" #surface_fsavg32k
     #
     #data = "reduced_50"
@@ -208,7 +209,7 @@ if __name__ == '__main__':
     # TESTING PURPOSES
     # indices['Train'] = indices['Train'][:2]
 
-    comment = 'Birth_age_90' + str(datetime.datetime.now()) \
+    comment = 'Sphere_scan_age_90' + str(datetime.datetime.now()) \
             + "__LR__" + str(lr) \
             + "__BATCH_" + str(batch_size) \
             + "__local_features__" + str(local_features)\
@@ -233,7 +234,7 @@ if __name__ == '__main__':
         config_file.write('Number of points - ' + str(number_of_points) + '\n')
         config_file.write('Data res - ' + data + '\n')
         config_file.write('Data type - ' + type_data + '\n')
-        config_file.write('Additional comments - With no rotate transforms' + '\n')
+        config_file.write('Additional comments - With rotate transforms' + '\n')
 
     with open(results_folder + '/results.csv', 'w', newline='') as results_file:
         result_writer = csv.writer(results_file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
@@ -248,9 +249,9 @@ if __name__ == '__main__':
     # DEFINE TRANSFORMS HERE.
     transform = T.Compose([
         T.FixedPoints(number_of_points),
-        #T.RandomRotate(360, axis=0),
-        #T.RandomRotate(360, axis=1),
-        #T.RandomRotate(360, axis=2)
+        T.RandomRotate(360, axis=0),
+        T.RandomRotate(360, axis=1),
+        T.RandomRotate(360, axis=2)
     ])
 
     # TRANSFORMS DONE BEFORE SAVING THE DATA IF THE DATA IS NOT YET PROCESSED.

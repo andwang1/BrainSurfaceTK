@@ -239,7 +239,11 @@ class OurDataset(InMemoryDataset):
 
         # 1. Initialise the variables
         data_list = []
-        categories = set(meta_data[:, self.meta_column_idx])           # Set of categories {male, female}
+
+        if self.task == 'classification' and self.meta_column_idx == 3:
+            categories = {'preterm', 'not_preterm'}
+        else:
+            categories = set(meta_data[:, self.meta_column_idx])           # Set of categories {male, female}
 
         # 2. Create category dictionary (mapping: category --> class), e.g. 'male' --> 0, 'female' --> 1
         for class_num, category in enumerate(categories):
@@ -282,7 +286,10 @@ class OurDataset(InMemoryDataset):
                 if self.task == 'classification':
                     patient_data = meta_data[
                         (meta_data[:, 0] == patient_idx[:11]) & (meta_data[:, 1] == patient_idx[12:])][0]
-                    y = torch.tensor([[self.classes[patient_data[self.meta_column_idx]]] + global_x])
+                    if self.task == 'classification' and self.meta_column_idx == 3:
+                        y = torch.tensor([[int(float(patient_data[self.meta_column_idx]) <= 38)] + global_x])
+                    else:
+                        y = torch.tensor([[self.classes[patient_data[self.meta_column_idx]]] + global_x])
                     # y = torch.tensor([[self.classes[meta_data[idx, self.meta_column_idx]]] + global_x]) #TODO
 
                 elif self.task == 'segmentation':
@@ -341,9 +348,9 @@ if __name__ == '__main__':
     # Path to where the data will be saved.
     path = osp.join(osp.dirname(osp.realpath(__file__)), '..', 'data/test_reduce')
 
-    # data_folder = "/home/vital/Group Project/deepl_brain_surfaces/random"
-    data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_fsavg32k/reduced_90/vtk/inflated"
-    files_ending = "_hemi-L_inflated_reduce90.vtk"
+    data_folder = "/home/vital/Group Project/deepl_brain_surfaces/random"
+    # data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_fsavg32k/reduced_90/vtk/inflated"
+    files_ending = "_hemi-L_inflated_reduce50.vtk"
     # Transformations, scaling and sampling 102 points (doesn't sample faces).
     pre_transform, transform = None, None  # T.NormalizeScale(), T.SamplePoints(1024) #T .FixedPoints(1024)
 
@@ -353,7 +360,7 @@ if __name__ == '__main__':
     indices = {'Train': ['CC00050XX01_7201', 'CC00050XX01_7201']}
     print(indices)
     myDataset = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform, indices=indices['Train'],
-                            target_class='scan_age', task='regression', reprocess=False,
+                            target_class='birth_age', task='classification', reprocess=False,
                             local_features=['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc'],
                             global_feature=['weight'], data_folder=data_folder, files_ending=files_ending, val=True)
 
