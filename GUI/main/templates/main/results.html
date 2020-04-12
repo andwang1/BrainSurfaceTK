@@ -1,13 +1,31 @@
 {% extends 'main/header.html' %}
 {% load static %}
 
+{% block title %}Results{% endblock %}
+
 {% block content %}
+    <style>
+        #brain_surf_container {
+            position: relative !important;
+            width: 100% !important;
+            height: 50% !important;
+        }
+
+        .GeometryViewer-module-selector_2T5dG {
+            display: initial;
+        }
+    </style>
+
     <h1>Session-{{ session_id }}</h1>
     <div id="brain-container">
-        {{ image | safe }}
-        <script id="brain_surf" type="text/javascript" src="{% static "main/MyWebApp.js" | safe %}"
-                data-fileName="{{ fileName }}"
-                data-filePath="{% static filePath | safe %}"></script>
+        <div class="brain_slice_container">
+            {{ image_slicer_window | safe }}
+        </div>
+        <div id="brain_surf_container">
+            <div class="GeometryViewer-module-fullScreen_38Xg_"></div>
+        </div>
+        <script id="brain_surf" data-fileURL="{% static fileURL | safe %}"
+                type="text/javascript" src="{% static "main/js/MyWebApp.js" | safe %}"></script>
     </div>
     <table>
         <thead>

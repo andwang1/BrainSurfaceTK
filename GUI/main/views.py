@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
+from django.template import loader
 from .models import Option, SessionDatabase, GreyMatterVolume
 from .forms import NewUserForm
 from nilearn.plotting import view_img
@@ -16,11 +17,13 @@ VOL_DIR = f"{DATA_DIR}/gm_volume3d"
 SURF_DIR = f"main/data/vtp"
 
 
-# # Create your views here.
-# def view_surf(request):
-#     return render(request, "main/brain_surf.html", context={"options": None,
-#                                                             "fileName": 'ferrari-f1-race-car',
-#                                                             "filePath": SURF_DIR})
+# Create your views here.
+def view_surf(request):
+    'sub-CC00050XX01_ses-7201_left_pial'
+    "filePath/forCem.vtp"
+    # render(request, "main/brain_surf.html", context={"options": None,
+    #                                                  "fileURL": f"{SURF_DIR}/forCem.vtp"})
+    return loader.render_to_string("main/index.html", context={"fileURL": f"{SURF_DIR}/forCem.vtp"}, request=request)
 
 def homepage(request):
     if Option.objects.count() == 0:
@@ -29,6 +32,20 @@ def homepage(request):
     options = Option.objects.all()
     return render(request, "main/homepage.html", context={"options": options})
 
+
+# def view_session_data(request, session_id):
+#     record = SessionDatabase.objects.filter(session_id=session_id)
+#     information = record.values()
+#     column_names = information.query.values_select[1:]  # Drop sql id col
+#     values = list(*record.values_list())[1:]
+#     file_path = list(*GreyMatterVolume.objects.filter(session_id=session_id).values_list())[-1]
+#     img = nib.load(file_path)
+#     img_html = view_img(img, colorbar=False, bg_img=False, cmap='gray')
+#     participant_id = values[0]
+#     file_name = f"sub-{participant_id}_ses-{session_id}_left_pial.vtp"
+#     return render(request, "main/results.html",
+#                   context={"session_id": session_id, "column_names": column_names, "values": values,
+#                            "image": img_html, "fileURL": f"{SURF_DIR}/forCem.vtp"})
 
 def view_session_data(request, session_id):
     record = SessionDatabase.objects.filter(session_id=session_id)
@@ -39,10 +56,11 @@ def view_session_data(request, session_id):
     img = nib.load(file_path)
     img_html = view_img(img, colorbar=False, bg_img=False, cmap='gray')
     participant_id = values[0]
-    file_name = f"sub-{participant_id}_ses-{session_id}_left_pial"
+    file_name = f"sub-{participant_id}_ses-{session_id}_left_pial.vtp"
     return render(request, "main/results.html",
                   context={"session_id": session_id, "column_names": column_names, "values": values,
-                           "image": img_html, "fileName": file_name, "filePath": SURF_DIR})
+                           "image_slicer_window": img_html, "fileURL": f"{SURF_DIR}/forCem.vtp"})
+
 
 
 def load_data(request):

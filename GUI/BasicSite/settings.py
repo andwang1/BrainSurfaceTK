@@ -24,9 +24,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '&e^6vrts8u_f%7ayi@u^o#+#hi=uys(zt5ncm0i*z3i*e4d9$s'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ["localhost"]
+ALLOWED_HOSTS = ["localhost", "DLOnBrainSurfaces", "127.0.0.1"]
 
 
 # Application definition

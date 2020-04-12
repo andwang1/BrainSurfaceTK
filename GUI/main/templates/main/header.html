@@ -1,11 +1,18 @@
 <head>
-    <title>header</title>
+    <title>{% block title %}{% endblock %}</title>
+
+{#    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">#}
+{#<i class="material-icons">drafts</i>#}
     {% load static %}
+    <link rel="icon" href="{% static "main/img/biomediia.png" %}" type = "image/x-icon">
+
     <!-- Prism CSS -->
     <!-- Compiled and minified CSS -->
     <link rel="stylesheet" href="{% static "main/css/materialize.css" %}">
+    {#<link rel="shortcut icon" class="material-icons">cloud</link>#}
+
     <!-- Compiled and minified JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="{% static "main/js/materialize.js" %}"></script>
 </head>
 
 <body>

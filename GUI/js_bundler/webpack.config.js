@@ -7,7 +7,7 @@ var cssRules = require('vtk.js/Utilities/config/dependency.js').webpack.css.rule
 
 var entry = path.join(__dirname, './src/index.js');
 const sourcePath = path.join(__dirname, './src');
-const outputPath = path.join(__dirname, '../main/static/main/');
+const outputPath = path.join(__dirname, '../main/static/main/js');
 
 module.exports = {
   entry,

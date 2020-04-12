@@ -1,7 +1,9 @@
 {% extends "main/header.html" %}
 
+{% block title %} Lookup{% endblock %}
+
 {% block content %}
-    <h1>Select patient ID</h1>
+    <h1>Select Session ID</h1>
     <br>
     <form method="POST">
         {% csrf_token %}
