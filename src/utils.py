@@ -106,7 +106,10 @@ def get_data_path(data_nativeness, data_compression, data_type, hemisphere='left
                               50: 'reduced_50/',
                               '90': 'reduced_90/',
                               90: 'reduced_90/',
-                              'original': 'original32k/'}
+                              'original_native': 'original_native/',
+                              'original': 'original_32k/',
+                              'original_aligned': 'original_32k/'}
+
 
     data_type_paths = {'inflated': 'inflated/',
                        'pial': 'pial/',
@@ -134,21 +137,39 @@ def get_data_path(data_nativeness, data_compression, data_type, hemisphere='left
 
     if data_nativeness == 'native':
 
-        data_folder = root + data_nativeness_paths[data_nativeness] + data_compression_paths[data_compression] + data_type_paths[data_type] + 'vtk'
-        files_ending = hemisphere_paths[hemisphere + f'_{data_nativeness}_{data_compression}']
+        if data_compression == 'original':
+            data_folder = root + data_nativeness_paths[data_nativeness] \
+                          + data_compression_paths[f'{data_compression}_{data_nativeness}'] \
+                          + data_type_paths[data_type] + 'vtk'
+            files_ending = hemisphere_paths[hemisphere + f'_{data_nativeness}_{data_compression}']
+
+        else:
+            data_folder = root + data_nativeness_paths[data_nativeness] \
+                          + data_compression_paths[data_compression] \
+                          + data_type_paths[data_type] + 'vtk'
+            files_ending = hemisphere_paths[hemisphere + f'_{data_nativeness}_{data_compression}']
 
         return data_folder, files_ending
 
     elif data_nativeness == 'aligned':
 
-        data_folder = root + data_nativeness_paths[data_nativeness] + data_compression_paths[data_compression] + 'vtk/' + data_type_paths[data_type][:-1]
-        files_ending = hemisphere_paths[hemisphere + f'_{data_nativeness}_{data_compression}']
+        if data_compression == 'original':
+            data_folder = root + data_nativeness_paths[data_nativeness] \
+                          + data_compression_paths[f'{data_compression}_{data_nativeness}'] \
+                          + 'vtk/' + data_type_paths[data_type][:-1]
+            files_ending = hemisphere_paths[hemisphere + f'_{data_nativeness}_{data_compression}']
+
+        else:
+            data_folder = root + data_nativeness_paths[data_nativeness] \
+                          + data_compression_paths[data_compression] \
+                          + 'vtk/' + data_type_paths[data_type][:-1]
+            files_ending = hemisphere_paths[hemisphere + f'_{data_nativeness}_{data_compression}']
 
         return data_folder, files_ending
 
 
 
-def data(data_folder, files_ending, data_type, target_class, task, REPROCESS, local_features, global_features, indices, batch_size, num_workers=2):
+def data(data_folder, files_ending, data_type, target_class, task, REPROCESS, local_features, global_features, indices, batch_size, num_points, num_workers=2):
     '''
     Get data loaders and data sets
 
@@ -175,7 +196,7 @@ def data(data_folder, files_ending, data_type, target_class, task, REPROCESS, lo
         # T.RandomFlip(0, p=0.3),
         # T.RandomFlip(1, p=0.1),
         # T.RandomFlip(2, p=0.3),
-        T.FixedPoints(16247),
+        T.FixedPoints(num_points), #32492  16247
         T.RandomRotate(360, axis=0),
         T.RandomRotate(360, axis=1),
         T.RandomRotate(360, axis=2)

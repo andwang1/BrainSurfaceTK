@@ -20,6 +20,7 @@ from torch_geometric.utils.metric import mean_iou
 from src.data_loader import OurDataset
 from src.utils import get_id, save_to_log
 from src.plot_confusion_matrix import plot_confusion_matrix
+from tqdm import tqdm
 
 # Global variables
 all_labels = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17])
@@ -181,7 +182,7 @@ def train(epoch):
     model.train()
 
     total_loss = correct_nodes = total_nodes = 0
-    for idx, data in enumerate(train_loader):
+    for idx, data in tqdm(enumerate(train_loader)):
         data = data.to(device)
         optimizer.zero_grad()
         out = model(data)
@@ -399,7 +400,10 @@ if __name__ == '__main__':
             val_loader = DataLoader(validation_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
             # Getting the number of features to adapt the architecture
-            num_local_features = train_dataset[0].x.size(1)
+            try:
+                num_local_features = train_dataset[0].x.size(1)
+            except:
+                num_local_features = 0
             # numb_global_features = train_dataset[0].y.size(1) - 1
             num_classes = train_dataset.num_labels
 

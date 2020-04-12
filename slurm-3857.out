@@ -1,0 +1,40 @@
+Sun Apr  5 20:13:34 2020       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 435.21       Driver Version: 435.21       CUDA Version: 10.1     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|===============================+======================+======================|
+|   0  TITAN Xp            On   | 00000000:1C:00.0 Off |                  N/A |
+| 23%   25C    P8     8W / 250W |      0MiB / 12196MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                       GPU Memory |
+|  GPU       PID   Type   Process name                             Usage      |
+|=============================================================================|
+|  No running processes found                                                 |
++-----------------------------------------------------------------------------+
+ 20:13:34 up 94 days,  5:27,  3 users,  load average: 4.59, 4.75, 4.66
+/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces
+==================================================
+==================================================
+
+Data nativeness: aligned
+Data compression: 50
+Data type: inflated
+Local features: []
+Global features: []
+
+Learning rate: 0.001
+Batch size: 8
+
+==================================================
+==================================================
+Processing...
+Done!
+Processing...
+Done!
+Processing...
+Done!
+slurmstepd: error: *** JOB 3857 ON kingfisher CANCELLED AT 2020-04-05T20:16:05 ***

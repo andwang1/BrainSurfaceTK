@@ -1,0 +1,5 @@
+LOG OF ALL THE EXPERIMENTS for aligned_inflated_original_
+#2 ::: aligned  original  inflated  LR=0.001		Batch=4		Local features:[]		Global features:[]		Data used: original_inflated		Split class: gender
+#3 ::: aligned  original  inflated  LR=0.001		Batch=4		Local features:['corr_thickness']		Global features:[]		Data used: original_inflated		Split class: gender
+#4 ::: aligned  original  inflated  LR=0.001		Batch=4		Local features:['myelin_map']		Global features:[]		Data used: original_inflated		Split class: gender
+#5 ::: aligned  original  inflated  LR=0.001		Batch=4		Local features:['curvature']		Global features:[]		Data used: original_inflated		Split class: gender

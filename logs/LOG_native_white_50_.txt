@@ -1,0 +1,13 @@
+LOG OF ALL THE EXPERIMENTS for native_white_50_
+#2 ::: native  50  white  LR=0.001		Batch=8		Local features:[]		Global features:[]		Data used: 50_white		Split class: gender
+#3 ::: native  50  white  LR=0.001		Batch=8		Local features:['corr_thickness']		Global features:[]		Data used: 50_white		Split class: gender
+#4 ::: native  50  white  LR=0.001		Batch=8		Local features:['myelin_map']		Global features:[]		Data used: 50_white		Split class: gender
+#5 ::: native  50  white  LR=0.001		Batch=8		Local features:['curvature']		Global features:[]		Data used: 50_white		Split class: gender
+#6 ::: native  50  white  LR=0.001		Batch=8		Local features:['sulc']		Global features:[]		Data used: 50_white		Split class: gender
+#7 ::: native  50  white  LR=0.001		Batch=8		Local features:['corr_thickness', 'myelin_map']		Global features:[]		Data used: 50_white		Split class: gender
+#8 ::: native  50  white  LR=0.001		Batch=8		Local features:['corr_thickness', 'curvature']		Global features:[]		Data used: 50_white		Split class: gender
+#9 ::: native  50  white  LR=0.001		Batch=8		Local features:['corr_thickness', 'sulc']		Global features:[]		Data used: 50_white		Split class: gender
+#10 ::: native  50  white  LR=0.001		Batch=8		Local features:['myelin_map', 'curvature']		Global features:[]		Data used: 50_white		Split class: gender
+#11 ::: native  50  white  LR=0.001		Batch=8		Local features:['myelin_map', 'sulc']		Global features:[]		Data used: 50_white		Split class: gender
+#12 ::: native  50  white  LR=0.001		Batch=8		Local features:['curvature', 'sulc']		Global features:[]		Data used: 50_white		Split class: gender
+#13 ::: native  50  white  LR=0.001		Batch=8		Local features:['corr_thickness', 'myelin_map', 'curvature']		Global features:[]		Data used: 50_white		Split class: gender

@@ -1,8 +1,0 @@
-Learning rate - 0.001
-Batch size - 8
-Local features - []
-Global feature - []
-Number of points - 3251
-Data res - reduced_90
-Data type - pial
-Additional comments - No rotate transforms

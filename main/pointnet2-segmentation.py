@@ -16,6 +16,9 @@ from torch_geometric.nn import knn_interpolate
 # Metrics
 from torch_geometric.utils import intersection_and_union as i_and_u
 from torch_geometric.utils.metric import mean_iou
+from tqdm import tqdm
+from torch.optim.lr_scheduler import StepLR
+
 
 from src.data_loader import OurDataset
 from src.utils import get_id, save_to_log, get_comment, get_data_path, data, get_grid_search_local_features
@@ -23,7 +26,9 @@ from src.plot_confusion_matrix import plot_confusion_matrix
 
 # Global variables
 all_labels = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8 , 9, 10, 11, 12, 13, 14, 15, 16, 17])
+num_points_dict = {'original': 32492, '50': 16247}
 
+recording = True
 
 class SAModule(torch.nn.Module):
     def __init__(self, ratio, r, nn):
@@ -211,15 +216,16 @@ def train(epoch):
 
         if (idx + 1) % 20 == 0:
             print('[{}/{}] Loss: {:.4f}, Train Accuracy: {:.4f}, Mean IoU: {}'.format(
-                idx + 1, len(train_loader), total_loss / 10, # TODO: Change 10 to len of dataloader - do for everything else as well!
+                idx + 1, len(train_loader), total_loss / len(train_loader), # TODO: Change 10 to len of dataloader - do for everything else as well!
                 correct_nodes / total_nodes, np.mean(mean_jaccard_indeces.tolist())))
 
             # Write to tensorboard: LOSS and IoU per class
-            writer.add_scalar('Loss/train', total_loss / 10, epoch)
-            writer.add_scalar('Mean IoU/train', torch.sum(mean_jaccard_indeces)/len(mean_jaccard_indeces), epoch)
-            writer.add_scalar('Accuracy/train', correct_nodes/total_nodes, epoch)
-            for label, iou in enumerate(mean_jaccard_index_per_class):
-                writer.add_scalar('IoU{}/train'.format(label), iou, epoch)
+            if recording:
+                writer.add_scalar('Loss/train', total_loss / len(train_loader), epoch)
+                writer.add_scalar('Mean IoU/train', torch.sum(mean_jaccard_indeces)/len(mean_jaccard_indeces), epoch)
+                writer.add_scalar('Accuracy/train', correct_nodes/total_nodes, epoch)
+                for label, iou in enumerate(mean_jaccard_index_per_class):
+                    writer.add_scalar('IoU{}/train'.format(label), iou, epoch)
                 # print('\t\tLabel {}: {}'.format(label, iou))
             # print('\n')
             total_loss = correct_nodes = total_nodes = 0
@@ -229,10 +235,10 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
 
     # 1. Use this as the identifier for testing or validating
     mode = '_validation'
-    epoch = str(epoch)
+    _epoch = str(epoch)
     if test:
         mode = '_test'
-        epoch = ''
+        _epoch = ''
 
     model.eval()
 
@@ -241,6 +247,8 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
     all_preds = None
     all_datay = None
     total_loss = []
+
+    start = time.time()
 
     with torch.no_grad():
 
@@ -264,6 +272,12 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
             _out = out.max(dim=1)[1].cpu().detach().numpy()
             # plot(d, _y, _out)
 
+            if recording:
+                mean_jaccard_indeces = mean_iou(out.max(dim=1)[1], data.y, 18, batch=data.batch)
+                mean_iou = torch.sum(mean_jaccard_indeces) / len(mean_jaccard_indeces)
+                writer.add_scalar('Mean IoU/val', mean_iou, epoch)
+
+
             if batch_idx == 0:
                 all_preds = pred
                 all_datay = data.y
@@ -272,15 +286,15 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
                 all_preds = torch.cat((all_preds, pred))
                 all_datay = torch.cat((all_datay, data.y))
 
+            if recording:
+                # 3. Create directory where to place the data
+                if not os.path.exists(f'experiment_data/{experiment_name}-{id}/'):
+                    os.makedirs(f'experiment_data/{experiment_name}-{id}/')
 
-            # 3. Create directory where to place the data
-            if not os.path.exists(f'experiment_data/{experiment_name}-{id}/'):
-                os.makedirs(f'experiment_data/{experiment_name}-{id}/')
-
-            # 4. Save the segmented brain in ./[...comment...]/data_valiation3.pkl (3 is for epoch)
-            # for brain_idx, brain in data:
-            with open(f'experiment_data/{experiment_name}-{id}/data{mode+epoch}.pkl', 'wb') as file:
-                pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
+                # 4. Save the segmented brain in ./[...comment...]/data_valiation3.pkl (3 is for epoch)
+                # for brain_idx, brain in data:
+                with open(f'experiment_data/{experiment_name}-{id}/data{mode+_epoch}.pkl', 'wb') as file:
+                    pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
 
             # 5. Get accuracy
             correct_nodes += pred.eq(data.y).sum().item()
@@ -312,11 +326,14 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
         accuracy = correct_nodes / total_nodes
         loss = torch.mean(torch.tensor(total_loss))
 
-        # 7. Get confusion matrix
-        cm = plot_confusion_matrix(all_datay, all_preds, labels=all_labels)
-        writer.add_figure(f'Confusion Matrix - ID{id}-{experiment_name}', cm)
+        if recording:
+            writer.add_scalar('Validation Time/epoch', time.time() - start, epoch)
 
-    return loss, accuracy, mean_IoU_per_class
+            # 7. Get confusion matrix
+            cm = plot_confusion_matrix(all_datay, all_preds, labels=all_labels)
+            writer.add_figure(f'Confusion Matrix - ID{id}-{experiment_name}', cm)
+
+    return loss, accuracy, mean_IoU_per_class, mean_iou
 
 
 
@@ -330,6 +347,7 @@ if __name__ == '__main__':
     #################################################
     ########### EXPERIMENT DESCRIPTION ##############
     #################################################
+    recording = True
 
     data_nativeness = 'aligned'
     data_compression = "50"
@@ -344,7 +362,7 @@ if __name__ == '__main__':
     #################################################
 
 
-    for local_feature_combo in grid_features:
+    for local_feature_combo in grid_features[10:11]:
         for global_feature in [[]]:#, ['weight']]:
 
             # 1. Model Parameters
@@ -382,6 +400,7 @@ if __name__ == '__main__':
                                                                                                           global_features,
                                                                                                           indices,
                                                                                                           batch_size,
+                                                                                                          num_points_dict[data_compression],
                                                                                                           num_workers=2)
 
             # 6. Getting the number of features to adapt the architecture
@@ -399,22 +418,26 @@ if __name__ == '__main__':
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
             model = Net(18, num_local_features, num_global_features=None).to(device)
             optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+            scheduler = StepLR(optimizer, step_size=1, gamma=0.985)
 
+            id = '0'
+            if recording:
+                # 9. Save to log_record.txt
+                log_descr = get_comment(data_nativeness, data_compression, data_type,
+                                        lr, batch_size, local_feature_combo, global_features, target_class,
+                                        log_descr=True)
 
-            # 9. Save to log_record.txt
-            log_descr = get_comment(data_nativeness, data_compression, data_type,
-                                    lr, batch_size, local_feature_combo, global_features, target_class,
-                                    log_descr=True)
+                save_to_log(log_descr, prefix=experiment_name)
 
-            save_to_log(log_descr, prefix=experiment_name)
-            id = str(int(get_id(prefix=experiment_name)) - 1)
+                id = str(int(get_id(prefix=experiment_name)) - 1)
 
-            writer = SummaryWriter(f'runs/{experiment_name}ID' + id)
-            writer.add_text(f'{experiment_name} ID #{id}', comment)
+                writer = SummaryWriter(f'runs/{experiment_name}ID' + id)
+                writer.add_text(f'{experiment_name} ID #{id}', comment)
 
-
+            best_val_acc = 0
+            best_val_iou = 0
             # 10. TRAINING
-            for epoch in range(1, 50):
+            for epoch in range(1, 150):
 
                 # 1. Start recording time
                 start = time.time()
@@ -422,35 +445,48 @@ if __name__ == '__main__':
                 # 2. Make a training step
                 train(epoch)
 
+                if recording:
+                    writer.add_scalar('Training Time/epoch', time.time() - start, epoch)
+
                 # 3. Validate the performance after each epoch
-                loss, acc, iou = test(val_loader, comment+'val'+str(epoch), epoch=epoch, id=id, experiment_name=experiment_name)
+                loss, acc, iou, mean_iou = test(val_loader, comment+'val'+str(epoch), epoch=epoch, id=id, experiment_name=experiment_name)
                 print('Epoch: {:02d}, Val Loss/nll: {}, Val Acc: {:.4f}'.format(epoch, loss, acc))
 
-                # 4. Record valiation metrics in Tensorboard
-                writer.add_scalar('Loss/val_nll', loss, epoch)
-                writer.add_scalar('Accuracy/val', acc, epoch)
-                for label, value in enumerate(iou):
-                    writer.add_scalar('IoU{}/validation'.format(label), value, epoch)
-                    print('\t\tValidation Label {}: {}'.format(label, value))
+                scheduler.step()
 
-                # 5. Stop recording time
-                end = time.time()
-                print('Time: ' + str(end - start))
-                writer.add_scalar('Time/epoch', end-start, epoch)
+                # 4. Record valiation metrics in Tensorboard
+                if recording:
+
+                    if acc > best_val_acc:
+                        best_val_acc = acc
+                        torch.save(model.state_dict(), f'/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/experiment_data/{experiment_name}-{id}/' + 'best_acc_model' + '_id' + str(id) + '.pt')
+                    if mean_iou > best_val_iou:
+                        best_val_iou = mean_iou
+                        torch.save(model.state_dict(), f'/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/experiment_data/{experiment_name}-{id}/' + 'best_iou_model' + '_id' + str(id) + '.pt')
+
+
+                    writer.add_scalar('Loss/val_nll', loss, epoch)
+                    writer.add_scalar('Accuracy/val', acc, epoch)
+                    for label, value in enumerate(iou):
+                        writer.add_scalar('IoU{}/validation'.format(label), value, epoch)
+                        print('\t\tValidation Label {}: {}'.format(label, value))
+
                 print('='*60)
 
             # 6. Test the performance after training
-            loss, acc, iou = test(test_loader, comment, test=True, id=id, experiment_name=experiment_name)
+            loss, acc, iou, mean_iou = test(test_loader, comment, test=True, id=id, experiment_name=experiment_name)
+
 
             # 7. Record test metrics in Tensorboard
-            writer.add_scalar('Loss/test', loss)
-            writer.add_scalar('Accuracy/test', acc)
-            for label, value in enumerate(iou):
-                writer.add_scalar('IoU{}/test'.format(label), value)
-                print('\t\tTest Label {}: {}'.format(label, value))
+            if recording:
+                writer.add_scalar('Loss/test', loss)
+                writer.add_scalar('Accuracy/test', acc)
+                for label, value in enumerate(iou):
+                    writer.add_scalar('IoU{}/test'.format(label), value)
+                    print('\t\tTest Label {}: {}'.format(label, value))
 
-            # 8. Save the model with its unique id
-            torch.save(model.state_dict(), f'/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/experiment_data/{experiment_name}-{id}/' + 'model' + '_id' + str(id) + '.pt')
+                # 8. Save the model with its unique id
+                torch.save(model.state_dict(), f'/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/experiment_data/{experiment_name}-{id}/' + 'model' + '_id' + str(id) + '.pt')
 
 
 

@@ -11,6 +11,8 @@ from torch_geometric.data import InMemoryDataset
 
 from src.read_meta import read_meta
 
+import pickle
+
 
 class OurDataset(InMemoryDataset):
     def __init__(self, root, task='classification', target_class='gender', train=True, transform=None,
@@ -301,7 +303,7 @@ class OurDataset(InMemoryDataset):
                 poss.append(points)
                 ys.append(y)
                 faces_list.append(faces)
-        # TODO: ASK ALEX IF NEEDS TO BE WRAPPED IN IF
+
         # Now process the uniqueness of ys
         if self.task == 'segmentation':
             ys_normalised = self.normalise_labels(torch.cat(ys), label_mapping)
