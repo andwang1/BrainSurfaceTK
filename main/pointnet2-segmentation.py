@@ -299,8 +299,12 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
 
                 # 4. Save the segmented brain in ./[...comment...]/data_valiation3.pkl (3 is for epoch)
                 # for brain_idx, brain in data:
-                with open(f'experiment_data/{experiment_name}-{id}/data{mode+_epoch}.pkl', 'wb') as file:
-                    pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
+                if test:
+                    with open(f'experiment_data/{experiment_name}-{id}/data{mode}_by_{test_by_acc_OR_iou}.pkl', 'wb') as file:
+                        pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
+                else:
+                    with open(f'experiment_data/{experiment_name}-{id}/data{mode+_epoch}.pkl', 'wb') as file:
+                        pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
 
             # 5. Get accuracy
             correct_nodes += pred.eq(data.y).sum().item()
@@ -410,7 +414,7 @@ if __name__ == '__main__':
     #################################################
 
 
-    for local_feature_combo in grid_features[10:11]:
+    for local_feature_combo in grid_features[5:8]:
         for global_feature in [[]]:#, ['weight']]:
 
             # 1. Model Parameters
@@ -488,7 +492,7 @@ if __name__ == '__main__':
             best_val_acc = 0
             best_val_iou = 0
             # 10. TRAINING
-            for epoch in range(1, 5):
+            for epoch in range(1, 8):
 
                 # 1. Start recording time
                 start = time.time()
@@ -510,10 +514,10 @@ if __name__ == '__main__':
 
                     if acc > best_val_acc:
                         best_val_acc = acc
-                        torch.save(model.state_dict(), f'./experiment_data/{experiment_name}-{id}/' + 'best_acc_model' + '_id' + str(id) + '.pt')
+                        torch.save(model.state_dict(), f'./experiment_data/{experiment_name}-{id}/' + 'best_acc_model' + '.pt')
                     if mean_iou > best_val_iou:
                         best_val_iou = mean_iou
-                        torch.save(model.state_dict(), f'./experiment_data/{experiment_name}-{id}/' + 'best_iou_model' + '_id' + str(id) + '.pt')
+                        torch.save(model.state_dict(), f'./experiment_data/{experiment_name}-{id}/' + 'best_iou_model' + '.pt')
 
                     writer.add_scalar('Loss/val_nll', loss, epoch)
                     writer.add_scalar('Accuracy/val', acc, epoch)
@@ -524,7 +528,7 @@ if __name__ == '__main__':
                 print('='*60)
 
             # save the last model
-            torch.save(model.state_dict(), f'./experiment_data/{experiment_name}-{id}/' + 'last_model' + '_id' + str(id) + '.pt')
+            torch.save(model.state_dict(), f'./experiment_data/{experiment_name}-{id}/' + 'last_model' + '.pt')
 
 
             loss_acc, acc_acc, iou_acc, mean_iou_acc, loss_iou, acc_iou, iou_iou, mean_iou_iou = perform_final_testing(model, writer, test_loader, experiment_name, comment, id)

@@ -1,0 +1,3 @@
+LOG OF ALL THE EXPERIMENTS for aligned_inflated_50_TEST
+#2 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['curvature', 'sulc']		Global features:[]		Data used: 50_inflated		Split class: gender
+#3 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'myelin_map']		Global features:[]		Data used: 50_inflated		Split class: gender
