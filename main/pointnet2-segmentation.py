@@ -186,10 +186,8 @@ def train(epoch):
     model.train()
 
     total_loss = correct_nodes = total_nodes = 0
-    all_preds = None
-    all_datay = None
-    total_loss = []
     print_per = 20
+    mean_ious = []
     for idx, data in enumerate(train_loader):
 
         data = data.to(device)
@@ -206,52 +204,29 @@ def train(epoch):
         total_nodes += data.num_nodes
 
 
-        if idx == 0:
-            all_preds = pred
-            all_datay = data.y
+        # Mean Jaccard index = index averaged over all classes (HENCE, this shows the IoU of a batch) (8 numbers)
+        mean_jaccard_indeces = calculate_mean_iou(out.max(dim=1)[1], data.y, 18, batch=data.batch)
+        print(mean_jaccard_indeces)
 
-        else:
-            all_preds = torch.cat((all_preds, pred))
-            all_datay = torch.cat((all_datay, data.y))
+        # Mean IoU over classes and batches (1 number)
+        mean_ious.append(torch.sum(mean_jaccard_indeces)/len(mean_jaccard_indeces))
+        print(mean_ious)
 
-
-        # # Mean Jaccard index = index averaged over all classes (HENCE, this shows the IoU of a batch)
-        # mean_jaccard_indeces = calculate_mean_iou(out.max(dim=1)[1], data.y, 18, batch=data.batch)
-        #
-        # # Mean Jaccard indeces PER LABEL
-        # i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
-        #
-        # i = i.type(torch.FloatTensor)
-        # u = u.type(torch.FloatTensor)
-        #
-        # iou_per_class = i/u
-        # mean_jaccard_index_per_class = torch.sum(iou_per_class, dim=0) / iou_per_class.shape[0]
-
-
-        # 6. Get IoU metric per class
-        # Mean Jaccard indeces PER LABEL averaged over batches
+        # Mean Jaccard indeces PER LABEL (18 numbers)
         i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
+        print(i)
 
-        # Sum i and u along the batch dimension (gives value per class)
-        i = torch.sum(i, dim=0) / i.shape[0]
-        u = torch.sum(u, dim=0) / u.shape[0]
+        i = i.type(torch.FloatTensor)
+        u = u.type(torch.FloatTensor)
 
-        if idx == 0:
-            i_total = i
-            u_total = u
-        else:
-            i_total += i
-            u_total += u
+        iou_per_class = i/u
+        mean_jaccard_index_per_class = torch.sum(iou_per_class, dim=0) / iou_per_class.shape[0]
+        print(mean_jaccard_index_per_class)
 
 
         if (idx + 1) % print_per == 0:
 
-            _i_total = i_total.type(torch.FloatTensor)
-            _u_total = u_total.type(torch.FloatTensor)
-
-            # Mean IoU over all batches and per class (i.e. array of shape 18 - [0.5, 0.7, 0.85, ... ]
-            mean_IoU_per_class = _i_total / _u_total
-            mean_iou = torch.sum(mean_IoU_per_class) / len(mean_IoU_per_class)
+            mean_iou = torch.mean(torch.tensor(mean_ious))
 
             print('[{}/{}] Loss: {:.4f}, Train Accuracy: {:.4f}, Mean IoU: {}'.format(
                 idx + 1, len(train_loader), total_loss / print_per,
@@ -263,12 +238,13 @@ def train(epoch):
                 writer.add_scalar('Mean IoU/train', mean_iou, epoch)
                 writer.add_scalar('Accuracy/train', correct_nodes/total_nodes, epoch)
 
-                for label, iou in enumerate(mean_IoU_per_class):
+                for label, iou in enumerate(mean_jaccard_index_per_class):
                     writer.add_scalar('IoU{}/train'.format(label), iou, epoch)
 
                 # print('\t\tLabel {}: {}'.format(label, iou))
             # print('\n')
             total_loss = correct_nodes = total_nodes = 0
+            mean_ious = []
 
 
 def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_iou='acc', id=None, experiment_name=''):
@@ -361,6 +337,8 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
 
         # Mean IoU over all batches and per class (i.e. array of shape 18 - [0.5, 0.7, 0.85, ... ]
         mean_IoU_per_class = i_total/u_total
+        # mean_jaccard_index_per_class = torch.sum(iou_per_class, dim=0) / iou_per_class.shape[0]
+
 
         accuracy = correct_nodes / total_nodes
         loss = torch.mean(torch.tensor(total_loss))
