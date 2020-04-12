@@ -186,12 +186,17 @@ def train(epoch):
     model.train()
 
     total_loss = correct_nodes = total_nodes = 0
+    all_preds = None
+    all_datay = None
+    total_loss = []
+    print_per = 20
     for idx, data in enumerate(train_loader):
 
         data = data.to(device)
         optimizer.zero_grad()
         out = model(data)
 
+        pred = out.max(dim=1)[1]
 
         loss = F.nll_loss(out, data.y)
         loss.backward()
@@ -201,31 +206,64 @@ def train(epoch):
         total_nodes += data.num_nodes
 
 
-        # Mean Jaccard index = index averaged over all classes (HENCE, this shows the IoU of a batch)
-        mean_jaccard_indeces = calculate_mean_iou(out.max(dim=1)[1], data.y, 18, batch=data.batch)
+        if idx == 0:
+            all_preds = pred
+            all_datay = data.y
 
-        # Mean Jaccard indeces PER LABEL
+        else:
+            all_preds = torch.cat((all_preds, pred))
+            all_datay = torch.cat((all_datay, data.y))
+
+
+        # # Mean Jaccard index = index averaged over all classes (HENCE, this shows the IoU of a batch)
+        # mean_jaccard_indeces = calculate_mean_iou(out.max(dim=1)[1], data.y, 18, batch=data.batch)
+        #
+        # # Mean Jaccard indeces PER LABEL
+        # i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
+        #
+        # i = i.type(torch.FloatTensor)
+        # u = u.type(torch.FloatTensor)
+        #
+        # iou_per_class = i/u
+        # mean_jaccard_index_per_class = torch.sum(iou_per_class, dim=0) / iou_per_class.shape[0]
+
+
+        # 6. Get IoU metric per class
+        # Mean Jaccard indeces PER LABEL averaged over batches
         i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
 
-        i = i.type(torch.FloatTensor)
-        u = u.type(torch.FloatTensor)
+        # Sum i and u along the batch dimension (gives value per class)
+        i = torch.sum(i, dim=0) / i.shape[0]
+        u = torch.sum(u, dim=0) / u.shape[0]
 
-        iou_per_class = i/u
-        mean_jaccard_index_per_class = torch.sum(iou_per_class, dim=0) / iou_per_class.shape[0]
+        if idx == 0:
+            i_total = i
+            u_total = u
+        else:
+            i_total += i
+            u_total += u
 
 
-        if (idx + 1) % 20 == 0:
+        if (idx + 1) % print_per == 0:
+
+            i_total = i_total.type(torch.FloatTensor)
+            u_total = u_total.type(torch.FloatTensor)
+
+            # Mean IoU over all batches and per class (i.e. array of shape 18 - [0.5, 0.7, 0.85, ... ]
+            mean_IoU_per_class = i_total / u_total
+            mean_iou = torch.sum(mean_IoU_per_class) / len(mean_IoU_per_class)
+
             print('[{}/{}] Loss: {:.4f}, Train Accuracy: {:.4f}, Mean IoU: {}'.format(
-                idx + 1, len(train_loader), total_loss / len(train_loader),
-                correct_nodes / total_nodes, np.mean(mean_jaccard_indeces.tolist())))
+                idx + 1, len(train_loader), total_loss / print_per,
+                correct_nodes / total_nodes, mean_iou))
 
             # Write to tensorboard: LOSS and IoU per class
             if recording:
-                writer.add_scalar('Loss/train', total_loss / len(train_loader), epoch)
-                writer.add_scalar('Mean IoU/train', torch.sum(mean_jaccard_indeces)/len(mean_jaccard_indeces), epoch)
+                writer.add_scalar('Loss/train', total_loss / print_per, epoch)
+                writer.add_scalar('Mean IoU/train', mean_iou, epoch)
                 writer.add_scalar('Accuracy/train', correct_nodes/total_nodes, epoch)
 
-                for label, iou in enumerate(mean_jaccard_index_per_class):
+                for label, iou in enumerate(mean_IoU_per_class):
                     writer.add_scalar('IoU{}/train'.format(label), iou, epoch)
 
                 # print('\t\tLabel {}: {}'.format(label, iou))
@@ -261,7 +299,6 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
             data = data.to(device)
             out = model(data)
 
-
             pred = out.max(dim=1)[1]
 
             loss = F.nll_loss(out, data.y)
@@ -274,14 +311,6 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
             _out = out.max(dim=1)[1].cpu().detach().numpy()
             # plot(d, _y, _out)
 
-            if recording:
-                mean_jaccard_indeces = calculate_mean_iou(out.max(dim=1)[1], data.y, 18, batch=data.batch)
-                mean_iou = torch.sum(mean_jaccard_indeces) / len(mean_jaccard_indeces)
-                if test:
-                    writer.add_scalar(f'Mean IoU/test_by_{test_by_acc_OR_iou}', mean_iou, epoch)
-                else:
-                    writer.add_scalar(f'Mean IoU/validation', mean_iou, epoch)
-
 
             if batch_idx == 0:
                 all_preds = pred
@@ -290,6 +319,7 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
             else:
                 all_preds = torch.cat((all_preds, pred))
                 all_datay = torch.cat((all_datay, data.y))
+
 
             if recording:
                 # 3. Create directory where to place the data
@@ -305,6 +335,7 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
                 else:
                     with open(f'experiment_data/{experiment_name}-{id}/data{mode+_epoch}.pkl', 'wb') as file:
                         pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
+
 
             # 5. Get accuracy
             correct_nodes += pred.eq(data.y).sum().item()
@@ -330,13 +361,21 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
 
         # Mean IoU over all batches and per class (i.e. array of shape 18 - [0.5, 0.7, 0.85, ... ]
         mean_IoU_per_class = i_total/u_total
-        # mean_jaccard_index_per_class = torch.sum(iou_per_class, dim=0) / iou_per_class.shape[0]
-
 
         accuracy = correct_nodes / total_nodes
         loss = torch.mean(torch.tensor(total_loss))
 
+
         if recording:
+
+            mean_iou = torch.sum(mean_IoU_per_class) / len(mean_IoU_per_class)
+
+            if test:
+                writer.add_scalar(f'Mean IoU/test_by_{test_by_acc_OR_iou}', mean_iou)
+            else:
+                writer.add_scalar(f'Mean IoU/validation', mean_iou, epoch)
+
+
             writer.add_scalar('Validation Time/epoch', time.time() - start, epoch)
 
             # 7. Get confusion matrix
@@ -347,8 +386,6 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
 
 
 def perform_final_testing(model, writer, test_loader, experiment_name, comment, id):
-
-    all_ious = {}
 
     # 1. Load the best model for testing --- both by accuracy and IoU
     model.load_state_dict(
@@ -533,20 +570,20 @@ if __name__ == '__main__':
 
             loss_acc, acc_acc, iou_acc, mean_iou_acc, loss_iou, acc_iou, iou_iou, mean_iou_iou = perform_final_testing(model, writer, test_loader, experiment_name, comment, id)
 
+            with writer as w:
+                w.add_hparams({'D Nativeness': data_nativeness,
+                                    'D Compression': data_compression,
+                                    'D Type': data_type,
+                                    'Loc Features': local_features,
+                                    'Glob Features': global_features,
+                                    'LR': lr,
+                                    'Batch': batch_size,
+                                    'Sched Gamma': gamma},
 
-            writer.add_hparams({'D Nativeness': data_nativeness,
-                                'D Compression': data_compression,
-                                'D Type': data_type,
-                                'Loc Features': local_features,
-                                'Glob Features': global_features,
-                                'LR': lr,
-                                'Batch': batch_size,
-                                'Sched Gamma': gamma},
-
-                               {'hparam/Test Accuracy (by acc)': acc_acc,
-                                'hparam/Test IoU (by acc)': mean_iou_acc,
-                                'hparam/Test Accuracy (by iou)': acc_iou,
-                                'hparam/Test IoU (by iou)': mean_iou_iou})
+                                   {'hparam/Test Accuracy (by acc)': acc_acc,
+                                    'hparam/Test IoU (by acc)': mean_iou_acc,
+                                    'hparam/Test Accuracy (by iou)': acc_iou,
+                                    'hparam/Test IoU (by iou)': mean_iou_iou})
 
 
 
