@@ -13645,3 +13645,49 @@ Epoch: 62, Val Loss/nll: 0.36634811758995056, Val Acc: 0.8627
 		Validation Label 16: 0.8693837523460388
 		Validation Label 17: 0.7349023818969727
 ============================================================
+[20/61] Loss: 0.0803, Train Accuracy: 0.8977, Mean IoU: 0.7262057140469551
+[40/61] Loss: 0.0814, Train Accuracy: 0.8960, Mean IoU: 0.7246951311826706
+[60/61] Loss: 0.0817, Train Accuracy: 0.8957, Mean IoU: 0.7284561842679977
+Epoch: 63, Val Loss/nll: 0.3005390167236328, Val Acc: 0.8788
+		Validation Label 0: 0.8323835134506226
+		Validation Label 1: 0.7034285664558411
+		Validation Label 2: 0.7169390916824341
+		Validation Label 3: 0.7482335567474365
+		Validation Label 4: 0.5965574979782104
+		Validation Label 5: 0.646862268447876
+		Validation Label 6: 0.52186518907547
+		Validation Label 7: 0.6942398548126221
+		Validation Label 8: nan
+		Validation Label 9: 0.8306529521942139
+		Validation Label 10: 0.5926809906959534
+		Validation Label 11: 0.5254054069519043
+		Validation Label 12: 0.6801080703735352
+		Validation Label 13: 0.3856502175331116
+		Validation Label 14: 0.7180722951889038
+		Validation Label 15: 0.7358689308166504
+		Validation Label 16: 0.8873040676116943
+		Validation Label 17: 0.7943822741508484
+============================================================
+[20/61] Loss: 0.0801, Train Accuracy: 0.8973, Mean IoU: 0.7147277742624283
+[40/61] Loss: 0.0826, Train Accuracy: 0.8950, Mean IoU: 0.7347260192036629
+[60/61] Loss: 0.0844, Train Accuracy: 0.8925, Mean IoU: 0.7070408836007118
+Epoch: 64, Val Loss/nll: 0.5577638745307922, Val Acc: 0.8225
+		Validation Label 0: 0.8616483807563782
+		Validation Label 1: 0.5627580285072327
+		Validation Label 2: 0.5309905409812927
+		Validation Label 3: 0.6595744490623474
+		Validation Label 4: 0.4105917811393738
+		Validation Label 5: 0.5109772086143494
+		Validation Label 6: 0.4573019742965698
+		Validation Label 7: 0.5789342522621155
+		Validation Label 8: nan
+		Validation Label 9: 0.8022627830505371
+		Validation Label 10: 0.4748149812221527
+		Validation Label 11: 0.44252076745033264
+		Validation Label 12: 0.5511504411697388
+		Validation Label 13: 0.18964757025241852
+		Validation Label 14: 0.6440704464912415
+		Validation Label 15: 0.725900411605835
+		Validation Label 16: 0.8387354016304016
+		Validation Label 17: 0.7216449975967407
+============================================================
