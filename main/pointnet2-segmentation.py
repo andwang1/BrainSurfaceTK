@@ -226,7 +226,7 @@ def train(epoch):
                 writer.add_scalar('Accuracy/train', correct_nodes/total_nodes, epoch)
 
                 for label, iou in enumerate(mean_jaccard_index_per_class):
-                    writer.add_scalar('IoU{}/train'.format(label), iou, epoch))
+                    writer.add_scalar('IoU{}/train'.format(label), iou, epoch)
 
                 # print('\t\tLabel {}: {}'.format(label, iou))
             # print('\n')
