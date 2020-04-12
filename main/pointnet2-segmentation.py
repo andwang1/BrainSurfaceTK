@@ -186,7 +186,6 @@ def train(epoch):
     model.train()
 
     total_loss = correct_nodes = total_nodes = 0
-    all_ious = {}
     for idx, data in enumerate(train_loader):
 
         data = data.to(device)
@@ -227,10 +226,7 @@ def train(epoch):
                 writer.add_scalar('Accuracy/train', correct_nodes/total_nodes, epoch)
 
                 for label, iou in enumerate(mean_jaccard_index_per_class):
-                    writer.add_scalar('IoU{}/train'.format(label), iou, epoch)
-                    all_ious[f'IoU{label}'] = iou
-
-                writer.add_scalars('All_IoU/train', all_ious, epoch)
+                    writer.add_scalar('IoU{}/train'.format(label), iou, epoch))
 
                 # print('\t\tLabel {}: {}'.format(label, iou))
             # print('\n')
@@ -467,7 +463,9 @@ if __name__ == '__main__':
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
             model = Net(18, num_local_features, num_global_features=None).to(device)
             optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-            scheduler = StepLR(optimizer, step_size=1, gamma=0.985)
+
+            gamma = 0.985
+            scheduler = StepLR(optimizer, step_size=1, gamma=gamma)
 
             id = '0'
             if recording:
@@ -514,15 +512,11 @@ if __name__ == '__main__':
                         best_val_iou = mean_iou
                         torch.save(model.state_dict(), f'./experiment_data/{experiment_name}-{id}/' + 'best_iou_model' + '_id' + str(id) + '.pt')
 
-                    all_ious = {}
                     writer.add_scalar('Loss/val_nll', loss, epoch)
                     writer.add_scalar('Accuracy/val', acc, epoch)
                     for label, value in enumerate(iou):
                         writer.add_scalar('IoU{}/validation'.format(label), value, epoch)
                         print('\t\tValidation Label {}: {}'.format(label, value))
-                        all_ious[f'IoU{label}'] = value
-
-                    writer.add_scalars('All_IoU/validation', all_ious, epoch)
 
                 print('='*60)
 
@@ -533,10 +527,19 @@ if __name__ == '__main__':
             loss_acc, acc_acc, iou_acc, mean_iou_acc, loss_iou, acc_iou, iou_iou, mean_iou_iou = perform_final_testing(model, writer, test_loader, experiment_name, comment, id)
 
 
-            writer.add_hparams({'D Nativeness': data_native,
+            writer.add_hparams({'D Nativeness': data_nativeness,
+                                'D Compression': data_compression,
+                                'D Type': data_type,
+                                'Loc Features': local_features,
+                                'Glob Features': global_features,
                                 'LR': lr,
                                 'Batch': batch_size,
-                                ''}, {'hparam/accuracy': 10 * i, 'hparam/loss': 10 * i})
+                                'Sched Gamma': gamma},
+
+                               {'hparam/Test Accuracy (by acc)': acc_acc,
+                                'hparam/Test IoU (by acc)': mean_iou_acc,
+                                'hparam/Test Accuracy (by iou)': acc_iou,
+                                'hparam/Test IoU (by iou)': mean_iou_iou})
 
 
 
