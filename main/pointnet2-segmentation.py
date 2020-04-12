@@ -233,7 +233,7 @@ def train(epoch):
             total_loss = correct_nodes = total_nodes = 0
 
 
-def test(loader, experiment_description, epoch=None, test=False, id=None, experiment_name=''):
+def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_iou='acc', id=None, experiment_name=''):
 
     # 1. Use this as the identifier for testing or validating
     mode = '_validation'
@@ -277,7 +277,10 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
             if recording:
                 mean_jaccard_indeces = calculate_mean_iou(out.max(dim=1)[1], data.y, 18, batch=data.batch)
                 mean_iou = torch.sum(mean_jaccard_indeces) / len(mean_jaccard_indeces)
-                writer.add_scalar('Mean IoU/val', mean_iou, epoch)
+                if test:
+                    writer.add_scalar(f'Mean IoU/test_by_{test_by_acc_OR_iou}', mean_iou, epoch)
+                else:
+                    writer.add_scalar(f'Mean IoU/validation', mean_iou, epoch)
 
 
             if batch_idx == 0:
@@ -348,7 +351,7 @@ def perform_final_testing(model, writer, test_loader, experiment_name, comment, 
         torch.load(f'./experiment_data/{experiment_name}-{id}/' + 'best_acc_model' + '_id' + str(id) + '.pt'))
 
     # 2. Test the performance after training
-    loss_acc, acc_acc, iou_acc, mean_iou_acc = test(test_loader, comment, test=True, id=id, experiment_name=experiment_name)
+    loss_acc, acc_acc, iou_acc, mean_iou_acc = test(test_loader, comment, test=True, test_by_acc_OR_iou='acc', id=id, experiment_name=experiment_name)
 
     # 3. Record test metrics in Tensorboard
     if recording:
@@ -365,7 +368,7 @@ def perform_final_testing(model, writer, test_loader, experiment_name, comment, 
         torch.load(f'./experiment_data/{experiment_name}-{id}/' + 'best_iou_model' + '_id' + str(id) + '.pt'))
 
     # 2. Test the performance after training
-    loss_iou, acc_iou, iou_iou, mean_iou_iou = test(test_loader, comment, test=True, id=id, experiment_name=experiment_name)
+    loss_iou, acc_iou, iou_iou, mean_iou_iou = test(test_loader, comment, test=True, test_by_acc_OR_iou='iou', id=id, experiment_name=experiment_name)
 
     # 3. Record test metrics in Tensorboard
     if recording:
