@@ -336,6 +336,43 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
     return loss, accuracy, mean_IoU_per_class, mean_iou
 
 
+def perform_final_testing(model, writer, test_loader, experiment_name, comment, id):
+
+    # 1. Load the best model for testing --- both by accuracy and IoU
+    model.load_state_dict(
+        torch.load(f'/experiment_data/{experiment_name}-{id}/' + 'best_acc_model' + '_id' + str(id) + '.pt'))
+
+    # 2. Test the performance after training
+    loss, acc, iou, mean_iou = test(test_loader, comment, test=True, id=id, experiment_name=experiment_name)
+
+    # 3. Record test metrics in Tensorboard
+    if recording:
+        writer.add_scalar('Loss/test_byACC', loss)
+        writer.add_scalar('Accuracy/test_byACC', acc)
+        for label, value in enumerate(iou):
+            writer.add_scalar('IoU{}/test_byACC'.format(label), value)
+            print('\t\tTest Label (best model by IoU) {}: {}'.format(label, value))
+
+
+
+    # 1. Load the best model for testing --- both by accuracy and IoU
+    model.load_state_dict(
+        torch.load(f'/experiment_data/{experiment_name}-{id}/' + 'best_iou_model' + '_id' + str(id) + '.pt'))
+
+    # 2. Test the performance after training
+    loss, acc, iou, mean_iou = test(test_loader, comment, test=True, id=id, experiment_name=experiment_name)
+
+    # 3. Record test metrics in Tensorboard
+    if recording:
+        writer.add_scalar('Loss/test_byIOU', loss)
+        writer.add_scalar('Accuracy/test_byIOU', acc)
+        for label, value in enumerate(iou):
+            writer.add_scalar('IoU{}/test_byIOU'.format(label), value)
+            print('\t\tTest Label (best model by IoU) {}: {}'.format(label, value))
+
+
+
+
 
 if __name__ == '__main__':
 
@@ -431,7 +468,7 @@ if __name__ == '__main__':
 
                 id = str(int(get_id(prefix=experiment_name)) - 1)
 
-                writer = SummaryWriter(f'runs/{experiment_name}ID' + id)
+                writer = SummaryWriter(f'new_runs/{experiment_name}ID' + id)
                 writer.add_text(f'{experiment_name} ID #{id}', comment)
 
             best_val_acc = 0
@@ -459,10 +496,10 @@ if __name__ == '__main__':
 
                     if acc > best_val_acc:
                         best_val_acc = acc
-                        torch.save(model.state_dict(), f'/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/experiment_data/{experiment_name}-{id}/' + 'best_acc_model' + '_id' + str(id) + '.pt')
+                        torch.save(model.state_dict(), f'/experiment_data/{experiment_name}-{id}/' + 'best_acc_model' + '_id' + str(id) + '.pt')
                     if mean_iou > best_val_iou:
                         best_val_iou = mean_iou
-                        torch.save(model.state_dict(), f'/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/experiment_data/{experiment_name}-{id}/' + 'best_iou_model' + '_id' + str(id) + '.pt')
+                        torch.save(model.state_dict(), f'/experiment_data/{experiment_name}-{id}/' + 'best_iou_model' + '_id' + str(id) + '.pt')
 
 
                     writer.add_scalar('Loss/val_nll', loss, epoch)
@@ -473,20 +510,13 @@ if __name__ == '__main__':
 
                 print('='*60)
 
-            # 6. Test the performance after training
-            loss, acc, iou, mean_iou = test(test_loader, comment, test=True, id=id, experiment_name=experiment_name)
+            # save the last model
+            torch.save(model.state_dict(), f'/experiment_data/{experiment_name}-{id}/' + 'last_model' + '_id' + str(id) + '.pt')
 
 
-            # 7. Record test metrics in Tensorboard
-            if recording:
-                writer.add_scalar('Loss/test', loss)
-                writer.add_scalar('Accuracy/test', acc)
-                for label, value in enumerate(iou):
-                    writer.add_scalar('IoU{}/test'.format(label), value)
-                    print('\t\tTest Label {}: {}'.format(label, value))
 
-                # 8. Save the model with its unique id
-                torch.save(model.state_dict(), f'/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/experiment_data/{experiment_name}-{id}/' + 'model' + '_id' + str(id) + '.pt')
+            perform_final_testing(model, writer, test_loader, experiment_name, comment, id)
+
 
 
 
