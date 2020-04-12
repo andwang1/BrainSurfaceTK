@@ -13530,3 +13530,118 @@ Epoch: 57, Val Loss/nll: 0.48745307326316833, Val Acc: 0.8435
 		Validation Label 16: 0.8319579362869263
 		Validation Label 17: 0.7439655065536499
 ============================================================
+[20/61] Loss: 0.0851, Train Accuracy: 0.8926, Mean IoU: 0.7136533409357071
+[40/61] Loss: 0.0869, Train Accuracy: 0.8894, Mean IoU: 0.7149621918797493
+[60/61] Loss: 0.0854, Train Accuracy: 0.8917, Mean IoU: 0.7069704309105873
+Epoch: 58, Val Loss/nll: 0.30310484766960144, Val Acc: 0.8807
+		Validation Label 0: 0.8501859903335571
+		Validation Label 1: 0.7175477147102356
+		Validation Label 2: 0.6935523748397827
+		Validation Label 3: 0.7665491700172424
+		Validation Label 4: 0.6202817559242249
+		Validation Label 5: 0.6870622634887695
+		Validation Label 6: 0.5125802755355835
+		Validation Label 7: 0.6907431483268738
+		Validation Label 8: nan
+		Validation Label 9: 0.8331546783447266
+		Validation Label 10: 0.5974609851837158
+		Validation Label 11: 0.48605579137802124
+		Validation Label 12: 0.6753321886062622
+		Validation Label 13: 0.27376610040664673
+		Validation Label 14: 0.6671602725982666
+		Validation Label 15: 0.7381143569946289
+		Validation Label 16: 0.8927333354949951
+		Validation Label 17: 0.8007078766822815
+============================================================
+[20/61] Loss: 0.0829, Train Accuracy: 0.8935, Mean IoU: 0.7251323163509369
+[40/61] Loss: 0.0837, Train Accuracy: 0.8927, Mean IoU: 0.7125246301293373
+[60/61] Loss: 0.0826, Train Accuracy: 0.8943, Mean IoU: 0.7049349099397659
+Epoch: 59, Val Loss/nll: 0.3070182204246521, Val Acc: 0.8784
+		Validation Label 0: 0.8503075838088989
+		Validation Label 1: 0.7333945631980896
+		Validation Label 2: 0.7241687178611755
+		Validation Label 3: 0.7314115166664124
+		Validation Label 4: 0.5978224277496338
+		Validation Label 5: 0.6566146612167358
+		Validation Label 6: 0.49759358167648315
+		Validation Label 7: 0.6974467039108276
+		Validation Label 8: nan
+		Validation Label 9: 0.8254691958427429
+		Validation Label 10: 0.5684798359870911
+		Validation Label 11: 0.46662259101867676
+		Validation Label 12: 0.666581392288208
+		Validation Label 13: 0.29671573638916016
+		Validation Label 14: 0.7114357352256775
+		Validation Label 15: 0.731360673904419
+		Validation Label 16: 0.8935726881027222
+		Validation Label 17: 0.7975949048995972
+============================================================
+[20/61] Loss: 0.0833, Train Accuracy: 0.8949, Mean IoU: 0.7216826304793358
+[40/61] Loss: 0.0832, Train Accuracy: 0.8930, Mean IoU: 0.7307936772704124
+[60/61] Loss: 0.0833, Train Accuracy: 0.8937, Mean IoU: 0.7134254723787308
+Epoch: 60, Val Loss/nll: 0.35163140296936035, Val Acc: 0.8713
+		Validation Label 0: 0.8224909901618958
+		Validation Label 1: 0.7369165420532227
+		Validation Label 2: 0.7223974466323853
+		Validation Label 3: 0.7557003498077393
+		Validation Label 4: 0.615330696105957
+		Validation Label 5: 0.6906166672706604
+		Validation Label 6: 0.5586058497428894
+		Validation Label 7: 0.6956139206886292
+		Validation Label 8: nan
+		Validation Label 9: 0.8177422881126404
+		Validation Label 10: 0.4854814112186432
+		Validation Label 11: 0.5079461932182312
+		Validation Label 12: 0.6758002638816833
+		Validation Label 13: 0.316979318857193
+		Validation Label 14: 0.6716833114624023
+		Validation Label 15: 0.7349511384963989
+		Validation Label 16: 0.8741641044616699
+		Validation Label 17: 0.7810661196708679
+============================================================
+[20/61] Loss: 0.0831, Train Accuracy: 0.8948, Mean IoU: 0.7235473096370697
+[40/61] Loss: 0.0839, Train Accuracy: 0.8937, Mean IoU: 0.7131320461630821
+[60/61] Loss: 0.0835, Train Accuracy: 0.8941, Mean IoU: 0.7185467779636383
+Epoch: 61, Val Loss/nll: 0.32049861550331116, Val Acc: 0.8783
+		Validation Label 0: 0.8602223992347717
+		Validation Label 1: 0.7243763208389282
+		Validation Label 2: 0.7251891493797302
+		Validation Label 3: 0.7597708106040955
+		Validation Label 4: 0.5992168188095093
+		Validation Label 5: 0.6926081776618958
+		Validation Label 6: 0.5193982720375061
+		Validation Label 7: 0.6935890913009644
+		Validation Label 8: nan
+		Validation Label 9: 0.8008734583854675
+		Validation Label 10: 0.5261172652244568
+		Validation Label 11: 0.5029031038284302
+		Validation Label 12: 0.6745992302894592
+		Validation Label 13: 0.38181817531585693
+		Validation Label 14: 0.7172195911407471
+		Validation Label 15: 0.7384708523750305
+		Validation Label 16: 0.892417311668396
+		Validation Label 17: 0.7984728813171387
+============================================================
+[20/61] Loss: 0.0815, Train Accuracy: 0.8961, Mean IoU: 0.7174057066440582
+[40/61] Loss: 0.0829, Train Accuracy: 0.8945, Mean IoU: 0.7084575816988945
+[60/61] Loss: 0.0834, Train Accuracy: 0.8930, Mean IoU: 0.7168793678283691
+Epoch: 62, Val Loss/nll: 0.36634811758995056, Val Acc: 0.8627
+		Validation Label 0: 0.8276287913322449
+		Validation Label 1: 0.7405821681022644
+		Validation Label 2: 0.7227036356925964
+		Validation Label 3: 0.7601476311683655
+		Validation Label 4: 0.6285138726234436
+		Validation Label 5: 0.7023686170578003
+		Validation Label 6: 0.5460154414176941
+		Validation Label 7: 0.6743938326835632
+		Validation Label 8: nan
+		Validation Label 9: 0.7923232913017273
+		Validation Label 10: 0.5489678382873535
+		Validation Label 11: 0.46096891164779663
+		Validation Label 12: 0.6321682333946228
+		Validation Label 13: 0.34520483016967773
+		Validation Label 14: 0.7326863408088684
+		Validation Label 15: 0.7454652786254883
+		Validation Label 16: 0.8693837523460388
+		Validation Label 17: 0.7349023818969727
+============================================================
