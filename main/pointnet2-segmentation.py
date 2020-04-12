@@ -246,11 +246,11 @@ def train(epoch):
 
         if (idx + 1) % print_per == 0:
 
-            i_total = i_total.type(torch.FloatTensor)
-            u_total = u_total.type(torch.FloatTensor)
+            _i_total = i_total.type(torch.FloatTensor)
+            _u_total = u_total.type(torch.FloatTensor)
 
             # Mean IoU over all batches and per class (i.e. array of shape 18 - [0.5, 0.7, 0.85, ... ]
-            mean_IoU_per_class = i_total / u_total
+            mean_IoU_per_class = _i_total / _u_total
             mean_iou = torch.sum(mean_IoU_per_class) / len(mean_IoU_per_class)
 
             print('[{}/{}] Loss: {:.4f}, Train Accuracy: {:.4f}, Mean IoU: {}'.format(
