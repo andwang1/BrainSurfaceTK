@@ -7,6 +7,9 @@
 /venv
 /data
 slurm-*
+oldsplit*
+log_record.txt
+forCem.vtp
 
 
 

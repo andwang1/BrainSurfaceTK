@@ -15,7 +15,7 @@ from torch_geometric.nn import PointConv, fps, radius, global_max_pool
 from torch_geometric.nn import knn_interpolate
 # Metrics
 from torch_geometric.utils import intersection_and_union as i_and_u
-from torch_geometric.utils.metric import mean_iou
+from torch_geometric.utils.metric import mean_iou as calculate_mean_iou
 from tqdm import tqdm
 from torch.optim.lr_scheduler import StepLR
 
@@ -186,6 +186,7 @@ def train(epoch):
     model.train()
 
     total_loss = correct_nodes = total_nodes = 0
+    all_ious = {}
     for idx, data in enumerate(train_loader):
 
         data = data.to(device)
@@ -202,7 +203,7 @@ def train(epoch):
 
 
         # Mean Jaccard index = index averaged over all classes (HENCE, this shows the IoU of a batch)
-        mean_jaccard_indeces = mean_iou(out.max(dim=1)[1], data.y, 18, batch=data.batch)
+        mean_jaccard_indeces = calculate_mean_iou(out.max(dim=1)[1], data.y, 18, batch=data.batch)
 
         # Mean Jaccard indeces PER LABEL
         i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
@@ -216,7 +217,7 @@ def train(epoch):
 
         if (idx + 1) % 20 == 0:
             print('[{}/{}] Loss: {:.4f}, Train Accuracy: {:.4f}, Mean IoU: {}'.format(
-                idx + 1, len(train_loader), total_loss / len(train_loader), # TODO: Change 10 to len of dataloader - do for everything else as well!
+                idx + 1, len(train_loader), total_loss / len(train_loader),
                 correct_nodes / total_nodes, np.mean(mean_jaccard_indeces.tolist())))
 
             # Write to tensorboard: LOSS and IoU per class
@@ -224,8 +225,13 @@ def train(epoch):
                 writer.add_scalar('Loss/train', total_loss / len(train_loader), epoch)
                 writer.add_scalar('Mean IoU/train', torch.sum(mean_jaccard_indeces)/len(mean_jaccard_indeces), epoch)
                 writer.add_scalar('Accuracy/train', correct_nodes/total_nodes, epoch)
+
                 for label, iou in enumerate(mean_jaccard_index_per_class):
                     writer.add_scalar('IoU{}/train'.format(label), iou, epoch)
+                    all_ious[f'IoU{label}'] = iou
+
+                writer.add_scalars('All_IoU/train', all_ious, epoch)
+
                 # print('\t\tLabel {}: {}'.format(label, iou))
             # print('\n')
             total_loss = correct_nodes = total_nodes = 0
@@ -273,7 +279,7 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
             # plot(d, _y, _out)
 
             if recording:
-                mean_jaccard_indeces = mean_iou(out.max(dim=1)[1], data.y, 18, batch=data.batch)
+                mean_jaccard_indeces = calculate_mean_iou(out.max(dim=1)[1], data.y, 18, batch=data.batch)
                 mean_iou = torch.sum(mean_jaccard_indeces) / len(mean_jaccard_indeces)
                 writer.add_scalar('Mean IoU/val', mean_iou, epoch)
 
@@ -289,6 +295,7 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
             if recording:
                 # 3. Create directory where to place the data
                 if not os.path.exists(f'experiment_data/{experiment_name}-{id}/'):
+                    print(f'Created folder: experiment_data/{experiment_name}-{id}/')
                     os.makedirs(f'experiment_data/{experiment_name}-{id}/')
 
                 # 4. Save the segmented brain in ./[...comment...]/data_valiation3.pkl (3 is for epoch)
@@ -338,18 +345,20 @@ def test(loader, experiment_description, epoch=None, test=False, id=None, experi
 
 def perform_final_testing(model, writer, test_loader, experiment_name, comment, id):
 
+    all_ious = {}
+
     # 1. Load the best model for testing --- both by accuracy and IoU
     model.load_state_dict(
-        torch.load(f'/experiment_data/{experiment_name}-{id}/' + 'best_acc_model' + '_id' + str(id) + '.pt'))
+        torch.load(f'./experiment_data/{experiment_name}-{id}/' + 'best_acc_model' + '_id' + str(id) + '.pt'))
 
     # 2. Test the performance after training
-    loss, acc, iou, mean_iou = test(test_loader, comment, test=True, id=id, experiment_name=experiment_name)
+    loss_acc, acc_acc, iou_acc, mean_iou_acc = test(test_loader, comment, test=True, id=id, experiment_name=experiment_name)
 
     # 3. Record test metrics in Tensorboard
     if recording:
-        writer.add_scalar('Loss/test_byACC', loss)
-        writer.add_scalar('Accuracy/test_byACC', acc)
-        for label, value in enumerate(iou):
+        writer.add_scalar('Loss/test_byACC', loss_acc)
+        writer.add_scalar('Accuracy/test_byACC', acc_acc)
+        for label, value in enumerate(iou_acc):
             writer.add_scalar('IoU{}/test_byACC'.format(label), value)
             print('\t\tTest Label (best model by IoU) {}: {}'.format(label, value))
 
@@ -357,18 +366,21 @@ def perform_final_testing(model, writer, test_loader, experiment_name, comment, 
 
     # 1. Load the best model for testing --- both by accuracy and IoU
     model.load_state_dict(
-        torch.load(f'/experiment_data/{experiment_name}-{id}/' + 'best_iou_model' + '_id' + str(id) + '.pt'))
+        torch.load(f'./experiment_data/{experiment_name}-{id}/' + 'best_iou_model' + '_id' + str(id) + '.pt'))
 
     # 2. Test the performance after training
-    loss, acc, iou, mean_iou = test(test_loader, comment, test=True, id=id, experiment_name=experiment_name)
+    loss_iou, acc_iou, iou_iou, mean_iou_iou = test(test_loader, comment, test=True, id=id, experiment_name=experiment_name)
 
     # 3. Record test metrics in Tensorboard
     if recording:
-        writer.add_scalar('Loss/test_byIOU', loss)
-        writer.add_scalar('Accuracy/test_byIOU', acc)
-        for label, value in enumerate(iou):
+        writer.add_scalar('Loss/test_byIOU', loss_iou)
+        writer.add_scalar('Accuracy/test_byIOU', acc_iou)
+        for label, value in enumerate(iou_iou):
             writer.add_scalar('IoU{}/test_byIOU'.format(label), value)
             print('\t\tTest Label (best model by IoU) {}: {}'.format(label, value))
+
+    return loss_acc, acc_acc, iou_acc, mean_iou_acc, \
+           loss_iou, acc_iou, iou_iou, mean_iou_iou
 
 
 
@@ -388,9 +400,9 @@ if __name__ == '__main__':
 
     data_nativeness = 'aligned'
     data_compression = "50"
-    data_type = "sphere"
+    data_type = "inflated"
 
-    additional_comment = ''
+    additional_comment = 'TEST'
 
     experiment_name = f'{data_nativeness}_{data_type}_{data_compression}_{additional_comment}'
 
@@ -408,7 +420,7 @@ if __name__ == '__main__':
             global_features = global_feature
             target_class = 'gender'
             task = 'segmentation'
-            REPROCESS = True
+            REPROCESS = False
 
 
             # 2. Get the data splits indices
@@ -471,10 +483,11 @@ if __name__ == '__main__':
                 writer = SummaryWriter(f'new_runs/{experiment_name}ID' + id)
                 writer.add_text(f'{experiment_name} ID #{id}', comment)
 
+
             best_val_acc = 0
             best_val_iou = 0
             # 10. TRAINING
-            for epoch in range(1, 150):
+            for epoch in range(1, 5):
 
                 # 1. Start recording time
                 start = time.time()
@@ -496,26 +509,34 @@ if __name__ == '__main__':
 
                     if acc > best_val_acc:
                         best_val_acc = acc
-                        torch.save(model.state_dict(), f'/experiment_data/{experiment_name}-{id}/' + 'best_acc_model' + '_id' + str(id) + '.pt')
+                        torch.save(model.state_dict(), f'./experiment_data/{experiment_name}-{id}/' + 'best_acc_model' + '_id' + str(id) + '.pt')
                     if mean_iou > best_val_iou:
                         best_val_iou = mean_iou
-                        torch.save(model.state_dict(), f'/experiment_data/{experiment_name}-{id}/' + 'best_iou_model' + '_id' + str(id) + '.pt')
+                        torch.save(model.state_dict(), f'./experiment_data/{experiment_name}-{id}/' + 'best_iou_model' + '_id' + str(id) + '.pt')
 
-
+                    all_ious = {}
                     writer.add_scalar('Loss/val_nll', loss, epoch)
                     writer.add_scalar('Accuracy/val', acc, epoch)
                     for label, value in enumerate(iou):
                         writer.add_scalar('IoU{}/validation'.format(label), value, epoch)
                         print('\t\tValidation Label {}: {}'.format(label, value))
+                        all_ious[f'IoU{label}'] = value
+
+                    writer.add_scalars('All_IoU/validation', all_ious, epoch)
 
                 print('='*60)
 
             # save the last model
-            torch.save(model.state_dict(), f'/experiment_data/{experiment_name}-{id}/' + 'last_model' + '_id' + str(id) + '.pt')
+            torch.save(model.state_dict(), f'./experiment_data/{experiment_name}-{id}/' + 'last_model' + '_id' + str(id) + '.pt')
 
 
+            loss_acc, acc_acc, iou_acc, mean_iou_acc, loss_iou, acc_iou, iou_iou, mean_iou_iou = perform_final_testing(model, writer, test_loader, experiment_name, comment, id)
 
-            perform_final_testing(model, writer, test_loader, experiment_name, comment, id)
+
+            writer.add_hparams({'D Nativeness': data_native,
+                                'LR': lr,
+                                'Batch': batch_size,
+                                ''}, {'hparam/accuracy': 10 * i, 'hparam/loss': 10 * i})
 
 
 
