@@ -206,23 +206,18 @@ def train(epoch):
 
         # Mean Jaccard index = index averaged over all classes (HENCE, this shows the IoU of a batch) (8 numbers)
         mean_jaccard_indeces = calculate_mean_iou(out.max(dim=1)[1], data.y, 18, batch=data.batch)
-        print(mean_jaccard_indeces)
 
         # Mean IoU over classes and batches (1 number)
         mean_ious.append(torch.sum(mean_jaccard_indeces)/len(mean_jaccard_indeces))
-        print(mean_ious)
 
         # Mean Jaccard indeces PER LABEL (18 numbers)
         i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
-        print(i)
 
         i = i.type(torch.FloatTensor)
         u = u.type(torch.FloatTensor)
 
         iou_per_class = i/u
         mean_jaccard_index_per_class = torch.sum(iou_per_class, dim=0) / iou_per_class.shape[0]
-        print(mean_jaccard_index_per_class)
-
 
         if (idx + 1) % print_per == 0:
 
@@ -287,6 +282,15 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
             _out = out.max(dim=1)[1].cpu().detach().numpy()
             # plot(d, _y, _out)
 
+            if recording:
+                mean_jaccard_indeces = calculate_mean_iou(out.max(dim=1)[1], data.y, 18, batch=data.batch)
+                mean_iou = torch.sum(mean_jaccard_indeces) / len(mean_jaccard_indeces)
+                if test:
+                    writer.add_scalar(f'Mean IoU/test_by_{test_by_acc_OR_iou}', mean_iou, epoch)
+                    print(f'Mean IoU/test_by_{test_by_acc_OR_iou}', epoch)
+                else:
+                    writer.add_scalar(f'Mean IoU/validation', mean_iou, epoch)
+
 
             if batch_idx == 0:
                 all_preds = pred
@@ -337,8 +341,6 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
 
         # Mean IoU over all batches and per class (i.e. array of shape 18 - [0.5, 0.7, 0.85, ... ]
         mean_IoU_per_class = i_total/u_total
-        # mean_jaccard_index_per_class = torch.sum(iou_per_class, dim=0) / iou_per_class.shape[0]
-
 
         accuracy = correct_nodes / total_nodes
         loss = torch.mean(torch.tensor(total_loss))
@@ -367,7 +369,7 @@ def perform_final_testing(model, writer, test_loader, experiment_name, comment, 
 
     # 1. Load the best model for testing --- both by accuracy and IoU
     model.load_state_dict(
-        torch.load(f'./experiment_data/{experiment_name}-{id}/' + 'best_acc_model' + '_id' + str(id) + '.pt'))
+        torch.load(f'./experiment_data/{experiment_name}-{id}/' + 'best_acc_model' + '.pt'))
 
     # 2. Test the performance after training
     loss_acc, acc_acc, iou_acc, mean_iou_acc = test(test_loader, comment, test=True, test_by_acc_OR_iou='acc', id=id, experiment_name=experiment_name)
@@ -384,7 +386,7 @@ def perform_final_testing(model, writer, test_loader, experiment_name, comment, 
 
     # 1. Load the best model for testing --- both by accuracy and IoU
     model.load_state_dict(
-        torch.load(f'./experiment_data/{experiment_name}-{id}/' + 'best_iou_model' + '_id' + str(id) + '.pt'))
+        torch.load(f'./experiment_data/{experiment_name}-{id}/' + 'best_iou_model' + '.pt'))
 
     # 2. Test the performance after training
     loss_iou, acc_iou, iou_iou, mean_iou_iou = test(test_loader, comment, test=True, test_by_acc_OR_iou='iou', id=id, experiment_name=experiment_name)
@@ -548,20 +550,20 @@ if __name__ == '__main__':
 
             loss_acc, acc_acc, iou_acc, mean_iou_acc, loss_iou, acc_iou, iou_iou, mean_iou_iou = perform_final_testing(model, writer, test_loader, experiment_name, comment, id)
 
-            with writer as w:
-                w.add_hparams({'D Nativeness': data_nativeness,
-                                    'D Compression': data_compression,
-                                    'D Type': data_type,
-                                    'Loc Features': local_features,
-                                    'Glob Features': global_features,
-                                    'LR': lr,
-                                    'Batch': batch_size,
-                                    'Sched Gamma': gamma},
-
-                                   {'hparam/Test Accuracy (by acc)': acc_acc,
-                                    'hparam/Test IoU (by acc)': mean_iou_acc,
-                                    'hparam/Test Accuracy (by iou)': acc_iou,
-                                    'hparam/Test IoU (by iou)': mean_iou_iou})
+            # with writer as w:
+            #     w.add_hparams({'D Nativeness': data_nativeness,
+            #                         'D Compression': data_compression,
+            #                         'D Type': data_type,
+            #                         'Loc Features': local_features,
+            #                         'Glob Features': global_features,
+            #                         'LR': lr,
+            #                         'Batch': batch_size,
+            #                         'Sched Gamma': gamma},
+            #
+            #                        {'hparam/Test Accuracy (by acc)': acc_acc,
+            #                         'hparam/Test IoU (by acc)': mean_iou_acc,
+            #                         'hparam/Test Accuracy (by iou)': acc_iou,
+            #                         'hparam/Test IoU (by iou)': mean_iou_iou})
 
 
 
