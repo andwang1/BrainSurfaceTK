@@ -24,6 +24,10 @@ from src.plot_confusion_matrix import plot_confusion_matrix
 
 def add_i_and_u(i, u, i_total, u_total, batch_idx):
 
+    # Sum i and u along the batch dimension (gives value per class)
+    i = torch.sum(i, dim=0) / i.shape[0]
+    u = torch.sum(u, dim=0) / u.shape[0]
+
     if batch_idx == 0:
         i_total = i
         u_total = u
@@ -39,41 +43,10 @@ def get_mean_iou_per_class(i_total, u_total):
     i_total = i_total.type(torch.FloatTensor)
     u_total = u_total.type(torch.FloatTensor)
 
-    iou_per_class = i_total / u_total
-    mean_iou_per_class = torch.sum(iou_per_class, dim=0) / iou_per_class.shape[0]
+    mean_iou_per_class = i_total / u_total
 
     return mean_iou_per_class
 
-
-
-
-def get_ious(predictions, labels, batch, batch_idx, num_labels=18):
-
-
-    # Mean Jaccard index = index averaged over all classes (HENCE, this shows the IoU of a batch) (8 numbers)
-    mean_jaccard_indeces = calculate_mean_iou(out.max(dim=1)[1], data.y, 18, batch=data.batch)
-
-    # Mean IoU over classes and batches (1 number)
-    mean_ious.append(torch.sum(mean_jaccard_indeces) / len(mean_jaccard_indeces))
-
-    # Mean Jaccard indeces PER LABEL (18 numbers)
-    i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
-
-    i = i.type(torch.FloatTensor)
-    u = u.type(torch.FloatTensor)
-
-    iou_per_class = i / u
-    mean_jaccard_index_per_class = torch.sum(iou_per_class, dim=0) / iou_per_class.shape[0]
-
-
-    return mean_iou, mean_iou_per_label
-
-
-
-
-
-def mean_iou():
-    pass
 
 
 

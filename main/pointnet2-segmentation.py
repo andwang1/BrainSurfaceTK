@@ -233,7 +233,7 @@ def train(epoch):
                 # print('\t\tLabel {}: {}'.format(label, iou))
             # print('\n')
             total_loss = correct_nodes = total_nodes = 0
-            i_total, u_total = None, None
+            i_total, u_total = torch.zeros_like(i_total), torch.zeros_like(u_total)
 
 
 def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_iou='acc', id=None, experiment_name=''):
