@@ -18,6 +18,7 @@ from torch_geometric.utils import intersection_and_union as i_and_u
 from torch_geometric.utils.metric import mean_iou as calculate_mean_iou
 from tqdm import tqdm
 from torch.optim.lr_scheduler import StepLR
+from src.metrics import add_i_and_u, get_mean_iou_per_class
 
 
 from src.data_loader import OurDataset
@@ -186,8 +187,9 @@ def train(epoch):
     model.train()
 
     total_loss = correct_nodes = total_nodes = 0
-    print_per = 20
-    mean_ious = []
+    i_total, u_total = None, None
+    print_per = 10
+
     for idx, data in enumerate(train_loader):
 
         data = data.to(device)
@@ -203,25 +205,17 @@ def train(epoch):
         correct_nodes += out.max(dim=1)[1].eq(data.y).sum().item()
         total_nodes += data.num_nodes
 
-
-        # Mean Jaccard index = index averaged over all classes (HENCE, this shows the IoU of a batch) (8 numbers)
-        mean_jaccard_indeces = calculate_mean_iou(out.max(dim=1)[1], data.y, 18, batch=data.batch)
-
-        # Mean IoU over classes and batches (1 number)
-        mean_ious.append(torch.sum(mean_jaccard_indeces)/len(mean_jaccard_indeces))
-
         # Mean Jaccard indeces PER LABEL (18 numbers)
         i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
 
-        i = i.type(torch.FloatTensor)
-        u = u.type(torch.FloatTensor)
+        # Add to totals
+        i_total, u_total = add_i_and_u(i, u, i_total, u_total, idx)
 
-        iou_per_class = i/u
-        mean_jaccard_index_per_class = torch.sum(iou_per_class, dim=0) / iou_per_class.shape[0]
 
         if (idx + 1) % print_per == 0:
 
-            mean_iou = torch.mean(torch.tensor(mean_ious))
+            mean_iou_per_class = get_mean_iou_per_class(i_total, u_total)
+            mean_iou = torch.mean(mean_iou_per_class)
 
             print('[{}/{}] Loss: {:.4f}, Train Accuracy: {:.4f}, Mean IoU: {}'.format(
                 idx + 1, len(train_loader), total_loss / print_per,
@@ -233,13 +227,13 @@ def train(epoch):
                 writer.add_scalar('Mean IoU/train', mean_iou, epoch)
                 writer.add_scalar('Accuracy/train', correct_nodes/total_nodes, epoch)
 
-                for label, iou in enumerate(mean_jaccard_index_per_class):
+                for label, iou in enumerate(mean_iou_per_class):
                     writer.add_scalar('IoU{}/train'.format(label), iou, epoch)
 
                 # print('\t\tLabel {}: {}'.format(label, iou))
             # print('\n')
             total_loss = correct_nodes = total_nodes = 0
-            mean_ious = []
+            i_total, u_total = None, None
 
 
 def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_iou='acc', id=None, experiment_name=''):
@@ -254,12 +248,14 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
     model.eval()
 
     correct_nodes = total_nodes = 0
+    i_total, u_total = None, None
     intersections, unions, categories = [], [], []
     all_preds = None
     all_datay = None
     total_loss = []
 
     start = time.time()
+
 
     with torch.no_grad():
 
@@ -280,16 +276,11 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
             d = data.pos.cpu().detach().numpy()
             _y = data.y.cpu().detach().numpy()
             _out = out.max(dim=1)[1].cpu().detach().numpy()
-            # plot(d, _y, _out)
 
-            if recording:
-                mean_jaccard_indeces = calculate_mean_iou(out.max(dim=1)[1], data.y, 18, batch=data.batch)
-                mean_iou = torch.sum(mean_jaccard_indeces) / len(mean_jaccard_indeces)
-                if test:
-                    writer.add_scalar(f'Mean IoU/test_by_{test_by_acc_OR_iou}', mean_iou, epoch)
-                    print(f'Mean IoU/test_by_{test_by_acc_OR_iou}', epoch)
-                else:
-                    writer.add_scalar(f'Mean IoU/validation', mean_iou, epoch)
+
+            # Mean Jaccard indeces PER LABEL (18 numbers)
+            i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
+            i_total, u_total = add_i_and_u(i, u, i_total, u_total, batch_idx)
 
 
             if batch_idx == 0:
@@ -321,34 +312,17 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
             correct_nodes += pred.eq(data.y).sum().item()
             total_nodes += data.num_nodes
 
-            # 6. Get IoU metric per class
-            # Mean Jaccard indeces PER LABEL
-            i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
-
-            # Sum i and u along the batch dimension (gives value per class)
-            i = torch.sum(i, dim=0) / i.shape[0]
-            u = torch.sum(u, dim=0) / u.shape[0]
-
-            if batch_idx == 0:
-                i_total = i
-                u_total = u
-            else:
-                i_total += i
-                u_total += u
-
-        i_total = i_total.type(torch.FloatTensor)
-        u_total = u_total.type(torch.FloatTensor)
-
         # Mean IoU over all batches and per class (i.e. array of shape 18 - [0.5, 0.7, 0.85, ... ]
-        mean_IoU_per_class = i_total/u_total
+        mean_IoU_per_class = get_mean_iou_per_class(i_total, u_total)
+        mean_iou = torch.mean(mean_IoU_per_class)
 
         accuracy = correct_nodes / total_nodes
         loss = torch.mean(torch.tensor(total_loss))
 
 
-        if recording:
+        #TODO: Validation/tests are being made many times! Why?
 
-            mean_iou = torch.sum(mean_IoU_per_class) / len(mean_IoU_per_class)
+        if recording:
 
             if test:
                 writer.add_scalar(f'Mean IoU/test_by_{test_by_acc_OR_iou}', mean_iou)
