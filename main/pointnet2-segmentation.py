@@ -213,15 +213,21 @@ def train(epoch):
         # Mean Jaccard indeces PER LABEL (18 numbers)
         i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
 
-        i = i.type(torch.FloatTensor)
-        u = u.type(torch.FloatTensor)
+        if idx == 0:
+            i_total = i
+            u_total = u
+        else:
+            i_total += i
+            u_total += u
 
-        iou_per_class = i/u
-        mean_jaccard_index_per_class = torch.sum(iou_per_class, dim=0) / iou_per_class.shape[0]
 
         if (idx + 1) % print_per == 0:
 
             mean_iou = torch.mean(torch.tensor(mean_ious))
+
+            i_total = i.type(torch.FloatTensor)
+            u_total = u.type(torch.FloatTensor)
+            mean_IoU_per_class = i_total / u_total
 
             print('[{}/{}] Loss: {:.4f}, Train Accuracy: {:.4f}, Mean IoU: {}'.format(
                 idx + 1, len(train_loader), total_loss / print_per,
@@ -233,13 +239,15 @@ def train(epoch):
                 writer.add_scalar('Mean IoU/train', mean_iou, epoch)
                 writer.add_scalar('Accuracy/train', correct_nodes/total_nodes, epoch)
 
-                for label, iou in enumerate(mean_jaccard_index_per_class):
+                for label, iou in enumerate(mean_IoU_per_class):
                     writer.add_scalar('IoU{}/train'.format(label), iou, epoch)
 
                 # print('\t\tLabel {}: {}'.format(label, iou))
             # print('\n')
             total_loss = correct_nodes = total_nodes = 0
             mean_ious = []
+            i_total = None
+            u_total = None
 
 
 def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_iou='acc', id=None, experiment_name=''):
@@ -262,7 +270,7 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
     start = time.time()
 
     with torch.no_grad():
-
+        mean_ious = []
         for batch_idx, data in enumerate(loader):
 
 
@@ -285,12 +293,7 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
             if recording:
                 mean_jaccard_indeces = calculate_mean_iou(out.max(dim=1)[1], data.y, 18, batch=data.batch)
                 mean_iou = torch.sum(mean_jaccard_indeces) / len(mean_jaccard_indeces)
-                if test:
-                    writer.add_scalar(f'Mean IoU/test_by_{test_by_acc_OR_iou}', mean_iou, epoch)
-                    print(f'Mean IoU/test_by_{test_by_acc_OR_iou}', epoch)
-                else:
-                    writer.add_scalar(f'Mean IoU/validation', mean_iou, epoch)
-
+                mean_ious.append(mean_iou)
 
             if batch_idx == 0:
                 all_preds = pred
@@ -346,9 +349,11 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
         loss = torch.mean(torch.tensor(total_loss))
 
 
+        #TODO: Validation/tests are being made many times! Why?
+
         if recording:
 
-            mean_iou = torch.sum(mean_IoU_per_class) / len(mean_IoU_per_class)
+            mean_iou = torch.mean(mean_ious)
 
             if test:
                 writer.add_scalar(f'Mean IoU/test_by_{test_by_acc_OR_iou}', mean_iou)
