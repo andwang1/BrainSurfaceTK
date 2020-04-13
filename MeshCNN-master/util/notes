@@ -5,19 +5,21 @@ before testing move all the train related testoutput files away first, they will
 gpu01 - dropout
 gpu03 - batchnorm
 gpu05 - static highlr
-gpu08 - cyclic
+gpu08 - equal split cls
 gpu21 - smallarch
 
-cluster - cosine
-cluster - standard classification
-cluster - morefeatures
+cluster - sex classification
+cluster - 120ep cosine
 
 next
-train_exp_red50_12gb_cls_binary_sex.sh ---> queded for batch
-train_exp_red50_12gb_cls_binary_equalsplit.sh
+train_exp_red50_12gb_ep50_lr_static_smallergroups.sh
+train_exp_red50_12gb_ep50_lr_static_largergroups.sh
+train_exp_red50_12gb_ep90_lr_plateau_morefeatures.sh
 
-more features static
+
+more features static long
 more features cosine
+dropout in second layer
 
 rerun age regression on both havles using best config - more data reduces var error
 native runs
