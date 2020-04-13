@@ -215,7 +215,7 @@ def train(epoch):
         if (idx + 1) % print_per == 0:
 
             mean_iou_per_class = get_mean_iou_per_class(i_total, u_total)
-            mean_iou = torch.mean(mean_iou_per_class)
+            mean_iou = torch.tensor(np.nanmean(mean_iou_per_class.cpu().detach().numpy()))
 
             print('[{}/{}] Loss: {:.4f}, Train Accuracy: {:.4f}, Mean IoU: {}'.format(
                 idx + 1, len(train_loader), total_loss / print_per,
