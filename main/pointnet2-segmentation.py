@@ -211,7 +211,6 @@ def train(epoch):
         # Add to totals
         i_total, u_total = add_i_and_u(i, u, i_total, u_total, idx)
 
-
         if (idx + 1) % print_per == 0:
 
             mean_iou_per_class = get_mean_iou_per_class(i_total, u_total)
@@ -294,17 +293,17 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
 
             if recording:
                 # 3. Create directory where to place the data
-                if not os.path.exists(f'experiment_data/{experiment_name}-{id}/'):
-                    print(f'Created folder: experiment_data/{experiment_name}-{id}/')
-                    os.makedirs(f'experiment_data/{experiment_name}-{id}/')
+                if not os.path.exists(f'experiment_data/new/{experiment_name}-{id}/'):
+                    print(f'Created folder: experiment_data/new/{experiment_name}-{id}/')
+                    os.makedirs(f'experiment_data/new/{experiment_name}-{id}/')
 
                 # 4. Save the segmented brain in ./[...comment...]/data_valiation3.pkl (3 is for epoch)
                 # for brain_idx, brain in data:
                 if test:
-                    with open(f'experiment_data/{experiment_name}-{id}/data{mode}_by_{test_by_acc_OR_iou}.pkl', 'wb') as file:
+                    with open(f'experiment_data/new/{experiment_name}-{id}/data{mode}_by_{test_by_acc_OR_iou}.pkl', 'wb') as file:
                         pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
                 else:
-                    with open(f'experiment_data/{experiment_name}-{id}/data{mode+_epoch}.pkl', 'wb') as file:
+                    with open(f'experiment_data/new/{experiment_name}-{id}/data{mode+_epoch}.pkl', 'wb') as file:
                         pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
 
 
@@ -313,8 +312,8 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
             total_nodes += data.num_nodes
 
         # Mean IoU over all batches and per class (i.e. array of shape 18 - [0.5, 0.7, 0.85, ... ]
-        mean_IoU_per_class = get_mean_iou_per_class(i_total, u_total)
-        mean_iou = torch.mean(mean_IoU_per_class)
+        mean_iou_per_class = get_mean_iou_per_class(i_total, u_total)
+        mean_iou = torch.tensor(np.nanmean(mean_iou_per_class.cpu().detach().numpy()))
 
         accuracy = correct_nodes / total_nodes
         loss = torch.mean(torch.tensor(total_loss))
@@ -336,14 +335,14 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
             cm = plot_confusion_matrix(all_datay, all_preds, labels=all_labels)
             writer.add_figure(f'Confusion Matrix - ID{id}-{experiment_name}', cm)
 
-    return loss, accuracy, mean_IoU_per_class, mean_iou
+    return loss, accuracy, mean_iou_per_class, mean_iou
 
 
 def perform_final_testing(model, writer, test_loader, experiment_name, comment, id):
 
     # 1. Load the best model for testing --- both by accuracy and IoU
     model.load_state_dict(
-        torch.load(f'./experiment_data/{experiment_name}-{id}/' + 'best_acc_model' + '.pt'))
+        torch.load(f'./experiment_data/new/{experiment_name}-{id}/' + 'best_acc_model' + '.pt'))
 
     # 2. Test the performance after training
     loss_acc, acc_acc, iou_acc, mean_iou_acc = test(test_loader, comment, test=True, test_by_acc_OR_iou='acc', id=id, experiment_name=experiment_name)
@@ -352,15 +351,16 @@ def perform_final_testing(model, writer, test_loader, experiment_name, comment, 
     if recording:
         writer.add_scalar('Loss/test_byACC', loss_acc)
         writer.add_scalar('Accuracy/test_byACC', acc_acc)
+        print(f'****************** Loaded best model by Acc. It was saved at epoch {best_model_acc} ******************')
         for label, value in enumerate(iou_acc):
             writer.add_scalar('IoU{}/test_byACC'.format(label), value)
-            print('\t\tTest Label (best model by IoU) {}: {}'.format(label, value))
+            print('\t\tTest Label (best model by Acc) {}: {}'.format(label, value))
 
 
 
     # 1. Load the best model for testing --- both by accuracy and IoU
     model.load_state_dict(
-        torch.load(f'./experiment_data/{experiment_name}-{id}/' + 'best_iou_model' + '.pt'))
+        torch.load(f'./experiment_data/new/{experiment_name}-{id}/' + 'best_iou_model' + '.pt'))
 
     # 2. Test the performance after training
     loss_iou, acc_iou, iou_iou, mean_iou_iou = test(test_loader, comment, test=True, test_by_acc_OR_iou='iou', id=id, experiment_name=experiment_name)
@@ -369,6 +369,7 @@ def perform_final_testing(model, writer, test_loader, experiment_name, comment, 
     if recording:
         writer.add_scalar('Loss/test_byIOU', loss_iou)
         writer.add_scalar('Accuracy/test_byIOU', acc_iou)
+        print(f'****************** Loaded best model by IoU. It was saved at epoch {best_model_iou} ******************')
         for label, value in enumerate(iou_iou):
             writer.add_scalar('IoU{}/test_byIOU'.format(label), value)
             print('\t\tTest Label (best model by IoU) {}: {}'.format(label, value))
@@ -385,6 +386,7 @@ if __name__ == '__main__':
     num_workers = 2
     local_features = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
     grid_features = get_grid_search_local_features(local_features)
+    ids_to_include = [6, 7, 12, 13, 14, 15, 16]
 
 
     #################################################
@@ -392,11 +394,11 @@ if __name__ == '__main__':
     #################################################
     recording = True
 
-    data_nativeness = 'aligned'
-    data_compression = "50"
-    data_type = "inflated"
+    data_nativeness = 'native'
+    data_compression = "original"
+    data_type = "white"
 
-    additional_comment = 'TEST'
+    additional_comment = ''
 
     experiment_name = f'{data_nativeness}_{data_type}_{data_compression}_{additional_comment}'
 
@@ -405,16 +407,17 @@ if __name__ == '__main__':
     #################################################
 
 
-    for local_feature_combo in grid_features[5:8]:
+    for id in ids_to_include:
         for global_feature in [[]]:#, ['weight']]:
 
             # 1. Model Parameters
             lr = 0.001
-            batch_size = 8
+            batch_size = 4
+            local_feature_combo = grid_features[id-2]
             global_features = global_feature
             target_class = 'gender'
             task = 'segmentation'
-            REPROCESS = False
+            REPROCESS = True
 
 
             # 2. Get the data splits indices
@@ -462,7 +465,7 @@ if __name__ == '__main__':
             model = Net(18, num_local_features, num_global_features=None).to(device)
             optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-            gamma = 0.985
+            gamma = 0.9875
             scheduler = StepLR(optimizer, step_size=1, gamma=gamma)
 
             id = '0'
@@ -479,11 +482,12 @@ if __name__ == '__main__':
                 writer = SummaryWriter(f'new_runs/{experiment_name}ID' + id)
                 writer.add_text(f'{experiment_name} ID #{id}', comment)
 
-
             best_val_acc = 0
             best_val_iou = 0
+            best_model_acc = 0
+            best_model_iou = 0
             # 10. TRAINING
-            for epoch in range(1, 8):
+            for epoch in range(1, 150):
 
                 # 1. Start recording time
                 start = time.time()
@@ -505,10 +509,12 @@ if __name__ == '__main__':
 
                     if acc > best_val_acc:
                         best_val_acc = acc
-                        torch.save(model.state_dict(), f'./experiment_data/{experiment_name}-{id}/' + 'best_acc_model' + '.pt')
+                        best_model_acc = epoch
+                        torch.save(model.state_dict(), f'./experiment_data/new/{experiment_name}-{id}/' + 'best_acc_model' + '.pt')
                     if mean_iou > best_val_iou:
                         best_val_iou = mean_iou
-                        torch.save(model.state_dict(), f'./experiment_data/{experiment_name}-{id}/' + 'best_iou_model' + '.pt')
+                        best_model_iou = epoch
+                        torch.save(model.state_dict(), f'./experiment_data/new/{experiment_name}-{id}/' + 'best_iou_model' + '.pt')
 
                     writer.add_scalar('Loss/val_nll', loss, epoch)
                     writer.add_scalar('Accuracy/val', acc, epoch)
@@ -519,25 +525,11 @@ if __name__ == '__main__':
                 print('='*60)
 
             # save the last model
-            torch.save(model.state_dict(), f'./experiment_data/{experiment_name}-{id}/' + 'last_model' + '.pt')
+            torch.save(model.state_dict(), f'./experiment_data/new/{experiment_name}-{id}/' + 'last_model' + '.pt')
 
 
             loss_acc, acc_acc, iou_acc, mean_iou_acc, loss_iou, acc_iou, iou_iou, mean_iou_iou = perform_final_testing(model, writer, test_loader, experiment_name, comment, id)
 
-            # with writer as w:
-            #     w.add_hparams({'D Nativeness': data_nativeness,
-            #                         'D Compression': data_compression,
-            #                         'D Type': data_type,
-            #                         'Loc Features': local_features,
-            #                         'Glob Features': global_features,
-            #                         'LR': lr,
-            #                         'Batch': batch_size,
-            #                         'Sched Gamma': gamma},
-            #
-            #                        {'hparam/Test Accuracy (by acc)': acc_acc,
-            #                         'hparam/Test IoU (by acc)': mean_iou_acc,
-            #                         'hparam/Test Accuracy (by iou)': acc_iou,
-            #                         'hparam/Test IoU (by iou)': mean_iou_iou})
 
 
 

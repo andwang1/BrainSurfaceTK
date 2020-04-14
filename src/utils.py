@@ -9,13 +9,13 @@ def get_comment(data_nativeness, data_compression, data_type,
                 lr, batch_size, local_feature_combo, global_features,
                 target_class, log_descr=False):
 
-    comment = f'\nData nativeness: {data_nativeness}\n' \
-              f'Data compression: {data_compression}\n' \
-              f'Data type: {data_type}\n' \
-              f'Local features: {local_feature_combo}\n' \
-              f'Global features: {global_features}\n' \
+    comment = f'\nData nativeness: {data_nativeness}, \n' \
+              f'Data compression: {data_compression}, \n' \
+              f'Data type: {data_type}, \n' \
+              f'Local features: {local_feature_combo}, \n' \
+              f'Global features: {global_features}, \n' \
               f'\n' \
-              f'Learning rate: {lr}\n' \
+              f'Learning rate: {lr}, \n' \
               f'Batch size: {batch_size}\n'
 
     if log_descr == True:
@@ -37,7 +37,7 @@ def get_id(prefix=''):
     :return: The next expected id number of an experiment
              that hasn't yet been recorded!
     '''
-    with open(f'logs/LOG_{prefix}.txt', 'r') as log_record:
+    with open(f'logs/new/LOG_{prefix}.txt', 'r') as log_record:
         next_id = len(log_record.readlines()) + 1
 
     return str(next_id)
@@ -50,14 +50,14 @@ def save_to_log(experiment_description, prefix=''):
 
     # If the log file does not exist - create it
     add_first_line = False
-    if not os.path.exists(f'logs/LOG_{prefix}.txt'):
+    if not os.path.exists(f'logs/new/LOG_{prefix}.txt'):
         add_first_line = True
 
     if add_first_line:
-        with open(f'logs/LOG_{prefix}.txt', 'w+') as log_record:
+        with open(f'logs/new/LOG_{prefix}.txt', 'w+') as log_record:
             log_record.write(f'LOG OF ALL THE EXPERIMENTS for {prefix}')
 
-    with open(f'logs/LOG_{prefix}.txt', 'a+') as log_record:
+    with open(f'logs/new/LOG_{prefix}.txt', 'a+') as log_record:
         next_id = get_id(prefix=prefix)
         log_record.write('\n#{} ::: {}'.format(next_id, experiment_description))
 
