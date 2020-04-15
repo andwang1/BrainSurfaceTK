@@ -1,0 +1,30 @@
+{% extends 'main/header.html' %}
+{% load static %}
+
+{% block title %}Results{% endblock %}
+
+
+{% block content %}
+    <h1>Session-{{ session_id }}</h1>
+    <div id="brain-container">
+        {{ image | safe }}
+        <script id="brain_surf" type="text/javascript" src="{% static "main/js/MyWebApp.js" | safe %}"
+                data-fileName="{{ fileName }}"
+                data-filePath="{% static filePath | safe %}"></script>
+    </div>
+    <table>
+        <thead>
+        <tr>
+            {% for col in column_names %}
+                <th>{{ col }}</th>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for value in values %}
+            <td>{{ value }}</td>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

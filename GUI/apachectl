@@ -1,0 +1,104 @@
+#!/usr/bin/bash
+
+# ['/media/cemlyn/UHDD/Programming/CondaEnvironments/GUI/bin/mod_wsgi-express', 'setup-server', 'BasicSite/wsgi.py', '--port=80', '--user', 'www-data', '--group', 'www-data', '--server-root=/media/cemlyn/UHDD/Programming/Projects/GroupProject/deepl_brain_surfaces/GUI']
+
+HTTPD="/usr/sbin/apache2"
+HTTPD_ARGS="-f /media/cemlyn/UHDD/Programming/Projects/GroupProject/deepl_brain_surfaces/GUI/httpd.conf -DMOD_WSGI_MPM_ENABLE_EVENT_MODULE -DMOD_WSGI_MPM_EXISTS_EVENT_MODULE -DMOD_WSGI_MPM_EXISTS_WORKER_MODULE -DMOD_WSGI_MPM_EXISTS_PREFORK_MODULE"
+
+HTTPD_COMMAND="$HTTPD $HTTPD_ARGS"
+
+MOD_WSGI_MODULES_DIRECTORY="/usr/lib/apache2/modules"
+export MOD_WSGI_MODULES_DIRECTORY
+
+SHLIBPATH=""
+
+if [ "x$SHLIBPATH" != "x" ]; then
+    LD_LIBRARY_PATH="$SHLIBPATH:$LD_LIBRARY_PATH"
+    export LD_LIBRARY_PATH
+fi
+
+MOD_WSGI_SERVER_ROOT="/media/cemlyn/UHDD/Programming/Projects/GroupProject/deepl_brain_surfaces/GUI"
+
+export MOD_WSGI_SERVER_ROOT
+
+MOD_WSGI_LISTENER_HOST="localhost"
+
+export MOD_WSGI_LISTENER_HOST
+
+MOD_WSGI_HTTP_PORT="80"
+MOD_WSGI_HTTPS_PORT="None"
+
+export MOD_WSGI_HTTP_PORT
+export MOD_WSGI_HTTPS_PORT
+
+WSGI_RUN_USER="${WSGI_RUN_USER:-www-data}"
+WSGI_RUN_GROUP="${WSGI_RUN_GROUP:-www-data}"
+
+MOD_WSGI_USER="${MOD_WSGI_USER:-${WSGI_RUN_USER}}"
+MOD_WSGI_GROUP="${MOD_WSGI_GROUP:-${WSGI_RUN_GROUP}}"
+
+export MOD_WSGI_USER
+export MOD_WSGI_GROUP
+
+if [ `id -u` = "0" -a ${MOD_WSGI_USER} = "root" ]; then
+    cat << EOF
+
+WARNING: When running as the 'root' user, it is required that the options
+'--user' and '--group' be specified to mod_wsgi-express. These should
+define a non 'root' user and group under which the Apache child worker
+processes and mod_wsgi daemon processes should be run. Failure to specify
+these options will result in Apache and/or the mod_wsgi daemon processes
+failing to start. See the mod_wsgi-express documentation for further
+information on this restriction.
+
+EOF
+
+fi
+
+MOD_WSGI_WORKING_DIRECTORY="/media/cemlyn/UHDD/Programming/Projects/GroupProject/deepl_brain_surfaces/GUI"
+
+export MOD_WSGI_WORKING_DIRECTORY
+
+LANG='en_GB.UTF-8'
+LC_ALL='en_GB.UTF-8'
+
+export LANG
+export LC_ALL
+
+ACMD="$1"
+ARGV="$@"
+
+if test -f /media/cemlyn/UHDD/Programming/Projects/GroupProject/deepl_brain_surfaces/GUI/envvars; then
+    . /media/cemlyn/UHDD/Programming/Projects/GroupProject/deepl_brain_surfaces/GUI/envvars
+fi
+
+STATUSURL="http://localhost:80/server-status"
+
+if [ "x$ARGV" = "x" ]; then
+    ARGV="-h"
+fi
+
+GDB="gdb"
+ENABLE_GDB="False"
+
+PROCESS_NAME="apache2 (mod_wsgi-express)"
+
+case $ACMD in
+start|stop|restart|graceful|graceful-stop)
+    if [ "x$ENABLE_GDB" != "xTrue" ]; then
+        exec -a "$PROCESS_NAME" $HTTPD_COMMAND -k $ARGV
+    else
+        echo "run $HTTPD_ARGS -k $ARGV" > /media/cemlyn/UHDD/Programming/Projects/GroupProject/deepl_brain_surfaces/GUI/gdb.cmds
+        gdb -x /media/cemlyn/UHDD/Programming/Projects/GroupProject/deepl_brain_surfaces/GUI/gdb.cmds $HTTPD
+    fi
+    ;;
+configtest)
+    exec $HTTPD_COMMAND -t
+    ;;
+status)
+    exec /media/cemlyn/UHDD/Programming/CondaEnvironments/GUI/bin/python3 -m webbrowser -t $STATUSURL
+    ;;
+*)
+    exec $HTTPD_COMMAND $ARGV
+esac
+
