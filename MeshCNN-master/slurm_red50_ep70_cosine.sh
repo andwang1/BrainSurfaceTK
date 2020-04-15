@@ -9,4 +9,4 @@ source /vol/cuda/10.0.130/setup.sh
 /usr/bin/nvidia-smi
 uptime
 pwd
-/bin/bash ./scripts/brains/train_exp_red50_12gb_ep70_lr_cosine.sh
+/bin/bash ./scripts/brains/train_exp_red50_12gb_ep120_lr_cosine.sh
