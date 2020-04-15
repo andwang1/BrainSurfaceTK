@@ -84,7 +84,6 @@ docs/_build/
 # PyBuilder
 target/
 
-# Jupyter Notebook
 .ipynb_checkpoints
 
 # IPython
@@ -123,3 +122,11 @@ venv.bak/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+# dataset
+datasets/
+checkpoints/
+results/
+runs/
+slurm*
+util/notes
