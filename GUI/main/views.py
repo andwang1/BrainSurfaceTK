@@ -54,7 +54,7 @@ def view_session_data(request, session_id):
     values = list(*record.values_list())[1:]
     file_path = list(*GreyMatterVolume.objects.filter(session_id=session_id).values_list())[-1]
     img = nib.load(file_path)
-    img_html = view_img(img, colorbar=False, bg_img=False, cmap='gray')
+    img_html = view_img(img, colorbar=False, bg_img=False, black_bg=True, cmap='gray')
     participant_id = values[0]
     file_name = f"sub-{participant_id}_ses-{session_id}_left_pial.vtp"
     return render(request, "main/results.html",
