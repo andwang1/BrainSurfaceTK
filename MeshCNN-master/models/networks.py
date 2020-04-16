@@ -62,9 +62,9 @@ def get_scheduler(optimizer, opt):
     elif opt.lr_policy == 'step':
         scheduler = lr_scheduler.StepLR(optimizer, step_size=opt.lr_decay_iters, gamma=0.5)
     elif opt.lr_policy == 'plateau':
-        scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.8, threshold=0.01, patience=2)
+        scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.8, threshold=0.01, patience=2, min_lr=opt.min_lr)
     elif opt.lr_policy == 'cyclic':
-        scheduler = lr_scheduler.CyclicLR(optimizer, 0.00005, opt.lr, step_size_up=5, step_size_down=None, gamma=0.99,
+        scheduler = lr_scheduler.CyclicLR(optimizer, opt.min_lr, opt.lr, step_size_up=5, step_size_down=None, gamma=0.99,
                                           mode='exp_range', cycle_momentum=False)
     elif opt.lr_policy == 'cosine_restarts':
         scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer, opt.lr_decay_iters, T_mult=1, eta_min=0)
