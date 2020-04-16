@@ -4,7 +4,7 @@ before testing move all the train related testoutput files away first, they will
 
 gpu01 - twogroups
 gpu03 - ready
-gpu05 - largergroups
+gpu05 - ready
 gpu08 - plateau more features
 gpu11 - static low LR
 gpu21 - ep50 linear run, second run
@@ -24,6 +24,9 @@ inflated run
 merged
 BATCH SIZE 1 vs BATCH SIZE 2
 
+
+groups 4
+lr scheduler - cyclic / plateau w/lower bound 5e-5? / cosine
 
 
 
