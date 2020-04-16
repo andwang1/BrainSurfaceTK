@@ -4,7 +4,7 @@ before testing move all the train related testoutput files away first, they will
 
 gpu01 - twogroups
 gpu03 - ready
-gpu05 - ready
+gpu05 - cosine longer cycle
 gpu08 - plateau more features
 gpu11 - static low LR
 gpu21 - ep50 linear run, second run
@@ -13,10 +13,6 @@ cluster - static morefeatures
 cluster - 120ep cosine
 
 next
-hold all GPUs, make one run with the "best config" and if that is ok, run everything else
-once have the good number of groups, rerun plateau and cosine with that
-plateau with lower bound
-find a good LR setting and then rerun big architecture
 
 rerun age regression on both havles using best config - more data reduces var error
 native runs
@@ -26,7 +22,9 @@ BATCH SIZE 1 vs BATCH SIZE 2
 
 
 groups 4
-lr scheduler - cyclic / plateau w/lower bound 5e-5? / cosine
+lr scheduler - plateau / cosine (which length of cycle) / static
+features -
+
 
 
 
