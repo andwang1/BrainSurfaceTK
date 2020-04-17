@@ -125,11 +125,11 @@ class ClassifierModel:
             self.scheduler.step(epoch)
         else:
             self.scheduler.step()
-        lr = self.optimizer.param_groups[0]['lr']
         # If lr below specified minimum, then set to minimum
         for param_group in self.optimizer.param_groups:
             if param_group['lr'] < self.opt.min_lr:
                 param_group['lr'] = self.opt.min_lr
+        lr = self.optimizer.param_groups[0]['lr']
         print('learning rate = %.7f' % lr)
         return lr
 

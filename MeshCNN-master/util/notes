@@ -3,7 +3,7 @@
 before testing move all the train related testoutput files away first, they will be overwritten
 
 gpu01 - twogroups
-gpu03 - ready
+gpu03 - plateau with lowerbound
 gpu05 - cosine longer cycle
 gpu08 - plateau more features
 gpu11 - static low LR
@@ -22,12 +22,8 @@ BATCH SIZE 1 vs BATCH SIZE 2
 
 
 groups 4
-lr scheduler - plateau / cosine (which length of cycle) / static
+lr scheduler - plateau (with lower bound? 3e-5?) / cosine (which length of cycle?) / static / linear (with lower bound 3e-5)
 features -
 
-
-
-
-looking at loss plots it seems that train and test move in sync, so overfitting does not seem to be the problem
--> lr, overshooting
+remove seed?
 
