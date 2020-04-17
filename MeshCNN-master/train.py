@@ -15,7 +15,8 @@ if __name__ == '__main__':
     writer = Writer(opt)
     total_steps = 0
 
-    best_val_acc = -1
+    best_val_cls_acc = -1
+    best_val_reg_acc = 10000
     best_epoch = None
 
     for epoch in range(opt.epoch_count, opt.niter + opt.niter_decay + 1):
@@ -59,9 +60,11 @@ if __name__ == '__main__':
             acc = run_test(epoch)
 
             # Track the best model
-            if opt.dataset_mode == 'regression' and acc < best_val_acc or \
-                    opt.dataset_mode in ('classification', 'binary_class') and acc > best_val_acc:
-                best_val_acc = acc
+            if opt.dataset_mode == 'regression' and acc < best_val_reg_acc:
+                best_val_reg_acc = acc
+                best_epoch = epoch
+            elif opt.dataset_mode in ('classification', 'binary_class') and acc > best_val_cls_acc:
+                best_val_cls_acc = acc
                 best_epoch = epoch
 
             writer.plot_acc(acc, epoch)
