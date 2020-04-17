@@ -17,8 +17,9 @@ def run_test(epoch=-1, is_val=True):
     # If we are running on the test set change the folder path to where the test meshes are stored
     if not is_val:
         opt.dataroot += "_test"
-        print("DEBUG testpath: ", opt.dataroot)
+    print("DEBUG testpath: ", opt.dataroot)
     dataset = DataLoader(opt)
+    print("DEBUG dataset length ", len(dataset))
     model = create_model(opt)
     writer = Writer(opt)
     writer.reset_counter()
