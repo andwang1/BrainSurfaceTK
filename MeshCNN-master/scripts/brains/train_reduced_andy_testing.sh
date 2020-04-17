@@ -7,7 +7,8 @@ python3 train.py \
 --export_folder checkpoints/mesh_collapses \
 --name brains \
 --epoch_count 1 \
---niter 5 \
+--niter 1 \
+--niter_decay 2 \
 --batch_size 1 \
 --ncf 64 112 128 \
 --pool_res 3000 2750 2500 \
@@ -19,6 +20,4 @@ python3 train.py \
 --dataset_mode regression \
 --print_freq 14 \
 --ninput_edges 9000 \
---lr_policy cyclic \
---dropout \
-
+--min_lr 5e-5 \
