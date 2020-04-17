@@ -69,6 +69,7 @@ if __name__ == '__main__':
         writer.plot_lr(lr, epoch)
 
     # At end of training, pick best model and run a test on the test set
+    print("Final testing on model from epoch ", best_epoch)
     acc = run_test(best_epoch, is_val=False)
     writer.plot_test_acc(acc, best_epoch)
 

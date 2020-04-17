@@ -62,6 +62,7 @@ class ClassifierModel:
         self.labels = labels.to(self.device)
         self.mesh = data['mesh']
         self.path = data['path']
+        print("DEBUG meshpath ", self.path)
         # Retrieving the additional features specified from metadata file
         if self.feature_keys:
             # Using the filename as unique identifier
