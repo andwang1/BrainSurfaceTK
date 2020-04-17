@@ -17,16 +17,19 @@ def run_test(epoch=-1, is_val=True):
     # If we are running on the test set change the folder path to where the test meshes are stored
     if not is_val:
         opt.dataroot += "_test"
-    print("DEBUG testpath: ", opt.dataroot)
+
     dataset = DataLoader(opt)
-    print("DEBUG dataset length ", len(dataset))
+    if opt.verbose:
+        print("DEBUG testpath: ", opt.dataroot)
+        print("DEBUG dataset length ", len(dataset))
     model = create_model(opt)
     writer = Writer(opt)
     writer.reset_counter()
     for i, data in enumerate(dataset):
         model.set_input(data)
         ncorrect, nexamples = model.test(epoch, is_val)
-        print("DEBUG test ncorrect, nexamples ", ncorrect, nexamples)
+        if opt.verbose:
+            print("DEBUG test ncorrect, nexamples ", ncorrect, nexamples)
         writer.update_counter(ncorrect, nexamples)
     writer.print_acc(epoch, writer.acc)
     return writer.acc
