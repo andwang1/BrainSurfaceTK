@@ -57,6 +57,7 @@ class ClassificationData(BaseDataset):
                 continue
             for root, _, fnames in sorted(os.walk(d)):
                 for fname in sorted(fnames):
+                    print("DEBUG fname in meshretrieve ", fname)
                     if is_mesh_file(fname) and (root.count(phase)==1):
                         path = os.path.join(root, fname)
                         print("DEBUG meshretrieve path ", path)
