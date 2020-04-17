@@ -37,6 +37,7 @@ class ClassifierModel:
         # Logging results into a file for each testing epoch
         self.save_dir = join(opt.checkpoints_dir, opt.name)
         self.testacc_log = join(self.save_dir, 'testacc_full_log_')
+        self.final_testacc_log = join(self.save_dir, 'final_testacc_full_log_')
         # Load/define networks
         self.net = networks.define_classifier(opt.input_nc, opt.ncf, opt.ninput_edges, opt.nclasses, opt, self.gpu_ids,
                                               opt.arch, opt.init_type, opt.init_gain,
@@ -165,7 +166,7 @@ class ClassifierModel:
                 print('Abs Error:\t', correct.item())
 
             # Log results to file
-            file_name = f"{self.testacc_log}{epoch}.csv" if is_val else f"final_{self.testacc_log}{epoch}.csv"
+            file_name = f"{self.testacc_log}{epoch}.csv" if is_val else f"{self.final_testacc_log}{epoch}.csv"
             with open(file_name, "a") as log_file:
                 if self.opt.dataset_mode == 'binary_class':
                     log_file.write(f"{patient_id},{pred_class.item()},{label_class.item()},{out.item()}\n")
