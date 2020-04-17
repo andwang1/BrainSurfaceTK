@@ -133,7 +133,7 @@ class ClassifierModel:
         print('learning rate = %.7f' % lr)
         return lr
 
-    def test(self, epoch):
+    def test(self, epoch, is_val=True):
         """tests model
         returns: number correct and total number
         """
@@ -164,7 +164,8 @@ class ClassifierModel:
                 print('Abs Error:\t', correct.item())
 
             # Log results to file
-            with open(f"{self.testacc_log}{epoch}.csv", "a") as log_file:
+            file_name = f"{self.testacc_log}{epoch}.csv" if is_val else f"final_{self.testacc_log}{epoch}.csv"
+            with open(file_name, "a") as log_file:
                 if self.opt.dataset_mode == 'binary_class':
                     log_file.write(f"{patient_id},{pred_class.item()},{label_class.item()},{out.item()}\n")
                 else:

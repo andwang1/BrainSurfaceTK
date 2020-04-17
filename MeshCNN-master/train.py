@@ -15,6 +15,9 @@ if __name__ == '__main__':
     writer = Writer(opt)
     total_steps = 0
 
+    best_val_acc = -1
+    best_epoch = None
+
     for epoch in range(opt.epoch_count, opt.niter + opt.niter_decay + 1):
         epoch_start_time = time.time()
         iter_data_time = time.time()
@@ -54,9 +57,19 @@ if __name__ == '__main__':
 
         if epoch % opt.run_test_freq == 0:
             acc = run_test(epoch)
+
+            # Track the best model
+            if opt.dataset_mode == 'regression' and acc < best_val_acc or \
+                    opt.dataset_mode in ('classification', 'binary_class') and acc > best_val_acc:
+                best_val_acc = acc
+                best_epoch = epoch
+
             writer.plot_acc(acc, epoch)
         lr = model.update_learning_rate(acc, epoch)
         writer.plot_lr(lr, epoch)
 
+    # At end of training, pick best model and run a test on the test set
+    acc = run_test(best_epoch, is_val=False)
+    writer.plot_test_acc(acc, best_epoch)
 
     writer.close()

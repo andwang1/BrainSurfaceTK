@@ -67,6 +67,10 @@ class Writer:
 
     def plot_acc(self, acc, epoch):
         if self.display:
+            self.display.add_scalar('data/val_acc', acc, epoch)
+
+    def plot_test_acc(self, acc, epoch):
+        if self.display:
             self.display.add_scalar('data/test_acc', acc, epoch)
 
     def plot_lr(self, lr, epoch):
