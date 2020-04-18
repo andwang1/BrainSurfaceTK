@@ -6,7 +6,7 @@ python3 train.py \
 --checkpoints_dir checkpoints/aligned_red90_lr_static \
 --export_folder checkpoints/mesh_collapses \
 --name brains \
---ninput_edges 48735 \
+--ninput_edges 9000 \class_to
 --epoch_count 1 \
 --norm group \
 --num_aug 1 \

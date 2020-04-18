@@ -68,6 +68,9 @@ class ClassificationData(BaseDataset):
                             # Retrieves additional info from metadata file as labels - use filename as key
                             # filename format CC00839XX23_23710.obj
                             filename_key = fname[:-4]
+                            # for the specific case where we are using both halves in the same dataset the file will end in L or R
+                            if filename_key[-1] in ('L', 'R'):
+                                filename_key = filename_key[:-2]
                             item = (path, class_to_idx[filename_key])
                         else:
                             item = (path, class_to_idx[target])
