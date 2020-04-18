@@ -176,6 +176,7 @@ class MeshPool(nn.Module):
             MeshPool.__remove_group(mesh, edge_groups, edge_key)
         mesh.edges_count -= 3
         vertex = list(vertex)
+        print("vertex ", len(vertex), vertex)
         assert (len(vertex) == 1)
         mesh.remove_vertex(vertex[0])
 
