@@ -3,9 +3,9 @@ import os
 import pandas as pd
 from shutil import copyfile
 # Where them brains at
-source_dir = r"/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/datasets/all_brains_aligned_red50_LR"
+source_dir = r"/vol/biomedic2/aa16914/shared/MScAI_brain_surface/andy/deepl_brain_surfaces/MeshCNN-master/datasets/all_brains_aligned_red50_LR"
 # Where them brains should be at
-target_dir = r"/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/datasets/brains_reg_aligned_red50_LR"
+target_dir = r"/vol/biomedic2/aa16914/shared/MScAI_brain_surface/andy/deepl_brain_surfaces/MeshCNN-master/datasets/brains_reg_aligned_red50_LR"
 
 
 #### This is for MeshCNN specifically
