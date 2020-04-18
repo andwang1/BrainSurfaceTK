@@ -173,7 +173,8 @@ class MeshPool(nn.Module):
         print("pre", vertex)
         for edge_key in invalid_edges:
             print("edge_key", edge_key)
-            print(mesh.edges)
+            print("meshedges", mesh.edges)
+            print("meshedgeswithkey", set(mesh.edges[edge_key]))
             vertex &= set(mesh.edges[edge_key])
             print("after intersec", vertex)
             mask[edge_key] = False
