@@ -12,7 +12,7 @@ meta['unique_key'] = meta['participant_id'] + "_" + meta['session_id'].astype(st
 meta.set_index('unique_key', inplace=True)
 meta.drop(['participant_id', 'session_id', 'sedation', 'scan_number'], axis=1, inplace=True)
 
-with open("names_preterm.pk", "rb") as f:
+with open("indices.pk", "rb") as f:
     indices = pickle.load(f)
 
 print(indices)
