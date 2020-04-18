@@ -16,7 +16,7 @@ def run_test(epoch=-1, is_val=True):
     opt.batch_size = 1
     # If we are running on the test set change the folder path to where the test meshes are stored
     if not is_val:
-        opt.dataroot += "_test"
+        opt.phase = "final_test"
 
     dataset = DataLoader(opt)
     if opt.verbose:
