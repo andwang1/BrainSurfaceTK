@@ -62,9 +62,12 @@ class BaseOptions:
         if self.opt.seed is not None:
             import numpy as np
             import random
+            import torch.backends.cudnn as cudnn
             torch.manual_seed(self.opt.seed)
+            torch.cuda.manual_seed(self.opt.seed)
             np.random.seed(self.opt.seed)
             random.seed(self.opt.seed)
+            cudnn.deterministic = True
 
         if self.opt.export_folder:
             self.opt.export_folder = os.path.join(self.opt.checkpoints_dir, self.opt.name, self.opt.export_folder)
