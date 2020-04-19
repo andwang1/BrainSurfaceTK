@@ -2,8 +2,8 @@
 
 ## run the training
 python3 train.py \
---dataroot datasets/brains_reg_native_5k \
---checkpoints_dir checkpoints/native_5k_lr_static \
+--dataroot datasets/brains_reg_aligned_red90 \
+--checkpoints_dir checkpoints/aligned_red90_lr_static_batched \
 --export_folder checkpoints/mesh_collapses \
 --name brains \
 --epoch_count 1 \
@@ -15,10 +15,9 @@ python3 train.py \
 --dataset_mode regression \
 --niter 100 \
 --niter_decay 0 \
---batch_size 1 \
+--batch_size 32 \
 --ncf 64 112 128 \
 --pool_res 3000 2750 2500 \
 --lr 0.0003 \
 --init_type kaiming \
 --num_groups 2 \
---verbose \
