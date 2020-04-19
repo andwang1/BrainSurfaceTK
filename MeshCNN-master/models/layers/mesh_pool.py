@@ -35,23 +35,15 @@ class MeshPool(nn.Module):
         if self.__multi_thread:
             for mesh_index in range(len(meshes)):
                 pool_threads[mesh_index].join()
-        #print(self.__updated_fe)
-        #print('~~~~~~')
-        #print(self.__out_target)
         out_features = torch.cat(self.__updated_fe).view(len(meshes), -1, self.__out_target)
         return out_features
 
     def __pool_main(self, mesh_index):
         mesh = self.__meshes[mesh_index]
         queue = self.__build_queue(self.__fe[mesh_index, :, :mesh.edges_count], mesh.edges_count)
-        # recycle = []
-        # last_queue_len = len(queue)
-        last_count = mesh.edges_count + 1
         mask = np.ones(mesh.edges_count, dtype=np.bool)
         edge_groups = MeshUnion(mesh.edges_count, self.__fe.device)
-        #while len(queue) > 0:
         while mesh.edges_count > self.__out_target:
-            #print(len(queue))
             value, edge_id = heappop(queue)
             edge_id = int(edge_id)
             if mask[edge_id]:
@@ -63,9 +55,9 @@ class MeshPool(nn.Module):
     def __pool_edge(self, mesh, edge_id, mask, edge_groups):
         if self.has_boundaries(mesh, edge_id):
             return False
-        elif self.__clean_side(mesh, edge_id, mask, edge_groups, 0)\
-            and self.__clean_side(mesh, edge_id, mask, edge_groups, 2) \
-            and self.__is_one_ring_valid(mesh, edge_id):
+        elif self.__clean_side(mesh, edge_id, mask, edge_groups, 0) \
+                and self.__clean_side(mesh, edge_id, mask, edge_groups, 2) \
+                and self.__is_one_ring_valid(mesh, edge_id):
             self.__merge_edges[0] = self.__pool_side(mesh, edge_id, mask, edge_groups, 0)
             self.__merge_edges[1] = self.__pool_side(mesh, edge_id, mask, edge_groups, 2)
             mesh.merge_vertices(edge_id)
@@ -96,7 +88,6 @@ class MeshPool(nn.Module):
                 return True
         return False
 
-
     @staticmethod
     def __is_one_ring_valid(mesh, edge_id):
         v_a = set(mesh.edges[mesh.ve[mesh.edges[edge_id, 0]]].reshape(-1))
@@ -108,7 +99,8 @@ class MeshPool(nn.Module):
         info = MeshPool.__get_face_info(mesh, edge_id, side)
         key_a, key_b, side_a, side_b, _, other_side_b, _, other_keys_b = info
         self.__redirect_edges(mesh, key_a, side_a - side_a % 2, other_keys_b[0], mesh.sides[key_b, other_side_b])
-        self.__redirect_edges(mesh, key_a, side_a - side_a % 2 + 1, other_keys_b[1], mesh.sides[key_b, other_side_b + 1])
+        self.__redirect_edges(mesh, key_a, side_a - side_a % 2 + 1, other_keys_b[1],
+                              mesh.sides[key_b, other_side_b + 1])
         MeshPool.__union_groups(mesh, edge_groups, key_b, key_a)
         MeshPool.__union_groups(mesh, edge_groups, edge_id, key_a)
         mask[key_b] = False
@@ -133,7 +125,8 @@ class MeshPool(nn.Module):
             update_side_b = mesh.sides[key_b, other_side_b + 1 - shared_items[1]]
             MeshPool.__redirect_edges(mesh, edge_id, side, update_key_a, update_side_a)
             MeshPool.__redirect_edges(mesh, edge_id, side + 1, update_key_b, update_side_b)
-            MeshPool.__redirect_edges(mesh, update_key_a, MeshPool.__get_other_side(update_side_a), update_key_b, MeshPool.__get_other_side(update_side_b))
+            MeshPool.__redirect_edges(mesh, update_key_a, MeshPool.__get_other_side(update_side_a), update_key_b,
+                                      MeshPool.__get_other_side(update_side_b))
             MeshPool.__union_groups(mesh, edge_groups, key_a, edge_id)
             MeshPool.__union_groups(mesh, edge_groups, key_b, edge_id)
             MeshPool.__union_groups(mesh, edge_groups, key_a, update_key_a)
@@ -177,13 +170,19 @@ class MeshPool(nn.Module):
     @staticmethod
     def __remove_triplete(mesh, mask, edge_groups, invalid_edges):
         vertex = set(mesh.edges[invalid_edges[0]])
+        print("pre", vertex)
         for edge_key in invalid_edges:
+            print("edge_key", edge_key)
+            print("meshedges", mesh.edges)
+            print("meshedgeswithkey", set(mesh.edges[edge_key]))
             vertex &= set(mesh.edges[edge_key])
+            print("after intersec", vertex)
             mask[edge_key] = False
             MeshPool.__remove_group(mesh, edge_groups, edge_key)
         mesh.edges_count -= 3
         vertex = list(vertex)
-        assert(len(vertex) == 1)
+        # print("vertex ", len(vertex), vertex)
+        assert (len(vertex) == 1)
         mesh.remove_vertex(vertex[0])
 
     def __build_queue(self, features, edges_count):

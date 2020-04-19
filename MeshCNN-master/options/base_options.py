@@ -12,7 +12,7 @@ class BaseOptions:
     def initialize(self):
         # data params
         self.parser.add_argument('--dataroot', required=True, help='path to meshes (should have subfolders train, test)')
-        self.parser.add_argument('--dataset_mode', choices={"classification", "regression", "segmentation"}, default='classification')
+        self.parser.add_argument('--dataset_mode', choices={"classification", "regression", "segmentation", "binary_class"}, default='classification')
         self.parser.add_argument('--label', choices={"scan_age", "birth_age"}, default='scan_age')
         self.parser.add_argument('--features', nargs='+', type=str, default=[])
         self.parser.add_argument('--ninput_edges', type=int, default=750, help='# of input edges (will include dummy edges)')
@@ -28,6 +28,7 @@ class BaseOptions:
         self.parser.add_argument('--num_groups', type=int, default=16, help='# of groups for groupnorm')
         self.parser.add_argument('--init_type', type=str, default='normal', help='network initialization [normal|xavier|kaiming|orthogonal]')
         self.parser.add_argument('--init_gain', type=float, default=0.02, help='scaling factor for normal, xavier and orthogonal.')
+        self.parser.add_argument('--dropout', action='store_true', help='if true, adds dropout layer to fully connected layers')
         # general params
         self.parser.add_argument('--num_threads', default=3, type=int, help='# threads for loading data')
         self.parser.add_argument('--gpu_ids', type=str, default='0', help='gpu ids: e.g. 0  0,1,2, 0,2. use -1 for CPU')
@@ -35,9 +36,9 @@ class BaseOptions:
         self.parser.add_argument('--checkpoints_dir', type=str, default='./checkpoints', help='models are saved here')
         self.parser.add_argument('--serial_batches', action='store_true', help='if true, takes meshes in order, otherwise takes them randomly')
         self.parser.add_argument('--seed', type=int, help='if specified, uses seed')
+        self.parser.add_argument('--verbose', action='store_true', help='if true, adds additional information to the console output')
         # visualization params
         self.parser.add_argument('--export_folder', type=str, default='', help='exports intermediate collapses to this folder')
-        #
         self.initialized = True
 
     def parse(self):
@@ -61,9 +62,12 @@ class BaseOptions:
         if self.opt.seed is not None:
             import numpy as np
             import random
+            import torch.backends.cudnn as cudnn
             torch.manual_seed(self.opt.seed)
+            torch.cuda.manual_seed(self.opt.seed)
             np.random.seed(self.opt.seed)
             random.seed(self.opt.seed)
+            cudnn.deterministic = True
 
         if self.opt.export_folder:
             self.opt.export_folder = os.path.join(self.opt.checkpoints_dir, self.opt.name, self.opt.export_folder)

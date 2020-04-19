@@ -7,6 +7,7 @@ except ImportError as error:
     print('tensorboard X not installed, visualizing wont be available')
     SummaryWriter = None
 
+
 class Writer:
     def __init__(self, opt):
         self.name = opt.name
@@ -65,6 +66,10 @@ class Writer:
             log_file.write('%s\n' % message)
 
     def plot_acc(self, acc, epoch):
+        if self.display:
+            self.display.add_scalar('data/val_acc', acc, epoch)
+
+    def plot_test_acc(self, acc, epoch):
         if self.display:
             self.display.add_scalar('data/test_acc', acc, epoch)
 

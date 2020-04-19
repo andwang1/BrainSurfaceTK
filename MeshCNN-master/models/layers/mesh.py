@@ -1,14 +1,13 @@
-from tempfile import mkstemp
-from shutil import move
 import torch
 import numpy as np
 import os
+from tempfile import mkstemp
+from shutil import move
 from models.layers.mesh_union import MeshUnion
 from models.layers.mesh_prepare import fill_mesh
 
 
 class Mesh:
-
     def __init__(self, file=None, opt=None, hold_history=False, export_folder=''):
         self.vs = self.v_mask = self.filename = self.features = self.edge_areas = None
         self.edges = self.gemm_edges = self.sides = None
@@ -21,7 +20,6 @@ class Mesh:
         self.export()
 
     def extract_features(self):
-        #print(np.min(self.features))
         return self.features
 
     def merge_vertices(self, edge_id):
@@ -62,7 +60,6 @@ class Mesh:
         self.gemm_edges[:, :] = new_indices[self.gemm_edges[:, :]]
         for v_index, ve in enumerate(self.ve):
             update_ve = []
-            # if self.v_mask[v_index]:
             for e in ve:
                 update_ve.append(new_indices[e])
             new_ve.append(update_ve)
@@ -70,7 +67,6 @@ class Mesh:
         self.__clean_history(groups, torch_mask)
         self.pool_count += 1
         self.export()
-
 
     def export(self, file=None, vcolor=None):
         if file is None:
@@ -151,21 +147,21 @@ class Mesh:
 
     def init_history(self):
         self.history_data = {
-                               'groups': [],
-                               'gemm_edges': [self.gemm_edges.copy()],
-                               'occurrences': [],
-                               'old2current': np.arange(self.edges_count, dtype=np.int32),
-                               'current2old': np.arange(self.edges_count, dtype=np.int32),
-                               'edges_mask': [torch.ones(self.edges_count,dtype=torch.bool)],
-                               'edges_count': [self.edges_count],
-                              }
+            'groups': [],
+            'gemm_edges': [self.gemm_edges.copy()],
+            'occurrences': [],
+            'old2current': np.arange(self.edges_count, dtype=np.int32),
+            'current2old': np.arange(self.edges_count, dtype=np.int32),
+            'edges_mask': [torch.ones(self.edges_count, dtype=torch.bool)],
+            'edges_count': [self.edges_count],
+        }
         if self.export_folder:
             self.history_data['collapses'] = MeshUnion(self.edges_count)
 
     def union_groups(self, source, target):
         if self.export_folder and self.history_data:
-            self.history_data['collapses'].union(self.history_data['current2old'][source], self.history_data['current2old'][target])
-        return
+            self.history_data['collapses'].union(self.history_data['current2old'][source],
+                                                 self.history_data['current2old'][target])
 
     def remove_group(self, index):
         if self.history_data is not None:
