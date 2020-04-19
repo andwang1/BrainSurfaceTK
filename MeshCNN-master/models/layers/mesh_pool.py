@@ -186,7 +186,7 @@ class MeshPool(nn.Module):
         # assert (len(vertex) == 1)
         # mesh.remove_vertex(vertex[0])
         if len(vertex) != 1:
-            print(", HERE")
+            print("HERE")
 
     def __build_queue(self, features, edges_count):
         # delete edges with smallest norm
