@@ -6,7 +6,6 @@ python3 train.py \
 --checkpoints_dir checkpoints/native_20k_lr_static \
 --export_folder checkpoints/mesh_collapses \
 --name brains \
---ninput_edges 48735 \
 --epoch_count 1 \
 --norm group \
 --num_aug 1 \
