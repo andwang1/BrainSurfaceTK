@@ -2,11 +2,9 @@
 
 ## run the training
 python3 train.py \
---dataroot datasets/isolate_error \
+--dataroot datasets/all_brains_find_error \
 --checkpoints_dir checkpoints/test \
---export_folder checkpoints/mesh_collapses \
 --name brains \
---ninput_edges 9000 \
 --epoch_count 1 \
 --norm group \
 --num_aug 1 \
@@ -14,7 +12,7 @@ python3 train.py \
 --print_freq 10 \
 --seed 0 \
 --dataset_mode regression \
---niter 100 \
+--niter 1 \
 --niter_decay 0 \
 --batch_size 1 \
 --ncf 64 112 128 \

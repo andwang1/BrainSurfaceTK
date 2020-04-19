@@ -65,7 +65,7 @@ class ClassifierModel:
         self.path = data['path']
         if self.opt.verbose:
             print("DEBUG meshpath ", self.path)
-        print(self.path.split("/")[-1][:-4])
+        print(self.path[0].split("/")[-1][:-4])
         # Retrieving the additional features specified from metadata file
         if self.feature_keys:
             # Using the filename as unique identifier
