@@ -33,7 +33,7 @@ for source_dir_name in source_dir_names:
     # Where them brains at
     source_dir = rf"/vol/biomedic2/aa16914/shared/MScAI_brain_surface/andy/deepl_brain_surfaces/MeshCNN-master/datasets/{source_dir_name}"
     # Where them brains should be at
-    target_dir = rf"/vol/biomedic2/aa16914/shared/MScAI_brain_surface/andy/deepl_brain_surfaces/MeshCNN-master/datasets/brains_reg_{source_dir_name[12:]}"
+    target_dir = rf"/vol/biomedic2/aa16914/shared/MScAI_brain_surface/andy/deepl_brain_surfaces/MeshCNN-master/datasets/brains_reg_{source_dir_name[11:]}"
 
     #### This is for MeshCNN specifically
     if not os.access(target_dir, mode=os.F_OK):
