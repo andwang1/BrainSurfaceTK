@@ -2,10 +2,11 @@
 
 ## run the training
 python3 train.py \
---dataroot datasets/brains_reg_aligned_red50_inflated \
---checkpoints_dir checkpoints/aligned_red50_inflated_lr_static \
+--dataroot datasets/isolate_error \
+--checkpoints_dir checkpoints/test \
 --export_folder checkpoints/mesh_collapses \
 --name brains \
+--ninput_edges 9000 \
 --epoch_count 1 \
 --norm group \
 --num_aug 1 \
