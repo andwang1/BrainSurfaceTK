@@ -144,6 +144,7 @@ class ClassifierModel:
             if self.opt.dataset_mode == 'regression':
                 pred_class = out.view(-1)
             else:
+                print(out)
                 pred_class = out.data.max(1)[1]
             #pred_class = self.forward()
             # compute number of correct
@@ -154,19 +155,19 @@ class ClassifierModel:
             re_pattern = r".*\/(CC[a-zA-Z0-9_]+)\.obj$"
             re_matcher = re.compile(re_pattern)
             matched_path = re_matcher.match(self.path[-1])
-            patient_id = matched_path.group(1)
+            #patient_id = matched_path.group(1)
             # patient_id = self.path[-1][38:-4]
 
             print('-------')
-            print('Patient ID:\t', patient_id)
+            #print('Patient ID:\t', patient_id)
             print('Predicted:\t', pred_class.item())
             print('Label:\t\t', label_class.item())
             correct = self.get_accuracy(pred_class, label_class)
             print('Abs Error:\t', correct.item())
 
-            if not self.opt.is_train:
-                with open(f"{self.testacc_log}{epoch}.csv", "a") as log_file:
-                    log_file.write(f"{patient_id},{pred_class.item()},{label_class.item()},{correct.item()}\n")
+            #if not self.opt.is_train:
+             #   with open(f"{self.testacc_log}{epoch}.csv", "a") as log_file:
+              #      log_file.write(f"{patient_id},{pred_class.item()},{label_class.item()},{correct.item()}\n")
         return correct, len(label_class)
 
     def get_accuracy(self, pred, labels):

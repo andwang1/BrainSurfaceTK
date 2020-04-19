@@ -8,10 +8,20 @@ from get_feature_dict import get_feature_dict
 def test():
     test_pass = True
     for i, feature in enumerate(features):
-        if not get_feature_dict(feature)["CC01006XX08_38531"] == CC01006XX08_38531_features[i]:
+        actual_val = CC01006XX08_38531_features[i]
+        try:
+            test_val = get_feature_dict(feature)["CC01006XX08_38531"]
+        except:
             test_pass = False
-            print(f"failed to get feature {feature}")
+            print(f"Failed to get function value for {feature}.")
+            continue
+        try:
+            assert test_val == actual_val
+        except:
+            test_pass = False
+            print(f"Failed to get feature {feature}. Expected {actual_value} of type {type(actual_value)}, got {test_val} of type {type(test_val)}")
     return test_pass
 
 if __name__ == "__main__":
-    print("get_feature_dict test passed = ", test())
+    test_passed = test()
+    print("get_feature_dict test passed = ", test_passed)

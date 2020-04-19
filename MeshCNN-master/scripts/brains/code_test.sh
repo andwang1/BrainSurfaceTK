@@ -11,7 +11,7 @@
    --verbose_plot \
    --print_freq 10 \
    --seed 0 \
-   --dataset_mode regression \
+   --dataset_mode classification \
    --label birth_age \
    --features scan_age \
    --niter 5 \
