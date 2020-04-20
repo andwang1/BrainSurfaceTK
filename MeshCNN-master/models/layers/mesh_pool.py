@@ -35,8 +35,8 @@ class MeshPool(nn.Module):
         if self.__multi_thread:
             for mesh_index in range(len(meshes)):
                 pool_threads[mesh_index].join()
-        out_features = torch.cat(self.__updated_fe).view(len(meshes), -1, self.__out_target)
-        return out_features
+        # out_features = torch.cat(self.__updated_fe).view(len(meshes), -1, self.__out_target)
+        # return out_features
 
     def __pool_main(self, mesh_index):
         mesh = self.__meshes[mesh_index]
@@ -48,9 +48,9 @@ class MeshPool(nn.Module):
             edge_id = int(edge_id)
             if mask[edge_id]:
                 self.__pool_edge(mesh, edge_id, mask, edge_groups)
-        mesh.clean(mask, edge_groups)
-        fe = edge_groups.rebuild_features(self.__fe[mesh_index], mask, self.__out_target)
-        self.__updated_fe[mesh_index] = fe
+        # mesh.clean(mask, edge_groups)
+        # fe = edge_groups.rebuild_features(self.__fe[mesh_index], mask, self.__out_target)
+        # self.__updated_fe[mesh_index] = fe
 
     def __pool_edge(self, mesh, edge_id, mask, edge_groups):
         if self.has_boundaries(mesh, edge_id):
@@ -183,10 +183,10 @@ class MeshPool(nn.Module):
         mesh.edges_count -= 3
         vertex = list(vertex)
         #print("vertex ", len(vertex), vertex)
-        assert (len(vertex) == 1)
-        mesh.remove_vertex(vertex[0])
-        #if len(vertex) != 1:
-        #    print("HERE")
+        # assert (len(vertex) == 1)
+        # mesh.remove_vertex(vertex[0])
+        if len(vertex) != 1:
+           print("HERE")
 
     def __build_queue(self, features, edges_count):
         # delete edges with smallest norm
