@@ -27,7 +27,7 @@ from src.plot_confusion_matrix import plot_confusion_matrix
 
 # Global variables
 all_labels = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8 , 9, 10, 11, 12, 13, 14, 15, 16, 17])
-num_points_dict = {'original': 32492, '50': 16247}
+num_points_dict = {'original': 32492, '50': 16247, '90': None}
 
 recording = True
 
@@ -196,7 +196,12 @@ def train(epoch):
         optimizer.zero_grad()
         out = model(data)
 
+        print(out)
+
         pred = out.max(dim=1)[1]
+        print(torch.max(pred))
+        print(torch.max(data.y))
+
 
         loss = F.nll_loss(out, data.y)
         loss.backward()
@@ -392,11 +397,12 @@ if __name__ == '__main__':
     #################################################
     ########### EXPERIMENT DESCRIPTION ##############
     #################################################
-    recording = True
+    recording = False
 
     data_nativeness = 'native'
-    data_compression = "original"
-    data_type = "white"
+    data_compression = "30k"
+    data_type = 'inflated'
+    hemisphere = 'left'
 
     additional_comment = ''
 
@@ -412,7 +418,7 @@ if __name__ == '__main__':
 
             # 1. Model Parameters
             lr = 0.001
-            batch_size = 4
+            batch_size = 5
             local_feature_combo = grid_features[id-2]
             global_features = global_feature
             target_class = 'gender'
@@ -434,7 +440,7 @@ if __name__ == '__main__':
             print('='*50 + '\n' + '='*50)
 
             # 5. Perform data processing
-            data_folder, files_ending = get_data_path(data_nativeness, data_compression, data_type, hemisphere='left')
+            data_folder, files_ending = get_data_path(data_nativeness, data_compression, data_type, hemisphere=hemisphere)
 
             train_dataset, test_dataset, validation_dataset, train_loader, test_loader, val_loader = data(data_folder,
                                                                                                           files_ending,
@@ -446,7 +452,6 @@ if __name__ == '__main__':
                                                                                                           global_features,
                                                                                                           indices,
                                                                                                           batch_size,
-                                                                                                          num_points_dict[data_compression],
                                                                                                           num_workers=2)
 
             # 6. Getting the number of features to adapt the architecture

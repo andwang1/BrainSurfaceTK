@@ -382,7 +382,7 @@ if __name__ == '__main__':
 
     data_nativeness = 'native'
     data_compression = "original"
-    data_type = "inflated"
+    data_type = "white"
 
     additional_comment = 'amir_'
 

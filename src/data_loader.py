@@ -10,6 +10,7 @@ from torch_geometric.data import DataLoader
 from torch_geometric.data import InMemoryDataset
 
 from src.read_meta import read_meta
+from tqdm import tqdm
 
 import pickle
 
@@ -17,7 +18,7 @@ import pickle
 class OurDataset(InMemoryDataset):
     def __init__(self, root, task='classification', target_class='gender', train=True, transform=None,
                     pre_transform=None, pre_filter=None, data_folder=None, add_features=True, local_features=[],
-                    global_feature=[], files_ending=None, reprocess=False, val=False, indices=None):
+                    global_feature=[], files_ending=None, reprocess=False, val=False, indices=None, add_faces=False):
         '''
         Creates a Pytorch dataset from the .vtk/.vtp brain data.
 
@@ -35,6 +36,7 @@ class OurDataset(InMemoryDataset):
         :param reprocess: Flag to reprocess the data even if it was processed before and saved in the root folder.
         :param local_features: Local features that should be added to every point.
         :param global_feature: Global features that should be added to the label for later use.
+        :param add_faces: Should the faces be included? Default False, because used with PointNet
                IF THIS IS NOT ZERO, THE PROCESSING IS DONE FOR VALIDATION SET.
         '''
 
@@ -51,7 +53,13 @@ class OurDataset(InMemoryDataset):
         self.classes = dict()
 
         # Mapping between features and array number in the files.
-        self.feature_arrays = {'drawem': 0, 'corr_thickness': 1, 'myelin_map': 2, 'curvature': 3, 'sulc': 4}
+        # initial_thickness, segmentation, corrected_thickness, curvature
+        # sulcal_depth, myelin_mapl, smooth_myelin_map
+        self.feature_arrays = {'drawem': 'segmentation',
+                               'corr_thickness': 'corrected_thickness',
+                               'myelin_map': 'myelin_mapl',
+                               'curvature': 'curvature',
+                               'sulc': 'sulcal_depth'}
 
         # The task at hand
         self.task = task
@@ -62,6 +70,7 @@ class OurDataset(InMemoryDataset):
 
         # Other useful variables
         self.add_features = add_features
+        self.add_faces = add_faces
         self.unique_labels = []
         self.num_labels = 0
         self.reprocess = reprocess
@@ -147,7 +156,7 @@ class OurDataset(InMemoryDataset):
         if list_features:
 
             if 'drawem' in list_features:
-                one_hot_drawem = pd.get_dummies(mesh.get_array(self.feature_arrays['drawem']))
+                one_hot_drawem = pd.get_dummies(mesh.get_array('segmentation'))
 
                 new_df = pd.DataFrame()
                 for label in list_of_drawem_labels:
@@ -163,8 +172,7 @@ class OurDataset(InMemoryDataset):
             else:
                 drawem_list = []
 
-            features = [mesh.get_array(self.feature_arrays[key]) for key in self.feature_arrays if key != 'drawem']
-
+            features = [mesh.get_array(self.feature_arrays[key]) for key in list_features if key != 'drawem']
             return torch.tensor(features + drawem_list).t()
         else:
             return None
@@ -190,23 +198,26 @@ class OurDataset(InMemoryDataset):
         '''
         ys = []
         lens = []
-        # 3. Iterate through all patient ids
-        for idx, patient_id in enumerate(meta_data[:, 0]):
+
+        print('Getting unique labels by scanning all the files.')
+        # # 3. Iterate through all patient ids
+        for idx, patient_id in enumerate(tqdm(meta_data[:, 0])):
 
             # Get file path to .vtk/.vtp for one patient
             file_path = self.get_file_path(patient_id, meta_data[idx, 1])
-
             # If file exists
             if os.path.isfile(file_path):
-
+                # print('Reading...')
                 mesh = pv.read(file_path)
-                y = torch.tensor(mesh.get_array(0))
+                y = torch.tensor(mesh.get_array('segmentation'))
                 lens.append(y.size(0))
                 ys.append(y)
 
         # Now process the uniqueness of ys
         ys_concatenated = torch.cat(ys)
+        # print(ys_concatenated)
         unique_labels = torch.unique(ys_concatenated)
+        # print(unique_labels)
         unique_labels_normalised = unique_labels.unique(return_inverse=True)[1]
 
         # Create the mapping
@@ -230,6 +241,7 @@ class OurDataset(InMemoryDataset):
 
 
     def process_set(self):
+
         '''Reads and processes the data. Collates the processed data which is later saved.'''
         # 0. Get meta data
         meta_data = read_meta()
@@ -258,7 +270,8 @@ class OurDataset(InMemoryDataset):
 
         # 3. Iterate through all patient ids
         # for idx, patient_id in enumerate(meta_data[:, 0]):
-        for patient_idx in self.indices_:
+        print('Processing patient data for the split...')
+        for patient_idx in tqdm(self.indices_):
 
             # Get file path to .vtk/.vtp for one patient #TODO: Maybe do something more beautiful
             file_path = self.get_file_path(patient_idx[:11], patient_idx[12:])
@@ -271,10 +284,11 @@ class OurDataset(InMemoryDataset):
                 # Get points
                 points = torch.tensor(mesh.points)
 
-                # Get faces
-                n_faces = mesh.n_cells
-                faces = mesh.faces.reshape((n_faces, -1))
-                faces = torch.tensor(faces[:, 1:].transpose())
+                if self.add_faces:
+                    # Get faces
+                    n_faces = mesh.n_cells
+                    faces = mesh.faces.reshape((n_faces, -1))
+                    faces = torch.tensor(faces[:, 1:].transpose())
 
                 # Features
                 x = self.get_features(self.local_features, mesh)
@@ -293,7 +307,7 @@ class OurDataset(InMemoryDataset):
                     # y = torch.tensor([[self.classes[meta_data[idx, self.meta_column_idx]]] + global_x]) #TODO
 
                 elif self.task == 'segmentation':
-                    y = torch.tensor(mesh.get_array(0))
+                    y = torch.tensor(mesh.get_array('segmentation'))
 
                     # Retrieve the lengths of each label tensor (i.e. number of labelled points)
                     lens.append(y.size(0))
@@ -309,18 +323,30 @@ class OurDataset(InMemoryDataset):
                 xs.append(x)
                 poss.append(points)
                 ys.append(y)
-                faces_list.append(faces)
+
+                if self.add_faces:
+                    faces_list.append(faces)
 
         # Now process the uniqueness of ys
         if self.task == 'segmentation':
             ys_normalised = self.normalise_labels(torch.cat(ys), label_mapping)
             ys = ys_normalised.split(lens)
 
-        # Now add all patient data to the list
-        for x, points, y, faces in zip(xs, poss, ys, faces_list):
-            # Create a data object and add to data_list
-            data = Data(x=x, pos=points, y=y, face=faces)
-            data_list.append(data)
+        if self.add_faces:
+            # Now add all patient data to the list
+            for x, points, y, faces in zip(xs, poss, ys, faces_list):
+                # Create a data object and add to data_list
+                data = Data(x=x, pos=points, y=y, face=faces)
+
+                data_list.append(data)
+
+        else:
+            # Now add all patient data to the list
+            for x, points, y in zip(xs, poss, ys):
+                # Create a data object and add to data_list
+                data = Data(x=x, pos=points, y=y)
+
+                data_list.append(data)
 
         # Do any pre-processing that is required
         if self.pre_filter is not None:

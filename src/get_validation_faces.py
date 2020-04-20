@@ -76,13 +76,14 @@ if __name__ == '__main__':
     data_folder, files_ending = get_data_path(data_nativeness, data_compression, data_type, hemisphere='left')
 
     all_faces = []
-    for patient_idx in indices:
+    for patient_idx in indices['Val']:
 
         # Get file path to .vtk/.vtp for one patient #TODO: Maybe do something more beautiful
         file_path = get_file_path(patient_idx[:11], patient_idx[12:])
-
         # If file exists
         if os.path.isfile(file_path):
+
+            print('Getting')
             mesh = pv.read(file_path)
 
             # Get points
