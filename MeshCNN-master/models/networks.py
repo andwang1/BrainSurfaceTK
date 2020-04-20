@@ -153,7 +153,7 @@ class MeshConvNet(nn.Module):
 
         for i, ki in enumerate(self.k[:-1]):
             setattr(self, 'conv{}'.format(i), MResConv(ki, self.k[i + 1], nresblocks))
-            setattr(self, 'norm{}'.format(i), norm_layer(**norm_args[i]))
+            # setattr(self, 'norm{}'.format(i), norm_layer(**norm_args[i]))
             setattr(self, 'pool{}'.format(i), MeshPool(self.res[i + 1]))
 
         self.gp = torch.nn.AvgPool1d(self.res[-1])
@@ -172,19 +172,19 @@ class MeshConvNet(nn.Module):
             x = F.relu(getattr(self, 'norm{}'.format(i))(x))
             x = getattr(self, 'pool{}'.format(i))(x, mesh)
 
-        x = self.gp(x)
-        x = x.view(-1, self.k[-1])
-
-        # Add in extra features into fully connected layer
-        if feature_values:
-            features = torch.tensor([feature_values]).to(x.device)
-            x = torch.cat((x, features), 1)
-
-        x = F.relu(self.fc1(x))
-        if self.opt.dropout:
-            x = self.d(x)
-        x = self.fc2(x)
-        return x
+        # x = self.gp(x)
+        # x = x.view(-1, self.k[-1])
+        #
+        # # Add in extra features into fully connected layer
+        # if feature_values:
+        #     features = torch.tensor([feature_values]).to(x.device)
+        #     x = torch.cat((x, features), 1)
+        #
+        # x = F.relu(self.fc1(x))
+        # if self.opt.dropout:
+        #     x = self.d(x)
+        # x = self.fc2(x)
+        # return x
 
 
 class MResConv(nn.Module):
