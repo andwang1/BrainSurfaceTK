@@ -169,7 +169,7 @@ class MeshConvNet(nn.Module):
     def forward(self, x, mesh, feature_values):
         for i in range(len(self.k) - 1):
             x = getattr(self, 'conv{}'.format(i))(x, mesh)
-            x = F.relu(getattr(self, 'norm{}'.format(i))(x))
+            # x = F.relu(getattr(self, 'norm{}'.format(i))(x))
             x = getattr(self, 'pool{}'.format(i))(x, mesh)
 
         # x = self.gp(x)
