@@ -93,8 +93,8 @@ class ClassifierModel:
     def optimize_parameters(self):
         self.optimizer.zero_grad()
         out = self.forward()
-        # self.backward(out)
-        # self.optimizer.step()
+        self.backward(out)
+        self.optimizer.step()
 
     def load_network(self, which_epoch):
         """load model from disk"""

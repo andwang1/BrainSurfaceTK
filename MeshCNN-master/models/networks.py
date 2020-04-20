@@ -173,18 +173,18 @@ class MeshConvNet(nn.Module):
             print("before pool called", x, mesh)
             x = getattr(self, 'pool{}'.format(i))(x, mesh)
 
-        # x = self.gp(x)
-        # x = x.view(-1, self.k[-1])
-        #
-        # # Add in extra features into fully connected layer
-        # if feature_values:
-        #     features = torch.tensor([feature_values]).to(x.device)
-        #     x = torch.cat((x, features), 1)
-        #
-        # x = F.relu(self.fc1(x))
-        # if self.opt.dropout:
-        #     x = self.d(x)
-        # x = self.fc2(x)
+        x = self.gp(x)
+        x = x.view(-1, self.k[-1])
+
+        # Add in extra features into fully connected layer
+        if feature_values:
+            features = torch.tensor([feature_values]).to(x.device)
+            x = torch.cat((x, features), 1)
+
+        x = F.relu(self.fc1(x))
+        if self.opt.dropout:
+            x = self.d(x)
+        x = self.fc2(x)
         return x
 
 
@@ -206,9 +206,9 @@ class MResConv(nn.Module):
         for i in range(self.skips):
             x = getattr(self, 'bn{}'.format(i + 1))(F.relu(x))
             x = getattr(self, 'conv{}'.format(i + 1))(x, mesh)
-        # x += x1
-        # x = F.relu(x)
-        # return x
+        x += x1
+        x = F.relu(x)
+        return x
 
 
 class MeshEncoderDecoder(nn.Module):
