@@ -23,6 +23,7 @@ class MeshPool(nn.Module):
     def forward(self, fe, meshes):
         self.__updated_fe = [[] for _ in range(len(meshes))]
         pool_threads = []
+        print("fe", fe)
         self.__fe = fe
         self.__meshes = meshes
         # iterate over batch
