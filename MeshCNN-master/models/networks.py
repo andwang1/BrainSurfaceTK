@@ -185,7 +185,7 @@ class MeshConvNet(nn.Module):
         # if self.opt.dropout:
         #     x = self.d(x)
         # x = self.fc2(x)
-        # return x
+        return x
 
 
 class MResConv(nn.Module):
