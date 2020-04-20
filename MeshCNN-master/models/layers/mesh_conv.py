@@ -25,7 +25,6 @@ class MeshConv(nn.Module):
         # build 'neighborhood image' and apply convolution
         G = self.create_GeMM(x, G)
         x = self.conv(G)
-        print(x)
         return x
 
     def flatten_gemm_inds(self, Gi):
