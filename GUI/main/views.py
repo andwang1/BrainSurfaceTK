@@ -10,6 +10,8 @@ import nibabel as nib
 import os
 import csv
 
+from .evaluate_pointnet_regression import predict_age
+
 DATA_DIR = "./main/static/main/data"
 VOL_DIR = f"{DATA_DIR}/gm_volume3d"
 
@@ -57,6 +59,9 @@ def view_session_data(request, session_id):
     img_html = view_img(img, colorbar=False, bg_img=False, black_bg=True, cmap='gray')
     participant_id = values[0]
     file_name = f"sub-{participant_id}_ses-{session_id}_left_pial.vtp"
+
+    # pred = predict_age("/home/vital/Group Project/deepl_brain_surfaces/GUI/main/static/main/data/vtp/sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp")
+    # , "pred": pred
     return render(request, "main/results.html",
                   context={"session_id": session_id, "column_names": column_names, "values": values,
                            "image_slicer_window": img_html, "fileURL": f"{SURF_DIR}/forCem.vtp"})
