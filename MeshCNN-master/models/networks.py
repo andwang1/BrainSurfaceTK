@@ -205,9 +205,9 @@ class MResConv(nn.Module):
         for i in range(self.skips):
             x = getattr(self, 'bn{}'.format(i + 1))(F.relu(x))
             x = getattr(self, 'conv{}'.format(i + 1))(x, mesh)
-        x += x1
-        x = F.relu(x)
-        return x
+        # x += x1
+        # x = F.relu(x)
+        # return x
 
 
 class MeshEncoderDecoder(nn.Module):
