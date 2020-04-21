@@ -81,7 +81,7 @@ if __name__ == '__main__':
     target_class = 'scan_age'
     #target_class = 'birth_age'
     task = 'regression'
-    number_of_points = 3251  #3251# 12000  # 16247
+    number_of_points = 5000  #3251# 12000  # 16247
 
     # For quick tests
     # indices = {'Train': ['CC00050XX01_7201', 'CC00050XX01_7201'],
@@ -91,38 +91,36 @@ if __name__ == '__main__':
     reprocess = False
 
     #inflated  midthickness  pial  sphere  veryinflated  white
-
+    # NATIVE: inflated  midthickness	pial  very_inflated  white
     #data = "reduced_50"
     #data_ending = "reduce50.vtk"
     #type_data = "inflated"
 
-    data = "reduced_90"
-    data_ending = "reduce90.vtk"
+    data = "reducedto_05k"
+    data_ending = "05k.vtk"
     #type_data = "pial"
     type_data = "sphere"
-    native = "surface_fsavg32k"#"surface_native" #surface_fsavg32k
-    #
-    #data = "reduced_50"
-    #data_ending = "reduce50.vtk"
-    #type_data = "pial"
-    #
-    #data = "reduced_50"
-    #data_ending = "reduce50.vtk"
-    #type_data = "white"
+    native = "merged"#"surface_native" #surface_fsavg32k
 
     # folder in data/stored for data.
-    stored = target_class + type_data + '/' + data + '/' + str(local_features + global_features) + '/' + native
+    stored = target_class + '/' + type_data + '/' + data + '/' + str(local_features + global_features) + '/' + native
 
-    data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/" + native + "/" + data \
-                  + "/vtk/" + type_data
-    
-#    data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/" + native + "/" + data \
-#                  + "/" + type_data + "/vtk"
+    # ALIGNED OLD
+    # data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/" + native + "/" + data \
+    #               + "/vtk/" + type_data
+
+   # Native OLD
+   # data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/" + native + "/" + data \
+   #               + "/" + type_data + "/vtk"
+
+    data_folder = '/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native_04152020/'+\
+                  native+'/'+data+'/' + type_data + '/vtk'
+
     print(data_folder)
    # sub-CC00466AN13_ses-138400_right_pial_reduce90.vtk
-    files_ending = "_hemi-L_" + type_data + "_" + data_ending
-#    files_ending = "_left_" + type_data + "_" + data_ending
-
+   #  files_ending = "_hemi-L_" + type_data + "_" + data_ending
+   # files_ending = "_left_" + type_data + "_" + data_ending
+    files_ending = '_'+ native + '_' + type_data + '_' + data_ending
 
     # From quick local test
     # data_folder = "/home/vital/Group Project/deepl_brain_surfaces/random"
@@ -172,7 +170,7 @@ if __name__ == '__main__':
 
     # DEFINE TRANSFORMS HERE.
     transform = T.Compose([
-        T.FixedPoints(number_of_points),
+        # T.FixedPoints(number_of_points),
         T.RandomRotate(360, axis=0),
         T.RandomRotate(360, axis=1),
         T.RandomRotate(360, axis=2)
@@ -187,12 +185,12 @@ if __name__ == '__main__':
                                local_features=local_features, global_feature=global_features,
                                indices=indices['Train'], data_folder=data_folder)
 
-    test_dataset = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform, val=False,
+    test_dataset = OurDataset(path, train=False, transform=None, pre_transform=pre_transform, val=False,
                               target_class=target_class, task=task, reprocess=reprocess, files_ending=files_ending,
                               local_features=local_features, global_feature=global_features,
                               indices=indices['Test'], data_folder=data_folder)
 
-    val_dataset = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform, val=True,
+    val_dataset = OurDataset(path, train=False, transform=None, pre_transform=pre_transform, val=True,
                              target_class=target_class, task=task, reprocess=reprocess, files_ending=files_ending,
                              local_features=local_features, global_feature=global_features,
                              indices=indices['Val'], data_folder=data_folder)
