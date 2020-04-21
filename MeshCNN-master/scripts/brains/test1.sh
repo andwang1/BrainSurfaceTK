@@ -2,7 +2,7 @@
 
 ## run the training
 python3 train.py \
---dataroot datasets/isolate_error \
+--dataroot datasets/iso_err \
 --checkpoints_dir checkpoints/test \
 --export_folder checkpoints/mesh_collapses \
 --name brains \
@@ -18,7 +18,7 @@ python3 train.py \
 --niter_decay 0 \
 --batch_size 1 \
 --ncf 64 112 128 \
---pool_res 3000 2750 2500 \
+--pool_res 4000 3550 3000 \
 --lr 0.0003 \
 --init_type kaiming \
 --num_groups 2 \
