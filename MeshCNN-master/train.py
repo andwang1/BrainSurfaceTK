@@ -24,6 +24,8 @@ if __name__ == '__main__':
         iter_data_time = time.time()
         epoch_iter = 0
 
+        train_loss_epoch = 0
+
         for i, data in enumerate(dataset):
             iter_start_time = time.time()
             if total_steps % opt.print_freq == 0:
@@ -32,6 +34,8 @@ if __name__ == '__main__':
             epoch_iter += opt.batch_size
             model.set_input(data)
             model.optimize_parameters()
+
+            train_loss_epoch += model.loss
 
             if total_steps % opt.print_freq == 0:
                 loss = model.loss
@@ -50,6 +54,9 @@ if __name__ == '__main__':
                   (epoch, total_steps))
             model.save_network('latest')
             model.save_network(epoch)
+
+        # Plot training loss per epoch on tensorboard
+        writer.plot_epoch_loss(train_loss_epoch / len(dataset), epoch)
 
         print('End of epoch %d / %d \t Time Taken: %d sec' %
               (epoch, opt.niter + opt.niter_decay, time.time() - epoch_start_time))

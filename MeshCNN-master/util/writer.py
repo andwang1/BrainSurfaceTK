@@ -48,6 +48,10 @@ class Writer:
         if self.display:
             self.display.add_scalar('data/train_loss', loss, iters)
 
+    def plot_epoch_loss(self, loss, epoch):
+        if self.display:
+            self.display.add_scalar('data/train_loss_per_ep', loss, epoch)
+
     def plot_model_wts(self, model, epoch):
         if self.opt.is_train and self.display:
             for name, param in model.net.named_parameters():
