@@ -18,81 +18,97 @@
 
     <h1>Session-{{ session_id }}</h1>
     <div id="brain-container">
-        <div class="brain_slice_container">
-            {{ image_slicer_window | safe }}
-        </div>
-        <div id="brain_surf_container">
-            <div class="GeometryViewer-module-fullScreen_38Xg_"></div>
-        </div>
-        <script id="brain_surf" data-fileURL="{% static fileURL | safe %}"
-                type="text/javascript" src="{% static "main/js/MyWebApp.js" | safe %}"></script>
+
+        {% if mri_js_html is not None %}
+            <div class="brain_slice_container">
+                {{ mri_js_html | safe }}
+            </div>
+        {% endif %}
+
+        {% if surf_file_path is not None %}
+            <div id="brain_surf_container">
+                <div class="GeometryViewer-module-fullScreen_38Xg_"></div>
+            </div>
+            <script id="brain_surf" data-fileURL="{% static surf_file_path | safe %}"
+                    type="text/javascript" src="{% static "main/js/MyWebApp.js" | safe %}"></script>
+        {% endif %}
+
     </div>
     <table>
-        <thead>
-        <tr>
-            {% for col in column_names %}
-                <th>{{ col }}</th>
+        {% for table_names, table_values in table_contents %}
+            <thead>
+            {% for table_name in table_names %}
+                <th>
+                    {{ table_name }}
+                </th>
             {% endfor %}
-        </tr>
-        </thead>
-        <tbody>
-        {% for value in values %}
+            </thead>
+            <tbody>
+            {% for value in table_values %}
             <td>{{ value }}</td>
+            {% endfor %}
+            </tbody>
         {% endfor %}
-        </tbody>
     </table>
 
-<!--    <div id="button_container">-->
-<!--        <button class="waves-effect waves-light btn-small" , type="submit" , id="predict" name="predict" , value="-", onclick="get_pred()">Predict-->
-<!--        </button>-->
+    <div id="prediction_container">
+        <button id="predict" type="submit" formmethod="get">Predict</button>
+        {% if pred is not None %}
+            Prediction be printed here
+        {% endif %}
+    </div>
 
-<!--    </div>-->
+    <!--    <div id="button_container">-->
+    <!--        <button class="waves-effect waves-light btn-small" , type="submit" , id="predict" name="predict" , value="-", onclick="get_pred()">Predict-->
+    <!--        </button>-->
 
-<!--    <script>-->
+    <!--    </div>-->
 
-<!--        function get_pred() {-->
+    <!--    <script>-->
 
-<!--            var table_Exists = document.getElementById("result_table");-->
+    <!--        function get_pred() {-->
 
-<!--            if (table_Exists == null)-->
-<!--            {-->
-<!--                // CREATE DYNAMIC TABLE.-->
-<!--                var table = document.createElement('table');-->
+    <!--            var table_Exists = document.getElementById("result_table");-->
 
-<!--                // SET THE TABLE ID.-->
-<!--                // WE WOULD NEED THE ID TO TRAVERSE AND EXTRACT DATA FROM THE TABLE.-->
-<!--                table.setAttribute('id', 'result_table');-->
+    <!--            if (table_Exists == null)-->
+    <!--            {-->
+    <!--                // CREATE DYNAMIC TABLE.-->
+    <!--                var table = document.createElement('table');-->
 
-<!--                var arrHead = new Array();-->
-<!--                arrHead = ['Predicted age'];-->
+    <!--                // SET THE TABLE ID.-->
+    <!--                // WE WOULD NEED THE ID TO TRAVERSE AND EXTRACT DATA FROM THE TABLE.-->
+    <!--                table.setAttribute('id', 'result_table');-->
 
-<!--                var arrValue = new Array();-->
-<!--                arrValue.push([{{ pred }}]);-->
+    <!--                var arrHead = new Array();-->
+    <!--                arrHead = ['Predicted age'];-->
 
-<!--                var tr = table.insertRow(-1);-->
+    <!--                var arrValue = new Array();-->
+    <!--                arrValue.push([{{ pred }}]);-->
 
-<!--                for (var h = 0; h < arrHead.length; h++) {-->
-<!--                    var th = document.createElement('th');              // TABLE HEADER.-->
-<!--                    th.innerHTML = arrHead[h];-->
-<!--                    tr.appendChild(th);-->
-<!--                }-->
+    <!--                var tr = table.insertRow(-1);-->
 
-<!--                for (var c = 0; c <= arrValue.length - 1; c++) {-->
-<!--                    tr = table.insertRow(-1);-->
+    <!--                for (var h = 0; h < arrHead.length; h++) {-->
+    <!--                    var th = document.createElement('th');              // TABLE HEADER.-->
+    <!--                    th.innerHTML = arrHead[h];-->
+    <!--                    tr.appendChild(th);-->
+    <!--                }-->
 
-<!--                    for (var j = 0; j < arrHead.length; j++) {-->
-<!--                        var td = document.createElement('td');          // TABLE DEFINITION.-->
-<!--                        td = tr.insertCell(-1);-->
-<!--                        td.innerHTML = arrValue[c][j];                  // ADD VALUES TO EACH CELL.-->
-<!--                    }-->
-<!--                }-->
+    <!--                for (var c = 0; c <= arrValue.length - 1; c++) {-->
+    <!--                    tr = table.insertRow(-1);-->
 
-<!--                // FINALLY ADD THE NEWLY CREATED TABLE AND BUTTON TO THE BODY.-->
-<!--                document.getElementById("button_container").appendChild(table);-->
-<!--            }-->
-<!--        }-->
+    <!--                    for (var j = 0; j < arrHead.length; j++) {-->
+    <!--                        var td = document.createElement('td');          // TABLE DEFINITION.-->
+    <!--                        td = tr.insertCell(-1);-->
+    <!--                        td.innerHTML = arrValue[c][j];                  // ADD VALUES TO EACH CELL.-->
+    <!--                    }-->
+    <!--                }-->
 
-<!--    </script>-->
+    <!--                // FINALLY ADD THE NEWLY CREATED TABLE AND BUTTON TO THE BODY.-->
+    <!--                document.getElementById("button_container").appendChild(table);-->
+    <!--            }-->
+    <!--        }-->
+
+    <!--    </script>-->
 
 
 

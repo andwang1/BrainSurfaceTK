@@ -10,22 +10,21 @@ import nibabel as nib
 import os
 import csv
 
-from .evaluate_pointnet_regression import predict_age
+# from .evaluate_pointnet_regression import predict_age
 
-DATA_DIR = "./main/static/main/data"
+BASE_DIR = os.getcwd()
+
+DATA_DIR = f"{BASE_DIR}/main/static/main/data"
+# DATA_DIR = "./main/static/main/data"
+
 VOL_DIR = f"{DATA_DIR}/gm_volume3d"
 
 # Different because this is used in HTML with the static tag!
-SURF_DIR = f"main/data/vtp"
+SURF_DIR = f"{DATA_DIR}/vtp"
 
 
-# Create your views here.
-def view_surf(request):
-    'sub-CC00050XX01_ses-7201_left_pial'
-    "filePath/forCem.vtp"
-    # render(request, "main/brain_surf.html", context={"options": None,
-    #                                                  "fileURL": f"{SURF_DIR}/forCem.vtp"})
-    return loader.render_to_string("main/index.html", context={"fileURL": f"{SURF_DIR}/forCem.vtp"}, request=request)
+# SURF_DIR = f"main/data/vtp"
+
 
 def homepage(request):
     if Option.objects.count() == 0:
@@ -35,37 +34,54 @@ def homepage(request):
     return render(request, "main/homepage.html", context={"options": options})
 
 
-# def view_session_data(request, session_id):
-#     record = SessionDatabase.objects.filter(session_id=session_id)
-#     information = record.values()
-#     column_names = information.query.values_select[1:]  # Drop sql id col
-#     values = list(*record.values_list())[1:]
-#     file_path = list(*GreyMatterVolume.objects.filter(session_id=session_id).values_list())[-1]
-#     img = nib.load(file_path)
-#     img_html = view_img(img, colorbar=False, bg_img=False, cmap='gray')
-#     participant_id = values[0]
-#     file_name = f"sub-{participant_id}_ses-{session_id}_left_pial.vtp"
-#     return render(request, "main/results.html",
-#                   context={"session_id": session_id, "column_names": column_names, "values": values,
-#                            "image": img_html, "fileURL": f"{SURF_DIR}/forCem.vtp"})
+def view_session_results(request):
+    # NEW
+    # TODO: Implement method to only run prediction model when button clicked and update currently rendered page
+    if request.method == "GET":
+        session_id = request.GET["session_id"]
+        record = SessionDatabase.objects.filter(session_id=session_id).get()
+        record_dict = vars(record)
+        field_names = record_dict.keys()
+        table_names = list()
+        table_values = list()
+        for field_name in field_names:
+            if field_name.startswith("_") or field_name == "id":
+                continue
+            table_names.append(field_name.replace("_", " ").lower().capitalize())
+            table_values.append(record_dict[field_name])
+        table_contents = ((table_names, table_values),)
+        participant_id = record.participant_id
 
-def view_session_data(request, session_id):
-    record = SessionDatabase.objects.filter(session_id=session_id)
-    information = record.values()
-    column_names = information.query.values_select[1:]  # Drop sql id col
-    values = list(*record.values_list())[1:]
-    file_path = list(*GreyMatterVolume.objects.filter(session_id=session_id).values_list())[-1]
-    img = nib.load(file_path)
-    img_html = view_img(img, colorbar=False, bg_img=False, black_bg=True, cmap='gray')
-    participant_id = values[0]
-    file_name = f"sub-{participant_id}_ses-{session_id}_left_pial.vtp"
+        img_records = GreyMatterVolume.objects.filter(session_id=session_id)
+        mri_js_html = None
+        if img_records.count() is 1:
+            img_file_path = img_records.get().filepath
+            if os.path.isfile(img_file_path):
+                img = nib.load(img_file_path)
+                mri_js_html = view_img(img, colorbar=False, bg_img=False, black_bg=True, cmap='gray')
 
-    # pred = predict_age("/home/vital/Group Project/deepl_brain_surfaces/GUI/main/static/main/data/vtp/sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp")
-    # , "pred": pred
-    return render(request, "main/results.html",
-                  context={"session_id": session_id, "column_names": column_names, "values": values,
-                           "image_slicer_window": img_html, "fileURL": f"{SURF_DIR}/forCem.vtp"})
+        # TODO: Create model for storing vtk file locations that can be looked up properly
+        surf_records = 1
+        surf_file_path = None
+        pred = None
+        if surf_records == 1:
+            file_name = f"sub-{participant_id}_ses-{session_id}_left_pial.vtp"
+            surf_file_path = f"{SURF_DIR}/forCem.vtp"  # TODO: Hook up file_name to surf_file_path
+            # TODO: Get an inflated one to display! If fails what did Alexy do that is different to OG
+            if os.path.isfile(surf_file_path):
+                surf_file_path = surf_file_path.split("static")[-1]
+            else:
+                surf_file_path = None
+            # predict_age("{SURF_DIR}/sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp")
 
+        return render(request, "main/results.html",
+                      context={"session_id": session_id, "table_contents": table_contents,
+                               "mri_js_html": mri_js_html, "surf_file_path": surf_file_path, "pred": pred})
+
+    if request.method == "POST":
+        # Execute Pytorch Code to get prediction
+        # return render()
+        pass
 
 
 def load_data(request):
@@ -89,7 +105,7 @@ def load_data(request):
                                                           sedation=sedation)
                 except:
                     # TODO: This is a temporary patch because we have two session ids of 1000
-                    print('tmp')
+                    print('tmp1')
         pids_and_session_ids_zip = sorted(
             [(session.participant_id, session.session_id) for session in SessionDatabase.objects.all()])
         potential_files = []
@@ -108,7 +124,7 @@ def load_data(request):
                         potential_files.remove(file)
                     except:
                         # TODO: This is a temporary patch because we have two session ids of 1000
-                        print("tmp")
+                        print("tmp2")
                     break
 
         messages.success(request, "Successfully loaded data!")
@@ -174,8 +190,6 @@ def account_page(request):
 
 
 def lookup(request):
-    if request.method == "POST":
-        session_id = request.POST['selected_id']
-        return view_session_data(request, session_id)
-    session_ids = sorted([int(session.session_id) for session in GreyMatterVolume.objects.all()])
-    return render(request, "main/lookup.html", context={"session_ids": session_ids})
+    if request.method == "GET":
+        session_ids = sorted([int(session.session_id) for session in GreyMatterVolume.objects.all()])
+        return render(request, "main/lookup.html", context={"session_ids": session_ids})
