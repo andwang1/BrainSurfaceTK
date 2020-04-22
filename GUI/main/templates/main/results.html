@@ -50,9 +50,7 @@
     {% csrf_token %}
     <div id="prediction_container">
         <button class="waves-effect waves-light btn-small" id="predict" type="submit" formmethod="get">Predict</button>
-        {% if pred is not None %}
-            Prediction be printed here
-        {% endif %}
+        <button class="waves-effect waves-light btn-small" id="segment" type="submit" formmethod="get">Segment</button>
     </div>
 
     <script>
@@ -86,6 +84,33 @@
             });
         }
     });
+
+
+     $('#segment').click(function() {
+        document.getElementById("segment").style.color = "red";
+        console.log("create post is working!");
+
+        var objCells = document.getElementById("info_table").rows.item(1).cells;
+        console.log(objCells.item(0).innerHTML);
+
+        $.ajax({
+            url : "run_segmentation/",
+            type : "POST",
+            data: {
+                'participant_id': objCells.item(0).innerHTML,
+                'session_id': objCells.item(1).innerHTML,
+                'file_path': "{% get_media_prefix %}{{ surf_file_path }}"
+            },
+
+            success : function(json) {
+                $('#post-text').val('');
+                console.log(json);
+                console.log("success");
+            }
+        });
+
+    });
+
 
     function display_results(pred) {
 

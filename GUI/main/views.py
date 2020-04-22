@@ -239,7 +239,7 @@ def account_page(request):
 
 @csrf_exempt
 def run_predictions(request):
-
+    # TODO: handle errors
     if request.method == 'POST':
 
         participant_id = request.POST.get('participant_id', None)
@@ -254,5 +254,18 @@ def run_predictions(request):
 
         data = {
             'pred': pred
+        }
+        return JsonResponse(data)
+
+@csrf_exempt
+def run_segmentation(request):
+    if request.method == 'POST':
+
+        participant_id = request.POST.get('participant_id', None)
+        session_id = request.POST.get('session_id', None)
+        file_path = request.POST.get('file_path', None)
+
+        data = {
+            'segmented_file_path': file_path
         }
         return JsonResponse(data)
