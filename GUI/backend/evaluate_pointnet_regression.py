@@ -61,7 +61,7 @@ def predict_age(file_path='./file.vtp'):
         numb_global_features = 0
 
         model = Net(numb_local_features, numb_global_features).to(device)
-        model_path = "/home/vital/Group Project/deepl_brain_surfaces/random/model_best.pt"
+        model_path = "/GUI/backend/pre_trained_models/model_best.pt"
         model.load_state_dict(torch.load(model_path))
         model.eval()
 
