@@ -110,7 +110,7 @@ def load_data(request):
                            f.endswith("nii")]
         # TODO: Check what key words will be in files we want!
         found_vtps_files = [f for f in os.listdir(SessionDatabase.default_vtps_path) if
-                            f.endswith("vtp") & f.find("inflated") != -1 & f.find("whole")]
+                            f.endswith("vtp") & f.find("inflated") != -1 & f.find("hemi-L") != -1]
 
         with open(SessionDatabase.default_tsv_path) as foo:
             reader = csv.reader(foo, delimiter='\t')

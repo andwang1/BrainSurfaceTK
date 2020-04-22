@@ -4,7 +4,7 @@ from .pre_trained_models.pointnet2_regression import Net  # TODO
 from torch_geometric.data import Data
 import pyvista as pv
 import pandas as pd
-
+import os
 
 def get_features(list_features, mesh):
     '''Returns tensor of features to add in every point.
@@ -61,8 +61,8 @@ def predict_age(file_path='./file.vtp'):
         numb_global_features = 0
 
         model = Net(numb_local_features, numb_global_features).to(device)
-        model_path = "/GUI/backend/pre_trained_models/model_best.pt"
-        model.load_state_dict(torch.load(model_path))
+        model_path = os.path.join(os.getcwd(), "backend/pre_trained_models/model_best.pt")
+        model.load_state_dict(torch.load(model_path, map_location=device))
         model.eval()
 
         # data_loader = DataLoader([data], batch_size=1, shuffle=False)
