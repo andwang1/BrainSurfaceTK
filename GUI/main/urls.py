@@ -32,5 +32,8 @@ urlpatterns = [
     path('results/', views.view_session_results, name="results"),
     path("load_database/", views.load_data, name="load_database"),
     path("account/", views.account_page, name="account"),
-    path("about/", views.about, name="about")
-]
+    path("about/", views.about, name="about"),
+    path("run_predictions/", views.run_predictions, name="run_predictions")
+    # path("brain_surf/", TemplateView.as_view(template_name="main/index.html"),
+    #                    name='brain_surf'),
+]  # + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

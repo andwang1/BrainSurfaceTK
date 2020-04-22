@@ -8,7 +8,10 @@ from .forms import NewUserForm, UploadFileForm
 from nilearn.plotting import view_img
 import nibabel as nib
 import os
+import sys
+from django.http import JsonResponse
 import csv
+from django.views.decorators.csrf import csrf_exempt
 
 # from .evaluate_pointnet_regression import predict_age
 
@@ -229,3 +232,22 @@ def account_page(request):
     else:
         messages.error(request, "You are not a superuser.")
         return redirect("main:homepage")
+
+
+def lookup(request):
+    if request.method == "GET":
+        session_ids = sorted([int(session.session_id) for session in GreyMatterVolume.objects.all()])
+        return render(request, "main/lookup.html", context={"session_ids": session_ids})
+
+@csrf_exempt
+def run_predictions(request):
+
+    if request.method == 'POST':
+
+        # pred = predict_age(SURF_DIR + "/sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp")
+        pred = 42
+
+        data = {
+            'pred': pred
+        }
+        return JsonResponse(data)
