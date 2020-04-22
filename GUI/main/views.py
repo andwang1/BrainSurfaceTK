@@ -234,16 +234,9 @@ def account_page(request):
         return redirect("main:homepage")
 
 
-def lookup(request):
-    if request.method == "GET":
-        session_ids = sorted([int(session.session_id) for session in GreyMatterVolume.objects.all()])
-        return render(request, "main/lookup.html", context={"session_ids": session_ids})
-
 @csrf_exempt
 def run_predictions(request):
-
     if request.method == 'POST':
-
         # pred = predict_age(SURF_DIR + "/sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp")
         pred = 42
 
