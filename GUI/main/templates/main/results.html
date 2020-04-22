@@ -32,7 +32,7 @@
                     type="text/javascript" src="{% static "main/js/MyWebApp.js" | safe %}"></script>
         {% endif %}
     </div>
-    <table>
+    <table id="info_table">
         <thead>
         {% for table_name in table_names %}
             <th>
@@ -62,9 +62,18 @@
         var table_Exists = document.getElementById("result_table");
 
         if (table_Exists == null){
+
+            var objCells = document.getElementById("info_table").rows.item(1).cells;
+            console.log(objCells.item(0).innerHTML);
+
             $.ajax({
                 url : "run_predictions/",
                 type : "POST",
+                data: {
+                    'participant_id': objCells.item(0).innerHTML,
+                    'session_id': objCells.item(1).innerHTML,
+                    'file_path': "{% get_media_prefix %}{{ surf_file_path }}"
+                },
 
                 success : function(json) {
                     $('#post-text').val('');
