@@ -18,7 +18,6 @@
 
     <h1>Session-{{ session_id }}</h1>
     <div id="brain-container">
-
         {% if mri_js_html is not None %}
             <div class="brain_slice_container">
                 {{ mri_js_html | safe }}
@@ -29,26 +28,23 @@
             <div id="brain_surf_container">
                 <div class="GeometryViewer-module-fullScreen_38Xg_"></div>
             </div>
-            <script id="brain_surf" data-fileURL="{% static surf_file_path | safe %}"
+            <script id="brain_surf" data-fileURL="{% get_media_prefix %}{{ surf_file_path }}"
                     type="text/javascript" src="{% static "main/js/MyWebApp.js" | safe %}"></script>
         {% endif %}
-
     </div>
     <table>
-        {% for table_names, table_values in table_contents %}
-            <thead>
-            {% for table_name in table_names %}
-                <th>
-                    {{ table_name }}
-                </th>
-            {% endfor %}
-            </thead>
-            <tbody>
-            {% for value in table_values %}
-            <td>{{ value }}</td>
-            {% endfor %}
-            </tbody>
+        <thead>
+        {% for table_name in table_names %}
+            <th>
+                {{ table_name }}
+            </th>
         {% endfor %}
+        </thead>
+        <tbody>
+        {% for value in table_values %}
+            <td>{{ value }}</td>
+        {% endfor %}
+        </tbody>
     </table>
 
     <div id="prediction_container">

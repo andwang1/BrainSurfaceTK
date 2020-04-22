@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.decorators import permission_required
 from django.contrib import messages
-from django.template import loader
-from .models import Option, SessionDatabase, GreyMatterVolume
-from .forms import NewUserForm
+from .models import Option, SessionDatabase, UploadedSessionDatabase
+from .forms import NewUserForm, UploadFileForm
 from nilearn.plotting import view_img
 import nibabel as nib
 import os
@@ -13,123 +13,165 @@ import csv
 # from .evaluate_pointnet_regression import predict_age
 
 BASE_DIR = os.getcwd()
-
 DATA_DIR = f"{BASE_DIR}/main/static/main/data"
-# DATA_DIR = "./main/static/main/data"
-
 VOL_DIR = f"{DATA_DIR}/gm_volume3d"
-
-# Different because this is used in HTML with the static tag!
 SURF_DIR = f"{DATA_DIR}/vtp"
-
-
-# SURF_DIR = f"main/data/vtp"
 
 
 def homepage(request):
     if Option.objects.count() == 0:
         Option.objects.create(name="Look-up", summary="Look-up session ids", slug="lookup")
         Option.objects.create(name="Upload", summary="Upload session id", slug="upload")
+        Option.objects.create(name="About", summary="About this project", slug="about")
     options = Option.objects.all()
     return render(request, "main/homepage.html", context={"options": options})
 
 
-def view_session_results(request):
+def about(request):
+    return render(request, "main/about.html")
+
+
+def view_session_results(request, session_id=None):
     # NEW
     # TODO: Implement method to only run prediction model when button clicked and update currently rendered page
     if request.method == "GET":
         session_id = request.GET["session_id"]
-        record = SessionDatabase.objects.filter(session_id=session_id).get()
+        database = SessionDatabase
+    if request.method == "POST":
+        database = UploadedSessionDatabase
+
+    search_results = database.objects.filter(session_id=session_id)
+    if search_results.count() is 1:
+        record = search_results.get()
         record_dict = vars(record)
+        # TODO: Rewrite to exclude clutter
         field_names = record_dict.keys()
         table_names = list()
         table_values = list()
         for field_name in field_names:
-            if field_name.startswith("_") or field_name == "id":
+            if field_name.startswith("_") or field_name == "id" or field_name.endswith("file"):
                 continue
             table_names.append(field_name.replace("_", " ").lower().capitalize())
             table_values.append(record_dict[field_name])
-        table_contents = ((table_names, table_values),)
-        participant_id = record.participant_id
 
-        img_records = GreyMatterVolume.objects.filter(session_id=session_id)
+        mri_file = record.mri_file
         mri_js_html = None
-        if img_records.count() is 1:
-            img_file_path = img_records.get().filepath
-            if os.path.isfile(img_file_path):
-                img = nib.load(img_file_path)
+        # TODO: add check that file ends with .nii
+        if mri_file.name != "":
+            if os.path.isfile(mri_file.path) & mri_file.path.endswith("nii"):
+                img = nib.load(mri_file.path)
                 mri_js_html = view_img(img, colorbar=False, bg_img=False, black_bg=True, cmap='gray')
+            else:
+                messages.error(request, "ERROR: Either MRI file doesn't exist or doesn't end with .nii!")
+
+        surf_file = record.surface_file
+        surf_file_path = None
+        # TODO: add check that file ends with .vtp
+        if surf_file.name != "":
+            surf_file_path = surf_file.path.split("media/")[-1]
+            if not (os.path.isfile(surf_file.path) & surf_file.path.endswith("vtp")):
+                surf_file_path = None
+                messages.error(request, "ERROR: Either Surface file doesn't exist or doesn't end with .vtp!")
 
         # TODO: Create model for storing vtk file locations that can be looked up properly
-        surf_records = 1
-        surf_file_path = None
         pred = None
-        if surf_records == 1:
-            file_name = f"sub-{participant_id}_ses-{session_id}_left_pial.vtp"
-            surf_file_path = f"{SURF_DIR}/forCem.vtp"  # TODO: Hook up file_name to surf_file_path
-            # TODO: Get an inflated one to display! If fails what did Alexy do that is different to OG
-            if os.path.isfile(surf_file_path):
-                surf_file_path = surf_file_path.split("static")[-1]
-            else:
-                surf_file_path = None
-            # predict_age("{SURF_DIR}/sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp")
+        # predict_age("{SURF_DIR}/sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp")
 
         return render(request, "main/results.html",
-                      context={"session_id": session_id, "table_contents": table_contents,
+                      context={"session_id": session_id, "table_names": table_names, "table_values": table_values,
                                "mri_js_html": mri_js_html, "surf_file_path": surf_file_path, "pred": pred})
-
-    if request.method == "POST":
-        # Execute Pytorch Code to get prediction
-        # return render()
-        pass
+    else:
+        messages.error(request, "ERROR: Multiple records were found, session id is not unique!")
+        return redirect("main:lookup")
 
 
+@permission_required('admin.can_add_log_entry')
 def load_data(request):
     if request.method == "POST":
+        # Clear each database here
         SessionDatabase.objects.all().delete()
-        GreyMatterVolume.objects.all().delete()
-        with open(f"{DATA_DIR}/meta_data.tsv") as foo:
+
+        # Check if the tsv file exists
+        if not os.path.isfile(SessionDatabase.default_tsv_path):
+            messages.error(request, "Either this is not a file or the location is wrong!")
+            return redirect("main:load_database")
+
+        expected_ordering = ['participant_id', 'session_id', 'gender', 'birth_age', 'birth_weight', 'singleton',
+                             'scan_age', 'scan_number', 'radiology_score', 'sedation']
+
+        # [f for f in os.listdir(SessionDatabase.default_mris_path) if f.endswith("nii")]
+        found_mri_files = [f for f in os.listdir(SessionDatabase.default_mris_path) if
+                           f.endswith("nii")]
+        # TODO: Check what key words will be in files we want!
+        found_vtps_files = [f for f in os.listdir(SessionDatabase.default_vtps_path) if
+                            f.endswith("vtp") & f.find("inflated") != -1 & f.find("whole")]
+
+        with open(SessionDatabase.default_tsv_path) as foo:
             reader = csv.reader(foo, delimiter='\t')
             for i, row in enumerate(reader):
                 if i == 0:
+                    if row != expected_ordering:
+                        messages.error(request, "FAILED! The table did not have the expected column name ordering.")
+                        return redirect("main:load_database")
                     continue
+
                 (participant_id, session_id, gender, birth_age, birth_weight, singleton, scan_age,
                  scan_number, radiology_score, sedation) = row
-                try:
-                    SessionDatabase.objects.get_or_create(participant_id=participant_id, session_id=session_id,
-                                                          gender=gender,
-                                                          birth_age=birth_age, birth_weight=birth_weight,
-                                                          singleton=singleton,
-                                                          scan_age=scan_age,
-                                                          scan_number=scan_number, radiology_score=radiology_score,
-                                                          sedation=sedation)
-                except:
-                    # TODO: This is a temporary patch because we have two session ids of 1000
-                    print('tmp1')
-        pids_and_session_ids_zip = sorted(
-            [(session.participant_id, session.session_id) for session in SessionDatabase.objects.all()])
-        potential_files = []
-        for file in os.listdir(VOL_DIR):
-            if file.endswith(".nii"):
-                potential_files.append(file)
 
-        for pid, session_id in pids_and_session_ids_zip:
-            for file in potential_files:
-                if file.rfind(session_id, 10, 30) > -1 and file.rfind(pid, 0, 15) > -1:
-                    try:
-                        GreyMatterVolume.objects.get_or_create(session_id=session_id,
-                                                               participant_id=participant_id,
-                                                               filename=file, path=VOL_DIR,
-                                                               filepath=f"{VOL_DIR}/{file}")
-                        potential_files.remove(file)
-                    except:
-                        # TODO: This is a temporary patch because we have two session ids of 1000
-                        print("tmp2")
-                    break
+                mri_file = next((f"{SessionDatabase.default_mris_path}/{x}" for x in found_mri_files if
+                                 (participant_id and session_id) in x), "")
+                surface_file = next((f"{SessionDatabase.default_vtps_path}/{x}" for x in found_vtps_files if
+                                     (participant_id and session_id) in x), "")
+
+                try:
+                    SessionDatabase.objects.create(participant_id=participant_id,
+                                                   session_id=int(session_id),
+                                                   gender=gender,
+                                                   birth_age=float(birth_age),
+                                                   birth_weight=float(birth_weight),
+                                                   singleton=singleton,
+                                                   scan_age=float(scan_age),
+                                                   scan_number=int(scan_number),
+                                                   radiology_score=radiology_score,
+                                                   sedation=sedation,
+                                                   mri_file=mri_file,
+                                                   surface_file=surface_file)
+                except:
+                    # TODO: Investigate these errors, why so many duplicates???
+                    # messages.error(request, f'Warning: tsv contains non-uniques session id: {session_id}')
+                    print(f'tsv contains non-uniques session id: {session_id}')
 
         messages.success(request, "Successfully loaded data!")
         return redirect("main:homepage")
+
     return render(request, "main/load_database.html")
+
+
+def lookup(request):
+    if request.user.is_superuser:
+        if request.method == "GET":
+            session_ids = sorted([int(session.session_id) for session in SessionDatabase.objects.all()])
+            return render(request, "main/lookup.html", context={"session_ids": session_ids})
+    else:
+        messages.error(request, "You must be an admin to access this feature currently!")
+        return redirect("main:homepage")
+
+
+def upload_session(request):
+    if request.user.is_superuser:
+        if request.method == "GET":
+            return render(request, "main/upload_session.html", context={"form": UploadFileForm()})
+        if request.method == "POST":
+            form = UploadFileForm(request.POST, request.FILES)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Successfully uploaded! Now processing.")
+                return view_session_results(request, session_id=int(form["session_id"].value()))
+            messages.error(request, "Form is not valid!")
+            return render(request, "main/upload_session.html", context={"form": form})
+    else:
+        messages.error(request, "You must be an admin to access this feature currently!")
+        return redirect("main:homepage")
 
 
 def register(request):
@@ -150,12 +192,6 @@ def register(request):
     return render(request,
                   "main/register.html",
                   context={"form": form})
-
-
-def logout_request(request):
-    logout(request)
-    messages.info(request, "Logged out successfully!")
-    return redirect("main:homepage")
 
 
 def login_request(request):
@@ -181,15 +217,15 @@ def login_request(request):
                   {"form": form})
 
 
+def logout_request(request):
+    logout(request)
+    messages.info(request, "Logged out successfully!")
+    return redirect("main:homepage")
+
+
 def account_page(request):
     if request.user.is_superuser:
-        return redirect("../admin")
+        return render(request, "main/admin_options.html")
     else:
         messages.error(request, "You are not a superuser.")
         return redirect("main:homepage")
-
-
-def lookup(request):
-    if request.method == "GET":
-        session_ids = sorted([int(session.session_id) for session in GreyMatterVolume.objects.all()])
-        return render(request, "main/lookup.html", context={"session_ids": session_ids})

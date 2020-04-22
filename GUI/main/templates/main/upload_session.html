@@ -1,0 +1,16 @@
+{% extends "main/header.html" %}
+
+{% block title %}Upload Session{% endblock %}
+
+{% block content %}
+    <h1>Session Upload</h1>
+    <br>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        Blank bro
+        <button class="btn" type="submit">Upload</button>
+    </form>
+{% endblock %}
+
+

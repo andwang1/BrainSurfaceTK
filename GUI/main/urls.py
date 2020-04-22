@@ -25,14 +25,12 @@ app_name = "main"
 urlpatterns = [
     path("", views.homepage, name="homepage"),
     path('lookup/', views.lookup, name="lookup"),
+    path('upload/', views.upload_session, name='upload'),
     path('register/', views.register, name='register'),
     path('logout/', views.logout_request, name='logout'),
     path('login/', views.login_request, name='login'),
-    path('results', views.view_session_results, name="results"),
-    # path("view_surf/", views.view_surf, name="view_surf"),
-    path("admin/", admin.site.urls),
+    path('results/', views.view_session_results, name="results"),
     path("load_database/", views.load_data, name="load_database"),
     path("account/", views.account_page, name="account"),
-    # path("brain_surf/", TemplateView.as_view(template_name="main/index.html"),
-    #                    name='brain_surf'),
-]  # + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    path("about/", views.about, name="about")
+]
