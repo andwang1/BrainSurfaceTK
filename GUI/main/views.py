@@ -8,12 +8,16 @@ from .forms import NewUserForm
 from nilearn.plotting import view_img
 import nibabel as nib
 import os
+import sys
+from django.http import JsonResponse
 import csv
+from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_exempt
 
-# from .evaluate_pointnet_regression import predict_age
+# sys.path.append(BASE_DIR + '/backend/')
+# from backend.evaluate_pointnet_regression import predict_age  # TODO
 
 BASE_DIR = os.getcwd()
-
 DATA_DIR = f"{BASE_DIR}/main/static/main/data"
 # DATA_DIR = "./main/static/main/data"
 
@@ -72,7 +76,6 @@ def view_session_results(request):
                 surf_file_path = surf_file_path.split("static")[-1]
             else:
                 surf_file_path = None
-            # predict_age("{SURF_DIR}/sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp")
 
         return render(request, "main/results.html",
                       context={"session_id": session_id, "table_contents": table_contents,
@@ -193,3 +196,16 @@ def lookup(request):
     if request.method == "GET":
         session_ids = sorted([int(session.session_id) for session in GreyMatterVolume.objects.all()])
         return render(request, "main/lookup.html", context={"session_ids": session_ids})
+
+@csrf_exempt
+def run_predictions(request):
+
+    if request.method == 'POST':
+
+        # pred = predict_age(SURF_DIR + "/sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp")
+        pred = 42
+
+        data = {
+            'pred': pred
+        }
+        return JsonResponse(data)

@@ -1,7 +1,6 @@
 import os.path as osp
 import torch
-
-from .pointnet2_regression import Net
+from .pre_trained_models.pointnet2_regression import Net  # TODO
 from torch_geometric.data import Data
 import pyvista as pv
 import pandas as pd

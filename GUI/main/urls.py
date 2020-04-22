@@ -33,6 +33,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("load_database/", views.load_data, name="load_database"),
     path("account/", views.account_page, name="account"),
+    path("run_predictions/", views.run_predictions, name="run_predictions")
     # path("brain_surf/", TemplateView.as_view(template_name="main/index.html"),
     #                    name='brain_surf'),
 ]  # + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -51,65 +51,79 @@
         {% endfor %}
     </table>
 
+    {% csrf_token %}
     <div id="prediction_container">
-        <button id="predict" type="submit" formmethod="get">Predict</button>
+        <button class="waves-effect waves-light btn-small" id="predict" type="submit" formmethod="get">Predict</button>
         {% if pred is not None %}
             Prediction be printed here
         {% endif %}
     </div>
 
-    <!--    <div id="button_container">-->
-    <!--        <button class="waves-effect waves-light btn-small" , type="submit" , id="predict" name="predict" , value="-", onclick="get_pred()">Predict-->
-    <!--        </button>-->
+    <script>
+    $('#predict').click(function() {
+        document.getElementById("predict").style.color = "red";
+        console.log("create post is working!");
+        var table_Exists = document.getElementById("result_table");
 
-    <!--    </div>-->
+        if (table_Exists == null){
+            $.ajax({
+                url : "run_predictions/",
+                type : "POST",
 
-    <!--    <script>-->
+                success : function(json) {
+                    $('#post-text').val('');
+                    console.log(json);
+                    console.log("success");
+                    console.log(json.pred);
 
-    <!--        function get_pred() {-->
+                    display_results(json.pred);
+                }
+            });
+        }
+    });
 
-    <!--            var table_Exists = document.getElementById("result_table");-->
+    function display_results(pred) {
 
-    <!--            if (table_Exists == null)-->
-    <!--            {-->
-    <!--                // CREATE DYNAMIC TABLE.-->
-    <!--                var table = document.createElement('table');-->
+        var table_Exists = document.getElementById("result_table");
 
-    <!--                // SET THE TABLE ID.-->
-    <!--                // WE WOULD NEED THE ID TO TRAVERSE AND EXTRACT DATA FROM THE TABLE.-->
-    <!--                table.setAttribute('id', 'result_table');-->
+        if (table_Exists == null)
+        {
+            // CREATE DYNAMIC TABLE.
+            var table = document.createElement('table');
 
-    <!--                var arrHead = new Array();-->
-    <!--                arrHead = ['Predicted age'];-->
+            // SET THE TABLE ID.
+            // WE WOULD NEED THE ID TO TRAVERSE AND EXTRACT DATA FROM THE TABLE.
+            table.setAttribute('id', 'result_table');
 
-    <!--                var arrValue = new Array();-->
-    <!--                arrValue.push([{{ pred }}]);-->
+            var arrHead = new Array();
+            arrHead = ['Predicted age'];
 
-    <!--                var tr = table.insertRow(-1);-->
+            var arrValue = new Array();
+            arrValue.push([pred]);
 
-    <!--                for (var h = 0; h < arrHead.length; h++) {-->
-    <!--                    var th = document.createElement('th');              // TABLE HEADER.-->
-    <!--                    th.innerHTML = arrHead[h];-->
-    <!--                    tr.appendChild(th);-->
-    <!--                }-->
+            var tr = table.insertRow(-1);
 
-    <!--                for (var c = 0; c <= arrValue.length - 1; c++) {-->
-    <!--                    tr = table.insertRow(-1);-->
+            for (var h = 0; h < arrHead.length; h++) {
+                var th = document.createElement('th');              // TABLE HEADER.
+                th.innerHTML = arrHead[h];
+                tr.appendChild(th);
+            }
 
-    <!--                    for (var j = 0; j < arrHead.length; j++) {-->
-    <!--                        var td = document.createElement('td');          // TABLE DEFINITION.-->
-    <!--                        td = tr.insertCell(-1);-->
-    <!--                        td.innerHTML = arrValue[c][j];                  // ADD VALUES TO EACH CELL.-->
-    <!--                    }-->
-    <!--                }-->
+            for (var c = 0; c <= arrValue.length - 1; c++) {
+                tr = table.insertRow(-1);
 
-    <!--                // FINALLY ADD THE NEWLY CREATED TABLE AND BUTTON TO THE BODY.-->
-    <!--                document.getElementById("button_container").appendChild(table);-->
-    <!--            }-->
-    <!--        }-->
+                for (var j = 0; j < arrHead.length; j++) {
+                    var td = document.createElement('td');          // TABLE DEFINITION.
+                    td = tr.insertCell(-1);
+                    td.innerHTML = arrValue[c][j];                  // ADD VALUES TO EACH CELL.
+                }
+            }
 
-    <!--    </script>-->
+            // FINALLY ADD THE NEWLY CREATED TABLE AND BUTTON TO THE BODY.
+            document.getElementById("prediction_container").appendChild(table);
+        }
+    }
 
-
+    </script>
 
 {% endblock %}
