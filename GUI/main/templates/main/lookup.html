@@ -5,9 +5,9 @@
 {% block content %}
     <h1>Select Session ID</h1>
     <br>
-    <form method="get" action="/results">
+    <form method="get">
         <div class="input-field col s12">
-            <select name="session_id">
+            <select name="selected_session_id">
                 {% for session_id in session_ids %}
                     <option value={{ session_id }}>{{ session_id }}</option>
                 {% endfor %}

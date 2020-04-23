@@ -41,13 +41,17 @@ def view_session_results(request, session_id=None):
     # NEW
     # TODO: Implement method to only run prediction model when button clicked and update currently rendered page
     if request.method == "GET":
-        session_id = request.GET["session_id"]
-        database = SessionDatabase
-    if request.method == "POST":
-        database = UploadedSessionDatabase
+        for database in [SessionDatabase, UploadedSessionDatabase]:
+            search_results = database.objects.filter(session_id=session_id)
+            if search_results.count() is 1:
+                break
+            elif search_results.count() > 1:
+                messages.error(request, "ERROR: Multiple records were found, session id is not unique!")
+                return redirect("main:lookup")
+        else:
+            messages.error(request, "ERROR: No records were found, this session id was not found in the database!")
+            return redirect("main:lookup")
 
-    search_results = database.objects.filter(session_id=session_id)
-    if search_results.count() is 1:
         record = search_results.get()
         record_dict = vars(record)
         # TODO: Rewrite to exclude clutter
@@ -62,7 +66,6 @@ def view_session_results(request, session_id=None):
 
         mri_file = record.mri_file
         mri_js_html = None
-        # TODO: add check that file ends with .nii
         if mri_file.name != "":
             if os.path.isfile(mri_file.path) & mri_file.path.endswith("nii"):
                 img = nib.load(mri_file.path)
@@ -72,23 +75,18 @@ def view_session_results(request, session_id=None):
 
         surf_file = record.surface_file
         surf_file_path = None
-        # TODO: add check that file ends with .vtp
         if surf_file.name != "":
             surf_file_path = surf_file.path.split("media/")[-1]
             if not (os.path.isfile(surf_file.path) & surf_file.path.endswith("vtp")):
                 surf_file_path = None
                 messages.error(request, "ERROR: Either Surface file doesn't exist or doesn't end with .vtp!")
 
-        # TODO: Create model for storing vtk file locations that can be looked up properly
         pred = None
         # predict_age("{SURF_DIR}/sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp")
 
         return render(request, "main/results.html",
                       context={"session_id": session_id, "table_names": table_names, "table_values": table_values,
                                "mri_js_html": mri_js_html, "surf_file_path": surf_file_path, "pred": pred})
-    else:
-        messages.error(request, "ERROR: Multiple records were found, session id is not unique!")
-        return redirect("main:lookup")
 
 
 @permission_required('admin.can_add_log_entry')
@@ -96,6 +94,9 @@ def load_data(request):
     if request.method == "POST":
         # Clear each database here
         SessionDatabase.objects.all().delete()
+        reset_upload_database = request.POST.get("reset_upload_database", 'off')
+        if reset_upload_database is 'on':
+            UploadedSessionDatabase.objects.all().delete()
 
         # Check if the tsv file exists
         if not os.path.isfile(SessionDatabase.default_tsv_path):
@@ -105,7 +106,6 @@ def load_data(request):
         expected_ordering = ['participant_id', 'session_id', 'gender', 'birth_age', 'birth_weight', 'singleton',
                              'scan_age', 'scan_number', 'radiology_score', 'sedation']
 
-        # [f for f in os.listdir(SessionDatabase.default_mris_path) if f.endswith("nii")]
         found_mri_files = [f for f in os.listdir(SessionDatabase.default_mris_path) if
                            f.endswith("nii")]
         # TODO: Check what key words will be in files we want!
@@ -156,8 +156,14 @@ def load_data(request):
 def lookup(request):
     if request.user.is_superuser:
         if request.method == "GET":
-            session_ids = sorted([int(session.session_id) for session in SessionDatabase.objects.all()])
-            return render(request, "main/lookup.html", context={"session_ids": session_ids})
+            session_id = request.GET.get("selected_session_id", None)
+            if session_id is not None:
+                return redirect("main:session_id_results", session_id=session_id, permanent=True)
+            uploaded_session_ids = [int(session.session_id) for session in UploadedSessionDatabase.objects.all()]
+            session_ids = [int(session.session_id) for session in SessionDatabase.objects.all()]
+            combined_sessions = session_ids + uploaded_session_ids
+            combined_sessions = sorted(combined_sessions)
+            return render(request, "main/lookup.html", context={"session_ids": combined_sessions})
     else:
         messages.error(request, "You must be an admin to access this feature currently!")
         return redirect("main:homepage")
@@ -172,7 +178,7 @@ def upload_session(request):
             if form.is_valid():
                 form.save()
                 messages.success(request, "Successfully uploaded! Now processing.")
-                return view_session_results(request, session_id=int(form["session_id"].value()))
+                return redirect("main:session_id_results", session_id=int(form["session_id"].value()), permanent=True)
             messages.error(request, "Form is not valid!")
             return render(request, "main/upload_session.html", context={"form": form})
     else:
@@ -194,10 +200,7 @@ def register(request):
                 print(form.error_messages[msg])
                 messages.error(request, f"{msg}: {form.error_messages[msg]}")
 
-    form = NewUserForm
-    return render(request,
-                  "main/register.html",
-                  context={"form": form})
+    return render(request, "main/register.html", context={"form": NewUserForm})
 
 
 def login_request(request):
@@ -218,9 +221,7 @@ def login_request(request):
         else:
             messages.error(request, "Invalid username or password")
     form = AuthenticationForm()
-    return render(request,
-                  "main/login.html",
-                  {"form": form})
+    return render(request, "main/login.html", {"form": AuthenticationForm})
 
 
 def logout_request(request):
@@ -241,7 +242,6 @@ def account_page(request):
 def run_predictions(request):
     # TODO: handle errors
     if request.method == 'POST':
-
         participant_id = request.POST.get('participant_id', None)
         session_id = request.POST.get('session_id', None)
         file_path = request.POST.get('file_path', None)
@@ -257,10 +257,10 @@ def run_predictions(request):
         }
         return JsonResponse(data)
 
+
 @csrf_exempt
 def run_segmentation(request):
     if request.method == 'POST':
-
         participant_id = request.POST.get('participant_id', None)
         session_id = request.POST.get('session_id', None)
         file_path = request.POST.get('file_path', None)

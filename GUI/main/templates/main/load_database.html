@@ -10,5 +10,10 @@
     <form method="POST">
         {% csrf_token %}
         <button class="waves-effect waves-light btn-small" type="submit" name="load_data">Reset!</button>
+        <br>
+        <label>
+            <input type="checkbox" name="reset_upload_database"/>
+            <span>Also Reset Upload Session Database</span>
+        </label>
     </form>
 {% endblock %}

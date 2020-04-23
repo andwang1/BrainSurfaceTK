@@ -22,6 +22,7 @@ from django.conf import settings
 
 app_name = "main"
 
+
 urlpatterns = [
     path("", views.homepage, name="homepage"),
     path('lookup/', views.lookup, name="lookup"),
@@ -30,11 +31,10 @@ urlpatterns = [
     path('logout/', views.logout_request, name='logout'),
     path('login/', views.login_request, name='login'),
     path('results/', views.view_session_results, name="results"),
+    path('results/<int:session_id>', views.view_session_results, name="session_id_results"),
+    path("results/<int:session_id>/run_predictions/", views.run_predictions, name="run_predictions"),
+    path("results/<int:session_id>/run_segmentation/", views.run_segmentation, name="run_segmentation"),
     path("load_database/", views.load_data, name="load_database"),
     path("account/", views.account_page, name="account"),
     path("about/", views.about, name="about"),
-    path("results/run_predictions/", views.run_predictions, name="run_predictions"),
-    path("results/run_segmentation/", views.run_segmentation, name="run_segmentation")
-    # path("brain_surf/", TemplateView.as_view(template_name="main/index.html"),
-    #                    name='brain_surf'),
-]  # + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+]

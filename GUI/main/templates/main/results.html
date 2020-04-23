@@ -47,6 +47,7 @@
         </tbody>
     </table>
 
+    {#    This token is only necessary when the form method is POST.#}
     {% csrf_token %}
     <div id="prediction_container">
         <button class="waves-effect waves-light btn-small" id="predict" type="submit" formmethod="get">Predict</button>
@@ -54,106 +55,104 @@
     </div>
 
     <script>
-    $('#predict').click(function() {
-        document.getElementById("predict").style.color = "red";
-        console.log("create post is working!");
-        var table_Exists = document.getElementById("result_table");
+        $('#predict').click(function () {
+            document.getElementById("predict").style.color = "red";
+            console.log("create post is working!");
+            var table_Exists = document.getElementById("result_table");
 
-        if (table_Exists == null){
+            if (table_Exists == null) {
+
+                var objCells = document.getElementById("info_table").rows.item(1).cells;
+                console.log(objCells.item(0).innerHTML);
+
+                $.ajax({
+                    url: "run_predictions/",
+                    type: "POST",
+                    data: {
+                        'participant_id': objCells.item(0).innerHTML,
+                        'session_id': objCells.item(1).innerHTML,
+                        'file_path': "{% get_media_prefix %}{{ surf_file_path }}"
+                    },
+
+                    success: function (json) {
+                        $('#post-text').val('');
+                        console.log(json);
+                        console.log("success");
+                        console.log(json.pred);
+
+                        display_results(json.pred);
+                    }
+                });
+            }
+        });
+
+
+        $('#segment').click(function () {
+            document.getElementById("segment").style.color = "red";
+            console.log("create post is working!");
 
             var objCells = document.getElementById("info_table").rows.item(1).cells;
             console.log(objCells.item(0).innerHTML);
 
             $.ajax({
-                url : "run_predictions/",
-                type : "POST",
+                url: "run_segmentation/",
+                type: "POST",
                 data: {
                     'participant_id': objCells.item(0).innerHTML,
                     'session_id': objCells.item(1).innerHTML,
                     'file_path': "{% get_media_prefix %}{{ surf_file_path }}"
                 },
 
-                success : function(json) {
+                success: function (json) {
                     $('#post-text').val('');
                     console.log(json);
                     console.log("success");
-                    console.log(json.pred);
-
-                    display_results(json.pred);
                 }
             });
-        }
-    });
 
-
-     $('#segment').click(function() {
-        document.getElementById("segment").style.color = "red";
-        console.log("create post is working!");
-
-        var objCells = document.getElementById("info_table").rows.item(1).cells;
-        console.log(objCells.item(0).innerHTML);
-
-        $.ajax({
-            url : "run_segmentation/",
-            type : "POST",
-            data: {
-                'participant_id': objCells.item(0).innerHTML,
-                'session_id': objCells.item(1).innerHTML,
-                'file_path': "{% get_media_prefix %}{{ surf_file_path }}"
-            },
-
-            success : function(json) {
-                $('#post-text').val('');
-                console.log(json);
-                console.log("success");
-            }
         });
 
-    });
 
+        function display_results(pred) {
 
-    function display_results(pred) {
+            var table_Exists = document.getElementById("result_table");
 
-        var table_Exists = document.getElementById("result_table");
+            if (table_Exists == null) {
+                // CREATE DYNAMIC TABLE.
+                var table = document.createElement('table');
 
-        if (table_Exists == null)
-        {
-            // CREATE DYNAMIC TABLE.
-            var table = document.createElement('table');
+                // SET THE TABLE ID.
+                // WE WOULD NEED THE ID TO TRAVERSE AND EXTRACT DATA FROM THE TABLE.
+                table.setAttribute('id', 'result_table');
 
-            // SET THE TABLE ID.
-            // WE WOULD NEED THE ID TO TRAVERSE AND EXTRACT DATA FROM THE TABLE.
-            table.setAttribute('id', 'result_table');
+                var arrHead = new Array();
+                arrHead = ['Predicted age'];
 
-            var arrHead = new Array();
-            arrHead = ['Predicted age'];
+                var arrValue = new Array();
+                arrValue.push([pred]);
 
-            var arrValue = new Array();
-            arrValue.push([pred]);
+                var tr = table.insertRow(-1);
 
-            var tr = table.insertRow(-1);
-
-            for (var h = 0; h < arrHead.length; h++) {
-                var th = document.createElement('th');              // TABLE HEADER.
-                th.innerHTML = arrHead[h];
-                tr.appendChild(th);
-            }
-
-            for (var c = 0; c <= arrValue.length - 1; c++) {
-                tr = table.insertRow(-1);
-
-                for (var j = 0; j < arrHead.length; j++) {
-                    var td = document.createElement('td');          // TABLE DEFINITION.
-                    td = tr.insertCell(-1);
-                    td.innerHTML = arrValue[c][j];                  // ADD VALUES TO EACH CELL.
+                for (var h = 0; h < arrHead.length; h++) {
+                    var th = document.createElement('th');              // TABLE HEADER.
+                    th.innerHTML = arrHead[h];
+                    tr.appendChild(th);
                 }
+
+                for (var c = 0; c <= arrValue.length - 1; c++) {
+                    tr = table.insertRow(-1);
+
+                    for (var j = 0; j < arrHead.length; j++) {
+                        var td = document.createElement('td');          // TABLE DEFINITION.
+                        td = tr.insertCell(-1);
+                        td.innerHTML = arrValue[c][j];                  // ADD VALUES TO EACH CELL.
+                    }
+                }
+
+                // FINALLY ADD THE NEWLY CREATED TABLE AND BUTTON TO THE BODY.
+                document.getElementById("prediction_container").appendChild(table);
             }
-
-            // FINALLY ADD THE NEWLY CREATED TABLE AND BUTTON TO THE BODY.
-            document.getElementById("prediction_container").appendChild(table);
         }
-    }
-
     </script>
 
 {% endblock %}
