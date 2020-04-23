@@ -8,16 +8,15 @@ from .forms import NewUserForm, UploadFileForm
 from nilearn.plotting import view_img
 import nibabel as nib
 import os
-import sys
+# import sys
 from django.http import JsonResponse
 import csv
 from django.views.decorators.csrf import csrf_exempt
 import json
-
+from django.http import HttpResponse
 # sys.path.append(BASE_DIR + '/backend/')
 # from backend.evaluate_pointnet_regression import predict_age  # TODO
 
-from backend.evaluate_pointnet_regression import predict_age
 
 BASE_DIR = os.getcwd()
 DATA_DIR = f"{BASE_DIR}/main/static/main/data"
@@ -243,6 +242,13 @@ def account_page(request):
 
 @csrf_exempt
 def run_predictions(request, session_id):
+    print("Starting")
+    # return HttpResponse("Bit before import1111!")
+    # TODO: Fix why this doesn't work when importing pyvista when LIVE
+    import pyvista
+    return HttpResponse("Bit before import!")
+    from backend.evaluate_pointnet_regression import predict_age
+    return HttpResponse("Imported then got here!")
     # TODO: handle errors
     if request.method == 'POST':
         participant_id = request.POST.get('participant_id', None)
@@ -258,6 +264,7 @@ def run_predictions(request, session_id):
         data = {
             'pred': pred
         }
+        print("FInishing")
         return JsonResponse(data)
 
 
