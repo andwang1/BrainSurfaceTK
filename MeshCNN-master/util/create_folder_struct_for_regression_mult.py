@@ -13,7 +13,7 @@ source_dir_names =["all_brains_aligned_red50",
 "all_brains_native_5k"]
 
 # Load indices
-with open("indices.pk", "rb") as f:
+with open("names_04152020_noCrashSubs.pk", "rb") as f:
     indices = pickle.load(f)
 
 # Load metadata
