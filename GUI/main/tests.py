@@ -1,7 +1,7 @@
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from  django.test import LiveServerTestCase
 from selenium.webdriver.firefox.webdriver import WebDriver
 
-class MySeleniumTests(StaticLiveServerTestCase):
+class MySeleniumTests(LiveServerTestCase):
     fixtures = ['user-data.json']    
    
     @classmethod
