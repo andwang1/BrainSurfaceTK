@@ -12,6 +12,7 @@ import sys
 from django.http import JsonResponse
 import csv
 from django.views.decorators.csrf import csrf_exempt
+import json
 
 # sys.path.append(BASE_DIR + '/backend/')
 # from backend.evaluate_pointnet_regression import predict_age  # TODO
@@ -95,7 +96,7 @@ def load_data(request):
         # Clear each database here
         SessionDatabase.objects.all().delete()
         reset_upload_database = request.POST.get("reset_upload_database", 'off')
-        if reset_upload_database is 'on':
+        if reset_upload_database == 'on':
             UploadedSessionDatabase.objects.all().delete()
 
         # Check if the tsv file exists
@@ -159,11 +160,13 @@ def lookup(request):
             session_id = request.GET.get("selected_session_id", None)
             if session_id is not None:
                 return redirect("main:session_id_results", session_id=session_id, permanent=True)
-            uploaded_session_ids = [int(session.session_id) for session in UploadedSessionDatabase.objects.all()]
+
             session_ids = [int(session.session_id) for session in SessionDatabase.objects.all()]
-            combined_sessions = session_ids + uploaded_session_ids
-            combined_sessions = sorted(combined_sessions)
-            return render(request, "main/lookup.html", context={"session_ids": combined_sessions})
+            uploaded_session_ids = [int(session.session_id) for session in UploadedSessionDatabase.objects.all()]
+
+            return render(request, "main/lookup.html",
+                          context={"session_ids": sorted(session_ids + uploaded_session_ids)})
+
     else:
         messages.error(request, "You must be an admin to access this feature currently!")
         return redirect("main:homepage")
@@ -239,7 +242,7 @@ def account_page(request):
 
 
 @csrf_exempt
-def run_predictions(request):
+def run_predictions(request, session_id):
     # TODO: handle errors
     if request.method == 'POST':
         participant_id = request.POST.get('participant_id', None)
@@ -259,7 +262,7 @@ def run_predictions(request):
 
 
 @csrf_exempt
-def run_segmentation(request):
+def run_segmentation(request, session_id):
     if request.method == 'POST':
         participant_id = request.POST.get('participant_id', None)
         session_id = request.POST.get('session_id', None)
@@ -269,3 +272,20 @@ def run_segmentation(request):
             'segmented_file_path': file_path
         }
         return JsonResponse(data)
+
+# def lookup(request):
+#     if request.user.is_superuser:
+#         if request.method == "GET":
+#             session_id = request.GET.get("selected_session_id", None)
+#             if session_id is not None:
+#                 return redirect("main:session_id_results", session_id=session_id, permanent=True)
+#
+#             session_ids = [int(session.session_id) for session in SessionDatabase.objects.all()]
+#             uploaded_session_ids = [int(session.session_id) for session in UploadedSessionDatabase.objects.all()]
+#
+#             return render(request, "main/lookup.html", context={"og_session_ids": sorted(session_ids),
+#                                                                 "uploaded_session_ids": sorted(uploaded_session_ids)})
+#
+#     else:
+#         messages.error(request, "You must be an admin to access this feature currently!")
+#         return redirect("main:homepage")
