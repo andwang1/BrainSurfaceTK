@@ -13,7 +13,7 @@ python3 train.py \
 --print_freq 10 \
 --seed 0 \
 --dataset_mode regression \
---niter 100 \
+--niter 90 \
 --niter_decay 0 \
 --batch_size 1 \
 --ncf 64 112 128 \

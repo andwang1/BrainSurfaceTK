@@ -14,7 +14,7 @@ python3 train.py \
 --seed 0 \
 --dataset_mode regression \
 --niter 1 \
---niter_decay 100 \
+--niter_decay 200 \
 --batch_size 1 \
 --ncf 64 112 128 \
 --pool_res 3000 2750 2500 \
