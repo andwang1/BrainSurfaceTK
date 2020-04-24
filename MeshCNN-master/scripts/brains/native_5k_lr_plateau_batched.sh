@@ -3,7 +3,7 @@
 ## run the training
 python3 train.py \
 --dataroot datasets/brains_reg_native_5k \
---checkpoints_dir checkpoints/batch_batch_native_5k_lr_plateau \
+--checkpoints_dir checkpoints/batch_native_5k_lr_plateau \
 --export_folder checkpoints/mesh_collapses \
 --name brains \
 --epoch_count 1 \

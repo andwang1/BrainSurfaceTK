@@ -3,8 +3,7 @@
 ## run the training
 python3 train.py \
 --dataroot datasets/brains_reg_native_5k \
---checkpoints_dir checkpoints/batch_native_5k_lr_static \
---export_folder checkpoints/mesh_collapses \
+--checkpoints_dir checkpoints/fill \
 --name brains \
 --epoch_count 1 \
 --norm group \
@@ -13,11 +12,14 @@ python3 train.py \
 --print_freq 10 \
 --seed 0 \
 --dataset_mode regression \
---niter 200 \
---niter_decay 0 \
+--niter 1 \
+--niter_decay 20000 \
 --batch_size 32 \
 --ncf 64 112 128 \
 --pool_res 3000 2750 2500 \
 --lr 0.0003 \
 --init_type kaiming \
 --num_groups 2 \
+--lr_policy cosine_restarts \
+--lr_decay_iters 10 \
+--min_lr 1e-5 \
