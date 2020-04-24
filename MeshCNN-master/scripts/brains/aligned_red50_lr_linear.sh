@@ -14,7 +14,7 @@ python3 train.py \
 --seed 0 \
 --dataset_mode regression \
 --niter 1 \
---niter_decay 90 \
+--niter_decay 100 \
 --batch_size 1 \
 --ncf 64 112 128 \
 --pool_res 3000 2750 2500 \
@@ -22,3 +22,4 @@ python3 train.py \
 --init_type kaiming \
 --num_groups 2 \
 --min_lr 1e-5 \
+--verbose \

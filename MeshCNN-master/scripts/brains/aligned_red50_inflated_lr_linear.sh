@@ -11,10 +11,10 @@ python3 train.py \
 --num_aug 1 \
 --verbose_plot \
 --print_freq 10 \
---seed 0 \
+--seed 1 \
 --dataset_mode regression \
 --niter 1 \
---niter_decay 90 \
+--niter_decay 100 \
 --batch_size 1 \
 --ncf 64 112 128 \
 --pool_res 3000 2750 2500 \
