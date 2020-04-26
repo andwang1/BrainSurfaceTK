@@ -3,14 +3,8 @@ import os
 import pandas as pd
 from shutil import copyfile
 
-source_dir_names =["all_brains_aligned_red50",
-"all_brains_aligned_red50_inflated",
-"all_brains_aligned_red90",
-"all_brains_merged_10k",
-"all_brains_merged_20k",
-"all_brains_native_10k",
-"all_brains_native_20k",
-"all_brains_native_5k"]
+source_dir_names =["all_brains_merged_10k_WM",
+                   "all_brains_merged_5k"]
 
 # Load indices
 with open("names_04152020_noCrashSubs.pk", "rb") as f:
