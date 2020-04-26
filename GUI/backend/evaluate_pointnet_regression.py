@@ -1,8 +1,10 @@
 import os.path as osp
 import torch
-from .pre_trained_models.pointnet2_regression import Net  # TODO
+# from .pre_trained_models.pointnet2_regression import Net  # TODO
 from torch_geometric.data import Data
-import pyvista as pv
+# import pyvista as pv
+import vtk
+from pyvista import read
 import pandas as pd
 import os
 
@@ -42,11 +44,18 @@ def get_features(list_features, mesh):
         return None
 
 
-def predict_age(file_path='./file.vtp'):
+def predict_age(file_path="/media/original/data/vtps/sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp"):
     torch.manual_seed(0)
     if osp.isfile(file_path):
 
-        mesh = pv.read(file_path)
+        # mesh = read(file_path)
+        reader = vtk.vtkPolyDataReader()
+        reader.SetFileName(file_path)
+        reader.Update()
+        output = reader.GetOutput()
+
+        mesh = ""
+
         points = torch.tensor(mesh.points)
 
         local_features = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
@@ -78,4 +87,4 @@ def predict_age(file_path='./file.vtp'):
 if __name__ == '__main__':
 
 
-    print(predict_age('/home/vital/Group Project/deepl_brain_surfaces/src/sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp'))
+    print(predict_age('/mnt/UHDD/Programming/Projects/GroupProject/deepl_brain_surfaces/GUI'+"/media/original/data/vtps/sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp"))

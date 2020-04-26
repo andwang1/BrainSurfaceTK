@@ -14,6 +14,7 @@ import csv
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.http import HttpResponse
+
 # sys.path.append(BASE_DIR + '/backend/')
 # from backend.evaluate_pointnet_regression import predict_age  # TODO
 
@@ -76,7 +77,7 @@ def view_session_results(request, session_id=None):
         surf_file = record.surface_file
         surf_file_path = None
         if surf_file.name != "":
-            surf_file_path = surf_file.path.split("media/")[-1]
+            surf_file_path = "/media/"+surf_file.url.split("media/")[-1] # TODO: FIX media/ at the start of abs path error
             if not (os.path.isfile(surf_file.path) & surf_file.path.endswith("vtp")):
                 surf_file_path = None
                 messages.error(request, "ERROR: Either Surface file doesn't exist or doesn't end with .vtp!")
@@ -245,10 +246,8 @@ def run_predictions(request, session_id):
     print("Starting")
     # return HttpResponse("Bit before import1111!")
     # TODO: Fix why this doesn't work when importing pyvista when LIVE
-    import pyvista
-    return HttpResponse("Bit before import!")
+    # return HttpResponse("Bit before import!")
     from backend.evaluate_pointnet_regression import predict_age
-    return HttpResponse("Imported then got here!")
     # TODO: handle errors
     if request.method == 'POST':
         participant_id = request.POST.get('participant_id', None)

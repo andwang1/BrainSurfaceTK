@@ -29,7 +29,8 @@
             <div id="brain_surf_container">
                 <div class="GeometryViewer-module-fullScreen_38Xg_"></div>
             </div>
-            <script id="brain_surf" data-fileURL="{% get_media_prefix %}{{ surf_file_path }}"
+            "{{ surf_file_path }}"
+            <script id="brain_surf" data-fileURL="{{ surf_file_path }}"
                     type="text/javascript" src="{% static "main/js/MyWebApp.js" | safe %}"></script>
         {% endif %}
     </div>
@@ -75,7 +76,7 @@
                         data: {
                             'participant_id': objCells.item(0).innerHTML,
                             'session_id': objCells.item(1).innerHTML,
-                            'file_path': "{% get_media_prefix %}{{ surf_file_path }}"
+                            'file_path': "{{ surf_file_path }}"
                         },
 
                         success: function (json) {
