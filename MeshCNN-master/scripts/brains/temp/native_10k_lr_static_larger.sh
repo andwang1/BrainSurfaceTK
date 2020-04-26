@@ -13,10 +13,10 @@ python3 train.py \
 --print_freq 10 \
 --seed 0 \
 --dataset_mode regression \
---niter 100 \
+--niter 200 \
 --niter_decay 0 \
 --batch_size 1 \
---ncf 256 512 1024 1024 \
+--ncf 256 256 512 1024 \
 --pool_res 3500 3000 2750 2500 \
 --lr 0.0003 \
 --init_type kaiming \

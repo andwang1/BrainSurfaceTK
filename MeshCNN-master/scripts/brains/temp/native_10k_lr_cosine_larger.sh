@@ -14,9 +14,9 @@ python3 train.py \
 --seed 0 \
 --dataset_mode regression \
 --niter 1 \
---niter_decay 100 \
+--niter_decay 200 \
 --batch_size 1 \
---ncf 256 512 1024 1024 \
+--ncf 256 256 512 1024 \
 --pool_res 3500 3000 2750 2500 \
 --lr 0.0003 \
 --init_type kaiming \
