@@ -147,9 +147,9 @@ class ClassifierModel:
             if self.opt.dataset_mode == 'regression':
                 pred_class = out.view(-1)
             elif self.opt.dataset_mode == 'binary_class':
-                pred_class = torch.round(out).long()
                 # Convert to probability for printing and logging
                 out = torch.sigmoid(out)
+                pred_class = torch.round(out).long()
             else:
                 pred_class = out.data.max(1)[1]
             label_class = self.labels
