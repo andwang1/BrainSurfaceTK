@@ -16,8 +16,8 @@ python3 train.py \
 --niter 300 \
 --niter_decay 0 \
 --batch_size 1 \
---ncf 256 256 512 1024 \
---pool_res 4500 3000 2750 2500 \
+--ncf 128 128 256 512 \
+--pool_res 3250 3000 2750 2500 \
 --lr 0.0003 \
 --init_type kaiming \
 --num_groups 2 \
