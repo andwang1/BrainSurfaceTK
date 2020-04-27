@@ -78,6 +78,11 @@ if __name__ == '__main__':
         lr = model.update_learning_rate(acc, epoch)
         writer.plot_lr(lr, epoch)
 
+    # At end of training, run the last model on the test set
+    print("Final testing on model from epoch ", epoch)
+    acc = run_test(epoch, is_val=False)
+    writer.plot_test_acc(acc, epoch)
+
     # At end of training, pick best model and run a test on the test set
     print("Final testing on model from epoch ", best_epoch)
     acc = run_test(best_epoch, is_val=False)
