@@ -1,14 +1,17 @@
 import os.path as osp
 import torch
-# from .pre_trained_models.pointnet2_regression import Net  # TODO
+from .pre_trained_models.pointnet2_regression import Net  # TODO
 from torch_geometric.data import Data
 # import pyvista as pv
 import vtk
-from pyvista import read
+# from pyvista import read
 import pandas as pd
 import os
+import numpy as np
+from vtk.util.numpy_support import vtk_to_numpy
 
-def get_features(list_features, mesh):
+
+def get_features(list_features, reader):
     '''Returns tensor of features to add in every point.
     :param list_features: list of features to add. Mapping is in self.feature_arrays
     :param mesh: pyvista mesh from which to get the arrays.
@@ -21,7 +24,9 @@ def get_features(list_features, mesh):
     if list_features:
 
         if 'drawem' in list_features:
-            one_hot_drawem = pd.get_dummies(mesh.get_array(feature_arrays['drawem']))
+
+            one_hot_drawem = pd.get_dummies(vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(feature_arrays['drawem'])))
+            # one_hot_drawem = pd.get_dummies(mesh.get_array(feature_arrays['drawem']))
 
             new_df = pd.DataFrame()
             for label in list_of_drawem_labels:
@@ -37,7 +42,8 @@ def get_features(list_features, mesh):
         else:
             drawem_list = []
 
-        features = [mesh.get_array(feature_arrays[key]) for key in feature_arrays if key != 'drawem']
+        # features = [mesh.get_array(feature_arrays[key]) for key in feature_arrays if key != 'drawem']
+        features = [vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(feature_arrays[key])) for key in feature_arrays if key != 'drawem']
 
         return torch.tensor(features + drawem_list).t()
     else:
@@ -49,17 +55,16 @@ def predict_age(file_path="/media/original/data/vtps/sub-CC00050XX01_ses-7201_he
     if osp.isfile(file_path):
 
         # mesh = read(file_path)
-        reader = vtk.vtkPolyDataReader()
+        # reader = vtk.vtkPolyDataReader()
+        reader = vtk.vtkXMLPolyDataReader()
         reader.SetFileName(file_path)
         reader.Update()
-        output = reader.GetOutput()
+        # output = reader.GetOutput()
 
-        mesh = ""
-
-        points = torch.tensor(mesh.points)
+        points = torch.tensor(np.array(reader.GetOutput().GetPoints().GetData()))
 
         local_features = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
-        x = get_features(local_features, mesh)
+        x = get_features(local_features, reader)
 
         data = Data(batch=torch.zeros_like(x[:, 0]).long(), x=x, pos=points)
         # data = Data(x=x, pos=points)
