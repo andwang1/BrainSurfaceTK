@@ -19,7 +19,7 @@ if not os.access(target_dir, mode=os.F_OK):
 
 
 # Load indices
-with open("indices_preterm_04152020_noCrashSubs.pk", "rb") as f:
+with open("names_preterm_04152020_noCrashSubs.pk", "rb") as f:
     indices = pickle.load(f)
 
 # Load metadata
