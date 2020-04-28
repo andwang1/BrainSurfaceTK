@@ -1,15 +1,14 @@
-from django.db import models
+import os
+
+from django.conf import settings
 from django.core import validators
 from django.core.exceptions import ValidationError
+from django.db import models
 from django.utils.translation import gettext_lazy as _
-import os
 
 """
 THESE ARE YOUR DATABASES BRO
 """
-
-BASE_DIR = os.getcwd()
-MEDIA_DATA_DIR = f"{BASE_DIR}/media/original/data"
 
 
 # Create your models here.
@@ -52,8 +51,8 @@ class TemplateSessionDatabase(models.Model):
     radiology_score = models.CharField(verbose_name="radiology_score", max_length=200)
     sedation = models.CharField(verbose_name="sedation", max_length=200)
 
-    mri_file = models.FileField(verbose_name="MRI file path", upload_to="uploads/data/mris/", default="")
-    surface_file = models.FileField(verbose_name="Surface file path", upload_to="uploads/data/vtps/", default="")
+    mri_file = models.FileField(verbose_name="MRI file path", upload_to="", default="", max_length=250)
+    surface_file = models.FileField(verbose_name="Surface file path", upload_to="", default="", max_length=250)
 
     class Meta:
         abstract = True
@@ -66,11 +65,14 @@ class UploadedSessionDatabase(TemplateSessionDatabase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.mri_file.upload_to = "original/data/mris/"
-        self.surface_file.upload_to = "original/data/vtps/"
+        self.mri_file.upload_to = "uploads/data/mris/"
+        self.surface_file.upload_to = "uploads/data/vtps/"
 
-    # mri_file = models.FileField(verbose_name="MRI file path", upload_to="uploads/data/mris/", default="")
-    # surface_file = models.FileField(verbose_name="Surface file path", upload_to="uploads/data/vtps/", default="")
+        if not os.path.isdir(os.path.join(settings.MEDIA_ROOT, self.mri_file.upload_to)):
+            os.makedirs(os.path.join(settings.MEDIA_ROOT, self.mri_file.upload_to))
+
+        if not os.path.isdir(os.path.join(settings.MEDIA_ROOT, self.surface_file.upload_to)):
+            os.makedirs(os.path.join(settings.MEDIA_ROOT, self.surface_file.upload_to))
 
     class Meta:
         ordering = ['-session_id']
@@ -81,16 +83,16 @@ class SessionDatabase(TemplateSessionDatabase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.mri_file.upload_to = "original/data/mris/"
         self.surface_file.upload_to = "original/data/vtps/"
 
-    # mri_file = models.FileField(verbose_name="MRI file path", upload_to="original/data/mris/", default="")
-    # surface_file = models.FileField(verbose_name="Surface file path", upload_to="original/data/vtps/", default="")
+        self.tsv_path = os.path.join(settings.MEDIA_ROOT, "original/data/meta_data.tsv")
+        self.default_mri_path = os.path.join(settings.MEDIA_ROOT, self.mri_file.upload_to)
+        self.default_vtps_path = os.path.join(settings.MEDIA_ROOT, self.surface_file.upload_to)
 
     class Meta:
         ordering = ['-session_id']
         verbose_name_plural = "Session Database"
 
-    default_tsv_path = f"{MEDIA_DATA_DIR}/meta_data.tsv"
-    default_vtps_path = f"{MEDIA_DATA_DIR}/vtps"
-    default_mris_path = f"{MEDIA_DATA_DIR}/mris"
+

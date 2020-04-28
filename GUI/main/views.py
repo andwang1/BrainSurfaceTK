@@ -1,19 +1,19 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.forms import AuthenticationForm
+import csv
+import os
+
+import nibabel as nib
+from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import permission_required
-from django.contrib import messages
-from .models import Option, SessionDatabase, UploadedSessionDatabase
-from .forms import NewUserForm, UploadFileForm
-from nilearn.plotting import view_img
-import nibabel as nib
-import os
-# import sys
+from django.contrib.auth.forms import AuthenticationForm
 from django.http import JsonResponse
-import csv
+from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
-import json
-from django.http import HttpResponse
+from nilearn.plotting import view_img
+
+from .forms import NewUserForm, UploadFileForm
+from .models import Option, SessionDatabase, UploadedSessionDatabase
 
 # sys.path.append(BASE_DIR + '/backend/')
 # from backend.evaluate_pointnet_regression import predict_age  # TODO
@@ -60,7 +60,7 @@ def view_session_results(request, session_id=None):
         table_names = list()
         table_values = list()
         for field_name in field_names:
-            if field_name.startswith("_") or field_name == "id" or field_name.endswith("file"):
+            if field_name.startswith("_") or field_name == "id" or field_name.endswith("path"):
                 continue
             table_names.append(field_name.replace("_", " ").lower().capitalize())
             table_values.append(record_dict[field_name])
@@ -77,17 +77,14 @@ def view_session_results(request, session_id=None):
         surf_file = record.surface_file
         surf_file_path = None
         if surf_file.name != "":
-            surf_file_path = "/media/"+surf_file.url.split("media/")[-1] # TODO: FIX media/ at the start of abs path error
+            surf_file_path = surf_file.url
             if not (os.path.isfile(surf_file.path) & surf_file.path.endswith("vtp")):
                 surf_file_path = None
                 messages.error(request, "ERROR: Either Surface file doesn't exist or doesn't end with .vtp!")
 
-        pred = None
-        # predict_age("{SURF_DIR}/sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp")
-
         return render(request, "main/results.html",
                       context={"session_id": session_id, "table_names": table_names, "table_values": table_values,
-                               "mri_js_html": mri_js_html, "surf_file_path": surf_file_path, "pred": pred})
+                               "mri_js_html": mri_js_html, "surf_file_path": surf_file_path})
 
 
 @permission_required('admin.can_add_log_entry')
@@ -100,20 +97,18 @@ def load_data(request):
             UploadedSessionDatabase.objects.all().delete()
 
         # Check if the tsv file exists
-        if not os.path.isfile(SessionDatabase.default_tsv_path):
+        if not os.path.isfile(SessionDatabase().tsv_path):
             messages.error(request, "Either this is not a file or the location is wrong!")
             return redirect("main:load_database")
 
         expected_ordering = ['participant_id', 'session_id', 'gender', 'birth_age', 'birth_weight', 'singleton',
                              'scan_age', 'scan_number', 'radiology_score', 'sedation']
 
-        found_mri_files = [f for f in os.listdir(SessionDatabase.default_mris_path) if
-                           f.endswith("nii")]
-        # TODO: Check what key words will be in files we want!
-        found_vtps_files = [f for f in os.listdir(SessionDatabase.default_vtps_path) if
-                            f.endswith("vtp") & f.find("inflated") != -1 & f.find("hemi-L") != -1]
+        found_mri_file_names = [f for f in os.listdir(SessionDatabase().default_mri_path) if f.endswith("nii")]
+        found_vtps_files_names = [f for f in os.listdir(SessionDatabase().default_vtps_path)
+                                  if f.endswith("vtp") & f.find("inflated") != -1 & f.find("hemi-L") != -1]
 
-        with open(SessionDatabase.default_tsv_path) as foo:
+        with open(SessionDatabase().tsv_path) as foo:
             reader = csv.reader(foo, delimiter='\t')
             for i, row in enumerate(reader):
                 if i == 0:
@@ -125,28 +120,41 @@ def load_data(request):
                 (participant_id, session_id, gender, birth_age, birth_weight, singleton, scan_age,
                  scan_number, radiology_score, sedation) = row
 
-                mri_file = next((f"{SessionDatabase.default_mris_path}/{x}" for x in found_mri_files if
-                                 (participant_id and session_id) in x), "")
-                surface_file = next((f"{SessionDatabase.default_vtps_path}/{x}" for x in found_vtps_files if
-                                     (participant_id and session_id) in x), "")
+                mri_file_path = next((f"{os.path.join(SessionDatabase().default_mri_path, x)}"
+                                      for x in found_mri_file_names if (participant_id and session_id) in x), "")
 
-                try:
-                    SessionDatabase.objects.create(participant_id=participant_id,
-                                                   session_id=int(session_id),
-                                                   gender=gender,
-                                                   birth_age=float(birth_age),
-                                                   birth_weight=float(birth_weight),
-                                                   singleton=singleton,
-                                                   scan_age=float(scan_age),
-                                                   scan_number=int(scan_number),
-                                                   radiology_score=radiology_score,
-                                                   sedation=sedation,
-                                                   mri_file=mri_file,
-                                                   surface_file=surface_file)
-                except:
-                    # TODO: Investigate these errors, why so many duplicates???
-                    # messages.error(request, f'Warning: tsv contains non-uniques session id: {session_id}')
+                surface_file_path = next((f"{os.path.join(SessionDatabase().default_vtps_path, x)}"
+                                          for x in found_vtps_files_names if (participant_id and session_id) in x), "")
+
+                if SessionDatabase.objects.all().filter(session_id=session_id).count() > 0:
                     print(f'tsv contains non-uniques session id: {session_id}')
+                    continue
+
+                if mri_file_path != "":
+                    print("bodo")
+
+                SessionDatabase.objects.create(participant_id=participant_id,
+                                               session_id=int(session_id),
+                                               gender=gender,
+                                               birth_age=float(birth_age),
+                                               birth_weight=float(birth_weight),
+                                               singleton=singleton,
+                                               scan_age=float(scan_age),
+                                               scan_number=int(scan_number),
+                                               radiology_score=radiology_score,
+                                               sedation=sedation,
+                                               mri_file=mri_file_path,
+                                               surface_file=surface_file_path)
+
+                if mri_file_path != "":
+                    record = SessionDatabase.objects.get(session_id=session_id)
+                    record.mri_file.name = record.mri_file.name.split(settings.MEDIA_URL)[-1]
+                    record.save()
+
+                if surface_file_path != "":
+                    record = SessionDatabase.objects.get(session_id=session_id)
+                    record.surface_file.name = record.surface_file.name.split(settings.MEDIA_URL)[-1]
+                    record.save()
 
         messages.success(request, "Successfully loaded data!")
         return redirect("main:homepage")
@@ -279,19 +287,31 @@ def run_segmentation(request, session_id):
         }
         return JsonResponse(data)
 
-# def lookup(request):
-#     if request.user.is_superuser:
-#         if request.method == "GET":
-#             session_id = request.GET.get("selected_session_id", None)
-#             if session_id is not None:
-#                 return redirect("main:session_id_results", session_id=session_id, permanent=True)
+# if mri_file_path != "":
+#     mri_file_reader = open(mri_file_path, "r")
+#     mri_file = File(mri_file_reader)
+# else:
+#     mri_file = ""
 #
-#             session_ids = [int(session.session_id) for session in SessionDatabase.objects.all()]
-#             uploaded_session_ids = [int(session.session_id) for session in UploadedSessionDatabase.objects.all()]
+# if surface_file_path != "":
+#     surface_file_reader = open(surface_file_path, "r")
+#     surface_file = File(surface_file_reader)
+# else:
+#     surface_file = ""
 #
-#             return render(request, "main/lookup.html", context={"og_session_ids": sorted(session_ids),
-#                                                                 "uploaded_session_ids": sorted(uploaded_session_ids)})
-#
-#     else:
-#         messages.error(request, "You must be an admin to access this feature currently!")
-#         return redirect("main:homepage")
+# SessionDatabase.objects.create(participant_id=participant_id,
+#                                session_id=int(session_id),
+#                                gender=gender,
+#                                birth_age=float(birth_age),
+#                                birth_weight=float(birth_weight),
+#                                singleton=singleton,
+#                                scan_age=float(scan_age),
+#                                scan_number=int(scan_number),
+#                                radiology_score=radiology_score,
+#                                sedation=sedation,
+#                                mri_file=mri_file,
+#                                surface_file=mri_file)
+# if mri_file != "":
+#     mri_file_reader.close()
+# if surface_file != "":
+#     surface_file_reader.close()
