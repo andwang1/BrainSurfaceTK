@@ -19,7 +19,7 @@ if __name__ == '__main__':
     best_val_reg_acc = 10000
     best_epoch = None
 
-    for epoch in range(opt.epoch_count, opt.niter + opt.niter_decay + 1):
+    for epoch in range(opt.epoch_count, opt.niter + opt.niter_decay + opt.epoch_count):
         epoch_start_time = time.time()
         iter_data_time = time.time()
         epoch_iter = 0
