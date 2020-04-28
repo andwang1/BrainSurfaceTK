@@ -186,8 +186,8 @@ function createPipeline(fileName, fileContents) {
   // controlContainer.appendChild(labelSelector);
   controlContainer.appendChild(representationSelector);
   controlContainer.appendChild(presetSelector);
-  // controlContainer.appendChild(colorBySelector);
-  // controlContainer.appendChild(componentSelector);
+  controlContainer.appendChild(colorBySelector);
+  controlContainer.appendChild(componentSelector);
   controlContainer.appendChild(opacitySelector);
   rootControllerContainer.appendChild(controlContainer);
 

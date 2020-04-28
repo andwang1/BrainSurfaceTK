@@ -13,7 +13,7 @@ module.exports = {
   entry,
   output: {
     path: outputPath,
-    filename: 'MyWebApp.js',
+    filename: 'brain_surface_tool.js',
   },
   module: {
     rules: [
