@@ -13,8 +13,6 @@ To set up the modwsgi, please run:
 To run the server, use: 
 `python manage.py runmodwsgi --url-alias /media media`
 
-Currently it appears that we have a package conflict between PyVista & Mod-WSGI. This is problematic since both are crucial.
-
 Package-wise:
 
 *  Nibabel is used to load the raw MRI patient files
@@ -23,7 +21,7 @@ Package-wise:
 
 
 TODO:
-*  Setup Apache or Nginx for static file serving or try to find a work around.
-*  Optionally, could set up patient data upload, with form.
+*  It appears that we have a package conflict between PyVista & Mod-WSGI. This is problematic since both are crucial.
+*  Check that in production, the upload feature works
 
 
