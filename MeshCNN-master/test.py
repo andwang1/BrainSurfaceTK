@@ -9,8 +9,13 @@ def run_test(epoch=-1, is_val=True):
     opt = TestOptions().parse()
     # No shuffling for test set
     opt.serial_batches = True
+
+    opt.which_epoch = epoch
+
     # If testing outside of training, want the epoch number to be correct so the files are created correctly
     if epoch == -1:
+        if opt.verbose:
+            print(f"DEBUG: Epoch given -1, setting equal to which_epoch {opt.which_epoch}")
         epoch = opt.which_epoch
     # Set batch_size to 1
     opt.batch_size = 1
