@@ -59,7 +59,7 @@ if __name__ == '__main__':
         writer.plot_epoch_loss(train_loss_epoch / len(dataset), epoch)
 
         print('End of epoch %d / %d \t Time Taken: %d sec' %
-              (epoch, opt.niter + opt.niter_decay, time.time() - epoch_start_time))
+              (epoch, opt.niter + opt.niter_decay + opt.epoch_count, time.time() - epoch_start_time))
         if opt.verbose_plot:
             writer.plot_model_wts(model, epoch)
 
