@@ -60,7 +60,7 @@ def view_session_results(request, session_id=None):
         table_names = list()
         table_values = list()
         for field_name in field_names:
-            if field_name.startswith("_") or field_name == "id" or field_name.endswith("path"):
+            if field_name.startswith("_") or field_name == "id" or field_name.endswith("file") or field_name.endswith("path"):
                 continue
             table_names.append(field_name.replace("_", " ").lower().capitalize())
             table_values.append(record_dict[field_name])
@@ -69,8 +69,9 @@ def view_session_results(request, session_id=None):
         mri_js_html = None
         if mri_file.name != "":
             if os.path.isfile(mri_file.path) & mri_file.path.endswith("nii"):
-                img = nib.load(mri_file.path)
-                mri_js_html = view_img(img, colorbar=False, bg_img=False, black_bg=True, cmap='gray')
+                # img = nib.load(mri_file.path)
+                # mri_js_html = view_img(img, colorbar=False, bg_img=False, black_bg=True, cmap='gray')
+                mri_js_html = None
             else:
                 messages.error(request, "ERROR: Either MRI file doesn't exist or doesn't end with .nii!")
 
@@ -286,32 +287,3 @@ def run_segmentation(request, session_id):
             'segmented_file_path': file_path
         }
         return JsonResponse(data)
-
-# if mri_file_path != "":
-#     mri_file_reader = open(mri_file_path, "r")
-#     mri_file = File(mri_file_reader)
-# else:
-#     mri_file = ""
-#
-# if surface_file_path != "":
-#     surface_file_reader = open(surface_file_path, "r")
-#     surface_file = File(surface_file_reader)
-# else:
-#     surface_file = ""
-#
-# SessionDatabase.objects.create(participant_id=participant_id,
-#                                session_id=int(session_id),
-#                                gender=gender,
-#                                birth_age=float(birth_age),
-#                                birth_weight=float(birth_weight),
-#                                singleton=singleton,
-#                                scan_age=float(scan_age),
-#                                scan_number=int(scan_number),
-#                                radiology_score=radiology_score,
-#                                sedation=sedation,
-#                                mri_file=mri_file,
-#                                surface_file=mri_file)
-# if mri_file != "":
-#     mri_file_reader.close()
-# if surface_file != "":
-#     surface_file_reader.close()
