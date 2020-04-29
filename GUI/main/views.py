@@ -60,7 +60,7 @@ def view_session_results(request, session_id=None):
         table_names = list()
         table_values = list()
         for field_name in field_names:
-            if field_name.startswith("_") or field_name == "id" or field_name.endswith("path"):
+            if field_name.startswith("_") or field_name == "id" or field_name.endswith("file") or field_name.endswith("path"):
                 continue
             table_names.append(field_name.replace("_", " ").lower().capitalize())
             table_values.append(record_dict[field_name])
@@ -69,8 +69,9 @@ def view_session_results(request, session_id=None):
         mri_js_html = None
         if mri_file.name != "":
             if os.path.isfile(mri_file.path) & mri_file.path.endswith("nii"):
-                img = nib.load(mri_file.path)
-                mri_js_html = view_img(img, colorbar=False, bg_img=False, black_bg=True, cmap='gray')
+                # img = nib.load(mri_file.path)
+                # mri_js_html = view_img(img, colorbar=False, bg_img=False, black_bg=True, cmap='gray')
+                mri_js_html = None
             else:
                 messages.error(request, "ERROR: Either MRI file doesn't exist or doesn't end with .nii!")
 

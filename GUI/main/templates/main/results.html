@@ -5,6 +5,8 @@
 
 {% block content %}
 
+    <script type="text/javascript" src="{% static "main/js/brain_surface_tool.js" | safe %}"></script>
+
     <style>
         #brain_surf_container {
             position: relative !important;
@@ -15,9 +17,15 @@
         .GeometryViewer-module-selector_2T5dG {
             display: initial;
         }
+
+        .segmented_container {
+            display: initial;
+        }
+
     </style>
 
     <h1>Session-{{ session_id }}</h1>
+
     <div id="brain-container">
         {% if mri_js_html is not None %}
             <div class="brain_slice_container">
@@ -30,10 +38,12 @@
                 <div class="GeometryViewer-module-fullScreen_38Xg_"></div>
             </div>
             "{{ surf_file_path }}"
-            <script id="brain_surf" data-fileURL="{{ surf_file_path }}"
-                    type="text/javascript" src="{% static "main/js/brain_surface_tool.js" | safe %}"></script>
+            <script type="text/javascript">
+                myLibrary.myFunction("{{ surf_file_path }}", '.GeometryViewer-module-fullScreen_38Xg_');
+            </script>
         {% endif %}
     </div>
+
     <table id="info_table">
         <thead>
         {% for table_name in table_names %}
@@ -59,6 +69,11 @@
             <button class="waves-effect waves-light btn-small" id="segment" type="submit" formmethod="get">Segment
             </button>
         </div>
+
+        <div id="brain_surf_container">
+            <div class="segmented_container"></div>
+        </div>
+
         <script type="text/javascript">
             $('#predict').click(function () {
                 document.getElementById("predict").style.color = "red";
@@ -112,6 +127,11 @@
                         $('#post-text').val('');
                         console.log(json);
                         console.log("success");
+
+                        {#myLibrary.myFunction(json.segmented_file_path, '.segmented_container');#}
+
+                        myLibrary.myFunction("{{ surf_file_path }}", '.segmented_container');
+
                     }
                 });
             });
