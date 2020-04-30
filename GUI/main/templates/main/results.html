@@ -25,11 +25,11 @@
 
         {% if surf_file_path is not None %}
             <div id="brain_surf_container">
-                <div class="GeometryViewer-module-fullScreen_38Xg_"></div>
+                <div class="brain_surface_container"></div>
             </div>
             "{{ surf_file_path }}"
             <script type="text/javascript">
-                myLibrary.myFunction("{{ surf_file_path }}", '.GeometryViewer-module-fullScreen_38Xg_');
+                myLibrary.myFunction("{{ surf_file_path }}", '.brain_surface_container');
             </script>
         {% endif %}
     </div>

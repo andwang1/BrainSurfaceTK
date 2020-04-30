@@ -1,7 +1,6 @@
 import csv
 import os
 
-import nibabel as nib
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
@@ -10,19 +9,13 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
-from nilearn.plotting import view_img
 
+from backend.evaluate_pointnet_regression import predict_age
 from .forms import NewUserForm, UploadFileForm
 from .models import Option, SessionDatabase, UploadedSessionDatabase
 
-# sys.path.append(BASE_DIR + '/backend/')
-# from backend.evaluate_pointnet_regression import predict_age  # TODO
-
-
 BASE_DIR = os.getcwd()
-DATA_DIR = f"{BASE_DIR}/main/static/main/data"
-VOL_DIR = f"{DATA_DIR}/gm_volume3d"
-SURF_DIR = f"{DATA_DIR}/vtp"
+DATA_DIR = os.path.join(BASE_DIR, "/main/static/main/data")
 
 
 def homepage(request):
@@ -39,8 +32,6 @@ def about(request):
 
 
 def view_session_results(request, session_id=None):
-    # NEW
-    # TODO: Implement method to only run prediction model when button clicked and update currently rendered page
     if request.method == "GET":
         for database in [SessionDatabase, UploadedSessionDatabase]:
             search_results = database.objects.filter(session_id=session_id)
@@ -60,7 +51,8 @@ def view_session_results(request, session_id=None):
         table_names = list()
         table_values = list()
         for field_name in field_names:
-            if field_name.startswith("_") or field_name == "id" or field_name.endswith("file") or field_name.endswith("path"):
+            if field_name.startswith("_") or field_name == "id" or field_name.endswith("file") or field_name.endswith(
+                    "path"):
                 continue
             table_names.append(field_name.replace("_", " ").lower().capitalize())
             table_values.append(record_dict[field_name])
@@ -232,7 +224,6 @@ def login_request(request):
                 messages.error(request, "Invalid username or password")
         else:
             messages.error(request, "Invalid username or password")
-    form = AuthenticationForm()
     return render(request, "main/login.html", {"form": AuthenticationForm})
 
 
@@ -252,27 +243,17 @@ def account_page(request):
 
 @csrf_exempt
 def run_predictions(request, session_id):
-    print("Starting")
-    # return HttpResponse("Bit before import1111!")
-    # TODO: Fix why this doesn't work when importing pyvista when LIVE
-    # return HttpResponse("Bit before import!")
-    from backend.evaluate_pointnet_regression import predict_age
-    # TODO: handle errors
     if request.method == 'POST':
-        participant_id = request.POST.get('participant_id', None)
-        session_id = request.POST.get('session_id', None)
+        # participant_id = request.POST.get('participant_id', None)
+        # session_id = request.POST.get('session_id', None)
+        # print(participant_id, session_id)
+        # print(file_path)
         file_path = request.POST.get('file_path', None)
-
-        print(participant_id, session_id)
-        print(file_path)
-
-        pred = predict_age(BASE_DIR + file_path)
-        # pred = 42
-
+        pred = predict_age(os.path.join(settings.MEDIA_ROOT.split(os.path.basename(settings.MEDIA_ROOT))[-2],
+                                        file_path[1:]))
         data = {
             'pred': pred
         }
-        print("FInishing")
         return JsonResponse(data)
 
 
@@ -283,7 +264,18 @@ def run_segmentation(request, session_id):
         session_id = request.POST.get('session_id', None)
         file_path = request.POST.get('file_path', None)
 
+        """
+        Write code that loads file for segmentation then save this vtp in GUI/media/tmp
+        """
+
+        # abs_file_path = os.path.join(settings.MEDIA_ROOT.split(os.path.basename(settings.MEDIA_ROOT))[-2], file_path[1:])
+        # tmp_file_path = segment(abs_file_path)
+        #
+        # Segmented File Path
+        # segmented_file_path_relative_to_media = tmp_file_path.split(settings.MEDIA_ROOT.split(os.path.basename(settings.MEDIA_ROOT))[-2])[-1]
+
+        segmented_file_path_relative_to_media = "media/tmp/foo.vtp"
         data = {
-            'segmented_file_path': file_path
+            'segmented_file_path': segmented_file_path_relative_to_media
         }
         return JsonResponse(data)
