@@ -12,7 +12,7 @@ from torch.nn import Module, Conv3d, ConvTranspose3d, Linear, ReLU, Sequential, 
     Dropout, BatchNorm1d
 from torch.optim import Adam, lr_scheduler
 from torch.utils.data import Dataset, DataLoader
-from utils.utils import read_meta, get_file_path, zero_mean_unit_var, clean_data, display_image, split_data, get_ids_and_ages, plot_to_tensorboard
+from utils.utils import plot_preds
 from utils.models import ImageSegmentationDataset, Part3, resample_image, PrintTensor
 import os.path as osp
 
@@ -158,16 +158,25 @@ def train_validate(lr, feats, num_epochs, gamma, batch_size, dropout_p, dataset_
         if (epoch % 5 == 0):
             val_loss = []
             model.eval()
+            pred_ages = []
+            actual_ages = []
             with torch.no_grad():
                 for batch_data, batch_labels in val_loader:
                     batch_data = batch_data.to(device=device)  # move to device, e.g. GPU
                     batch_labels = batch_labels.to(device=device)
                     batch_preds = model(batch_data)
+
+                    pred_ages.append([batch_preds[i].item() for i in range(len(batch_preds))])
+                    actual_ages.append([batch_labels[i].item() for i in range(len(batch_labels))])
+
                     loss = loss_function(batch_preds, batch_labels)
                     val_loss.append(loss.item())
 
                 mean_val_error5 = np.mean(val_loss)
                 val_loss_epoch5.append(mean_val_error5)
+
+            plot_preds(pred_ages, actual_ages, writer, epoch, test=False)
+
             print(f"Epoch: {epoch}:: Learning Rate: {scheduler.get_lr()[0]}")
             print(
                 f"{number_here}:: Maxiumum Age Error: {np.round(np.max(epoch_loss))} Average Age Error: {training_MAE}, MAE Validation: {mean_val_error5}")
@@ -178,13 +187,21 @@ def train_validate(lr, feats, num_epochs, gamma, batch_size, dropout_p, dataset_
 
     # 11. Validate the last time
     model.eval()
+    pred_ages = []
+    actual_ages = []
     with torch.no_grad():
         for batch_data, batch_labels in val_loader:
             batch_data = batch_data.to(device=device)  # move to device, e.g. GPU
             batch_labels = batch_labels.to(device=device)
             batch_preds = model(batch_data)
+
+            pred_ages.append([batch_preds[i].item() for i in range(len(batch_preds))])
+            actual_ages.append([batch_labels[i].item() for i in range(len(batch_labels))])
+
             loss = loss_function(batch_preds, batch_labels)
             i_fold_val_scores.append(loss.item())
+
+    plot_preds(pred_ages, actual_ages, writer, epoch, test=False)
 
     # 12. Summarise the results
     mean_fold_score = np.mean(i_fold_val_scores)

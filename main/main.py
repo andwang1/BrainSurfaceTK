@@ -12,16 +12,12 @@ from torch.nn import Module, Conv3d, ConvTranspose3d, Linear, ReLU, Sequential, 
     Dropout, BatchNorm1d
 from torch.optim import Adam, lr_scheduler
 from torch.utils.data import Dataset, DataLoader
-from utils.utils import read_meta, clean_data, split_data, get_ids_and_ages, plot_to_tensorboard
+from utils.utils import read_meta, clean_data, split_data, get_ids_and_ages, plot_preds
 from utils.models import ImageSegmentationDataset, Part3, resample_image, PrintTensor
 import os.path as osp
 from main.train_validate import train_validate, save_to_log
 from main.train_test import train_test, save_to_log_test
 from torch.utils.tensorboard import SummaryWriter
-import io
-import PIL.Image
-from torchvision.transforms import ToTensor
-import tensorflow as tf
 
 
 cuda_dev = '0'  # GPU device 0 (can be changed if multiple GPUs are available)
@@ -57,6 +53,9 @@ def create_subject_folder(test=False):
     Creates a folder according to the number of previous tests performed
     '''
 
+    additional_comment = 'final'
+
+
     name = 'Subject'
     if test:
         name = 'Test'
@@ -65,7 +64,7 @@ def create_subject_folder(test=False):
     number_here = 0
     while True:
 
-        fn = osp.join(osp.dirname(osp.realpath(__file__)), '..', f'{name}_{number_here}')
+        fn = osp.join(osp.dirname(osp.realpath(__file__)), '..', f'{name}_{additional_comment}_{number_here}')
 
         if not os.path.exists(fn):
             print(f"Making {number_here}")
@@ -81,12 +80,14 @@ def create_subject_folder(test=False):
 
     print("Created Subject Folder")
 
-    return fn
+    return fn, number_here
 
 
 
 
 if __name__ == '__main__':
+
+    additional_comment = 'final'
 
     # 1. What are you predicting?
     categories = {'gender': 3, 'birth_age': 4, 'weight': 5, 'scan_age': 7, 'scan_num': 8}
@@ -94,7 +95,6 @@ if __name__ == '__main__':
 
     # 2. Read the data and clean it
     meta_data = read_meta()
-    meta_data = clean_data(meta_data)
 
     ## 3. Get a list of ids and ages (labels)
     # ids, ages = get_ids_and_ages(meta_data, meta_column_idx)
@@ -109,12 +109,13 @@ if __name__ == '__main__':
     random_state = 42
     REPROCESS = False
 
+    features_list = [15, 10, 9, 8, 6, 5]
 
-    for feats in [5, 7, 8]:
-        for scheduler_frequency in [1, 3]:
+    for feats in features_list:
+        for scheduler_frequency in [1, 3, 5]:
 
             # 4. Create subject folder
-            fn = create_subject_folder()
+            fn, counter = create_subject_folder()
             path = osp.join(osp.dirname(osp.realpath(__file__)), '..', f'{fn}/')
 
             # 5. Split the data
@@ -133,7 +134,7 @@ if __name__ == '__main__':
             USE_GPU = True
             dtype = torch.float32
             feats = feats
-            num_epochs = 5
+            num_epochs = 1000
             lr = 0.006882801723742766
             gamma = 0.97958263796472
             batch_size = 32
@@ -141,13 +142,13 @@ if __name__ == '__main__':
             scheduler_frequency = scheduler_frequency
 
             # 6. Create tensorboard writer
-            writer = SummaryWriter(comment=f'Subject {fn[-1]}')
+            writer = SummaryWriter(f'runs/Subject {additional_comment} {counter}')
 
             # 7. Run TRAINING + VALIDATION after every N epochs
             model, params, final_MAE = train_validate(lr, feats, num_epochs,
                                                       gamma, batch_size,
                                                       dropout_p, dataset_train,
-                                                      dataset_val, fn, fn[-1],
+                                                      dataset_val, fn, counter,
                                                       scheduler_frequency,
                                                       writer=writer)
 
@@ -166,13 +167,13 @@ if __name__ == '__main__':
             """# Full Train & Final Test"""
 
             # 2. Create TEST folder
-            fn = create_subject_folder(test=True)
+            fn, counter = create_subject_folder(test=True)
 
             # 3. Run TRAINING + TESTING after every N epochs
             model, params, score, train_loader, test_loader = train_test(lr, feats, num_epochs, gamma,
                                                                          batch_size, dropout_p,
                                                                          dataset_train, dataset_test,
-                                                                         fn, fn[-1],
+                                                                         fn, counter,
                                                                          scheduler_frequency,
                                                                          writer=writer)
 
@@ -191,35 +192,8 @@ if __name__ == '__main__':
                     batch_data = batch_data.to(device=device)  # move to device, e.g. GPU
                     batch_labels = batch_labels.to(device=device)
                     batch_preds = model(batch_data)
+
                     pred_ages.append([batch_preds[i].item() for i in range(len(batch_preds))])
                     actual_ages.append([batch_labels[i].item() for i in range(len(batch_labels))])
 
-            pred_ages = np.array(pred_ages).flatten()
-            actual_ages = np.array(actual_ages).flatten()
-
-            pred_array = []
-            age_array = []
-            for i in range(len(pred_ages)):
-                for j in range(len(pred_ages[i])):
-                    pred_array.append(pred_ages[i][j])
-                    age_array.append(actual_ages[i][j])
-
-            y = age_array
-            predicted = pred_array
-
-            path = osp.join(osp.dirname(osp.realpath(__file__)), '..', f'{fn}/')
-
-            fig, ax = plt.subplots()
-            ax.scatter(y, predicted, marker='.')
-            ax.plot([min(y), max(y)], [min(y), max(y)], 'k--', lw=2)
-            ax.set_xlabel('Real Age')
-            ax.set_ylabel('Predicted Age')
-            plt.savefig(path + '/scatter_test.png')
-            img = plot_to_image(fig)
-
-            writer.add_image('Scatter Plot Test Predictions', img)
-
-            # Add image summary
-            # summary_op = writer.add_images("Scatter Plot Test Predictions", image)
-
-            plt.close()
+            plot_preds(pred_ages, actual_ages, writer, num_epochs, test=True)

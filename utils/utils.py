@@ -16,32 +16,36 @@ import matplotlib.pyplot as plt
 import pickle
 
 
-def plot_to_tensorboard(writer, fig, name):
-    """
-    Takes a matplotlib figure handle and converts it using
-    canvas and string-casts to a numpy array that can be
-    visualized in TensorBoard using the add_image function
 
-    Parameters:
-        writer (tensorboard.SummaryWriter): TensorBoard SummaryWriter instance.
-        fig (matplotlib.pyplot.fig): Matplotlib figure handle.
-        step (int): counter usually specifying steps/epochs/time.
-    """
 
-    # Draw figure on canvas
-    fig.canvas.draw()
+def plot_preds(pred_ages, actual_ages, writer, epoch, test=False):
 
-    # Convert the figure to numpy array, read the pixel values and reshape the array
-    img = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
-    img = img.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+    mode = 'Validation'
+    if test == True:
+        mode = 'Test'
 
-    # Normalize into 0-1 range for TensorBoard(X). Swap axes for newer versions where API expects colors in first dim
-    img = img / 255.0
-    # img = np.swapaxes(img, 0, 2) # if your TensorFlow + TensorBoard version are >= 1.8
+    pred_ages = np.array(pred_ages).flatten()
+    actual_ages = np.array(actual_ages).flatten()
 
-    # Add figure in numpy "image" to TensorBoard writer
-    writer.add_image(f'{name}', img)
-    plt.close(fig)
+    pred_array = []
+    age_array = []
+    for i in range(len(pred_ages)):
+        for j in range(len(pred_ages[i])):
+            pred_array.append(pred_ages[i][j])
+            age_array.append(actual_ages[i][j])
+
+    y = age_array
+    predicted = pred_array
+
+    fig, ax = plt.subplots()
+    ax.scatter(y, predicted, marker='.')
+    ax.plot([min(y), max(y)], [min(y), max(y)], 'k--', lw=2)
+    ax.set_xlabel('Real Age')
+    ax.set_ylabel('Predicted Age')
+
+    writer.add_figure(f'Scatter Plot {mode} Predictions', fig, epoch)
+
+    plt.close()
 
 
 
@@ -183,7 +187,7 @@ def split_data(meta_data, meta_column_idx, spacing, image_size, smoothen, edgen,
     for pat_ses_id in train_indices:
         patient_id = pat_ses_id[:11]
         session_id = pat_ses_id[12:]
-        patient_data = meta_data[(meta_data[:, 0] == patient_id) & (meta_data[:, 1] == session_id)][0]
+        patient_data = meta_data[(meta_data[:, 1] == patient_id) & (meta_data[:, 2] == session_id)][0]
 
         y_train.append(float(patient_data[meta_column_idx]))
         X_train.append((patient_id, session_id))
@@ -193,7 +197,7 @@ def split_data(meta_data, meta_column_idx, spacing, image_size, smoothen, edgen,
     for pat_ses_id in test_indices:
         patient_id = pat_ses_id[:11]
         session_id = pat_ses_id[12:]
-        patient_data = meta_data[(meta_data[:, 0] == patient_id) & (meta_data[:, 1] == session_id)][0]
+        patient_data = meta_data[(meta_data[:, 1] == patient_id) & (meta_data[:, 2] == session_id)][0]
 
         y_test.append(float(patient_data[meta_column_idx]))
         X_test.append((patient_id, session_id))
@@ -203,7 +207,7 @@ def split_data(meta_data, meta_column_idx, spacing, image_size, smoothen, edgen,
     for pat_ses_id in val_indices:
         patient_id = pat_ses_id[:11]
         session_id = pat_ses_id[12:]
-        patient_data = meta_data[(meta_data[:, 0] == patient_id) & (meta_data[:, 1] == session_id)][0]
+        patient_data = meta_data[(meta_data[:, 1] == patient_id) & (meta_data[:, 2] == session_id)][0]
 
         y_val.append(float(patient_data[meta_column_idx]))
         X_val.append((patient_id, session_id))
