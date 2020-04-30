@@ -6,7 +6,7 @@ python3 train.py \
 --checkpoints_dir checkpoints/batch_merged_10k_lr_static \
 --export_folder checkpoints/mesh_collapses \
 --name brains \
---epoch_count 99 \
+--epoch_count 119 \
 --norm group \
 --num_aug 1 \
 --verbose_plot \
@@ -22,4 +22,5 @@ python3 train.py \
 --init_type kaiming \
 --num_groups 2 \
 --continue_train \
---which_epoch 98 \
+--which_epoch 118 \
+--lr_policy static \

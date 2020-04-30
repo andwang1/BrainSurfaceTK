@@ -127,6 +127,8 @@ class ClassifierModel:
             self.scheduler.step(val_acc)
         elif self.opt.lr_policy == 'cosine_restarts':
             self.scheduler.step(epoch)
+        elif self.opt.lr_policy == 'static':
+            pass
         else:
             self.scheduler.step()
         # If lr below specified minimum, then set to minimum
