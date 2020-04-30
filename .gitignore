@@ -1,6 +1,3 @@
-# Data
-/gm_volume3d
-
 # Editors
 .vscode/
 .idea/
@@ -126,6 +123,3 @@ venv.bak/
 .mypy_cache/
 .dmypy.json
 dmypy.json
-
-# data
-/gm_volume3d
