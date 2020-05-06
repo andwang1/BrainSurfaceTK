@@ -68,16 +68,16 @@ def view_session_results(request, session_id=None):
                 messages.error(request, "ERROR: Either MRI file doesn't exist or doesn't end with .nii!")
 
         surf_file = record.surface_file
-        surf_file_path = None
+        surf_file_url = None
         if surf_file.name != "":
-            surf_file_path = surf_file.url
+            surf_file_url = surf_file.url
             if not (os.path.isfile(surf_file.path) & surf_file.path.endswith("vtp")):
-                surf_file_path = None
+                surf_file_url = None
                 messages.error(request, "ERROR: Either Surface file doesn't exist or doesn't end with .vtp!")
 
         return render(request, "main/results.html",
                       context={"session_id": session_id, "table_names": table_names, "table_values": table_values,
-                               "mri_js_html": mri_js_html, "surf_file_path": surf_file_path})
+                               "mri_js_html": mri_js_html, "surf_file_url": surf_file_url})
 
 
 @permission_required('admin.can_add_log_entry')
@@ -248,9 +248,9 @@ def run_predictions(request, session_id):
         # session_id = request.POST.get('session_id', None)
         # print(participant_id, session_id)
         # print(file_path)
-        file_path = request.POST.get('file_path', None)
-        pred = predict_age(os.path.join(settings.MEDIA_ROOT.split(os.path.basename(settings.MEDIA_ROOT))[-2],
-                                        file_path[1:]))
+        file_url = request.POST.get('file_url', None)
+
+        pred = predict_age(os.path.join(settings.MEDIA_ROOT, file_url.strip(settings.MEDIA_URL)))
         data = {
             'pred': pred
         }
@@ -268,7 +268,7 @@ def run_segmentation(request, session_id):
         Write code that loads file for segmentation then save this vtp in GUI/media/tmp
         """
 
-        # abs_file_path = os.path.join(settings.MEDIA_ROOT.split(os.path.basename(settings.MEDIA_ROOT))[-2], file_path[1:])
+        # abs_file_path = os.path.join(settings.MEDIA_ROOT, file_path.strip(settings.MEDIA_URL))
         # tmp_file_path = segment(abs_file_path)
         #
         # Segmented File Path

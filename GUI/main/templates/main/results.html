@@ -7,13 +7,6 @@
 
     <script type="text/javascript" src="{% static "main/js/brain_surface_tool.js" | safe %}"></script>
 
-    <style>
-        #brain_surf_container {
-            width: 100% !important;
-            height: 50% !important;
-        }
-    </style>
-
     <h1>Session-{{ session_id }}</h1>
 
     <div id="brain-container">
@@ -23,13 +16,21 @@
             </div>
         {% endif %}
 
-        {% if surf_file_path is not None %}
+        {% if surf_file_url is not None %}
+
+            <style>
+                #brain_surf_container {
+                    width: 100% !important;
+                    height: 50% !important;
+                }
+            </style>
+
             <div id="brain_surf_container">
                 <div class="brain_surface_container"></div>
             </div>
-            "{{ surf_file_path }}"
+
             <script type="text/javascript">
-                myLibrary.myFunction("{{ surf_file_path }}", '.brain_surface_container');
+                myLibrary.myFunction("{{ surf_file_url }}", '.brain_surface_container');
             </script>
         {% endif %}
     </div>
@@ -49,7 +50,7 @@
         </tbody>
     </table>
 
-    {% if surf_file_path is not None %}
+    {% if surf_file_url is not None %}
 
         {#    This token is only necessary when the form method is POST.#}
         {% csrf_token %}
@@ -81,7 +82,7 @@
                         data: {
                             'participant_id': objCells.item(0).innerHTML,
                             'session_id': objCells.item(1).innerHTML,
-                            'file_path': "{{ surf_file_path }}"
+                            'file_url': "{{ surf_file_url }}"
                         },
 
                         success: function (json) {
@@ -110,7 +111,7 @@
                     data: {
                         'participant_id': objCells.item(0).innerHTML,
                         'session_id': objCells.item(1).innerHTML,
-                        'file_path': "{% get_media_prefix %}{{ surf_file_path }}"
+                        'file_url': "{% get_media_prefix %}{{ surf_file_url }}"
                     },
 
                     success: function (json) {
@@ -120,7 +121,7 @@
 
                         {#myLibrary.myFunction(json.segmented_file_path, '.segmented_container');#}
 
-                        myLibrary.myFunction("{{ surf_file_path }}", '.segmented_container');
+                        myLibrary.myFunction("{{ surf_file_url }}", '.segmented_container');
 
                     }
                 });
