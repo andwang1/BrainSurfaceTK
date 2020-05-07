@@ -74,7 +74,10 @@ class ClassifierModel:
             self.soft_label = torch.from_numpy(data['soft_label'])
 
     def forward(self):
-        out = self.net(self.edge_features, self.mesh, self.feature_values)
+        if self.opt.dataset_mode == 'segmentation':
+            out = self.net(self.edge_features, self.mesh)#, self.feature_values)
+        else:
+            out = self.net(self.edge_features, self.mesh, self.feature_values)
         return out
 
     def backward(self, out):

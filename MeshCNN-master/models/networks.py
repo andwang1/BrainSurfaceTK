@@ -221,7 +221,7 @@ class MeshEncoderDecoder(nn.Module):
         unrolls.reverse()
         self.decoder = MeshDecoder(unrolls, up_convs, blocks=blocks, transfer_data=transfer_data)
 
-    def forward(self, x, meshes):
+    def forward(self, x, meshes):#, feature_values):
         fe, before_pool = self.encoder((x, meshes))
         fe = self.decoder((fe, meshes), before_pool)
         return fe

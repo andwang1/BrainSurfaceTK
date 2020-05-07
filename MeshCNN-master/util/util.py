@@ -22,9 +22,6 @@ def pad(input_arr, target_length, val=0, dim=1):
     shp = input_arr.shape
     npad = [(0, 0) for _ in range(len(shp))]
     npad[dim] = (0, target_length - shp[dim])
-    print('@@@@@')
-    print(input_arr)
-    print('min', np.min(input_arr))
     return np.pad(input_arr, pad_width=npad, mode='constant', constant_values=val)
 
 

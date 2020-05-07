@@ -6,6 +6,7 @@ python train.py \
 --name brain_seg_test \
 --arch meshunet \
 --dataset_mode segmentation \
+--ninput_edges 30000 \
 --ncf 32 64 128 256 \
 --pool_res 4000 3000 2000 \
 --resblocks 3 \
