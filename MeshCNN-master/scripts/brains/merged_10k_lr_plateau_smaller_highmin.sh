@@ -2,8 +2,8 @@
 
 ## run the training
 python3 train.py \
---dataroot datasets/brains_reg_native_20k \
---checkpoints_dir checkpoints/native_20k_lr_plateau \
+--dataroot datasets/brains_reg_merged_10k \
+--checkpoints_dir checkpoints/merged_10k_lr_plateau_smaller_highmin \
 --export_folder checkpoints/mesh_collapses \
 --name brains \
 --epoch_count 1 \
@@ -14,13 +14,12 @@ python3 train.py \
 --seed 0 \
 --dataset_mode regression \
 --niter 1 \
---niter_decay 100 \
+--niter_decay 300 \
 --batch_size 1 \
---ncf 64 112 128 \
+--ncf 16 32 64 \
 --pool_res 3000 2750 2500 \
 --lr 0.0003 \
 --init_type kaiming \
 --lr_policy plateau \
 --num_groups 2 \
---min_lr 1e-5 \
---verbose \
+--min_lr 5e-5 \

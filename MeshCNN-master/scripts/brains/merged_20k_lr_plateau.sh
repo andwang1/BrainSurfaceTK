@@ -22,4 +22,6 @@ python3 train.py \
 --init_type kaiming \
 --lr_policy plateau \
 --num_groups 2 \
---min_lr 1e-5 \
+--min_lr 2e-5 \
+--verbose \
+
