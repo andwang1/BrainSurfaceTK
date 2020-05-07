@@ -1,0 +1,20 @@
+{% extends "main/header.html" %}
+
+{% block title %}LoadData{% endblock %}
+
+{% block content %}
+    <h4>Hard Reset the databases?</h4>
+    <p class="flow-text">Warning: Any modifications to the dataset(s) will be lost!</p>
+    <br>
+    <form method="POST">
+        {% csrf_token %}
+        <button class="waves-effect waves-red btn-small imperial blue" type="submit" name="load_data">
+            Reset!
+        </button>
+        <br>
+        <label>
+            <input type="checkbox" name="reset_upload_database"/>
+            <span>Also Reset Upload Session Database</span>
+        </label>
+    </form>
+{% endblock %}

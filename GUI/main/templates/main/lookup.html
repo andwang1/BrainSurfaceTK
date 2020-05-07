@@ -1,0 +1,23 @@
+{% extends "main/header.html" %}
+
+{% block title %} Lookup{% endblock %}
+
+{% block content %}
+    <div class="small-container">
+        <h4 class="flow-text">Lookup</h4>
+        <br>
+        <form method="get">
+            <div class="input-field">
+                <select name="selected_session_id">
+                    {% for session_id in session_ids %}
+                        <option value={{ session_id }}>{{ session_id }}</option>
+                    {% endfor %}
+                </select>
+                <label>Select Session ID:</label>
+                <button class="waves-effect waves-green btn-small imperial blue" type="submit">Go</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+

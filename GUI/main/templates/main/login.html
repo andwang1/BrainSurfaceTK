@@ -1,0 +1,17 @@
+{% extends "main/header.html" %}
+
+{% block title %} Login{% endblock %}
+
+
+{% block content %}
+    <div class="small-container">
+    <h4 class="flow-text">Login</h4>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn imperial navy waves-effect waves-green" type="submit">Login</button>
+    </form>
+    If you don't already have an account, <a href="{% url "main:register" %}">Register</a> instead.
+    </div>
+{% endblock %}
+
