@@ -26,26 +26,26 @@
             <script type="text/javascript">
                 brain_surface_library.build_brain_surf_window("{{ surf_file_url }}", '.brain_surface_container');
             </script>
-        <br>
+            <br>
         {% endif %}
     </div>
 
     {% if table_names is not None %}
-    <table id="info_table">
-        <thead>
-        {% for table_name in table_names %}
-            <th>
-                {{ table_name }}
-            </th>
-        {% endfor %}
-        </thead>
-        <tbody>
-        {% for value in table_values %}
-            <td>{{ value }}</td>
-        {% endfor %}
-        </tbody>
-    </table>
-    <br>
+        <table id="info_table">
+            <thead>
+            {% for table_name in table_names %}
+                <th>
+                    {{ table_name }}
+                </th>
+            {% endfor %}
+            </thead>
+            <tbody>
+            {% for value in table_values %}
+                <td>{{ value }}</td>
+            {% endfor %}
+            </tbody>
+        </table>
+        <br>
     {% endif %}
 
     {% if surf_file_url is not None %}
@@ -119,6 +119,21 @@
                         {#myLibrary.myFunction(json.segmented_file_path, '.segmented_container');#}
 
                         brain_surface_library.build_brain_surf_window(json.segmented_file_path, '.segmented_container');
+
+                        $.ajax({
+                            url: "{{ session_id }}/remove_tmp/",
+                            type: "GET",
+                            data: {
+                                'participant_id': objCells.item(0).innerHTML,
+                                'session_id': objCells.item(1).innerHTML,
+                                'tmp_file_url': json.segmented_file_path
+                            },
+
+                            success: function () {
+                                console.log("successfully removed tmp");
+
+                            }
+                        });
 
                     }
                 });

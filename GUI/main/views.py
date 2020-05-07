@@ -286,3 +286,17 @@ def run_segmentation(request, session_id):
                 'segmented_file_path': tmp_fp
             }
             return JsonResponse(data)
+
+
+def remove_tmp(request, session_id=None):
+    data = {
+        'success': 'failed'
+    }
+
+    relative_file_path = request.GET.get('tmp_file_url', None)
+    if relative_file_path is not None:
+        file_path = os.path.join(settings.MEDIA_ROOT, relative_file_path.strip(settings.MEDIA_URL))
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            data['success'] = "success"
+    return JsonResponse(data)
