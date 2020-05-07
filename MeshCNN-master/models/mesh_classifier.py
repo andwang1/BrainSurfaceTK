@@ -65,6 +65,7 @@ class ClassifierModel:
         self.path = data['path']
         if self.opt.verbose:
             print("DEBUG meshpath ", self.path)
+        # print(self.path[0].split("/")[-1][:-4])
         # Retrieving the additional features specified from metadata file
         if self.feature_keys:
             # Using the filename as unique identifier
@@ -129,6 +130,8 @@ class ClassifierModel:
             self.scheduler.step(val_acc)
         elif self.opt.lr_policy == 'cosine_restarts':
             self.scheduler.step(epoch)
+        elif self.opt.lr_policy == 'static':
+            pass
         else:
             self.scheduler.step()
         # If lr below specified minimum, then set to minimum
@@ -149,9 +152,9 @@ class ClassifierModel:
             if self.opt.dataset_mode == 'regression':
                 pred_class = out.view(-1)
             elif self.opt.dataset_mode == 'binary_class':
-                pred_class = torch.round(out).long()
                 # Convert to probability for printing and logging
                 out = torch.sigmoid(out)
+                pred_class = torch.round(out).long()
             else:
                 print(out)
                 pred_class = out.data.max(1)[1]

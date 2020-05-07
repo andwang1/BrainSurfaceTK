@@ -19,6 +19,6 @@ python3 train.py \
 --verbose_plot \
 --dataset_mode regression \
 --print_freq 14 \
---ninput_edges 9000 \
+--ninput_edges 10000 \
 --min_lr 5e-5 \
 --verbose \

@@ -3,17 +3,11 @@ import os
 import pandas as pd
 from shutil import copyfile
 
-source_dir_names =["all_brains_aligned_red50",
-"all_brains_aligned_red50_inflated",
-"all_brains_aligned_red90",
-"all_brains_merged_10k",
-"all_brains_merged_20k",
-"all_brains_native_10k",
-"all_brains_native_20k",
-"all_brains_native_5k"]
+source_dir_names =["all_brains_merged_10k"
+                   ]
 
 # Load indices
-with open("indices.pk", "rb") as f:
+with open("names_04152020_noCrashSubs.pk", "rb") as f:
     indices = pickle.load(f)
 
 # Load metadata
@@ -33,7 +27,7 @@ for source_dir_name in source_dir_names:
     # Where them brains at
     source_dir = rf"/vol/biomedic2/aa16914/shared/MScAI_brain_surface/andy/deepl_brain_surfaces/MeshCNN-master/datasets/{source_dir_name}"
     # Where them brains should be at
-    target_dir = rf"/vol/biomedic2/aa16914/shared/MScAI_brain_surface/andy/deepl_brain_surfaces/MeshCNN-master/datasets/brains_reg_{source_dir_name[12:]}"
+    target_dir = rf"/vol/biomedic2/aa16914/shared/MScAI_brain_surface/andy/deepl_brain_surfaces/MeshCNN-master/datasets/brains_reg_{source_dir_name[11:]}_aug"
 
     #### This is for MeshCNN specifically
     if not os.access(target_dir, mode=os.F_OK):

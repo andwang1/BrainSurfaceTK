@@ -3,9 +3,9 @@ import os
 import pandas as pd
 from shutil import copyfile
 # Where them brains at
-source_dir = r"/vol/biomedic2/aa16914/shared/MScAI_brain_surface/andy/deepl_brain_surfaces/MeshCNN-master/datasets/all_brains_aligned_red50_LR"
+source_dir = r"/vol/biomedic2/aa16914/shared/MScAI_brain_surface/andy/deepl_brain_surfaces/MeshCNN-master/datasets/all_brains_native_10k_LR"
 # Where them brains should be at
-target_dir = r"/vol/biomedic2/aa16914/shared/MScAI_brain_surface/andy/deepl_brain_surfaces/MeshCNN-master/datasets/brains_reg_aligned_red50_LR"
+target_dir = r"/vol/biomedic2/aa16914/shared/MScAI_brain_surface/andy/deepl_brain_surfaces/MeshCNN-master/datasets/brains_reg_native_10k_LR"
 
 
 #### This is for MeshCNN specifically
@@ -20,7 +20,7 @@ if not os.access(target_dir, mode=os.F_OK):
 
 
 # Load indices
-with open("indices.pk", "rb") as f:
+with open("names_04152020_noCrashSubs.pk", "rb") as f:
     indices = pickle.load(f)
 
 # Load metadata

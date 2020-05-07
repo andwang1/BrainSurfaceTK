@@ -2,11 +2,10 @@
 
 ## run the training
 python3 train.py \
---dataroot datasets/iso_err \
---checkpoints_dir checkpoints/test \
+--dataroot datasets/brains_reg_merged_30k \
+--checkpoints_dir checkpoints/merged_30k_lr_linear \
 --export_folder checkpoints/mesh_collapses \
 --name brains \
---ninput_edges 9000 \
 --epoch_count 1 \
 --norm group \
 --num_aug 1 \
@@ -14,11 +13,12 @@ python3 train.py \
 --print_freq 10 \
 --seed 0 \
 --dataset_mode regression \
---niter 100 \
---niter_decay 0 \
+--niter 1 \
+--niter_decay 100 \
 --batch_size 1 \
 --ncf 64 112 128 \
---pool_res 4000 3550 3000 \
+--pool_res 3000 2750 2500 \
 --lr 0.0003 \
 --init_type kaiming \
 --num_groups 2 \
+--min_lr 1e-5 \

@@ -52,7 +52,7 @@ def from_scratch(file, opt):
     mesh_data.filename = 'unknown'
     mesh_data.edge_lengths = None
     mesh_data.edge_areas = []
-    mesh_data.vs, faces = fill_from_file(mesh_data, file)
+    mesh_data.vs, faces = fill_from_file(mesh_data, file, opt)
     mesh_data.v_mask = np.ones(len(mesh_data.vs), dtype=bool)
     faces, face_areas = remove_non_manifolds(mesh_data, faces)
     if opt is not None and opt.num_aug > 1:
@@ -64,7 +64,9 @@ def from_scratch(file, opt):
     return mesh_data
 
 
-def fill_from_file(mesh, file):
+def fill_from_file(mesh, file, opt):
+    if opt.verbose:
+        print("fromfile", file)
     mesh.filename = ntpath.split(file)[1]
     mesh.fullfilename = file
     vs, faces = [], []
@@ -84,6 +86,14 @@ def fill_from_file(mesh, file):
             faces.append(face_vertex_ids)
 
     f.close()
+
+    # Added this from issue 46
+    # UPDATE: this did not solve the issue
+    if opt.slide_verts != 0:
+        if opt.verbose:
+            print("Used F from issue46")
+        vs, faces = remove_unused_vertices(vs, faces)
+
     vs = np.asarray(vs)
     faces = np.asarray(faces, dtype=int)
     assert np.logical_and(faces >= 0, faces < len(vs)).all()
@@ -426,3 +436,35 @@ def fixed_division(to_div, epsilon):
     else:
         to_div += epsilon
     return to_div
+
+# This is to solve the problem when slide_verts is used and edges are empty due to vertices that are not used
+# https://github.com/ranahanocka/MeshCNN/issues/46
+def remove_unused_vertices(vs, faces):
+    # Find which vertices are used
+    is_vertex_used = [False for v in vs]
+    for face in faces:
+        for vid in face:
+            is_vertex_used[vid] = True
+
+    # Find the new vertex array and vertex id map
+    used_vertices = []
+    vertex_id_map = []
+    for i, used in enumerate(is_vertex_used):
+        if used:
+            new_vid = len(used_vertices)
+            used_vertices.append(vs[i])
+            vertex_id_map.append(new_vid)
+        else:
+            vertex_id_map.append(-1)
+
+    # Re-map the faces
+    remapped_faces = []
+    for face in faces:
+        mapped_face = []
+        for vid in face:
+            mapped_vid = vertex_id_map[vid]
+            assert mapped_vid >= 0
+            mapped_face.append(mapped_vid)
+        remapped_faces.append(mapped_face)
+
+    return used_vertices, remapped_faces
