@@ -12,6 +12,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 
 from backend.evaluate_pointnet_regression import predict_age
+from backend.evaluate_pointnet_segmentation import segment as brain_segment
 from .forms import NewUserForm, UploadFileForm
 from .models import Option, SessionDatabase, UploadedSessionDatabase
 
@@ -70,9 +71,9 @@ def view_session_results(request, session_id=None):
         mri_js_html = None
         if mri_file.name != "":
             if os.path.isfile(mri_file.path) & mri_file.path.endswith("nii"):
-                img = nib_load(mri_file.path)
-                mri_js_html = ni_view_img(img, colorbar=False, bg_img=False, black_bg=True, cmap='gray')
-                # mri_js_html = None
+                # img = nib_load(mri_file.path)
+                # mri_js_html = ni_view_img(img, colorbar=False, bg_img=False, black_bg=True, cmap='gray')
+                mri_js_html = None
             else:
                 messages.error(request, "ERROR: Either MRI file doesn't exist or doesn't end with .nii!")
 
@@ -264,22 +265,24 @@ def run_predictions(request, session_id):
 
 def run_segmentation(request, session_id):
     if request.method == 'GET':
-        participant_id = request.GET.get('participant_id', None)
-        session_id = request.GET.get('session_id', None)
-        file_path = request.GET.get('file_path', None)
+        file_path = request.GET.get('file_url', None)
 
-        """
-        Write code that loads file for segmentation then save this vtp in GUI/media/tmp
-        """
+        if file_path is not None:
 
-        # abs_file_path = os.path.join(settings.MEDIA_ROOT, file_path.strip(settings.MEDIA_URL))
-        # tmp_file_path = segment(abs_file_path)
-        #
-        # Segmented File Path
-        # segmented_file_path_relative_to_media = tmp_file_path.split(settings.MEDIA_ROOT.split(os.path.basename(settings.MEDIA_ROOT))[-2])[-1]
+            abs_file_path = os.path.join(settings.MEDIA_ROOT, file_path.strip(settings.MEDIA_URL))
 
-        segmented_file_path_relative_to_media = "media/tmp/foo.vtp"
-        data = {
-            'segmented_file_path': segmented_file_path_relative_to_media
-        }
-        return JsonResponse(data)
+            # TODO: Maybe find this puppy a new home
+            tmp_path = os.path.join(settings.MEDIA_ROOT, "tmp/")
+            if not os.path.exists(tmp_path):
+                os.makedirs(tmp_path)
+            tmp_file_path = brain_segment(brain_path=abs_file_path,
+                                          folder_path_to_write=tmp_path,
+                                          tmp_file_name=None)
+
+            # Segmented File Path
+            tmp_fp = tmp_file_path.split(settings.MEDIA_ROOT.split(os.path.basename(settings.MEDIA_ROOT))[-2][:-1])[-1]
+
+            data = {
+                'segmented_file_path': tmp_fp
+            }
+            return JsonResponse(data)

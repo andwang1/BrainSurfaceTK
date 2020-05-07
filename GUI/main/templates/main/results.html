@@ -108,7 +108,7 @@
                     data: {
                         'participant_id': objCells.item(0).innerHTML,
                         'session_id': objCells.item(1).innerHTML,
-                        'file_url': "{% get_media_prefix %}{{ surf_file_url }}"
+                        'file_url': "{{ surf_file_url }}"
                     },
 
                     success: function (json) {
@@ -118,7 +118,7 @@
 
                         {#myLibrary.myFunction(json.segmented_file_path, '.segmented_container');#}
 
-                        brain_surface_library.build_brain_surf_window("{{ surf_file_url }}", '.segmented_container');
+                        brain_surface_library.build_brain_surf_window(json.segmented_file_path, '.segmented_container');
 
                     }
                 });

@@ -1,36 +1,26 @@
-
-model_path = '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/deepl_brain_surfaces/experiment_data/new/aligned_inflated_50_-7/best_acc_model.pt'
-
 import os
 import os.path as osp
-import pickle
-import time
-import os.path as osp
-import torch
-from torch_geometric.data import Data
-# import pyvista as pv
-import vtk
-from vtk.numpy_interface import dataset_adapter as dsa
-# from pyvista import read
-import pandas as pd
-import os
-import numpy as np
-from vtk.util.numpy_support import vtk_to_numpy
 
 import numpy as np
 import torch
 import torch.nn.functional as F
+import torch_geometric.transforms as T
+import vtk
 from torch.nn import Sequential as Seq, Linear as Lin, ReLU, BatchNorm1d as BN
+from torch_geometric.data import Data
 from torch_geometric.nn import PointConv, fps, radius, global_max_pool
 from torch_geometric.nn import knn_interpolate
+from vtk.numpy_interface import dataset_adapter as dsa
+from vtk.util.numpy_support import vtk_to_numpy
 
-
+model_path = os.path.join(os.getcwd(), "backend/pre_trained_models/best_acc_model.pt")
 
 # Global variables
-all_labels = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8 , 9, 10, 11, 12, 13, 14, 15, 16, 17])
+all_labels = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17])
 num_points_dict = {'original': 32492, '50': 16247}
 
 recording = True
+
 
 class SAModule(torch.nn.Module):
     def __init__(self, ratio, r, nn):
@@ -122,8 +112,6 @@ class Net(torch.nn.Module):
         return F.log_softmax(x, dim=-1)
 
 
-
-
 def get_features(list_features, reader):
     '''Returns tensor of features to add in every point.
     :param list_features: list of features to add. Mapping is in self.feature_arrays
@@ -138,66 +126,66 @@ def get_features(list_features, reader):
         drawem_list = []
 
         # features = [mesh.get_array(feature_arrays[key]) for key in feature_arrays if key != 'drawem']
-        features = [vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(feature_arrays[key])) for key in feature_arrays if key != 'drawem']
+        features = [vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(feature_arrays[key])) for key in
+                    feature_arrays if key != 'drawem']
 
         return torch.tensor(features + drawem_list).t()
     else:
         return None
 
 
+def segment(brain_path, folder_path_to_write, tmp_file_name=None):
 
+    if tmp_file_name is None:
+        tmp_file_name = 'segmented_brain.vtp'
 
-def segment(brain_path=None):
 
     torch.manual_seed(0)
-    if osp.exists(brain_path):
+    reader = vtk.vtkXMLPolyDataReader()
+    reader.SetFileName(brain_path)
+    reader.Update()
 
-        reader = vtk.vtkXMLPolyDataReader()
-        reader.SetFileName(brain_path)
-        reader.Update()
+    points = torch.tensor(np.array(reader.GetOutput().GetPoints().GetData()))
 
-        points = torch.tensor(np.array(reader.GetOutput().GetPoints().GetData()))
+    local_features = ['corr_thickness', 'curvature', 'sulc']
+    x = get_features(local_features, reader)
 
-        local_features = ['corr_thickness', 'curvature', 'sulc']
-        x = get_features(local_features, reader)
+    pre_transform = T.NormalizeScale()
+    data = Data(batch=torch.zeros_like(x[:, 0]).long(), x=x, pos=points)
+    data = pre_transform(data)
+    # data = Data(x=x, pos=points)
 
-        data = Data(batch=torch.zeros_like(x[:, 0]).long(), x=x, pos=points)
-        # data = Data(x=x, pos=points)
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    numb_local_features = x.size(1)
+    numb_global_features = 0
 
-        numb_local_features = x.size(1)
-        numb_global_features = 0
+    model = Net(18, numb_local_features).to(device)
+    model.load_state_dict(torch.load(model_path, map_location=device))
+    model.eval()
 
-        model = Net(18, numb_local_features).to(device)
-        model.load_state_dict(torch.load(model_path, map_location=device))
-        model.eval()
+    # 1. Get predictions and loss
+    data = data.to(device)
+    out = model(data)
 
+    # 2. Get d (positions), _y (actual labels), _out (predictions)
+    _out = out.max(dim=1)[1].cpu().detach().numpy()
 
-        # 1. Get predictions and loss
-        data = data.to(device)
-        out = model(data)
+    mesh = reader.GetOutput()
 
-        # 2. Get d (positions), _y (actual labels), _out (predictions)
-        _out = out.max(dim=1)[1].cpu().detach().numpy()
+    # Add data set and write VTK file
+    meshNew = dsa.WrapDataObject(mesh)
+    meshNew.PointData.append(_out, "New Labels")
 
-        mesh = reader.GetOutput()
+    file_path = os.path.join(folder_path_to_write, tmp_file_name)
+    writer = vtk.vtkXMLPolyDataWriter()
+    writer.SetFileName(file_path)
+    writer.SetInputData(meshNew.VTKObject)
+    writer.Write()
 
-        # Add data set and write VTK file
-        meshNew = dsa.WrapDataObject(mesh)
-        meshNew.PointData.append(_out, "New Labels")
-
-        path_to_write = '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/GUI/deepl_brain_surfaces/GUI/backend/'
-        file_name = 'segmented_brain.vtp'
-        writer = vtk.vtkXMLPolyDataWriter()
-        writer.SetFileName(path_to_write + file_name)
-        writer.SetInputData(meshNew.VTKObject)
-        writer.Write()
-
-        return path_to_write + file_name
+    return file_path
 
 
 if __name__ == '__main__':
-
-    segment("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/GUI/deepl_brain_surfaces/GUI/media/original/data/vtps/sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp")
-
+    segment(
+        "/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/GUI/deepl_brain_surfaces/GUI/media/original/data/vtps/sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp")
