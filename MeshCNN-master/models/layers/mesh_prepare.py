@@ -88,8 +88,10 @@ def fill_from_file(mesh, file, opt):
     f.close()
 
     # Added this from issue 46
+    # UPDATE: this did not solve the issue
     if opt.slide_verts != 0:
-        print("USED")
+        if opt.verbose:
+            print("Used F from issue46")
         vs, faces = remove_unused_vertices(vs, faces)
 
     vs = np.asarray(vs)
