@@ -8,7 +8,7 @@ Have set up mod_wsgi to serve static files.
 See documentation at: [https://pypi.org/project/mod-wsgi/](https://pypi.org/project/mod-wsgi/)
 
 To set up the modwsgi, please run: 
-`python -m pip install mod-wsgi`
+`python -m pip install mod_wsgi-standalone`
 
 To run the server, use: 
 `python manage.py runmodwsgi --url-alias /media media`
