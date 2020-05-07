@@ -65,6 +65,8 @@ def from_scratch(file, opt):
 
 
 def fill_from_file(mesh, file, opt):
+    if opt.verbose:
+        print("fromfile", file)
     mesh.filename = ntpath.split(file)[1]
     mesh.fullfilename = file
     vs, faces = [], []
@@ -87,6 +89,7 @@ def fill_from_file(mesh, file, opt):
 
     # Added this from issue 46
     if opt.slide_verts != 0:
+        print("USED")
         vs, faces = remove_unused_vertices(vs, faces)
 
     vs = np.asarray(vs)

@@ -2,7 +2,7 @@
 
 ## run the training
 python3 train.py \
---dataroot datasets/brains_reg_merged_10k \
+--dataroot datasets/brains_reg_merged_10k_aug \
 --checkpoints_dir checkpoints/merged_10k_lr_plateau_aug_slideverts \
 --export_folder checkpoints/mesh_collapses \
 --name brains \

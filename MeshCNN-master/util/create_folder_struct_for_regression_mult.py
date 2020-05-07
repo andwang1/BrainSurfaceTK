@@ -3,8 +3,8 @@ import os
 import pandas as pd
 from shutil import copyfile
 
-source_dir_names =["all_brains_merged_10k_WM",
-                   "all_brains_merged_5k"]
+source_dir_names =["all_brains_merged_10k"
+                   ]
 
 # Load indices
 with open("names_04152020_noCrashSubs.pk", "rb") as f:
@@ -27,7 +27,7 @@ for source_dir_name in source_dir_names:
     # Where them brains at
     source_dir = rf"/vol/biomedic2/aa16914/shared/MScAI_brain_surface/andy/deepl_brain_surfaces/MeshCNN-master/datasets/{source_dir_name}"
     # Where them brains should be at
-    target_dir = rf"/vol/biomedic2/aa16914/shared/MScAI_brain_surface/andy/deepl_brain_surfaces/MeshCNN-master/datasets/brains_reg_{source_dir_name[11:]}"
+    target_dir = rf"/vol/biomedic2/aa16914/shared/MScAI_brain_surface/andy/deepl_brain_surfaces/MeshCNN-master/datasets/brains_reg_{source_dir_name[11:]}_aug"
 
     #### This is for MeshCNN specifically
     if not os.access(target_dir, mode=os.F_OK):
