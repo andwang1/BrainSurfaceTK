@@ -1,6 +1,7 @@
 import csv
 import os
-
+import random
+import string
 import warnings
 
 from django.conf import settings
@@ -15,9 +16,6 @@ from backend.evaluate_pointnet_regression import predict_age
 from backend.evaluate_pointnet_segmentation import segment as brain_segment
 from .forms import NewUserForm, UploadFileForm
 from .models import Option, SessionDatabase, UploadedSessionDatabase
-
-from nibabel import load as nib_load
-from nilearn.plotting import view_img as ni_view_img
 
 BASE_DIR = os.getcwd()
 DATA_DIR = os.path.join(BASE_DIR, "/main/static/main/data")
@@ -57,7 +55,7 @@ def view_session_results(request, session_id=None):
         table_values = list()
         for field_name in field_names:
             if field_name.startswith("_") or field_name == "id" or field_name.endswith("file") \
-                or field_name.endswith("path"):
+                    or field_name.endswith("path"):
                 continue
             tmp_value = record_dict[field_name]
             if isinstance(tmp_value, float):
@@ -275,9 +273,16 @@ def run_segmentation(request, session_id):
             tmp_path = os.path.join(settings.MEDIA_ROOT, "tmp/")
             if not os.path.exists(tmp_path):
                 os.makedirs(tmp_path)
+
+            current_tmp_files = [f for f in os.listdir(tmp_path) if os.path.isfile(os.path.join(tmp_path, f))]
+            while True:
+                tmp_file_name = randomString(stringLength=10) + ".vtp"
+                if tmp_file_name not in current_tmp_files:
+                    break
+
             tmp_file_path = brain_segment(brain_path=abs_file_path,
                                           folder_path_to_write=tmp_path,
-                                          tmp_file_name=None)
+                                          tmp_file_name=tmp_file_name)
 
             # Segmented File Path
             tmp_fp = tmp_file_path.split(settings.MEDIA_ROOT.split(os.path.basename(settings.MEDIA_ROOT))[-2][:-1])[-1]
@@ -286,3 +291,22 @@ def run_segmentation(request, session_id):
                 'segmented_file_path': tmp_fp
             }
             return JsonResponse(data)
+
+
+def remove_tmp(request, session_id=None):
+    data = {
+        'success': 'failed'
+    }
+
+    relative_file_path = request.GET.get('tmp_file_url', None)
+    if relative_file_path is not None:
+        file_path = os.path.join(settings.MEDIA_ROOT, relative_file_path.strip(settings.MEDIA_URL))
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            data['success'] = "success"
+    return JsonResponse(data)
+
+
+def randomString(stringLength=8):
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for _ in range(stringLength))
