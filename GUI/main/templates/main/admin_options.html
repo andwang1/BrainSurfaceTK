@@ -13,7 +13,7 @@
                         <p>Warning: Will ERASE everything in the database</p>
                     </div>
                     <div class="card-action">
-                        <a href="/load_database">Visit</a>
+                        <a href="{% url "main:load_database" %}">Visit</a>
                     </div>
                 </div>
             </div>
@@ -24,7 +24,7 @@
                         <p>Modify Databases & Options</p>
                     </div>
                     <div class="card-action">
-                        <a href="/admin">Visit</a>
+                        <a href="{% url "admin:index" %}">Visit</a>
                     </div>
                 </div>
             </div>

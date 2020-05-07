@@ -7,7 +7,7 @@
         {% elif message.tags == 'warning' %}
             <script>M.toast({html: "{{message}}", classes: 'orange rounded', displayLength: 10000});</script>
         {% elif message.tags == 'error' %}
-            <script>M.toast({html: "{{message}}", classes: 'red rounded', displayLength: 10000});</script>
+            <script>M.toast({html: "{{message}}", classes: 'red rounded ', displayLength: 10000});</script>
         {% endif %}
     {% endfor %}
 {% endif %}

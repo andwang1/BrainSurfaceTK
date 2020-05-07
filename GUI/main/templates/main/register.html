@@ -4,13 +4,13 @@
 
 
 {% block content %}
-    <form method="POST">
-        {% csrf_token %}
-        {{ form.as_p }}
-
-        <button class="btn" type="submit">register</button>
-    </form>
-
-    If you already have an account, <a href="/login">login</a> instead.
+    <div class="small-container">
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="btn imperial navy waves-effect waves-green" type="submit">register</button>
+        </form>
+        If you already have an account, <a href="{% url "main:login" %}">login</a> instead.
+    </div>
 {% endblock %}
 

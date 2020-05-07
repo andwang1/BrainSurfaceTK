@@ -3,60 +3,20 @@
 {% block title %} Lookup{% endblock %}
 
 {% block content %}
-    <h1>Select Session ID</h1>
-    <br>
-    <form method="get">
-        <div class="input-field col s12">
-            <select id="selected_session_id" name="selected_session_id">
-                {% for session_id in session_ids %}
-                    <option value={{ session_id }}>{{ session_id }}</option>
-                {% endfor %}
-            </select>
-            <label>Select Session ID:</label>
-            <button class="waves-effect waves-light btn-small" type="submit">Go</button>
-        </div>
-{#        <label>#}
-{#            <input type="checkbox" id="display_original_data_only"#}
-{#                   name="display_original_data_only" readonly onclick="generate_array"/>#}
-{#            <span>Only display original session ids</span>#}
-{#        </label>#}
-    </form>
-
-{#    <script>#}
-{#        function generate_array() {#}
-{#            if (document.getElementById('display_original_data_only').onchange) {#}
-{#                if (document.getElementById('display_original_data_only').checked) {#}
-{#                    var og_array = {{ og_session_ids | safe }};#}
-{#                    var uploaded_array = {{ uploaded_session_ids | safe }};#}
-{#                    var displayed_array = [];#}
-{##}
-{#                    displayed_array = og_array.concat(uploaded_array);#}
-{#                    displayed_array.sort(function (a, b) {return a-b});#}
-{##}
-{#                    session_options = document.getElementById('selected_session_id');#}
-{##}
-{#                    for (var i = 0; i < displayed_array.length; i++) {#}
-{#                        var opt = displayed_array[i];#}
-{#                        var el = document.createElement("option");#}
-{#                        el.textContent = opt;#}
-{#                        el.value = opt;#}
-{#                        session_options.appendChild(el);#}
-{#                    }#}
-{##}
-{#                } else {#}
-{#                    var og_array = {{ og_session_ids | safe }};#}
-{##}
-{#                    for (var i = 0; i < displayed_array.length; i++) {#}
-{#                        var opt = displayed_array[i];#}
-{#                        var el = document.createElement("option");#}
-{#                        el.textContent = opt;#}
-{#                        el.value = opt;#}
-{#                        session_options.appendChild(el);#}
-{#                    }#}
-{#                }#}
-{#            }#}
-{#        }#}
-{#    </script>#}
+    <div class="small-container">
+        <p class="flow-text">Lookup</p>
+        <form method="get">
+            <div class="input-field">
+                <select name="selected_session_id">
+                    {% for session_id in session_ids %}
+                        <option value={{ session_id }}>{{ session_id }}</option>
+                    {% endfor %}
+                </select>
+                <label>Select Session ID:</label>
+                <button class="waves-effect waves-green btn-small imperial blue" type="submit">Go</button>
+            </div>
+        </form>
+    </div>
 {% endblock %}
 
 

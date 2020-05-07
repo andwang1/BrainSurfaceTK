@@ -39,17 +39,17 @@ def validate_session_id_is_unique(session_id):
 
 
 class TemplateSessionDatabase(models.Model):
-    participant_id = models.CharField(verbose_name="participant_id", max_length=100)
-    session_id = models.IntegerField(verbose_name="session_id", unique=True, primary_key=True,
+    participant_id = models.CharField(verbose_name="Participant ID", max_length=100)
+    session_id = models.IntegerField(verbose_name="Session ID", unique=True, primary_key=True,
                                      validators=[validate_session_id_is_unique, validators.MinValueValidator(0)])
-    gender = models.CharField(verbose_name="gender", max_length=100)
-    birth_age = models.FloatField(verbose_name="birth_age")
-    birth_weight = models.FloatField(verbose_name="birth_weight")
-    singleton = models.CharField(verbose_name="singleton", max_length=100)
-    scan_age = models.FloatField(verbose_name="scan_age")
-    scan_number = models.IntegerField(verbose_name="scan_number")
-    radiology_score = models.CharField(verbose_name="radiology_score", max_length=200)
-    sedation = models.CharField(verbose_name="sedation", max_length=200)
+    gender = models.CharField(verbose_name="Gender", max_length=100)
+    birth_age = models.FloatField(verbose_name="Birth Age")
+    birth_weight = models.FloatField(verbose_name="Birth Weight")
+    singleton = models.CharField(verbose_name="Singleton", max_length=100)
+    scan_age = models.FloatField(verbose_name="Scan Age")
+    scan_number = models.IntegerField(verbose_name="Scan Number")
+    radiology_score = models.CharField(verbose_name="Radiology Score", max_length=200)
+    sedation = models.CharField(verbose_name="Sedation", max_length=200)
 
     mri_file = models.FileField(verbose_name="MRI file path", upload_to="", default="", max_length=250)
     surface_file = models.FileField(verbose_name="Surface file path", upload_to="", default="", max_length=250)

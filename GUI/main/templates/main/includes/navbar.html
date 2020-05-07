@@ -1,16 +1,16 @@
-<nav>
-    <div class="nav-wrapper">
-        <ul id="nav-mobile" class="left">
-            <a href="/" class="brand-logo">Deep Learning on Brain Surfaces</a>
+<nav class="nav-extended">
+    <div class="nav-wrapper imperial blue">
+        <ul id="nav-mobile">
+            <a href="{% url "main:homepage" %}" class="left flow-text">Deep Learning on Brain Surfaces</a>
         </ul>
-        <ul id="nav-mobile" class="right hide-on-med-and-down">
-            <li><a href="/">Home</a></li>
+        <ul id="nav-mobile" class="hide-on-med-and-down">
+            <li class="right"><a href="{% url "main:homepage" %}">Home</a></li>
             {% if user.is_authenticated %}
-                <li><a href="/account">{{ user.username }}</a></li>
-                <li><a href="/logout">Logout</a></li>
+                <li class="right"><a href="{% url "main:account" %}">{{ user.username }}</a></li>
+                <li class="right"><a href="{% url "main:logout" %}">Logout</a></li>
             {% else %}
-                <li><a href="/register">Register</a></li>
-                <li><a href="/login"><strong>Login</strong></a></li>
+                <li class="right"><a href="{% url "main:register" %}">Register</a></li>
+                <li class="right"><a href="{% url "main:login" %}"><strong>Login</strong></a></li>
             {% endif %}
         </ul>
     </div>

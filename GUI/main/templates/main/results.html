@@ -1,13 +1,16 @@
 {% extends 'main/header.html' %}
 {% load static %}
 
+{% block extra_js %}
+    <script type="text/javascript" src="{% static "main/js/brain_surface_tool.js" | safe %}"></script>
+{% endblock %}
+
+
 {% block title %}Results{% endblock %}
 
 {% block content %}
 
-    <script type="text/javascript" src="{% static "main/js/brain_surface_tool.js" | safe %}"></script>
-
-    <h1>Session-{{ session_id }}</h1>
+    <h2>Session-{{ session_id }}</h2>
 
     <div id="brain-container">
         {% if mri_js_html is not None %}
@@ -30,7 +33,7 @@
             </div>
 
             <script type="text/javascript">
-                myLibrary.myFunction("{{ surf_file_url }}", '.brain_surface_container');
+                brain_surface_library.build_brain_surf_window("{{ surf_file_url }}", '.brain_surface_container');
             </script>
         {% endif %}
     </div>
@@ -52,12 +55,10 @@
 
     {% if surf_file_url is not None %}
 
-        {#    This token is only necessary when the form method is POST.#}
-        {% csrf_token %}
         <div id="prediction_container">
-            <button class="waves-effect waves-light btn-small" id="predict" type="submit" formmethod="get">Predict
+            <button class="waves-effect waves-blue btn-small imperial blue" id="predict" type="submit" formmethod="get">Predict
             </button>
-            <button class="waves-effect waves-light btn-small" id="segment" type="submit" formmethod="get">Segment
+            <button class="waves-effect waves-blue btn-small imperial blue" id="segment" type="submit" formmethod="get">Segment
             </button>
         </div>
 
@@ -67,7 +68,7 @@
 
         <script type="text/javascript">
             $('#predict').click(function () {
-                document.getElementById("predict").style.color = "red";
+                document.getElementById("predict").style.color = "green";
                 console.log("create post is working!");
                 var table_Exists = document.getElementById("result_table");
 
@@ -78,7 +79,7 @@
 
                     $.ajax({
                         url: "{{ session_id }}/run_predictions/",
-                        type: "POST",
+                        type: "GET",
                         data: {
                             'participant_id': objCells.item(0).innerHTML,
                             'session_id': objCells.item(1).innerHTML,
@@ -107,7 +108,7 @@
 
                 $.ajax({
                     url: "{{ session_id }}/run_segmentation/",
-                    type: "POST",
+                    type: "GET",
                     data: {
                         'participant_id': objCells.item(0).innerHTML,
                         'session_id': objCells.item(1).innerHTML,
@@ -121,7 +122,7 @@
 
                         {#myLibrary.myFunction(json.segmented_file_path, '.segmented_container');#}
 
-                        myLibrary.myFunction("{{ surf_file_url }}", '.segmented_container');
+                        brain_surface_library.build_brain_surf_window("{{ surf_file_url }}", '.segmented_container');
 
                     }
                 });

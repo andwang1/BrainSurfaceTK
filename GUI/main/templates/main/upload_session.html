@@ -3,13 +3,15 @@
 {% block title %}Upload Session{% endblock %}
 
 {% block content %}
-    <h1>Session Upload</h1>
-    <br>
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button class="btn" type="submit">Upload</button>
-    </form>
+    <div class="small-container">
+        <h6>Session Upload</h6>
+        <br>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="waves-effect waves-blue btn-small imperial blue" type="submit">Upload</button>
+        </form>
+    </div>
 {% endblock %}
 
 

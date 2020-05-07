@@ -1,4 +1,3 @@
-import 'vtk.js/Sources/favicon';
 
 import macro from 'vtk.js/Sources/macro';
 import HttpDataAccessHelper from 'vtk.js/Sources/IO/Core/DataAccessHelper/HttpDataAccessHelper';
@@ -18,7 +17,7 @@ import style from './GeometryViewer.module.css';
 import icon from 'favicon-96x96.png';
 
 
-export function myFunction(x, y) {
+export function build_brain_surf_window(x, y) {
 
     let autoInit = true;
     let background = [0, 0, 0];

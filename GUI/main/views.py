@@ -1,6 +1,8 @@
 import csv
 import os
 
+import warnings
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
@@ -8,11 +10,13 @@ from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from django.views.decorators.csrf import csrf_exempt
 
 from backend.evaluate_pointnet_regression import predict_age
 from .forms import NewUserForm, UploadFileForm
 from .models import Option, SessionDatabase, UploadedSessionDatabase
+
+from nibabel import load as nib_load
+from nilearn.plotting import view_img as ni_view_img
 
 BASE_DIR = os.getcwd()
 DATA_DIR = os.path.join(BASE_DIR, "/main/static/main/data")
@@ -54,16 +58,22 @@ def view_session_results(request, session_id=None):
             if field_name.startswith("_") or field_name == "id" or field_name.endswith("file") or field_name.endswith(
                     "path"):
                 continue
-            table_names.append(field_name.replace("_", " ").lower().capitalize())
-            table_values.append(record_dict[field_name])
+            tmp_value = record_dict[field_name]
+            if isinstance(tmp_value, float):
+                tmp_value = round(tmp_value, 3)
+            elif tmp_value == "":
+                tmp_value = "NA"
+
+            table_names.append(field_name.replace("_", " ").title().replace("Id", "ID"))
+            table_values.append(tmp_value)
 
         mri_file = record.mri_file
         mri_js_html = None
         if mri_file.name != "":
             if os.path.isfile(mri_file.path) & mri_file.path.endswith("nii"):
-                # img = nib.load(mri_file.path)
-                # mri_js_html = view_img(img, colorbar=False, bg_img=False, black_bg=True, cmap='gray')
-                mri_js_html = None
+                img = nib_load(mri_file.path)
+                mri_js_html = ni_view_img(img, colorbar=False, bg_img=False, black_bg=True, cmap='gray')
+                # mri_js_html = None
             else:
                 messages.error(request, "ERROR: Either MRI file doesn't exist or doesn't end with .nii!")
 
@@ -122,9 +132,6 @@ def load_data(request):
                 if SessionDatabase.objects.all().filter(session_id=session_id).count() > 0:
                     print(f'tsv contains non-uniques session id: {session_id}')
                     continue
-
-                if mri_file_path != "":
-                    print("bodo")
 
                 SessionDatabase.objects.create(participant_id=participant_id,
                                                session_id=int(session_id),
@@ -241,14 +248,12 @@ def account_page(request):
         return redirect("main:homepage")
 
 
-@csrf_exempt
 def run_predictions(request, session_id):
-    if request.method == 'POST':
-        # participant_id = request.POST.get('participant_id', None)
-        # session_id = request.POST.get('session_id', None)
-        # print(participant_id, session_id)
-        # print(file_path)
-        file_url = request.POST.get('file_url', None)
+    if request.method == 'GET':
+        file_url = request.GET.get('file_url', None)
+
+        if file_url is None:
+            warnings.warn(f"Run predictions was called with an invalid file_url: \n {file_url}")
 
         pred = predict_age(os.path.join(settings.MEDIA_ROOT, file_url.strip(settings.MEDIA_URL)))
         data = {
@@ -257,12 +262,11 @@ def run_predictions(request, session_id):
         return JsonResponse(data)
 
 
-@csrf_exempt
 def run_segmentation(request, session_id):
-    if request.method == 'POST':
-        participant_id = request.POST.get('participant_id', None)
-        session_id = request.POST.get('session_id', None)
-        file_path = request.POST.get('file_path', None)
+    if request.method == 'GET':
+        participant_id = request.GET.get('participant_id', None)
+        session_id = request.GET.get('session_id', None)
+        file_path = request.GET.get('file_path', None)
 
         """
         Write code that loads file for segmentation then save this vtp in GUI/media/tmp

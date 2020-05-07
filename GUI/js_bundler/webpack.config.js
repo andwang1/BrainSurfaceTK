@@ -38,7 +38,7 @@ module.exports = {
     output: {
         path: outputPath,
         filename: 'brain_surface_tool.js',
-        library: 'myLibrary'
+        library: 'brain_surface_library'
     },
     module: {
         rules: [
