@@ -63,16 +63,11 @@ class TemplateSessionDatabase(models.Model):
 
 class UploadedSessionDatabase(TemplateSessionDatabase):
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.mri_file.upload_to = "uploads/data/mris/"
-        self.surface_file.upload_to = "uploads/data/vtps/"
+    mri_file_storage_path = "uploads/data/mris/"
+    surface_file_storage_path = "uploads/data/vtps/"
 
-        if not os.path.isdir(os.path.join(settings.MEDIA_ROOT, self.mri_file.upload_to)):
-            os.makedirs(os.path.join(settings.MEDIA_ROOT, self.mri_file.upload_to))
-
-        if not os.path.isdir(os.path.join(settings.MEDIA_ROOT, self.surface_file.upload_to)):
-            os.makedirs(os.path.join(settings.MEDIA_ROOT, self.surface_file.upload_to))
+    mri_file = models.FileField(verbose_name="MRI file path", upload_to=mri_file_storage_path, default="", max_length=250)
+    surface_file = models.FileField(verbose_name="Surface file path", upload_to=surface_file_storage_path, default="", max_length=250)
 
     class Meta:
         ordering = ['-session_id']

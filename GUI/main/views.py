@@ -86,7 +86,8 @@ def view_session_results(request, session_id=None):
 
         return render(request, "main/results.html",
                       context={"session_id": session_id, "table_names": table_names, "table_values": table_values,
-                               "mri_js_html": mri_js_html, "surf_file_url": surf_file_url})
+                               "mri_js_html": mri_js_html, "surf_file_url": surf_file_url,
+                               'debug': search_results.get()})
 
 
 @permission_required('admin.can_add_log_entry')
@@ -172,7 +173,7 @@ def lookup(request):
             uploaded_session_ids = [int(session.session_id) for session in UploadedSessionDatabase.objects.all()]
 
             return render(request, "main/lookup.html",
-                          context={"session_ids": sorted(session_ids + uploaded_session_ids)})
+                          context={"session_ids": reversed(session_ids + uploaded_session_ids)})
 
     else:
         messages.error(request, "You must be an admin to access this feature currently!")

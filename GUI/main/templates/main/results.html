@@ -9,6 +9,7 @@
 {% block title %}Results{% endblock %}
 
 {% block content %}
+    {{ debug.as_table }}
     <h4 class="flow-text">Session-{{ session_id }}</h4>
     <div id="brain-container">
         {% if mri_js_html is not None %}
