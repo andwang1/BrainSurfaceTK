@@ -9,35 +9,27 @@
 {% block title %}Results{% endblock %}
 
 {% block content %}
-
-    <h2>Session-{{ session_id }}</h2>
-
+    <h4 class="flow-text">Session-{{ session_id }}</h4>
     <div id="brain-container">
         {% if mri_js_html is not None %}
             <div class="brain_slice_container">
                 {{ mri_js_html | safe }}
             </div>
+            <br>
         {% endif %}
 
         {% if surf_file_url is not None %}
-
-            <style>
-                #brain_surf_container {
-                    width: 100% !important;
-                    height: 50% !important;
-                }
-            </style>
-
             <div id="brain_surf_container">
                 <div class="brain_surface_container"></div>
             </div>
-
             <script type="text/javascript">
                 brain_surface_library.build_brain_surf_window("{{ surf_file_url }}", '.brain_surface_container');
             </script>
+        <br>
         {% endif %}
     </div>
 
+    {% if table_names is not None %}
     <table id="info_table">
         <thead>
         {% for table_name in table_names %}
@@ -52,16 +44,19 @@
         {% endfor %}
         </tbody>
     </table>
+    <br>
+    {% endif %}
 
     {% if surf_file_url is not None %}
-
         <div id="prediction_container">
-            <button class="waves-effect waves-blue btn-small imperial blue" id="predict" type="submit" formmethod="get">Predict
+            <button class="waves-effect waves-blue btn-small imperial blue" id="predict" type="submit" formmethod="get">
+                Predict
             </button>
-            <button class="waves-effect waves-blue btn-small imperial blue" id="segment" type="submit" formmethod="get">Segment
+            <button class="waves-effect waves-blue btn-small imperial blue" id="segment" type="submit" formmethod="get">
+                Segment
             </button>
         </div>
-
+        <br>
         <div id="brain_surf_container">
             <div class="segmented_container"></div>
         </div>

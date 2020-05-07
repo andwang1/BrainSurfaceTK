@@ -3,13 +3,14 @@
 {% block title %}LoadData{% endblock %}
 
 {% block content %}
-    <h1>Do you want to reset the databases?</h1>
-    <br>
-    <h2>WARNING: This will wipe the existing databases first!</h2>
+    <h4>Hard Reset the databases?</h4>
+    <p class="flow-text">Warning: Any modifications to the dataset(s) will be lost!</p>
     <br>
     <form method="POST">
         {% csrf_token %}
-        <button class="waves-effect waves-red btn-small imperial-blue-text lighten-1" type="submit" name="load_data">Reset!</button>
+        <button class="waves-effect waves-red btn-small imperial blue" type="submit" name="load_data">
+            Reset!
+        </button>
         <br>
         <label>
             <input type="checkbox" name="reset_upload_database"/>
