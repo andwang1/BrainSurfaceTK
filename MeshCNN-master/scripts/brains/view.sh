@@ -2,8 +2,4 @@
 
 python3 util/mesh_viewer.py \
 --files \
-checkpoints/classification_models/brains/checkpoints/mesh_collapses/CC00170XX06_56100_0.obj \
-checkpoints/classification_models/brains/checkpoints/mesh_collapses/CC00170XX06_56100_1.obj \
-checkpoints/classification_models/brains/checkpoints/mesh_collapses/CC00170XX06_56100_2.obj \
-checkpoints/classification_models/brains/checkpoints/mesh_collapses/CC00170XX06_56100_3.obj \
-checkpoints/classification_models/brains/checkpoints/mesh_collapses/CC00170XX06_56100_4.obj
+/vol/biomedic2/aa16914/shared/MScAI_brain_surface/rhys/deepl_brain_surfaces/MeshCNN-master/datasets/seg_test/CC00555XX11_162400.obj
