@@ -24,9 +24,9 @@ DATA_DIR = os.path.join(BASE_DIR, "/main/static/main/data")
 
 def homepage(request):
     if Option.objects.count() == 0:
-        Option.objects.create(name="Look-up", summary="Look-up session ids", slug="lookup")
-        Option.objects.create(name="Upload", summary="Upload session id", slug="upload")
-        Option.objects.create(name="About", summary="About this project", slug="about")
+        Option.objects.create(name="Look-up".title(), summary="Look-up session IDs".capitalize(), slug="lookup")
+        Option.objects.create(name="Upload".title(), summary="Upload session ID".capitalize(), slug="upload")
+        Option.objects.create(name="About".title(), summary="About this project".capitalize(), slug="about")
     options = Option.objects.all()
     return render(request, "main/homepage.html", context={"options": options})
 
@@ -55,15 +55,14 @@ def view_session_results(request, session_id=None):
         table_names = list()
         table_values = list()
         for field_name in field_names:
-            if field_name.startswith("_") or field_name == "id" or field_name.endswith("file") or field_name.endswith(
-                    "path"):
+            if field_name.startswith("_") or field_name == "id" or field_name.endswith("file") \
+                or field_name.endswith("path"):
                 continue
             tmp_value = record_dict[field_name]
             if isinstance(tmp_value, float):
                 tmp_value = round(tmp_value, 3)
             elif tmp_value == "":
                 tmp_value = "NA"
-
             table_names.append(field_name.replace("_", " ").title().replace("Id", "ID"))
             table_values.append(tmp_value)
 

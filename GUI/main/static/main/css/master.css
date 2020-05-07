@@ -1,5 +1,10 @@
 @import "materialize.css";
 
+html * {
+    font-family: Roboto !important;
+}
+
+
 .small-container {
     padding-top: 5px;
     max-width: 400px;
@@ -7,3 +12,14 @@
     display: block;
     margin: auto;
 }
+
+.brain_slice_container {
+    background-color: black;
+}
+
+#brain_surf_container {
+    width: 100% !important;
+    height: 75% !important;
+}
+
+
