@@ -3,6 +3,14 @@
 html * {
     font-family: Arial;
 }
+.gif-brain {
+    padding-top: 5px;
+    width: 45% !important;
+    height: 45% !important;
+    position: relative;
+    display: block;
+    margin: auto;
+}
 
 .small-container {
     padding-top: 5px;
