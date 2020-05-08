@@ -1,0 +1,41 @@
+@import "materialize.css";
+
+html * {
+    font-family: Arial;
+}
+
+.small-container {
+    padding-top: 5px;
+    max-width: 400px;
+    position: relative;
+    display: block;
+    margin: auto;
+}
+
+.brain_slice_container {
+    background-color: black;
+}
+
+#brain_surf_container {
+    width: 100% !important;
+    height: 75% !important;
+}
+
+#loader-wheel {
+    position: fixed;
+    top: -100%;
+    right: -100%;
+    left: -100%;
+    bottom: -100%;
+    margin: auto;
+    z-index: 0;
+    display: none;
+}
+
+/*#toast-container {*/
+/*    position: fixed !important;*/
+/*    width: 50% !important;*/
+/*    left: 50% !important;*/
+/*}*/
+
+

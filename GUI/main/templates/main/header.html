@@ -1,0 +1,36 @@
+<head>
+    <title>{% block title %}{% endblock %}</title>
+
+    {% load static %}
+
+    <link rel="shortcut icon" href="{% static "main/img/biomediia.png" %}" type="image/x-icon"/>
+
+    <link rel="icon" href="{% static "main/img/biomediia.png" %}" type="image/ico"/>
+
+    <link type="text/css" rel="stylesheet" href="{% static "main/css/master.css" %}">
+
+    <script src="{% static "main/js/materialize.js" %}"></script>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+    <script type="application/x-javascript" src="{% static "main/js/brain_surface_tool.js" %}"></script>
+
+    <!--Let browser know website is optimized for mobile-->
+    {#    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>#}
+</head>
+
+<body>
+
+{% include 'main/includes/navbar.html' %}
+
+<div class="container">
+    {% block content %}
+    {% endblock %}
+</div>
+</body>
+
+{% include 'main/includes/messages.html' %}
+
+{% include 'main/includes/load_wheel.html' %}
+
+<script>M.AutoInit();</script>
