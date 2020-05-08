@@ -12,9 +12,9 @@ import torch_geometric.transforms as T
 from torch.utils.tensorboard import SummaryWriter
 from torch_geometric.data import DataLoader
 
-from pointnet.src.data_loader import OurDataset
+from src.data_loader import OurDataset
 
-from pointnet.src.models.pointnet2_regression import Net
+from src.models.pointnet2_regression import Net
 
 
 def train(epoch):
@@ -72,21 +72,16 @@ if __name__ == '__main__':
 
     # Model Parameters
     lr = 0.001
-    batch_size = 16
+    batch_size = 4
     num_workers = 4
     # ['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc'] + ['weight']
-   # local_features = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
-    local_features = ['sulc']
+   local_features = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
+    # local_features = ['sulc']
     global_features = []
     target_class = 'scan_age'
     #target_class = 'birth_age'
     task = 'regression'
-    number_of_points = 5000  #3251# 12000  # 16247
-
-    # For quick tests
-    # indices = {'Train': ['CC00050XX01_7201', 'CC00050XX01_7201'],
-    #            'Test': ['CC00050XX01_7201', 'CC00050XX01_7201'],
-    #            'Val': ['CC00050XX01_7201', 'CC00050XX01_7201']}
+    number_of_points = 500  #3251# 12000  # 16247
 
     reprocess = False
 
@@ -122,16 +117,10 @@ if __name__ == '__main__':
    # files_ending = "_left_" + type_data + "_" + data_ending
     files_ending = '_'+ native + '_' + type_data + '_' + data_ending
 
-    # From quick local test
-    # data_folder = "/home/vital/Group Project/deepl_brain_surfaces/random"
-
     with open('src/names.pk', 'rb') as f:
         indices = pickle.load(f)
 
-    # TESTING PURPOSES
-    # indices['Train'] = indices['Train'][:2]
-
-    comment = 'Sphere_scan_age_90' + str(datetime.datetime.now()) \
+    comment = 'TEST_Sphere_scan_age_90' + str(datetime.datetime.now()) \
             + "__LR__" + str(lr) \
             + "__BATCH_" + str(batch_size) \
             + "__local_features__" + str(local_features)\
@@ -170,7 +159,7 @@ if __name__ == '__main__':
 
     # DEFINE TRANSFORMS HERE.
     transform = T.Compose([
-        # T.FixedPoints(number_of_points),
+        T.FixedPoints(number_of_points),
         T.RandomRotate(360, axis=0),
         T.RandomRotate(360, axis=1),
         T.RandomRotate(360, axis=2)
