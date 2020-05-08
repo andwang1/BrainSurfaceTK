@@ -57,17 +57,16 @@ def get_scheduler(optimizer, opt):
         def lambda_rule(epoch):
             lr_l = 1.0 - max(0, epoch + 1 + opt.epoch_count - opt.niter) / float(opt.niter_decay + 1)
             return lr_l
-
         scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda_rule)
     elif opt.lr_policy == 'step':
         scheduler = lr_scheduler.StepLR(optimizer, step_size=opt.lr_decay_iters, gamma=0.5)
     elif opt.lr_policy == 'plateau':
-        scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.8, threshold=0.01, patience=2)
+        scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.8, threshold=0.01, patience=2, min_lr=opt.min_lr)
     elif opt.lr_policy == 'cyclic':
-        scheduler = lr_scheduler.CyclicLR(optimizer, 0.00001, opt.lr, step_size_up=5, step_size_down=None, gamma=0.99,
+        scheduler = lr_scheduler.CyclicLR(optimizer, opt.min_lr, opt.lr, step_size_up=5, step_size_down=None, gamma=0.99,
                                           mode='exp_range', cycle_momentum=False)
     elif opt.lr_policy == 'cosine_restarts':
-        scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer, 5, T_mult=1, eta_min=0)
+        scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer, opt.lr_decay_iters, T_mult=1, eta_min=0)
     else:
         return NotImplementedError('learning rate policy [%s] is not implemented', opt.lr_policy)
     return scheduler
@@ -179,7 +178,7 @@ class MeshConvNet(nn.Module):
         if feature_values:
             features = torch.tensor([feature_values]).to(x.device)
             x = torch.cat((x, features), 1)
-
+        print(x.size())
         x = F.relu(self.fc1(x))
         if self.opt.dropout:
             x = self.d(x)
@@ -221,7 +220,7 @@ class MeshEncoderDecoder(nn.Module):
         unrolls.reverse()
         self.decoder = MeshDecoder(unrolls, up_convs, blocks=blocks, transfer_data=transfer_data)
 
-    def forward(self, x, meshes):
+    def forward(self, x, meshes):#, feature_values):
         fe, before_pool = self.encoder((x, meshes))
         fe = self.decoder((fe, meshes), before_pool)
         return fe

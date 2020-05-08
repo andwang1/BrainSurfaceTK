@@ -2,23 +2,22 @@
 
 ## run the training
 python3 train.py \
---dataroot datasets/brains_testing \
+--dataroot datasets/brains_test_mesh \
 --checkpoints_dir checkpoints/testing \
 --export_folder checkpoints/mesh_collapses \
 --name brains \
 --epoch_count 1 \
---niter 5 \
---batch_size 1 \
---ncf 64 112 128 \
---pool_res 3000 2750 2500 \
 --norm group \
---flip_edges 0.2 \
---slide_verts 0.2 \
 --num_aug 1 \
 --verbose_plot \
+--print_freq 10 \
+--seed 0 \
 --dataset_mode regression \
---print_freq 14 \
---ninput_edges 9000 \
---lr_policy cyclic \
---dropout \
-
+--niter 100 \
+--niter_decay 0 \
+--batch_size 1 \
+--ncf 64 112 128 \
+--pool_res 4000 3550 3000 \
+--lr 0.0003 \
+--init_type kaiming \
+--num_groups 2 \

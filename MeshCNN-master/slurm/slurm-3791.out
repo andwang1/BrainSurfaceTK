@@ -1,0 +1,86 @@
+Thu Apr  2 23:32:06 2020       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 435.21       Driver Version: 435.21       CUDA Version: 10.1     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|===============================+======================+======================|
+|   0  TITAN Xp            On   | 00000000:B2:00.0 Off |                  N/A |
+| 23%   31C    P8     8W / 250W |      0MiB / 12196MiB |      0%      Default |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                       GPU Memory |
+|  GPU       PID   Type   Process name                             Usage      |
+|=============================================================================|
+|  No running processes found                                                 |
++-----------------------------------------------------------------------------+
+ 23:32:06 up 91 days,  8:46,  2 users,  load average: 6.13, 6.09, 6.03
+/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master
+------------ Options -------------
+arch: mconvnet
+batch_size: 1
+beta1: 0.9
+checkpoints_dir: checkpoints/red50_12gb_ep30
+continue_train: False
+dataroot: datasets/brains_reg_red50
+dataset_mode: regression
+epoch_count: 1
+export_folder: checkpoints/red50_12gb_ep30/brains/checkpoints/mesh_collapses
+fc_n: 100
+features: []
+flip_edges: 0
+gpu_ids: [0]
+init_gain: 0.02
+init_type: normal
+is_train: True
+label: scan_age
+lr: 0.0001
+lr_decay_iters: 50
+lr_policy: lambda
+max_dataset_size: inf
+name: brains
+ncf: [64, 112, 128]
+ninput_edges: 48735
+niter: 1
+niter_decay: 30
+no_vis: False
+norm: group
+num_aug: 1
+num_groups: 16
+num_threads: 3
+phase: train
+pool_res: [3000, 2750, 2500]
+print_freq: 10
+resblocks: 0
+run_test_freq: 1
+save_epoch_freq: 1
+save_latest_freq: 250
+scale_verts: False
+seed: 0
+serial_batches: False
+slide_verts: 0
+verbose_plot: True
+which_epoch: latest
+-------------- End ----------------
+loaded mean / std from cache
+#training meshes = 488
+---------- Network initialized -------------
+[Network] Total number of parameters : 0.123 M
+-----------------------------------------------
+Traceback (most recent call last):
+  File "train.py", line 30, in <module>
+    model.optimize_parameters()
+  File "/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/models/mesh_classifier.py", line 90, in optimize_parameters
+    out = self.forward()
+  File "/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/models/mesh_classifier.py", line 77, in forward
+    out = self.net(self.edge_features, self.mesh, self.feature_values)
+  File "/vol/biomedic2/aa16914/shared/MScAI_brain_surface/venv/lib/python3.6/site-packages/torch/nn/modules/module.py", line 532, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/vol/biomedic2/aa16914/shared/MScAI_brain_surface/venv/lib/python3.6/site-packages/torch/nn/parallel/data_parallel.py", line 150, in forward
+    return self.module(*inputs[0], **kwargs[0])
+  File "/vol/biomedic2/aa16914/shared/MScAI_brain_surface/venv/lib/python3.6/site-packages/torch/nn/modules/module.py", line 532, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/models/networks.py", line 157, in forward
+    features = torch.tensor([feature_values]).to(x.device)
+RuntimeError: Could not infer dtype of NoneType

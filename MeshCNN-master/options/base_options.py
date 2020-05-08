@@ -36,6 +36,7 @@ class BaseOptions:
         self.parser.add_argument('--checkpoints_dir', type=str, default='./checkpoints', help='models are saved here')
         self.parser.add_argument('--serial_batches', action='store_true', help='if true, takes meshes in order, otherwise takes them randomly')
         self.parser.add_argument('--seed', type=int, help='if specified, uses seed')
+        self.parser.add_argument('--verbose', action='store_true', help='if true, adds additional information to the console output')
         # visualization params
         self.parser.add_argument('--export_folder', type=str, default='', help='exports intermediate collapses to this folder')
         self.initialized = True
@@ -61,9 +62,12 @@ class BaseOptions:
         if self.opt.seed is not None:
             import numpy as np
             import random
+            import torch.backends.cudnn as cudnn
             torch.manual_seed(self.opt.seed)
+            torch.cuda.manual_seed(self.opt.seed)
             np.random.seed(self.opt.seed)
             random.seed(self.opt.seed)
+            cudnn.deterministic = True
 
         if self.opt.export_folder:
             self.opt.export_folder = os.path.join(self.opt.checkpoints_dir, self.opt.name, self.opt.export_folder)

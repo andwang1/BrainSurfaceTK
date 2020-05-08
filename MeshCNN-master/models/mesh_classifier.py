@@ -37,6 +37,7 @@ class ClassifierModel:
         # Logging results into a file for each testing epoch
         self.save_dir = join(opt.checkpoints_dir, opt.name)
         self.testacc_log = join(self.save_dir, 'testacc_full_log_')
+        self.final_testacc_log = join(self.save_dir, 'final_testacc_full_log_')
         # Load/define networks
         self.net = networks.define_classifier(opt.input_nc, opt.ncf, opt.ninput_edges, opt.nclasses, opt, self.gpu_ids,
                                               opt.arch, opt.init_type, opt.init_gain,
@@ -62,6 +63,9 @@ class ClassifierModel:
         self.labels = labels.to(self.device)
         self.mesh = data['mesh']
         self.path = data['path']
+        if self.opt.verbose:
+            print("DEBUG meshpath ", self.path)
+        # print(self.path[0].split("/")[-1][:-4])
         # Retrieving the additional features specified from metadata file
         if self.feature_keys:
             # Using the filename as unique identifier
@@ -71,7 +75,10 @@ class ClassifierModel:
             self.soft_label = torch.from_numpy(data['soft_label'])
 
     def forward(self):
-        out = self.net(self.edge_features, self.mesh, self.feature_values)
+        if self.opt.dataset_mode == 'segmentation':
+            out = self.net(self.edge_features, self.mesh)#, self.feature_values)
+        else:
+            out = self.net(self.edge_features, self.mesh, self.feature_values)
         return out
 
     def backward(self, out):
@@ -123,13 +130,19 @@ class ClassifierModel:
             self.scheduler.step(val_acc)
         elif self.opt.lr_policy == 'cosine_restarts':
             self.scheduler.step(epoch)
+        elif self.opt.lr_policy == 'static':
+            pass
         else:
             self.scheduler.step()
+        # If lr below specified minimum, then set to minimum
+        for param_group in self.optimizer.param_groups:
+            if param_group['lr'] < self.opt.min_lr:
+                param_group['lr'] = self.opt.min_lr
         lr = self.optimizer.param_groups[0]['lr']
         print('learning rate = %.7f' % lr)
         return lr
 
-    def test(self, epoch):
+    def test(self, epoch, is_val=True):
         """tests model
         returns: number correct and total number
         """
@@ -139,28 +152,37 @@ class ClassifierModel:
             if self.opt.dataset_mode == 'regression':
                 pred_class = out.view(-1)
             elif self.opt.dataset_mode == 'binary_class':
-                pred_class = torch.round(out).long()
                 # Convert to probability for printing and logging
                 out = torch.sigmoid(out)
+                pred_class = torch.round(out).long()
             else:
+                print(out)
                 pred_class = out.data.max(1)[1]
             label_class = self.labels
             self.export_segmentation(pred_class.cpu())
             patient_id = self.path[0].split("/")[-1][:-4]
 
+            re_pattern = r".*\/(CC[a-zA-Z0-9_]+)\.obj$"
+            re_matcher = re.compile(re_pattern)
+            matched_path = re_matcher.match(self.path[-1])
+            #patient_id = matched_path.group(1)
+            # patient_id = self.path[-1][38:-4]
+
             # Print to console
             print('-------')
-            print('Patient ID:\t', patient_id)
+            #print('Patient ID:\t', patient_id)
             print('Predicted:\t', pred_class.item())
             print('Label:\t\t', label_class.item())
             correct = self.get_accuracy(pred_class, label_class)
+
             if self.opt.dataset_mode == 'binary_class':
                 print("Pred. prob.:\t", out.item())
             else:
                 print('Abs Error:\t', correct.item())
 
             # Log results to file
-            with open(f"{self.testacc_log}{epoch}.csv", "a") as log_file:
+            file_name = f"{self.testacc_log}{epoch}.csv" if is_val else f"{self.final_testacc_log}{epoch}.csv"
+            with open(file_name, "a") as log_file:
                 if self.opt.dataset_mode == 'binary_class':
                     log_file.write(f"{patient_id},{pred_class.item()},{label_class.item()},{out.item()}\n")
                 else:

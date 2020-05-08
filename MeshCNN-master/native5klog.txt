@@ -1,0 +1,1615 @@
+------------ Options -------------
+arch: mconvnet
+batch_size: 1
+beta1: 0.9
+checkpoints_dir: checkpoints/testnative5
+continue_train: False
+dataroot: datasets/all_brains_find_error_native_5k
+dataset_mode: regression
+dropout: False
+epoch_count: 1
+export_folder: checkpoints/testnative5/brains/checkpoints/mesh_collapses
+fc_n: 100
+features: []
+flip_edges: 0
+gpu_ids: [0]
+init_gain: 0.02
+init_type: kaiming
+is_train: True
+label: scan_age
+lr: 0.0003
+lr_decay_iters: 50
+lr_policy: lambda
+max_dataset_size: inf
+min_lr: 0
+name: brains
+ncf: [64, 112, 128]
+ninput_edges: 750
+niter: 10
+niter_decay: 0
+no_vis: False
+norm: group
+num_aug: 1
+num_groups: 2
+num_threads: 3
+phase: train
+pool_res: [3000, 2750, 2500]
+print_freq: 10
+resblocks: 0
+run_test_freq: 1
+save_epoch_freq: 1
+save_latest_freq: 250
+scale_verts: False
+seed: 2
+serial_batches: False
+slide_verts: 0
+verbose: True
+verbose_plot: False
+weight_minority: False
+which_epoch: latest
+-------------- End ----------------
+DEBUG dir path in dataset  datasets/all_brains_find_error_native_5k
+DEBUG fname in meshretrieve  CC00050XX01_7201.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00050XX01_7201.obj
+DEBUG fname in meshretrieve  CC00051XX02_7702.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00051XX02_7702.obj
+DEBUG fname in meshretrieve  CC00052XX03_8300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00052XX03_8300.obj
+DEBUG fname in meshretrieve  CC00053XX04_8607.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00053XX04_8607.obj
+DEBUG fname in meshretrieve  CC00054XX05_8800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00054XX05_8800.obj
+DEBUG fname in meshretrieve  CC00055XX06_9300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00055XX06_9300.obj
+DEBUG fname in meshretrieve  CC00056XX07_10700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00056XX07_10700.obj
+DEBUG fname in meshretrieve  CC00057XX08_11002.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00057XX08_11002.obj
+DEBUG fname in meshretrieve  CC00058XX09_11300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00058XX09_11300.obj
+DEBUG fname in meshretrieve  CC00060XX03_12501.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00060XX03_12501.obj
+DEBUG fname in meshretrieve  CC00061XX04_13300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00061XX04_13300.obj
+DEBUG fname in meshretrieve  CC00062XX05_13801.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00062XX05_13801.obj
+DEBUG fname in meshretrieve  CC00063AN06_15102.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00063AN06_15102.obj
+DEBUG fname in meshretrieve  CC00064XX07_18303.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00064XX07_18303.obj
+DEBUG fname in meshretrieve  CC00065XX08_18600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00065XX08_18600.obj
+DEBUG fname in meshretrieve  CC00066XX09_19200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00066XX09_19200.obj
+DEBUG fname in meshretrieve  CC00067XX10_20200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00067XX10_20200.obj
+DEBUG fname in meshretrieve  CC00068XX11_20701.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00068XX11_20701.obj
+DEBUG fname in meshretrieve  CC00069XX12_26300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00069XX12_26300.obj
+DEBUG fname in meshretrieve  CC00070XX05_26700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00070XX05_26700.obj
+DEBUG fname in meshretrieve  CC00071XX06_27000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00071XX06_27000.obj
+DEBUG fname in meshretrieve  CC00072XX07_27600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00072XX07_27600.obj
+DEBUG fname in meshretrieve  CC00073XX08_27800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00073XX08_27800.obj
+DEBUG fname in meshretrieve  CC00074XX09_28000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00074XX09_28000.obj
+DEBUG fname in meshretrieve  CC00075XX10_28400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00075XX10_28400.obj
+DEBUG fname in meshretrieve  CC00077XX12_29500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00077XX12_29500.obj
+DEBUG fname in meshretrieve  CC00078XX13_29900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00078XX13_29900.obj
+DEBUG fname in meshretrieve  CC00079XX14_30000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00079XX14_30000.obj
+DEBUG fname in meshretrieve  CC00080XX07_30300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00080XX07_30300.obj
+DEBUG fname in meshretrieve  CC00082XX09_30700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00082XX09_30700.obj
+DEBUG fname in meshretrieve  CC00083XX10_30900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00083XX10_30900.obj
+DEBUG fname in meshretrieve  CC00084XX11_31201.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00084XX11_31201.obj
+DEBUG fname in meshretrieve  CC00085XX12_31400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00085XX12_31400.obj
+DEBUG fname in meshretrieve  CC00086XX13_31500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00086XX13_31500.obj
+DEBUG fname in meshretrieve  CC00087AN14_31800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00087AN14_31800.obj
+DEBUG fname in meshretrieve  CC00087AN14_38800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00087AN14_38800.obj
+DEBUG fname in meshretrieve  CC00087BN14_32100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00087BN14_32100.obj
+DEBUG fname in meshretrieve  CC00088XX15_31801.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00088XX15_31801.obj
+DEBUG fname in meshretrieve  CC00089XX16_32101.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00089XX16_32101.obj
+DEBUG fname in meshretrieve  CC00091XX10_32300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00091XX10_32300.obj
+DEBUG fname in meshretrieve  CC00094AN13_33500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00094AN13_33500.obj
+DEBUG fname in meshretrieve  CC00094BN13_33301.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00094BN13_33301.obj
+DEBUG fname in meshretrieve  CC00095XX14_33501.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00095XX14_33501.obj
+DEBUG fname in meshretrieve  CC00096XX15_33700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00096XX15_33700.obj
+DEBUG fname in meshretrieve  CC00097XX16_33701.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00097XX16_33701.obj
+DEBUG fname in meshretrieve  CC00098BN17_33900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00098BN17_33900.obj
+DEBUG fname in meshretrieve  CC00099AN18_34200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00099AN18_34200.obj
+DEBUG fname in meshretrieve  CC00099BN18_34201.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00099BN18_34201.obj
+DEBUG fname in meshretrieve  CC00100XX01_35000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00100XX01_35000.obj
+DEBUG fname in meshretrieve  CC00101XX02_35001.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00101XX02_35001.obj
+DEBUG fname in meshretrieve  CC00102XX03_35200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00102XX03_35200.obj
+DEBUG fname in meshretrieve  CC00103XX04_35300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00103XX04_35300.obj
+DEBUG fname in meshretrieve  CC00104XX05_35800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00104XX05_35800.obj
+DEBUG fname in meshretrieve  CC00105XX06_35801.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00105XX06_35801.obj
+DEBUG fname in meshretrieve  CC00106XX07_36100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00106XX07_36100.obj
+DEBUG fname in meshretrieve  CC00107XX08_36300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00107XX08_36300.obj
+DEBUG fname in meshretrieve  CC00108XX09_36800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00108XX09_36800.obj
+DEBUG fname in meshretrieve  CC00109XX10_36901.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00109XX10_36901.obj
+DEBUG fname in meshretrieve  CC00110XX03_37000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00110XX03_37000.obj
+DEBUG fname in meshretrieve  CC00112XX05_37001.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00112XX05_37001.obj
+DEBUG fname in meshretrieve  CC00113XX06_37200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00113XX06_37200.obj
+DEBUG fname in meshretrieve  CC00115XX08_37801.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00115XX08_37801.obj
+DEBUG fname in meshretrieve  CC00116XX09_38001.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00116XX09_38001.obj
+DEBUG fname in meshretrieve  CC00117XX10_38200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00117XX10_38200.obj
+DEBUG fname in meshretrieve  CC00118XX11_39100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00118XX11_39100.obj
+DEBUG fname in meshretrieve  CC00119XX12_39400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00119XX12_39400.obj
+DEBUG fname in meshretrieve  CC00120XX05_41600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00120XX05_41600.obj
+DEBUG fname in meshretrieve  CC00121XX06_41700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00121XX06_41700.obj
+DEBUG fname in meshretrieve  CC00122XX07_42000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00122XX07_42000.obj
+DEBUG fname in meshretrieve  CC00124XX09_42302.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00124XX09_42302.obj
+DEBUG fname in meshretrieve  CC00126XX11_43100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00126XX11_43100.obj
+DEBUG fname in meshretrieve  CC00127XX12_43200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00127XX12_43200.obj
+DEBUG fname in meshretrieve  CC00128XX13_43201.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00128XX13_43201.obj
+DEBUG fname in meshretrieve  CC00129AN14_43500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00129AN14_43500.obj
+DEBUG fname in meshretrieve  CC00129BN14_43701.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00129BN14_43701.obj
+DEBUG fname in meshretrieve  CC00130XX07_44001.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00130XX07_44001.obj
+DEBUG fname in meshretrieve  CC00131XX08_44200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00131XX08_44200.obj
+DEBUG fname in meshretrieve  CC00132XX09_44400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00132XX09_44400.obj
+DEBUG fname in meshretrieve  CC00133XX10_44500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00133XX10_44500.obj
+DEBUG fname in meshretrieve  CC00134XX11_44600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00134XX11_44600.obj
+DEBUG fname in meshretrieve  CC00135AN12_44900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00135AN12_44900.obj
+DEBUG fname in meshretrieve  CC00135AN12_54400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00135AN12_54400.obj
+DEBUG fname in meshretrieve  CC00135BN12_44704.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00135BN12_44704.obj
+DEBUG fname in meshretrieve  CC00135BN12_54500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00135BN12_54500.obj
+DEBUG fname in meshretrieve  CC00136AN13_45100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00136AN13_45100.obj
+DEBUG fname in meshretrieve  CC00136AN13_64201.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00136AN13_64201.obj
+DEBUG fname in meshretrieve  CC00136BN13_45000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00136BN13_45000.obj
+DEBUG fname in meshretrieve  CC00136BN13_64300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00136BN13_64300.obj
+DEBUG fname in meshretrieve  CC00137XX14_45200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00137XX14_45200.obj
+DEBUG fname in meshretrieve  CC00138XX15_46200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00138XX15_46200.obj
+DEBUG fname in meshretrieve  CC00139XX16_49101.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00139XX16_49101.obj
+DEBUG fname in meshretrieve  CC00140XX09_46800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00140XX09_46800.obj
+DEBUG fname in meshretrieve  CC00143AN12_47501.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00143AN12_47501.obj
+DEBUG fname in meshretrieve  CC00143BN12_47600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00143BN12_47600.obj
+DEBUG fname in meshretrieve  CC00144XX13_47701.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00144XX13_47701.obj
+DEBUG fname in meshretrieve  CC00145XX14_48100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00145XX14_48100.obj
+DEBUG fname in meshretrieve  CC00146XX15_48400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00146XX15_48400.obj
+DEBUG fname in meshretrieve  CC00147XX16_48500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00147XX16_48500.obj
+DEBUG fname in meshretrieve  CC00149XX18_49000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00149XX18_49000.obj
+DEBUG fname in meshretrieve  CC00150AN02_54800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00150AN02_54800.obj
+DEBUG fname in meshretrieve  CC00150BN02_49100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00150BN02_49100.obj
+DEBUG fname in meshretrieve  CC00152AN04_49200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00152AN04_49200.obj
+DEBUG fname in meshretrieve  CC00152AN04_65700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00152AN04_65700.obj
+DEBUG fname in meshretrieve  CC00153XX05_50300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00153XX05_50300.obj
+DEBUG fname in meshretrieve  CC00155XX07_51300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00155XX07_51300.obj
+DEBUG fname in meshretrieve  CC00156XX08_51500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00156XX08_51500.obj
+DEBUG fname in meshretrieve  CC00157XX09_51900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00157XX09_51900.obj
+DEBUG fname in meshretrieve  CC00158XX10_52200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00158XX10_52200.obj
+DEBUG fname in meshretrieve  CC00159XX11_52600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00159XX11_52600.obj
+DEBUG fname in meshretrieve  CC00160XX04_52700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00160XX04_52700.obj
+DEBUG fname in meshretrieve  CC00161XX05_53100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00161XX05_53100.obj
+DEBUG fname in meshretrieve  CC00162XX06_53600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00162XX06_53600.obj
+DEBUG fname in meshretrieve  CC00163XX07_53701.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00163XX07_53701.obj
+DEBUG fname in meshretrieve  CC00164XX08_54000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00164XX08_54000.obj
+DEBUG fname in meshretrieve  CC00165XX09_54600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00165XX09_54600.obj
+DEBUG fname in meshretrieve  CC00166XX10_54701.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00166XX10_54701.obj
+DEBUG fname in meshretrieve  CC00167XX11_55600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00167XX11_55600.obj
+DEBUG fname in meshretrieve  CC00168XX12_55700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00168XX12_55700.obj
+DEBUG fname in meshretrieve  CC00169XX13_55500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00169XX13_55500.obj
+DEBUG fname in meshretrieve  CC00170XX06_56100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00170XX06_56100.obj
+DEBUG fname in meshretrieve  CC00171XX07_56300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00171XX07_56300.obj
+DEBUG fname in meshretrieve  CC00172AN08_56901.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00172AN08_56901.obj
+DEBUG fname in meshretrieve  CC00172BN08_57300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00172BN08_57300.obj
+DEBUG fname in meshretrieve  CC00173XX09_57100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00173XX09_57100.obj
+DEBUG fname in meshretrieve  CC00174XX10_57200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00174XX10_57200.obj
+DEBUG fname in meshretrieve  CC00176XX12_57600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00176XX12_57600.obj
+DEBUG fname in meshretrieve  CC00177XX13_58500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00177XX13_58500.obj
+DEBUG fname in meshretrieve  CC00178XX14_58600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00178XX14_58600.obj
+DEBUG fname in meshretrieve  CC00179XX15_58800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00179XX15_58800.obj
+DEBUG fname in meshretrieve  CC00180XX08_59500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00180XX08_59500.obj
+DEBUG fname in meshretrieve  CC00181XX09_60000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00181XX09_60000.obj
+DEBUG fname in meshretrieve  CC00182XX10_60200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00182XX10_60200.obj
+DEBUG fname in meshretrieve  CC00183XX11_60300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00183XX11_60300.obj
+DEBUG fname in meshretrieve  CC00185XX13_60800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00185XX13_60800.obj
+DEBUG fname in meshretrieve  CC00186AN14_60900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00186AN14_60900.obj
+DEBUG fname in meshretrieve  CC00186BN14_61000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00186BN14_61000.obj
+DEBUG fname in meshretrieve  CC00187XX15_61500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00187XX15_61500.obj
+DEBUG fname in meshretrieve  CC00188XX16_61800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00188XX16_61800.obj
+DEBUG fname in meshretrieve  CC00189XX17_62301.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00189XX17_62301.obj
+DEBUG fname in meshretrieve  CC00191XX11_65200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00191XX11_65200.obj
+DEBUG fname in meshretrieve  CC00191XX11_79600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00191XX11_79600.obj
+DEBUG fname in meshretrieve  CC00192AN12_64301.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00192AN12_64301.obj
+DEBUG fname in meshretrieve  CC00193XX13_64400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00193XX13_64400.obj
+DEBUG fname in meshretrieve  CC00194XX14_65401.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00194XX14_65401.obj
+DEBUG fname in meshretrieve  CC00195XX15_65800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00195XX15_65800.obj
+DEBUG fname in meshretrieve  CC00196XX16_66100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00196XX16_66100.obj
+DEBUG fname in meshretrieve  CC00197XX17_66500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00197XX17_66500.obj
+DEBUG fname in meshretrieve  CC00198XX18_66600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00198XX18_66600.obj
+DEBUG fname in meshretrieve  CC00199XX19_66700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00199XX19_66700.obj
+DEBUG fname in meshretrieve  CC00200XX02_67204.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00200XX02_67204.obj
+DEBUG fname in meshretrieve  CC00201XX03_67600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00201XX03_67600.obj
+DEBUG fname in meshretrieve  CC00202XX04_67800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00202XX04_67800.obj
+DEBUG fname in meshretrieve  CC00203XX05_69500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00203XX05_69500.obj
+DEBUG fname in meshretrieve  CC00204XX06_69900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00204XX06_69900.obj
+DEBUG fname in meshretrieve  CC00205XX07_70000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00205XX07_70000.obj
+DEBUG fname in meshretrieve  CC00206XX08_70100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00206XX08_70100.obj
+DEBUG fname in meshretrieve  CC00207XX09_88700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00207XX09_88700.obj
+DEBUG fname in meshretrieve  CC00209XX11_70400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00209XX11_70400.obj
+DEBUG fname in meshretrieve  CC00216AN10_73100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00216AN10_73100.obj
+DEBUG fname in meshretrieve  CC00216BN10_73200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00216BN10_73200.obj
+DEBUG fname in meshretrieve  CC00217XX11_73700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00217XX11_73700.obj
+DEBUG fname in meshretrieve  CC00218BN12_74800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00218BN12_74800.obj
+DEBUG fname in meshretrieve  CC00218BN12_86000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00218BN12_86000.obj
+DEBUG fname in meshretrieve  CC00219XX13_86600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00219XX13_86600.obj
+DEBUG fname in meshretrieve  CC00221XX07_75000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00221XX07_75000.obj
+DEBUG fname in meshretrieve  CC00223XX09_75900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00223XX09_75900.obj
+DEBUG fname in meshretrieve  CC00226XX12_76600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00226XX12_76600.obj
+DEBUG fname in meshretrieve  CC00227XX13_76601.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00227XX13_76601.obj
+DEBUG fname in meshretrieve  CC00227XX13_92100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00227XX13_92100.obj
+DEBUG fname in meshretrieve  CC00228XX14_77001.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00228XX14_77001.obj
+DEBUG fname in meshretrieve  CC00228XX14_81300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00228XX14_81300.obj
+DEBUG fname in meshretrieve  CC00231XX09_77701.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00231XX09_77701.obj
+DEBUG fname in meshretrieve  CC00232XX10_78300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00232XX10_78300.obj
+DEBUG fname in meshretrieve  CC00233XX11_77800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00233XX11_77800.obj
+DEBUG fname in meshretrieve  CC00236XX14_78700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00236XX14_78700.obj
+DEBUG fname in meshretrieve  CC00237XX15_79300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00237XX15_79300.obj
+DEBUG fname in meshretrieve  CC00238AN16_80300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00238AN16_80300.obj
+DEBUG fname in meshretrieve  CC00238BN16_80400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00238BN16_80400.obj
+DEBUG fname in meshretrieve  CC00239XX17_80600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00239XX17_80600.obj
+DEBUG fname in meshretrieve  CC00242XX12_80900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00242XX12_80900.obj
+DEBUG fname in meshretrieve  CC00243BN13_81100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00243BN13_81100.obj
+DEBUG fname in meshretrieve  CC00244XX14_81200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00244XX14_81200.obj
+DEBUG fname in meshretrieve  CC00245AN15_82304.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00245AN15_82304.obj
+DEBUG fname in meshretrieve  CC00245AN15_94300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00245AN15_94300.obj
+DEBUG fname in meshretrieve  CC00245BN15_82600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00245BN15_82600.obj
+DEBUG fname in meshretrieve  CC00245BN15_94400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00245BN15_94400.obj
+DEBUG fname in meshretrieve  CC00247XX17_82801.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00247XX17_82801.obj
+DEBUG fname in meshretrieve  CC00248XX18_83000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00248XX18_83000.obj
+DEBUG fname in meshretrieve  CC00248XX18_92700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00248XX18_92700.obj
+DEBUG fname in meshretrieve  CC00250XX03_83700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00250XX03_83700.obj
+DEBUG fname in meshretrieve  CC00251XX04_83800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00251XX04_83800.obj
+DEBUG fname in meshretrieve  CC00252XX05_84000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00252XX05_84000.obj
+DEBUG fname in meshretrieve  CC00254XX07_84300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00254XX07_84300.obj
+DEBUG fname in meshretrieve  CC00255XX08_84400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00255XX08_84400.obj
+DEBUG fname in meshretrieve  CC00257XX10_84700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00257XX10_84700.obj
+DEBUG fname in meshretrieve  CC00258XX11_84900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00258XX11_84900.obj
+DEBUG fname in meshretrieve  CC00259XX12_85100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00259XX12_85100.obj
+DEBUG fname in meshretrieve  CC00260XX05_85300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00260XX05_85300.obj
+DEBUG fname in meshretrieve  CC00261XX06_85600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00261XX06_85600.obj
+DEBUG fname in meshretrieve  CC00264AN09_89400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00264AN09_89400.obj
+DEBUG fname in meshretrieve  CC00265XX10_86901.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00265XX10_86901.obj
+DEBUG fname in meshretrieve  CC00267XX12_87700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00267XX12_87700.obj
+DEBUG fname in meshretrieve  CC00268XX13_87800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00268XX13_87800.obj
+DEBUG fname in meshretrieve  CC00269XX14_88300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00269XX14_88300.obj
+DEBUG fname in meshretrieve  CC00270XX07_88600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00270XX07_88600.obj
+DEBUG fname in meshretrieve  CC00271XX08_100400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00271XX08_100400.obj
+DEBUG fname in meshretrieve  CC00271XX08_88900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00271XX08_88900.obj
+DEBUG fname in meshretrieve  CC00272XX09_117900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00272XX09_117900.obj
+DEBUG fname in meshretrieve  CC00275XX12_93501.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00275XX12_93501.obj
+DEBUG fname in meshretrieve  CC00281AN10_90400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00281AN10_90400.obj
+DEBUG fname in meshretrieve  CC00284AN13_111400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00284AN13_111400.obj
+DEBUG fname in meshretrieve  CC00284AN13_90701.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00284AN13_90701.obj
+DEBUG fname in meshretrieve  CC00284BN13_111500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00284BN13_111500.obj
+DEBUG fname in meshretrieve  CC00284BN13_90801.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00284BN13_90801.obj
+DEBUG fname in meshretrieve  CC00286XX15_91700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00286XX15_91700.obj
+DEBUG fname in meshretrieve  CC00287AN16_91801.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00287AN16_91801.obj
+DEBUG fname in meshretrieve  CC00289XX18_119700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00289XX18_119700.obj
+DEBUG fname in meshretrieve  CC00290XX11_92900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00290XX11_92900.obj
+DEBUG fname in meshretrieve  CC00291XX12_93100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00291XX12_93100.obj
+DEBUG fname in meshretrieve  CC00292XX13_93800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00292XX13_93800.obj
+DEBUG fname in meshretrieve  CC00293AN14_97401.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00293AN14_97401.obj
+DEBUG fname in meshretrieve  CC00293BN14_97500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00293BN14_97500.obj
+DEBUG fname in meshretrieve  CC00295XX16_127500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00295XX16_127500.obj
+DEBUG fname in meshretrieve  CC00298XX19_94700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00298XX19_94700.obj
+DEBUG fname in meshretrieve  CC00299XX20_94900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00299XX20_94900.obj
+DEBUG fname in meshretrieve  CC00300XX03_96000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00300XX03_96000.obj
+DEBUG fname in meshretrieve  CC00301XX04_113001.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00301XX04_113001.obj
+DEBUG fname in meshretrieve  CC00301XX04_96400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00301XX04_96400.obj
+DEBUG fname in meshretrieve  CC00302XX05_113500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00302XX05_113500.obj
+DEBUG fname in meshretrieve  CC00303XX06_96900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00303XX06_96900.obj
+DEBUG fname in meshretrieve  CC00304XX07_111600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00304XX07_111600.obj
+DEBUG fname in meshretrieve  CC00305XX08_115700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00305XX08_115700.obj
+DEBUG fname in meshretrieve  CC00305XX08_98101.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00305XX08_98101.obj
+DEBUG fname in meshretrieve  CC00306XX09_98700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00306XX09_98700.obj
+DEBUG fname in meshretrieve  CC00307XX10_98800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00307XX10_98800.obj
+DEBUG fname in meshretrieve  CC00308XX11_98900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00308XX11_98900.obj
+DEBUG fname in meshretrieve  CC00309BN12_99400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00309BN12_99400.obj
+DEBUG fname in meshretrieve  CC00310XX05_99500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00310XX05_99500.obj
+DEBUG fname in meshretrieve  CC00313XX08_100000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00313XX08_100000.obj
+DEBUG fname in meshretrieve  CC00314XX09_100101.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00314XX09_100101.obj
+DEBUG fname in meshretrieve  CC00316XX11_101300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00316XX11_101300.obj
+DEBUG fname in meshretrieve  CC00319XX14_117300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00319XX14_117300.obj
+DEBUG fname in meshretrieve  CC00320XX07_102300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00320XX07_102300.obj
+DEBUG fname in meshretrieve  CC00321XX08_102700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00321XX08_102700.obj
+DEBUG fname in meshretrieve  CC00322XX09_103700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00322XX09_103700.obj
+DEBUG fname in meshretrieve  CC00324XX11_111200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00324XX11_111200.obj
+DEBUG fname in meshretrieve  CC00325XX12_103900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00325XX12_103900.obj
+DEBUG fname in meshretrieve  CC00326XX13_104100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00326XX13_104100.obj
+DEBUG fname in meshretrieve  CC00326XX13_118800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00326XX13_118800.obj
+DEBUG fname in meshretrieve  CC00328XX15_104800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00328XX15_104800.obj
+DEBUG fname in meshretrieve  CC00329XX16_105400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00329XX16_105400.obj
+DEBUG fname in meshretrieve  CC00330XX09_128200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00330XX09_128200.obj
+DEBUG fname in meshretrieve  CC00332XX11_105700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00332XX11_105700.obj
+DEBUG fname in meshretrieve  CC00333XX12_105800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00333XX12_105800.obj
+DEBUG fname in meshretrieve  CC00334XX13_106100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00334XX13_106100.obj
+DEBUG fname in meshretrieve  CC00335XX14_106300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00335XX14_106300.obj
+DEBUG fname in meshretrieve  CC00336XX15_106600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00336XX15_106600.obj
+DEBUG fname in meshretrieve  CC00337XX16_107000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00337XX16_107000.obj
+DEBUG fname in meshretrieve  CC00338AN17_107700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00338AN17_107700.obj
+DEBUG fname in meshretrieve  CC00338BN17_107600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00338BN17_107600.obj
+DEBUG fname in meshretrieve  CC00339XX18_107200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00339XX18_107200.obj
+DEBUG fname in meshretrieve  CC00340XX11_107902.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00340XX11_107902.obj
+DEBUG fname in meshretrieve  CC00341XX12_108000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00341XX12_108000.obj
+DEBUG fname in meshretrieve  CC00342XX13_108300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00342XX13_108300.obj
+DEBUG fname in meshretrieve  CC00343XX14_108500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00343XX14_108500.obj
+DEBUG fname in meshretrieve  CC00344XX15_108600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00344XX15_108600.obj
+DEBUG fname in meshretrieve  CC00345XX16_109000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00345XX16_109000.obj
+DEBUG fname in meshretrieve  CC00346XX17_109200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00346XX17_109200.obj
+DEBUG fname in meshretrieve  CC00347XX18_109600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00347XX18_109600.obj
+DEBUG fname in meshretrieve  CC00348XX19_110200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00348XX19_110200.obj
+DEBUG fname in meshretrieve  CC00349XX20_110300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00349XX20_110300.obj
+DEBUG fname in meshretrieve  CC00350XX04_109100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00350XX04_109100.obj
+DEBUG fname in meshretrieve  CC00351XX05_109500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00351XX05_109500.obj
+DEBUG fname in meshretrieve  CC00352XX06_110700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00352XX06_110700.obj
+DEBUG fname in meshretrieve  CC00354XX08_112100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00354XX08_112100.obj
+DEBUG fname in meshretrieve  CC00355XX09_112600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00355XX09_112600.obj
+DEBUG fname in meshretrieve  CC00356XX10_112901.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00356XX10_112901.obj
+DEBUG fname in meshretrieve  CC00357XX11_113900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00357XX11_113900.obj
+DEBUG fname in meshretrieve  CC00358XX12_114400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00358XX12_114400.obj
+DEBUG fname in meshretrieve  CC00361XX07_111700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00361XX07_111700.obj
+DEBUG fname in meshretrieve  CC00361XX07_120500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00361XX07_120500.obj
+DEBUG fname in meshretrieve  CC00362XX08_114500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00362XX08_114500.obj
+DEBUG fname in meshretrieve  CC00363XX09_114900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00363XX09_114900.obj
+DEBUG fname in meshretrieve  CC00364XX10_115200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00364XX10_115200.obj
+DEBUG fname in meshretrieve  CC00365XX11_115800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00365XX11_115800.obj
+DEBUG fname in meshretrieve  CC00366XX12_116300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00366XX12_116300.obj
+DEBUG fname in meshretrieve  CC00367XX13_116000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00367XX13_116000.obj
+DEBUG fname in meshretrieve  CC00368XX14_116600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00368XX14_116600.obj
+DEBUG fname in meshretrieve  CC00370XX08_142400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00370XX08_142400.obj
+DEBUG fname in meshretrieve  CC00371XX09_134700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00371XX09_134700.obj
+DEBUG fname in meshretrieve  CC00375XX13_116900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00375XX13_116900.obj
+DEBUG fname in meshretrieve  CC00376XX14_118400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00376XX14_118400.obj
+DEBUG fname in meshretrieve  CC00377XX15_119800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00377XX15_119800.obj
+DEBUG fname in meshretrieve  CC00378XX16_120200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00378XX16_120200.obj
+DEBUG fname in meshretrieve  CC00379XX17_120400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00379XX17_120400.obj
+DEBUG fname in meshretrieve  CC00380XX10_121200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00380XX10_121200.obj
+DEBUG fname in meshretrieve  CC00381XX11_121600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00381XX11_121600.obj
+DEBUG fname in meshretrieve  CC00382XX12_121700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00382XX12_121700.obj
+DEBUG fname in meshretrieve  CC00383XX13_121800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00383XX13_121800.obj
+DEBUG fname in meshretrieve  CC00384XX14_122200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00384XX14_122200.obj
+DEBUG fname in meshretrieve  CC00385XX15_118500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00385XX15_118500.obj
+DEBUG fname in meshretrieve  CC00385XX15_125700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00385XX15_125700.obj
+DEBUG fname in meshretrieve  CC00388XX18_118700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00388XX18_118700.obj
+DEBUG fname in meshretrieve  CC00389XX19_119100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00389XX19_119100.obj
+DEBUG fname in meshretrieve  CC00389XX19_133800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00389XX19_133800.obj
+DEBUG fname in meshretrieve  CC00395XX17_121300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00395XX17_121300.obj
+DEBUG fname in meshretrieve  CC00395XX17_129500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00395XX17_129500.obj
+DEBUG fname in meshretrieve  CC00398XX20_123100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00398XX20_123100.obj
+DEBUG fname in meshretrieve  CC00399XX21_123400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00399XX21_123400.obj
+DEBUG fname in meshretrieve  CC00400XX04_123700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00400XX04_123700.obj
+DEBUG fname in meshretrieve  CC00401XX05_123900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00401XX05_123900.obj
+DEBUG fname in meshretrieve  CC00402XX06_124300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00402XX06_124300.obj
+DEBUG fname in meshretrieve  CC00403XX07_124400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00403XX07_124400.obj
+DEBUG fname in meshretrieve  CC00405XX09_124900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00405XX09_124900.obj
+DEBUG fname in meshretrieve  CC00406XX10_122900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00406XX10_122900.obj
+DEBUG fname in meshretrieve  CC00406XX10_129200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00406XX10_129200.obj
+DEBUG fname in meshretrieve  CC00407AN11_124000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00407AN11_124000.obj
+DEBUG fname in meshretrieve  CC00407AN11_137100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00407AN11_137100.obj
+DEBUG fname in meshretrieve  CC00407BN11_124100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00407BN11_124100.obj
+DEBUG fname in meshretrieve  CC00407BN11_137200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00407BN11_137200.obj
+DEBUG fname in meshretrieve  CC00408XX12_125500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00408XX12_125500.obj
+DEBUG fname in meshretrieve  CC00409XX13_125600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00409XX13_125600.obj
+DEBUG fname in meshretrieve  CC00410XX06_125800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00410XX06_125800.obj
+DEBUG fname in meshretrieve  CC00411XX07_126200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00411XX07_126200.obj
+DEBUG fname in meshretrieve  CC00412XX08_126301.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00412XX08_126301.obj
+DEBUG fname in meshretrieve  CC00413XX09_127100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00413XX09_127100.obj
+DEBUG fname in meshretrieve  CC00414XX10_127300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00414XX10_127300.obj
+DEBUG fname in meshretrieve  CC00415XX11_127400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00415XX11_127400.obj
+DEBUG fname in meshretrieve  CC00416XX12_128900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00416XX12_128900.obj
+DEBUG fname in meshretrieve  CC00417XX13_129000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00417XX13_129000.obj
+DEBUG fname in meshretrieve  CC00418AN14_125200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00418AN14_125200.obj
+DEBUG fname in meshretrieve  CC00418AN14_130200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00418AN14_130200.obj
+DEBUG fname in meshretrieve  CC00418BN14_125300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00418BN14_125300.obj
+DEBUG fname in meshretrieve  CC00418BN14_130300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00418BN14_130300.obj
+DEBUG fname in meshretrieve  CC00421AN09_126000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00421AN09_126000.obj
+DEBUG fname in meshretrieve  CC00421BN09_126100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00421BN09_126100.obj
+DEBUG fname in meshretrieve  CC00422XX10_127800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00422XX10_127800.obj
+DEBUG fname in meshretrieve  CC00423XX11_127200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00423XX11_127200.obj
+DEBUG fname in meshretrieve  CC00425XX13_129800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00425XX13_129800.obj
+DEBUG fname in meshretrieve  CC00426XX14_129900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00426XX14_129900.obj
+DEBUG fname in meshretrieve  CC00427XX15_130100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00427XX15_130100.obj
+DEBUG fname in meshretrieve  CC00428XX16_130400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00428XX16_130400.obj
+DEBUG fname in meshretrieve  CC00429XX17_130900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00429XX17_130900.obj
+DEBUG fname in meshretrieve  CC00430XX10_131100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00430XX10_131100.obj
+DEBUG fname in meshretrieve  CC00431XX11_131500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00431XX11_131500.obj
+DEBUG fname in meshretrieve  CC00432XX12_131800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00432XX12_131800.obj
+DEBUG fname in meshretrieve  CC00433XX13_132000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00433XX13_132000.obj
+DEBUG fname in meshretrieve  CC00434AN14_127700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00434AN14_127700.obj
+DEBUG fname in meshretrieve  CC00438XX18_156800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00438XX18_156800.obj
+DEBUG fname in meshretrieve  CC00439XX19_132100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00439XX19_132100.obj
+DEBUG fname in meshretrieve  CC00440XX12_132200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00440XX12_132200.obj
+DEBUG fname in meshretrieve  CC00441XX13_132902.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00441XX13_132902.obj
+DEBUG fname in meshretrieve  CC00442XX14_133300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00442XX14_133300.obj
+DEBUG fname in meshretrieve  CC00443XX15_133900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00443XX15_133900.obj
+DEBUG fname in meshretrieve  CC00444XX16_135101.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00444XX16_135101.obj
+DEBUG fname in meshretrieve  CC00445XX17_134800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00445XX17_134800.obj
+DEBUG fname in meshretrieve  CC00446XX18_135200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00446XX18_135200.obj
+DEBUG fname in meshretrieve  CC00447XX19_135600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00447XX19_135600.obj
+DEBUG fname in meshretrieve  CC00448XX20_135800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00448XX20_135800.obj
+DEBUG fname in meshretrieve  CC00449XX21_135900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00449XX21_135900.obj
+DEBUG fname in meshretrieve  CC00450XX05_136100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00450XX05_136100.obj
+DEBUG fname in meshretrieve  CC00451XX06_137000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00451XX06_137000.obj
+DEBUG fname in meshretrieve  CC00453XX08_136600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00453XX08_136600.obj
+DEBUG fname in meshretrieve  CC00454XX09_137600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00454XX09_137600.obj
+DEBUG fname in meshretrieve  CC00455XX10_137700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00455XX10_137700.obj
+DEBUG fname in meshretrieve  CC00456XX11_138000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00456XX11_138000.obj
+DEBUG fname in meshretrieve  CC00457XX12_138601.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00457XX12_138601.obj
+DEBUG fname in meshretrieve  CC00458XX13_138900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00458XX13_138900.obj
+DEBUG fname in meshretrieve  CC00461XX08_175100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00461XX08_175100.obj
+DEBUG fname in meshretrieve  CC00462XX09_134100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00462XX09_134100.obj
+DEBUG fname in meshretrieve  CC00465XX12_137900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00465XX12_137900.obj
+DEBUG fname in meshretrieve  CC00466AN13_138400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00466AN13_138400.obj
+DEBUG fname in meshretrieve  CC00466BN13_138300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00466BN13_138300.obj
+DEBUG fname in meshretrieve  CC00467XX14_139000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00467XX14_139000.obj
+DEBUG fname in meshretrieve  CC00469XX16_139200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00469XX16_139200.obj
+DEBUG fname in meshretrieve  CC00470XX09_139600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00470XX09_139600.obj
+DEBUG fname in meshretrieve  CC00472XX11_140000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00472XX11_140000.obj
+DEBUG fname in meshretrieve  CC00473XX12_140100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00473XX12_140100.obj
+DEBUG fname in meshretrieve  CC00474XX13_140500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00474XX13_140500.obj
+DEBUG fname in meshretrieve  CC00475XX14_141400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00475XX14_141400.obj
+DEBUG fname in meshretrieve  CC00476XX15_141500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00476XX15_141500.obj
+DEBUG fname in meshretrieve  CC00478XX17_141601.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00478XX17_141601.obj
+DEBUG fname in meshretrieve  CC00479XX18_141608.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00479XX18_141608.obj
+DEBUG fname in meshretrieve  CC00480XX11_141609.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00480XX11_141609.obj
+DEBUG fname in meshretrieve  CC00481XX12_141800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00481XX12_141800.obj
+DEBUG fname in meshretrieve  CC00482XX13_142000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00482XX13_142000.obj
+DEBUG fname in meshretrieve  CC00483XX14_144200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00483XX14_144200.obj
+DEBUG fname in meshretrieve  CC00484XX15_142700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00484XX15_142700.obj
+DEBUG fname in meshretrieve  CC00485XX16_143100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00485XX16_143100.obj
+DEBUG fname in meshretrieve  CC00486XX17_144300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00486XX17_144300.obj
+DEBUG fname in meshretrieve  CC00489XX20_138800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00489XX20_138800.obj
+DEBUG fname in meshretrieve  CC00489XX20_142900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00489XX20_142900.obj
+DEBUG fname in meshretrieve  CC00492AN15_140900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00492AN15_140900.obj
+DEBUG fname in meshretrieve  CC00492BN15_140800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00492BN15_140800.obj
+DEBUG fname in meshretrieve  CC00497XX20_144500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00497XX20_144500.obj
+DEBUG fname in meshretrieve  CC00498XX21_144900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00498XX21_144900.obj
+DEBUG fname in meshretrieve  CC00499XX22_145800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00499XX22_145800.obj
+DEBUG fname in meshretrieve  CC00500XX05_145900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00500XX05_145900.obj
+DEBUG fname in meshretrieve  CC00501XX06_146500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00501XX06_146500.obj
+DEBUG fname in meshretrieve  CC00502XX07_146700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00502XX07_146700.obj
+DEBUG fname in meshretrieve  CC00504XX09_146800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00504XX09_146800.obj
+DEBUG fname in meshretrieve  CC00505XX10_146900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00505XX10_146900.obj
+DEBUG fname in meshretrieve  CC00506XX11_147600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00506XX11_147600.obj
+DEBUG fname in meshretrieve  CC00507XX12_148202.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00507XX12_148202.obj
+DEBUG fname in meshretrieve  CC00508XX13_148700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00508XX13_148700.obj
+DEBUG fname in meshretrieve  CC00509XX14_148800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00509XX14_148800.obj
+DEBUG fname in meshretrieve  CC00511XX08_149000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00511XX08_149000.obj
+DEBUG fname in meshretrieve  CC00512XX09_150700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00512XX09_150700.obj
+DEBUG fname in meshretrieve  CC00513XX10_150000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00513XX10_150000.obj
+DEBUG fname in meshretrieve  CC00514XX11_151400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00514XX11_151400.obj
+DEBUG fname in meshretrieve  CC00515XX12_152600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00515XX12_152600.obj
+DEBUG fname in meshretrieve  CC00516XX13_152902.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00516XX13_152902.obj
+DEBUG fname in meshretrieve  CC00517XX14_145000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00517XX14_145000.obj
+DEBUG fname in meshretrieve  CC00517XX14_159200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00517XX14_159200.obj
+DEBUG fname in meshretrieve  CC00518XX15_145700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00518XX15_145700.obj
+DEBUG fname in meshretrieve  CC00518XX15_166600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00518XX15_166600.obj
+DEBUG fname in meshretrieve  CC00520XX09_150201.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00520XX09_150201.obj
+DEBUG fname in meshretrieve  CC00525XX14_150600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00525XX14_150600.obj
+DEBUG fname in meshretrieve  CC00525XX14_165900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00525XX14_165900.obj
+DEBUG fname in meshretrieve  CC00526XX15_169900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00526XX15_169900.obj
+DEBUG fname in meshretrieve  CC00527XX16_184400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00527XX16_184400.obj
+DEBUG fname in meshretrieve  CC00528XX17_183200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00528XX17_183200.obj
+DEBUG fname in meshretrieve  CC00529AN18_151300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00529AN18_151300.obj
+DEBUG fname in meshretrieve  CC00529AN18_170000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00529AN18_170000.obj
+DEBUG fname in meshretrieve  CC00529BN18_151200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00529BN18_151200.obj
+DEBUG fname in meshretrieve  CC00529BN18_170100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00529BN18_170100.obj
+DEBUG fname in meshretrieve  CC00530XX11_152300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00530XX11_152300.obj
+DEBUG fname in meshretrieve  CC00530XX11_153600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00530XX11_153600.obj
+DEBUG fname in meshretrieve  CC00530XX11_181301.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00530XX11_181301.obj
+DEBUG fname in meshretrieve  CC00532XX13_154200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00532XX13_154200.obj
+DEBUG fname in meshretrieve  CC00534XX15_155100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00534XX15_155100.obj
+DEBUG fname in meshretrieve  CC00535XX16_155600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00535XX16_155600.obj
+DEBUG fname in meshretrieve  CC00536XX17_156900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00536XX17_156900.obj
+DEBUG fname in meshretrieve  CC00537XX18_157100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00537XX18_157100.obj
+DEBUG fname in meshretrieve  CC00538XX19_157200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00538XX19_157200.obj
+DEBUG fname in meshretrieve  CC00540XX13_164400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00540XX13_164400.obj
+DEBUG fname in meshretrieve  CC00541XX14_165500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00541XX14_165500.obj
+DEBUG fname in meshretrieve  CC00542XX15_165800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00542XX15_165800.obj
+DEBUG fname in meshretrieve  CC00543XX16_166900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00543XX16_166900.obj
+DEBUG fname in meshretrieve  CC00544XX17_169300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00544XX17_169300.obj
+DEBUG fname in meshretrieve  CC00545XX18_170400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00545XX18_170400.obj
+DEBUG fname in meshretrieve  CC00546XX19_173100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00546XX19_173100.obj
+DEBUG fname in meshretrieve  CC00547XX20_157300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00547XX20_157300.obj
+DEBUG fname in meshretrieve  CC00548XX21_157400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00548XX21_157400.obj
+DEBUG fname in meshretrieve  CC00549XX22_157600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00549XX22_157600.obj
+DEBUG fname in meshretrieve  CC00550XX06_157800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00550XX06_157800.obj
+DEBUG fname in meshretrieve  CC00551XX07_158001.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00551XX07_158001.obj
+DEBUG fname in meshretrieve  CC00552XX08_159300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00552XX08_159300.obj
+DEBUG fname in meshretrieve  CC00553XX09_159000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00553XX09_159000.obj
+DEBUG fname in meshretrieve  CC00554XX10_160200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00554XX10_160200.obj
+DEBUG fname in meshretrieve  CC00555XX11_162400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00555XX11_162400.obj
+DEBUG fname in meshretrieve  CC00556XX12_162902.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00556XX12_162902.obj
+DEBUG fname in meshretrieve  CC00558XX14_164100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00558XX14_164100.obj
+DEBUG fname in meshretrieve  CC00560XX08_159800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00560XX08_159800.obj
+DEBUG fname in meshretrieve  CC00561XX09_159900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00561XX09_159900.obj
+DEBUG fname in meshretrieve  CC00562XX10_191900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00562XX10_191900.obj
+DEBUG fname in meshretrieve  CC00563XX11_153900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00563XX11_153900.obj
+DEBUG fname in meshretrieve  CC00564XX12_154100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00564XX12_154100.obj
+DEBUG fname in meshretrieve  CC00568XX16_198900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00568XX16_198900.obj
+DEBUG fname in meshretrieve  CC00569XX17_158300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00569XX17_158300.obj
+DEBUG fname in meshretrieve  CC00569XX17_170600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00569XX17_170600.obj
+DEBUG fname in meshretrieve  CC00570XX10_158900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00570XX10_158900.obj
+DEBUG fname in meshretrieve  CC00571AN11_159101.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00571AN11_159101.obj
+DEBUG fname in meshretrieve  CC00572AN12_161300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00572AN12_161300.obj
+DEBUG fname in meshretrieve  CC00572BN12_161400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00572BN12_161400.obj
+DEBUG fname in meshretrieve  CC00572CN12_161200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00572CN12_161200.obj
+DEBUG fname in meshretrieve  CC00576XX16_163200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00576XX16_163200.obj
+DEBUG fname in meshretrieve  CC00576XX16_178200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00576XX16_178200.obj
+DEBUG fname in meshretrieve  CC00577XX17_180400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00577XX17_180400.obj
+DEBUG fname in meshretrieve  CC00578AN18_164900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00578AN18_164900.obj
+DEBUG fname in meshretrieve  CC00579XX19_173500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00579XX19_173500.obj
+DEBUG fname in meshretrieve  CC00580XX12_173700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00580XX12_173700.obj
+DEBUG fname in meshretrieve  CC00581XX13_177101.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00581XX13_177101.obj
+DEBUG fname in meshretrieve  CC00582XX14_178300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00582XX14_178300.obj
+DEBUG fname in meshretrieve  CC00583XX15_178600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00583XX15_178600.obj
+DEBUG fname in meshretrieve  CC00584XX16_178800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00584XX16_178800.obj
+DEBUG fname in meshretrieve  CC00585XX17_178900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00585XX17_178900.obj
+DEBUG fname in meshretrieve  CC00586XX18_179000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00586XX18_179000.obj
+DEBUG fname in meshretrieve  CC00587XX19_180300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00587XX19_180300.obj
+DEBUG fname in meshretrieve  CC00588XX20_183600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00588XX20_183600.obj
+DEBUG fname in meshretrieve  CC00589XX21_184000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00589XX21_184000.obj
+DEBUG fname in meshretrieve  CC00590XX14_187000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00590XX14_187000.obj
+DEBUG fname in meshretrieve  CC00591XX15_188600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00591XX15_188600.obj
+DEBUG fname in meshretrieve  CC00592XX16_188800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00592XX16_188800.obj
+DEBUG fname in meshretrieve  CC00593XX17_189401.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00593XX17_189401.obj
+DEBUG fname in meshretrieve  CC00594XX18_189800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00594XX18_189800.obj
+DEBUG fname in meshretrieve  CC00595XX19_189900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00595XX19_189900.obj
+DEBUG fname in meshretrieve  CC00596XX20_190100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00596XX20_190100.obj
+DEBUG fname in meshretrieve  CC00597XX21_190200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00597XX21_190200.obj
+DEBUG fname in meshretrieve  CC00598XX22_190300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00598XX22_190300.obj
+DEBUG fname in meshretrieve  CC00600XX06_175800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00600XX06_175800.obj
+DEBUG fname in meshretrieve  CC00600XX06_192200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00600XX06_192200.obj
+DEBUG fname in meshretrieve  CC00607XX13_179300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00607XX13_179300.obj
+DEBUG fname in meshretrieve  CC00613XX11_181601.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00613XX11_181601.obj
+DEBUG fname in meshretrieve  CC00616XX14_184700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00616XX14_184700.obj
+DEBUG fname in meshretrieve  CC00617XX15_176500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00617XX15_176500.obj
+DEBUG fname in meshretrieve  CC00617XX15_188400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00617XX15_188400.obj
+DEBUG fname in meshretrieve  CC00618XX16_177201.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00618XX16_177201.obj
+DEBUG fname in meshretrieve  CC00618XX16_193600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00618XX16_193600.obj
+DEBUG fname in meshretrieve  CC00620XX10_210900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00620XX10_210900.obj
+DEBUG fname in meshretrieve  CC00621XX11_177900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00621XX11_177900.obj
+DEBUG fname in meshretrieve  CC00621XX11_195900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00621XX11_195900.obj
+DEBUG fname in meshretrieve  CC00622XX12_185600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00622XX12_185600.obj
+DEBUG fname in meshretrieve  CC00627XX17_180600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00627XX17_180600.obj
+DEBUG fname in meshretrieve  CC00628XX18_181800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00628XX18_181800.obj
+DEBUG fname in meshretrieve  CC00628XX18_193500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00628XX18_193500.obj
+DEBUG fname in meshretrieve  CC00629XX19_182000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00629XX19_182000.obj
+DEBUG fname in meshretrieve  CC00629XX19_198100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00629XX19_198100.obj
+DEBUG fname in meshretrieve  CC00630XX12_182500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00630XX12_182500.obj
+DEBUG fname in meshretrieve  CC00632XX14_183300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00632XX14_183300.obj
+DEBUG fname in meshretrieve  CC00632XX14_196000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00632XX14_196000.obj
+DEBUG fname in meshretrieve  CC00634AN16_184100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00634AN16_184100.obj
+DEBUG fname in meshretrieve  CC00639XX21_216800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00639XX21_216800.obj
+DEBUG fname in meshretrieve  CC00647XX21_190801.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00647XX21_190801.obj
+DEBUG fname in meshretrieve  CC00648XX22_191100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00648XX22_191100.obj
+DEBUG fname in meshretrieve  CC00648XX22_204400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00648XX22_204400.obj
+DEBUG fname in meshretrieve  CC00649XX23_191201.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00649XX23_191201.obj
+DEBUG fname in meshretrieve  CC00650XX07_218007.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00650XX07_218007.obj
+DEBUG fname in meshretrieve  CC00652XX09_191600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00652XX09_191600.obj
+DEBUG fname in meshretrieve  CC00653XX10_191801.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00653XX10_191801.obj
+DEBUG fname in meshretrieve  CC00655XX12_215600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00655XX12_215600.obj
+DEBUG fname in meshretrieve  CC00656XX13_217601.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00656XX13_217601.obj
+DEBUG fname in meshretrieve  CC00657XX14_193700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00657XX14_193700.obj
+DEBUG fname in meshretrieve  CC00657XX14_212200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00657XX14_212200.obj
+DEBUG fname in meshretrieve  CC00661XX10_209600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00661XX10_209600.obj
+DEBUG fname in meshretrieve  CC00663XX12_195000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00663XX12_195000.obj
+DEBUG fname in meshretrieve  CC00664XX13_195200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00664XX13_195200.obj
+DEBUG fname in meshretrieve  CC00666XX15_198200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00666XX15_198200.obj
+DEBUG fname in meshretrieve  CC00666XX15_212100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00666XX15_212100.obj
+DEBUG fname in meshretrieve  CC00667XX16_196800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00667XX16_196800.obj
+DEBUG fname in meshretrieve  CC00669XX18_214300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00669XX18_214300.obj
+DEBUG fname in meshretrieve  CC00670XX11_197200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00670XX11_197200.obj
+DEBUG fname in meshretrieve  CC00671XX12_197400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00671XX12_197400.obj
+DEBUG fname in meshretrieve  CC00672BN13_200000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00672BN13_200000.obj
+DEBUG fname in meshretrieve  CC00672BN13_214800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00672BN13_214800.obj
+DEBUG fname in meshretrieve  CC00675XX16_219100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00675XX16_219100.obj
+DEBUG fname in meshretrieve  CC00685XX18_226100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00685XX18_226100.obj
+DEBUG fname in meshretrieve  CC00686XX19_198800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00686XX19_198800.obj
+DEBUG fname in meshretrieve  CC00686XX19_209100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00686XX19_209100.obj
+DEBUG fname in meshretrieve  CC00687XX20_199000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00687XX20_199000.obj
+DEBUG fname in meshretrieve  CC00688XX21_199500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00688XX21_199500.obj
+DEBUG fname in meshretrieve  CC00688XX21_205500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00688XX21_205500.obj
+DEBUG fname in meshretrieve  CC00689XX22_199800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00689XX22_199800.obj
+DEBUG fname in meshretrieve  CC00689XX22_207400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00689XX22_207400.obj
+DEBUG fname in meshretrieve  CC00692XX17_200301.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00692XX17_200301.obj
+DEBUG fname in meshretrieve  CC00693XX18_201000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00693XX18_201000.obj
+DEBUG fname in meshretrieve  CC00694XX19_201800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00694XX19_201800.obj
+DEBUG fname in meshretrieve  CC00695XX20_202600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00695XX20_202600.obj
+DEBUG fname in meshretrieve  CC00698XX23_220400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00698XX23_220400.obj
+DEBUG fname in meshretrieve  CC00702AN09_204600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00702AN09_204600.obj
+DEBUG fname in meshretrieve  CC00702BN09_204500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00702BN09_204500.obj
+DEBUG fname in meshretrieve  CC00703XX10_206101.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00703XX10_206101.obj
+DEBUG fname in meshretrieve  CC00705XX12_226000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00705XX12_226000.obj
+DEBUG fname in meshretrieve  CC00708XX15_207500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00708XX15_207500.obj
+DEBUG fname in meshretrieve  CC00712XX11_221400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00712XX11_221400.obj
+DEBUG fname in meshretrieve  CC00712XX11_232701.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00712XX11_232701.obj
+DEBUG fname in meshretrieve  CC00718XX17_210400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00718XX17_210400.obj
+DEBUG fname in meshretrieve  CC00718XX17_235300.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00718XX17_235300.obj
+DEBUG fname in meshretrieve  CC00719XX18_210600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00719XX18_210600.obj
+DEBUG fname in meshretrieve  CC00720XX11_211101.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00720XX11_211101.obj
+DEBUG fname in meshretrieve  CC00723XX14_211900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00723XX14_211900.obj
+DEBUG fname in meshretrieve  CC00723XX14_224100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00723XX14_224100.obj
+DEBUG fname in meshretrieve  CC00731XX14_214500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00731XX14_214500.obj
+DEBUG fname in meshretrieve  CC00735XX18_222201.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00735XX18_222201.obj
+DEBUG fname in meshretrieve  CC00740XX15_238400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00740XX15_238400.obj
+DEBUG fname in meshretrieve  CC00741XX16_218900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00741XX16_218900.obj
+DEBUG fname in meshretrieve  CC00747XX22_222000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00747XX22_222000.obj
+DEBUG fname in meshretrieve  CC00747XX22_238600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00747XX22_238600.obj
+DEBUG fname in meshretrieve  CC00749XX24_2600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00749XX24_2600.obj
+DEBUG fname in meshretrieve  CC00753XX11_223600.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00753XX11_223600.obj
+DEBUG fname in meshretrieve  CC00754AN12_223800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00754AN12_223800.obj
+DEBUG fname in meshretrieve  CC00754BN12_223701.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00754BN12_223701.obj
+DEBUG fname in meshretrieve  CC00757XX15_12010.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00757XX15_12010.obj
+DEBUG fname in meshretrieve  CC00760XX10_229500.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00760XX10_229500.obj
+DEBUG fname in meshretrieve  CC00764AN14_231800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00764AN14_231800.obj
+DEBUG fname in meshretrieve  CC00764BN14_231702.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00764BN14_231702.obj
+DEBUG fname in meshretrieve  CC00765XX15_8210.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00765XX15_8210.obj
+DEBUG fname in meshretrieve  CC00766XX16_4200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00766XX16_4200.obj
+DEBUG fname in meshretrieve  CC00768XX18_236400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00768XX18_236400.obj
+DEBUG fname in meshretrieve  CC00769XX19_4400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00769XX19_4400.obj
+DEBUG fname in meshretrieve  CC00770XX12_1100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00770XX12_1100.obj
+DEBUG fname in meshretrieve  CC00770XX12_238000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00770XX12_238000.obj
+DEBUG fname in meshretrieve  CC00771XX13_17710.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00771XX13_17710.obj
+DEBUG fname in meshretrieve  CC00777XX19_239102.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00777XX19_239102.obj
+DEBUG fname in meshretrieve  CC00782XX16_240100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00782XX16_240100.obj
+DEBUG fname in meshretrieve  CC00783XX17_15910.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00783XX17_15910.obj
+DEBUG fname in meshretrieve  CC00785XX19_240700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00785XX19_240700.obj
+DEBUG fname in meshretrieve  CC00787XX21_19010.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00787XX21_19010.obj
+DEBUG fname in meshretrieve  CC00788XX22_243000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00788XX22_243000.obj
+DEBUG fname in meshretrieve  CC00789XX23_21110.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00789XX23_21110.obj
+DEBUG fname in meshretrieve  CC00791XX17_27611.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00791XX17_27611.obj
+DEBUG fname in meshretrieve  CC00792XX18_1800.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00792XX18_1800.obj
+DEBUG fname in meshretrieve  CC00792XX18_244200.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00792XX18_244200.obj
+DEBUG fname in meshretrieve  CC00793XX19_28610.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00793XX19_28610.obj
+DEBUG fname in meshretrieve  CC00796XX22_245100.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00796XX22_245100.obj
+DEBUG fname in meshretrieve  CC00797XX23_12110.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00797XX23_12110.obj
+DEBUG fname in meshretrieve  CC00797XX23_6210.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00797XX23_6210.obj
+DEBUG fname in meshretrieve  CC00798XX24_245400.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00798XX24_245400.obj
+DEBUG fname in meshretrieve  CC00799XX25_23810.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00799XX25_23810.obj
+DEBUG fname in meshretrieve  CC00801XX09_29510.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00801XX09_29510.obj
+DEBUG fname in meshretrieve  CC00802XX10_1000.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00802XX10_1000.obj
+DEBUG fname in meshretrieve  CC00802XX10_11210.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00802XX10_11210.obj
+DEBUG fname in meshretrieve  CC00803XX11_2700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00803XX11_2700.obj
+DEBUG fname in meshretrieve  CC00804XX12_900.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00804XX12_900.obj
+DEBUG fname in meshretrieve  CC00804XX12_9310.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00804XX12_9310.obj
+DEBUG fname in meshretrieve  CC00805XX13_1700.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00805XX13_1700.obj
+DEBUG fname in meshretrieve  CC00805XX13_24210.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00805XX13_24210.obj
+DEBUG fname in meshretrieve  CC00810XX10_29010.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00810XX10_29010.obj
+DEBUG fname in meshretrieve  CC00811XX11_6310.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00811XX11_6310.obj
+DEBUG fname in meshretrieve  CC00815XX15_4120.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00815XX15_4120.obj
+DEBUG fname in meshretrieve  CC00818XX18_4020.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00818XX18_4020.obj
+DEBUG fname in meshretrieve  CC00822XX14_15710.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00822XX14_15710.obj
+DEBUG fname in meshretrieve  CC00823XX15_27810.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00823XX15_27810.obj
+DEBUG fname in meshretrieve  CC00824XX16_38310.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00824XX16_38310.obj
+DEBUG fname in meshretrieve  CC00829XX21_17610.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00829XX21_17610.obj
+DEBUG fname in meshretrieve  CC00829XX21_27411.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00829XX21_27411.obj
+DEBUG fname in meshretrieve  CC00830XX14_30710.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00830XX14_30710.obj
+DEBUG fname in meshretrieve  CC00832XX16_630.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00832XX16_630.obj
+DEBUG fname in meshretrieve  CC00833XX17_20510.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00833XX17_20510.obj
+DEBUG fname in meshretrieve  CC00834XX18_21210.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00834XX18_21210.obj
+DEBUG fname in meshretrieve  CC00838XX22_21910.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00838XX22_21910.obj
+DEBUG fname in meshretrieve  CC00838XX22_30610.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00838XX22_30610.obj
+DEBUG fname in meshretrieve  CC00839XX23_23710.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00839XX23_23710.obj
+DEBUG fname in meshretrieve  CC00841XX17_1730.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00841XX17_1730.obj
+DEBUG fname in meshretrieve  CC00843XX19_4330.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00843XX19_4330.obj
+DEBUG fname in meshretrieve  CC00845AN21_26510.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00845AN21_26510.obj
+DEBUG fname in meshretrieve  CC00845AN21_32010.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00845AN21_32010.obj
+DEBUG fname in meshretrieve  CC00845BN21_26410.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00845BN21_26410.obj
+DEBUG fname in meshretrieve  CC00845BN21_32110.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00845BN21_32110.obj
+DEBUG fname in meshretrieve  CC00846XX22_26710.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00846XX22_26710.obj
+DEBUG fname in meshretrieve  CC00847XX23_26910.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00847XX23_26910.obj
+DEBUG fname in meshretrieve  CC00850XX09_4930.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00850XX09_4930.obj
+DEBUG fname in meshretrieve  CC00851XX10_42010.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00851XX10_42010.obj
+DEBUG fname in meshretrieve  CC00852XX11_28210.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00852XX11_28210.obj
+DEBUG fname in meshretrieve  CC00853XX12_7330.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00853XX12_7330.obj
+DEBUG fname in meshretrieve  CC00854XX13_41810.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00854XX13_41810.obj
+DEBUG fname in meshretrieve  CC00855XX14_530.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00855XX14_530.obj
+DEBUG fname in meshretrieve  CC00856XX15_15330.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00856XX15_15330.obj
+DEBUG fname in meshretrieve  CC00858XX17_32210.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00858XX17_32210.obj
+DEBUG fname in meshretrieve  CC00860XX11_7030.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00860XX11_7030.obj
+DEBUG fname in meshretrieve  CC00861XX12_20830.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00861XX12_20830.obj
+DEBUG fname in meshretrieve  CC00863XX14_34810.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00863XX14_34810.obj
+DEBUG fname in meshretrieve  CC00865XX16_12330.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00865XX16_12330.obj
+DEBUG fname in meshretrieve  CC00867XX18_37111.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00867XX18_37111.obj
+DEBUG fname in meshretrieve  CC00867XX18_8930.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00867XX18_8930.obj
+DEBUG fname in meshretrieve  CC00868XX19_16530.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00868XX19_16530.obj
+DEBUG fname in meshretrieve  CC00870XX13_21830.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00870XX13_21830.obj
+DEBUG fname in meshretrieve  CC00871XX14_38810.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00871XX14_38810.obj
+DEBUG fname in meshretrieve  CC00874XX17_18630.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00874XX17_18630.obj
+DEBUG fname in meshretrieve  CC00875XX18_16630.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00875XX18_16630.obj
+DEBUG fname in meshretrieve  CC00879XX22_5230.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00879XX22_5230.obj
+DEBUG fname in meshretrieve  CC00879XX22_7430.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00879XX22_7430.obj
+DEBUG fname in meshretrieve  CC00881XX16_20230.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00881XX16_20230.obj
+DEBUG fname in meshretrieve  CC00882XX17_13030.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00882XX17_13030.obj
+DEBUG fname in meshretrieve  CC00883XX18_14430.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00883XX18_14430.obj
+DEBUG fname in meshretrieve  CC00884XX19_17230.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00884XX19_17230.obj
+DEBUG fname in meshretrieve  CC00885XX20_1520.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00885XX20_1520.obj
+DEBUG fname in meshretrieve  CC00886XX21_18030.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00886XX21_18030.obj
+DEBUG fname in meshretrieve  CC00889AN24_2220.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00889AN24_2220.obj
+DEBUG fname in meshretrieve  CC00889AN24_9230.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00889AN24_9230.obj
+DEBUG fname in meshretrieve  CC00889BN24_2320.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00889BN24_2320.obj
+DEBUG fname in meshretrieve  CC00889BN24_9330.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00889BN24_9330.obj
+DEBUG fname in meshretrieve  CC00890XX17_13330.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00890XX17_13330.obj
+DEBUG fname in meshretrieve  CC00894XX21_3020.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00894XX21_3020.obj
+DEBUG fname in meshretrieve  CC00907XX16_19230.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00907XX16_19230.obj
+DEBUG fname in meshretrieve  CC00907XX16_4230.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00907XX16_4230.obj
+DEBUG fname in meshretrieve  CC00915XX16_18530.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00915XX16_18530.obj
+DEBUG fname in meshretrieve  CC00919XX20_23630.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00919XX20_23630.obj
+DEBUG fname in meshretrieve  CC00919XX20_7830.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00919XX20_7830.obj
+DEBUG fname in meshretrieve  CC00933XX18_10830.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00933XX18_10830.obj
+DEBUG fname in meshretrieve  CC00933XX18_20530.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00933XX18_20530.obj
+DEBUG fname in meshretrieve  CC00936XX21_11431.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00936XX21_11431.obj
+DEBUG fname in meshretrieve  CC00939XX24_36230.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00939XX24_36230.obj
+DEBUG fname in meshretrieve  CC00945AN22_13730.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00945AN22_13730.obj
+DEBUG fname in meshretrieve  CC00945BN22_14330.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00945BN22_14330.obj
+DEBUG fname in meshretrieve  CC00946XX23_15230.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00946XX23_15230.obj
+DEBUG fname in meshretrieve  CC00954XX14_18930.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00954XX14_18930.obj
+DEBUG fname in meshretrieve  CC00955XX15_21030.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00955XX15_21030.obj
+DEBUG fname in meshretrieve  CC00962XX14_57830.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00962XX14_57830.obj
+DEBUG fname in meshretrieve  CC00964XX16_21430.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00964XX16_21430.obj
+DEBUG fname in meshretrieve  CC00967XX19_58330.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00967XX19_58330.obj
+DEBUG fname in meshretrieve  CC00973XX17_66030.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00973XX17_66030.obj
+DEBUG fname in meshretrieve  CC00974XX18_46931.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00974XX18_46931.obj
+DEBUG fname in meshretrieve  CC00976XX20_64331.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00976XX20_64331.obj
+DEBUG fname in meshretrieve  CC00979XX23_25330.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00979XX23_25330.obj
+DEBUG fname in meshretrieve  CC00980XX16_66630.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00980XX16_66630.obj
+DEBUG fname in meshretrieve  CC00982XX18_64930.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00982XX18_64930.obj
+DEBUG fname in meshretrieve  CC00986AN22_26730.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00986AN22_26730.obj
+DEBUG fname in meshretrieve  CC00986AN22_41730.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00986AN22_41730.obj
+DEBUG fname in meshretrieve  CC00986BN22_26830.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00986BN22_26830.obj
+DEBUG fname in meshretrieve  CC00986BN22_41830.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00986BN22_41830.obj
+DEBUG fname in meshretrieve  CC00987XX23_66031.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00987XX23_66031.obj
+DEBUG fname in meshretrieve  CC00990XX18_70230.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00990XX18_70230.obj
+DEBUG fname in meshretrieve  CC00992XX20_62530.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00992XX20_62530.obj
+DEBUG fname in meshretrieve  CC00997BN25_33630.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00997BN25_33630.obj
+DEBUG fname in meshretrieve  CC00997BN25_56430.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00997BN25_56430.obj
+DEBUG fname in meshretrieve  CC00998AN26_34030.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00998AN26_34030.obj
+DEBUG fname in meshretrieve  CC00998BN26_33930.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC00998BN26_33930.obj
+DEBUG fname in meshretrieve  CC01005XX07_36930.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01005XX07_36930.obj
+DEBUG fname in meshretrieve  CC01005XX07_49930.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01005XX07_49930.obj
+DEBUG fname in meshretrieve  CC01006XX08_62330.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01006XX08_62330.obj
+DEBUG fname in meshretrieve  CC01007XX09_67630.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01007XX09_67630.obj
+DEBUG fname in meshretrieve  CC01011XX05_42230.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01011XX05_42230.obj
+DEBUG fname in meshretrieve  CC01011XX05_53531.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01011XX05_53531.obj
+DEBUG fname in meshretrieve  CC01011XX05_55231.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01011XX05_55231.obj
+DEBUG fname in meshretrieve  CC01013XX07_71730.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01013XX07_71730.obj
+DEBUG fname in meshretrieve  CC01014XX08_59530.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01014XX08_59530.obj
+DEBUG fname in meshretrieve  CC01015XX09_74130.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01015XX09_74130.obj
+DEBUG fname in meshretrieve  CC01018XX12_46130.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01018XX12_46130.obj
+DEBUG fname in meshretrieve  CC01020XX06_72930.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01020XX06_72930.obj
+DEBUG fname in meshretrieve  CC01023XX09_74030.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01023XX09_74030.obj
+DEBUG fname in meshretrieve  CC01025XX11_50230.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01025XX11_50230.obj
+DEBUG fname in meshretrieve  CC01025XX11_61330.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01025XX11_61330.obj
+DEBUG fname in meshretrieve  CC01032XX10_77330.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01032XX10_77330.obj
+DEBUG fname in meshretrieve  CC01037XX15_77430.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01037XX15_77430.obj
+DEBUG fname in meshretrieve  CC01038XX16_52230.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01038XX16_52230.obj
+DEBUG fname in meshretrieve  CC01038XX16_67330.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01038XX16_67330.obj
+DEBUG fname in meshretrieve  CC01042XX12_74431.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01042XX12_74431.obj
+DEBUG fname in meshretrieve  CC01044XX14_72531.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01044XX14_72531.obj
+DEBUG fname in meshretrieve  CC01045XX15_54630.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01045XX15_54630.obj
+DEBUG fname in meshretrieve  CC01046XX16_54730.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01046XX16_54730.obj
+DEBUG fname in meshretrieve  CC01053XX06_69230.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01053XX06_69230.obj
+DEBUG fname in meshretrieve  CC01059AN12_72130.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01059AN12_72130.obj
+DEBUG fname in meshretrieve  CC01059BN12_72330.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01059BN12_72330.obj
+DEBUG fname in meshretrieve  CC01059CN12_72230.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01059CN12_72230.obj
+DEBUG fname in meshretrieve  CC01077XX14_65230.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01077XX14_65230.obj
+DEBUG fname in meshretrieve  CC01077XX14_78430.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01077XX14_78430.obj
+DEBUG fname in meshretrieve  CC01080XX09_68030.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01080XX09_68030.obj
+DEBUG fname in meshretrieve  CC01080XX09_77730.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01080XX09_77730.obj
+DEBUG fname in meshretrieve  CC01084XX13_69330.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01084XX13_69330.obj
+DEBUG fname in meshretrieve  CC01093BN14_75230.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01093BN14_75230.obj
+DEBUG fname in meshretrieve  CC01096XX17_76130.obj
+DEBUG meshretrieve path  datasets/all_brains_find_error_native_5k/Male/train/CC01096XX17_76130.obj
+DEBUG fname in meshretrieve  CC00050XX01_7201_000.npz
+DEBUG fname in meshretrieve  CC00051XX02_7702_000.npz
+DEBUG fname in meshretrieve  CC00052XX03_8300_000.npz
+DEBUG fname in meshretrieve  CC00053XX04_8607_000.npz
+DEBUG fname in meshretrieve  CC00054XX05_8800_000.npz
+DEBUG fname in meshretrieve  CC00055XX06_9300_000.npz
+DEBUG fname in meshretrieve  CC00056XX07_10700_000.npz
+DEBUG fname in meshretrieve  CC00057XX08_11002_000.npz
+DEBUG fname in meshretrieve  CC00058XX09_11300_000.npz
+DEBUG fname in meshretrieve  CC00060XX03_12501_000.npz
+DEBUG fname in meshretrieve  CC00061XX04_13300_000.npz
+DEBUG fname in meshretrieve  CC00062XX05_13801_000.npz
+DEBUG fname in meshretrieve  CC00063AN06_15102_000.npz
+DEBUG fname in meshretrieve  CC00064XX07_18303_000.npz
+DEBUG fname in meshretrieve  CC00065XX08_18600_000.npz
+DEBUG fname in meshretrieve  CC00066XX09_19200_000.npz
+DEBUG fname in meshretrieve  CC00067XX10_20200_000.npz
+DEBUG fname in meshretrieve  CC00068XX11_20701_000.npz
+DEBUG fname in meshretrieve  CC00069XX12_26300_000.npz
+DEBUG fname in meshretrieve  CC00070XX05_26700_000.npz
+DEBUG fname in meshretrieve  CC00071XX06_27000_000.npz
+DEBUG fname in meshretrieve  CC00072XX07_27600_000.npz
+DEBUG fname in meshretrieve  CC00073XX08_27800_000.npz
+DEBUG fname in meshretrieve  CC00074XX09_28000_000.npz
+DEBUG fname in meshretrieve  CC00075XX10_28400_000.npz
+DEBUG fname in meshretrieve  CC00077XX12_29500_000.npz
+DEBUG fname in meshretrieve  CC00078XX13_29900_000.npz
+DEBUG fname in meshretrieve  CC00079XX14_30000_000.npz
+DEBUG fname in meshretrieve  CC00080XX07_30300_000.npz
+DEBUG fname in meshretrieve  CC00082XX09_30700_000.npz
+DEBUG fname in meshretrieve  CC00083XX10_30900_000.npz
+DEBUG fname in meshretrieve  CC00084XX11_31201_000.npz
+DEBUG fname in meshretrieve  CC00085XX12_31400_000.npz
+DEBUG fname in meshretrieve  CC00086XX13_31500_000.npz
+DEBUG fname in meshretrieve  CC00087AN14_31800_000.npz
+DEBUG fname in meshretrieve  CC00087AN14_38800_000.npz
+DEBUG fname in meshretrieve  CC00087BN14_32100_000.npz
+DEBUG fname in meshretrieve  CC00088XX15_31801_000.npz
+DEBUG fname in meshretrieve  CC00089XX16_32101_000.npz
+DEBUG fname in meshretrieve  CC00091XX10_32300_000.npz
+DEBUG fname in meshretrieve  CC00094AN13_33500_000.npz
+DEBUG fname in meshretrieve  CC00094BN13_33301_000.npz
+DEBUG fname in meshretrieve  CC00095XX14_33501_000.npz
+DEBUG fname in meshretrieve  CC00096XX15_33700_000.npz
+DEBUG fname in meshretrieve  CC00097XX16_33701_000.npz
+DEBUG fname in meshretrieve  CC00098BN17_33900_000.npz
+DEBUG fname in meshretrieve  CC00099AN18_34200_000.npz
+DEBUG fname in meshretrieve  CC00099BN18_34201_000.npz
+DEBUG fname in meshretrieve  CC00100XX01_35000_000.npz
+DEBUG fname in meshretrieve  CC00101XX02_35001_000.npz
+DEBUG fname in meshretrieve  CC00102XX03_35200_000.npz
+DEBUG fname in meshretrieve  CC00103XX04_35300_000.npz
+DEBUG fname in meshretrieve  CC00104XX05_35800_000.npz
+DEBUG fname in meshretrieve  CC00105XX06_35801_000.npz
+DEBUG fname in meshretrieve  CC00106XX07_36100_000.npz
+DEBUG fname in meshretrieve  CC00107XX08_36300_000.npz
+DEBUG fname in meshretrieve  CC00108XX09_36800_000.npz
+DEBUG fname in meshretrieve  CC00109XX10_36901_000.npz
+DEBUG fname in meshretrieve  CC00110XX03_37000_000.npz
+DEBUG fname in meshretrieve  CC00112XX05_37001_000.npz
+DEBUG fname in meshretrieve  CC00113XX06_37200_000.npz
+DEBUG fname in meshretrieve  CC00115XX08_37801_000.npz
+DEBUG fname in meshretrieve  CC00116XX09_38001_000.npz
+DEBUG fname in meshretrieve  CC00117XX10_38200_000.npz
+DEBUG fname in meshretrieve  CC00118XX11_39100_000.npz
+DEBUG fname in meshretrieve  CC00119XX12_39400_000.npz
+DEBUG fname in meshretrieve  CC00120XX05_41600_000.npz
+DEBUG fname in meshretrieve  CC00121XX06_41700_000.npz
+DEBUG fname in meshretrieve  CC00122XX07_42000_000.npz
+DEBUG fname in meshretrieve  CC00124XX09_42302_000.npz
+DEBUG fname in meshretrieve  CC00126XX11_43100_000.npz
+DEBUG fname in meshretrieve  CC00127XX12_43200_000.npz
+DEBUG fname in meshretrieve  CC00128XX13_43201_000.npz
+DEBUG fname in meshretrieve  CC00129AN14_43500_000.npz
+DEBUG fname in meshretrieve  CC00129BN14_43701_000.npz
+DEBUG fname in meshretrieve  CC00130XX07_44001_000.npz
+DEBUG fname in meshretrieve  CC00131XX08_44200_000.npz
+DEBUG fname in meshretrieve  CC00132XX09_44400_000.npz
+DEBUG fname in meshretrieve  CC00133XX10_44500_000.npz
+DEBUG fname in meshretrieve  CC00134XX11_44600_000.npz
+DEBUG fname in meshretrieve  CC00135AN12_44900_000.npz
+DEBUG fname in meshretrieve  CC00135AN12_54400_000.npz
+DEBUG fname in meshretrieve  CC00135BN12_44704_000.npz
+DEBUG fname in meshretrieve  CC00135BN12_54500_000.npz
+DEBUG fname in meshretrieve  CC00136AN13_45100_000.npz
+DEBUG fname in meshretrieve  CC00136AN13_64201_000.npz
+DEBUG fname in meshretrieve  CC00136BN13_45000_000.npz
+DEBUG fname in meshretrieve  CC00136BN13_64300_000.npz
+DEBUG fname in meshretrieve  CC00137XX14_45200_000.npz
+DEBUG fname in meshretrieve  CC00138XX15_46200_000.npz
+DEBUG fname in meshretrieve  CC00139XX16_49101_000.npz
+DEBUG fname in meshretrieve  CC00140XX09_46800_000.npz
+DEBUG fname in meshretrieve  CC00143AN12_47501_000.npz
+DEBUG fname in meshretrieve  CC00143BN12_47600_000.npz
+DEBUG fname in meshretrieve  CC00144XX13_47701_000.npz
+DEBUG fname in meshretrieve  CC00145XX14_48100_000.npz
+DEBUG fname in meshretrieve  CC00146XX15_48400_000.npz
+DEBUG fname in meshretrieve  CC01042XX12_74431.obj
+computing mean std from train data...
+0 of 732

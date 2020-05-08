@@ -12,6 +12,8 @@ class ClassificationData(BaseDataset):
         self.device = torch.device('cuda:{}'.format(opt.gpu_ids[0])) if opt.gpu_ids else torch.device('cpu')
         self.root = opt.dataroot
         self.dir = os.path.join(opt.dataroot)
+        if opt.verbose:
+            print("DEBUG dir path in dataset ", self.dir)
         if opt.dataset_mode == 'regression':
             self.class_to_idx = get_feature_dict(opt.label)
             self.nclasses = 1
@@ -56,12 +58,19 @@ class ClassificationData(BaseDataset):
                 continue
             for root, _, fnames in sorted(os.walk(d)):
                 for fname in sorted(fnames):
-                    if is_mesh_file(fname) and (root.count(phase)==1):
+                    if self.opt.verbose:
+                        print("DEBUG fname in meshretrieve ", fname)
+                    if is_mesh_file(fname) and (root.count(phase) == 1):
                         path = os.path.join(root, fname)
+                        if self.opt.verbose:
+                            print("DEBUG meshretrieve path ", path)
                         if dataset_mode == 'regression':
                             # Retrieves additional info from metadata file as labels - use filename as key
                             # filename format CC00839XX23_23710.obj
                             filename_key = fname[:-4]
+                            # for the specific case where we are using both halves in the same dataset the file will end in L or R
+                            if filename_key[-1] in ('L', 'R'):
+                                filename_key = filename_key[:-2]
                             item = (path, class_to_idx[filename_key])
                         else:
                             item = (path, class_to_idx[target])
