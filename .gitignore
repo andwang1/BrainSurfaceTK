@@ -1,16 +1,16 @@
 # Tensorboard logs
 
 # Data
-/0
-/experiment_data
-/runs
-/venv
-/data
-slurm-*
-oldsplit*
-log_record.txt
-forCem.vtp
-/new_runs
+/models/pointnet/0
+/models/pointnet/experiment_data
+/models/pointnet/runs
+/models/pointnet/venv
+/models/pointnet/data
+/models/pointnet/slurm-*
+/models/pointnet/oldsplit*
+/models/pointnet/log_record.txt
+/models/pointnet/forCem.vtp
+/models/pointnet/new_runs
 
 
 
