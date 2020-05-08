@@ -1,11 +1,21 @@
 from django.contrib import admin
-from tinymce.widgets import TinyMCE
 from django.db import models
+from tinymce.widgets import TinyMCE
+
 from .models import Option, SessionDatabase, UploadedSessionDatabase
+
+"""
+This file contains all the Admin versions of the models. This is used in the admin section of the website to modify 
+the users database, options on the home page, modify uploaded sessions & the original data entries.
+"""
 
 
 # Register your models here.
 class OptionAdmin(admin.ModelAdmin):
+    """
+    Used to view/modify options in the home page.
+    """
+
     fieldsets = [
         ("Option", {'fields': ["option"]}),
         ("URL", {'fields': ["url"]}),
@@ -17,14 +27,10 @@ class OptionAdmin(admin.ModelAdmin):
     }
 
 
-class PatientEntryAdmin(admin.ModelAdmin):
-    fieldsets = [
-        ("ID", {'fields': ["id"]}),
-        ("URL", {'fields': ["url"]}),
-    ]
-
-
 class UploadedSessionDatabaseAdmin(admin.ModelAdmin):
+    """
+    Used to view/modify uploaded sessions IDs.
+    """
     fieldsets = [
         ("Participant_id", {'fields': ["participant_id"]}),
         ("session_id", {'fields': ["session_id"]}),
@@ -42,7 +48,9 @@ class UploadedSessionDatabaseAdmin(admin.ModelAdmin):
 
 
 class SessionDatabaseAdmin(admin.ModelAdmin):
-
+    """
+    Used to view/modify the original session IDs.
+    """
     fieldsets = [
         ("Participant_id", {'fields': ["participant_id"]}),
         ("session_id", {'fields': ["session_id"]}),

@@ -8,6 +8,9 @@ import os
 
 
 class NewUserForm(UserCreationForm):
+    """
+    The Registration sign-up form used to create a new account.
+    """
     email = forms.EmailField(required=True)
 
     class Meta:
@@ -23,6 +26,9 @@ class NewUserForm(UserCreationForm):
 
 
 class UploadFileForm(ModelForm):
+    """
+    The form used to upload a new session with the .vtp & mri files attached.
+    """
     class Meta:
         model = UploadedSessionDatabase
         fields = ('participant_id', 'session_id', 'gender', 'birth_age', 'birth_weight', 'singleton',
