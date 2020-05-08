@@ -2,8 +2,9 @@ import os
 
 from django.contrib import messages
 from django.shortcuts import render, redirect
+from django.views.decorators.csrf import csrf_exempt
 
-from main.custom_wrapper_decorators import custom_login_required, custom_staff_member_required, custom_superuser_required
+from main.custom_wrapper_decorators import custom_login_required, custom_staff_member_required
 from main.load_helper import load_original_data
 from main.result_helpers import get_mri_js_html, get_surf_file_url, build_session_table, get_unique_session
 from .forms import UploadFileForm
@@ -37,7 +38,7 @@ def about(request):
 
 
 @custom_login_required()
-def view_session_results(request, session_id=None):
+def view_session_results(request, session_id=None, display_mri="true"):
     """
     Gets the session ID from the databases and loads the mri file & fetches the vtp file path that is all sent to the
     user to visualise the results. If there is an error with the session_id then the user is redirected to "main:lookup"
@@ -55,9 +56,12 @@ def view_session_results(request, session_id=None):
 
         table_names, table_values = build_session_table(record)
 
-        mri_js_html, msg = get_mri_js_html(record)
-        if mri_js_html is None and msg is not None:
-            messages.error(request, msg)
+        if display_mri.lower() == "true":
+            mri_js_html, msg = get_mri_js_html(record)
+            if mri_js_html is None and msg is not None:
+                messages.error(request, msg)
+        else:
+            mri_js_html = None
 
         surf_file_url, msg = get_surf_file_url(record)
         if surf_file_url is None and msg is not None:
@@ -94,17 +98,23 @@ def load_data(request):
 
 
 @custom_login_required()
+@csrf_exempt
 def lookup(request):
     if request.method == "GET":
-        session_id = request.GET.get("selected_session_id", None)
-        if session_id is not None:
-            return redirect("main:session_id_results", session_id=session_id, permanent=True)
-
         session_ids = [int(session.session_id) for session in SessionDatabase.objects.all()]
         uploaded_session_ids = [int(session.session_id) for session in UploadedSessionDatabase.objects.all()]
-
         return render(request, "main/lookup.html",
                       context={"session_ids": sorted(session_ids + uploaded_session_ids)})
+
+    if request.method == "POST":
+        session_id = request.POST.get("selected_session_id", None)
+        if request.POST.get("display-mri", 'off') == 'on':
+            display_mri = "true"
+        else:
+            display_mri = "false"
+        if session_id is not None:
+            return redirect("main:session_id_results", session_id=session_id,
+                            display_mri=display_mri, permanent=True)
 
 
 @custom_login_required(login_url="login/")
@@ -116,6 +126,7 @@ def upload_session(request):
         if form.is_valid():
             form.save()
             messages.success(request, "Successfully uploaded! Now processing.")
-            return redirect("main:session_id_results", session_id=int(form["session_id"].value()), permanent=True)
+            return redirect("main:session_id_results", session_id=int(form["session_id"].value()),
+                            display_mri=True, permanent=True)
         messages.error(request, "Form is not valid!")
         return render(request, "main/upload_session.html", context={"form": form})

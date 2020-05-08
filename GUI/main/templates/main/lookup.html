@@ -6,18 +6,35 @@
     <div class="small-container">
         <h4 class="flow-text">Lookup</h4>
         <br>
-        <form id="lookup-form" method="get">
+        <form id="lookup-form" method="post">
             <div class="input-field">
-                <select name="selected_session_id">
-                    {% for session_id in session_ids %}
-                        <option value={{ session_id }}>{{ session_id }}</option>
-                    {% endfor %}
-                </select>
-                <label>Select Session ID:</label>
-                <button id="look-up-btn" class="waves-effect waves-green btn-small imperial blue" type="submit" form="lookup-form">
-                    Go
+                <p>
+                    <label>
+                        <span>Select Session ID:</span>
+                        <select name="selected_session_id">
+                            {% for session_id in session_ids %}
+                                <option value={{ session_id }}>{{ session_id }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                </p>
+
+            </div>
+
+            <div class="right">
+                <label>
+                    <input name="display-mri" type="checkbox" class="filled-in" checked="checked"/>
+                    <span>Display raw MRI slices?</span>
+                </label>
+            </div>
+
+            <div class="left">
+                <button id="look-up-btn" class="waves-effect waves-green btn-small imperial blue"
+                        type="submit"
+                        form="lookup-form">Go
                 </button>
             </div>
+
         </form>
     </div>
 
