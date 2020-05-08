@@ -168,13 +168,25 @@ def segment(brain_path, folder_path_to_write, tmp_file_name=None):
     out = model(data)
 
     # 2. Get d (positions), _y (actual labels), _out (predictions)
+    _y = data.y.cpu().detach().numpy()
     _out = out.max(dim=1)[1].cpu().detach().numpy()
+
+    # Record intersections
+    intersections = []
+    for label, prediction in zip(_y, _out):
+        if label == prediction:
+            intersections.append(0)
+        else:
+            intersections.append(100)
+    intersections = np.array(intersections)
+
 
     mesh = reader.GetOutput()
 
     # Add data set and write VTK file
     meshNew = dsa.WrapDataObject(mesh)
-    meshNew.PointData.append(_out, "New Labels")
+    meshNew.PointData.append(_out, "Predicted Labels")
+    meshNew.PointData.append(intersections, "Intersection between predicted and true labels")
 
     file_path = os.path.join(folder_path_to_write, tmp_file_name)
     writer = vtk.vtkXMLPolyDataWriter()
@@ -188,3 +200,4 @@ def segment(brain_path, folder_path_to_write, tmp_file_name=None):
 if __name__ == '__main__':
     segment(
         "/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/GUI/deepl_brain_surfaces/GUI/media/original/data/vtps/sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp")
+
