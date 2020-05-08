@@ -123,11 +123,11 @@ venv.bak/
 .dmypy.json
 dmypy.json
 
-# dataset
-datasets/
-checkpoints/
-results/
-runs/
-slurm*
-util/andy_notes
-MeshCNN-master/util/andy_notes
+# MeshCNN
+models/MeshCNN/datasets/
+models/MeshCNN/checkpoints/
+models/MeshCNN/results/
+models/MeshCNN/runs/
+models/MeshCNN/slurm*
+models/MeshCNN/util/andy_notes
+models/MeshCNN/*txt
