@@ -89,7 +89,7 @@ def fill_from_file(mesh, file, opt):
 
     # Added this from issue 46
     # UPDATE: this did not solve the issue
-    if opt.slide_verts != 0:
+    if opt.slide_verts:
         if opt.verbose:
             print("Used F from issue46")
         vs, faces = remove_unused_vertices(vs, faces)
