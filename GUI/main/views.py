@@ -4,8 +4,7 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 
 from main.load_helper import load_original_data
-from main.result_helpers import get_mri_js_html, get_surf_file_url, build_session_table, remove_file, random_string, \
-    pointnet_run_segmentation, pointnet_run_prediction, get_unique_session
+from main.result_helpers import get_mri_js_html, get_surf_file_url, build_session_table, get_unique_session
 from .forms import UploadFileForm
 from .models import Option, SessionDatabase, UploadedSessionDatabase
 
