@@ -7,11 +7,11 @@
     <h4 class="flow-text">Home</h4>
 
     <div id="rotating_brain" class="gif-brain">
-        <img src="{% static "main/gifs/rotate-min.gif" %}" alt="Rotating Brains" style="height: 100%; width: 100%; object-fit: contain">
+        <img id="brain-img" draggable='false' src="{% static "main/gifs/rotate-min.gif" %}" alt="Rotating Brains" style="height: 100%; width: 100%; object-fit: contain;">
     </div>
 
     <div class="row">
-        {% for opt in options %}
+        {% for page in options %}
             {% if forloop.last and not forloop.counter|divisibleby:2%}
                 <div class="col offset-s3 s6">
             {% else %}
@@ -19,15 +19,14 @@
             {% endif %}
                 <div class="card blue-grey darken-1">
                     <div class="card-content white-text">
-                        <span class="card-title">{{ opt.name }}</span>
-                        <p>{{ opt.summary|safe }}</p>
+                        <span class="card-title">{{ page.page_title }}</span>
+                        <p>{{ page.page_summary|safe }}</p>
                     </div>
                     <div class="card-action">
-                        <a href="{{ opt.slug }}">Visit</a>
+                        <a href="{{ page.page_slug }}">Visit</a>
                     </div>
                 </div>
             </div>
         {% endfor %}
     </div>
 {% endblock %}
-

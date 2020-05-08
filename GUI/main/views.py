@@ -8,7 +8,7 @@ from main.custom_wrapper_decorators import custom_login_required, custom_staff_m
 from main.load_helper import load_original_data
 from main.result_helpers import get_mri_js_html, get_surf_file_url, build_session_table, get_unique_session
 from .forms import UploadFileForm
-from .models import Option, SessionDatabase, UploadedSessionDatabase
+from .models import SessionDatabase, UploadedSessionDatabase, Information
 
 BASE_DIR = os.getcwd()
 DATA_DIR = os.path.join(BASE_DIR, "/main/static/main/data")
@@ -16,16 +16,28 @@ DATA_DIR = os.path.join(BASE_DIR, "/main/static/main/data")
 SESSIONDATABASES = (SessionDatabase, UploadedSessionDatabase)
 
 
+def single_slug(request, page_slug):
+    page = Information.objects.all().get(page_slug=page_slug)
+    return render(request=request,
+                  template_name='main/blank_template.html',
+                  context={"page": page})
+
+
 def homepage(request):
     """
     Homepage page
     :return: rendered main/homepage.html with all options available to the user.
     """
-    if Option.objects.count() == 0:
-        Option.objects.create(name="Look-up".title(), summary="Look-up session IDs".capitalize(), slug="lookup")
-        Option.objects.create(name="Upload".title(), summary="Upload session ID".capitalize(), slug="upload")
-        Option.objects.create(name="About".title(), summary="About this project".capitalize(), slug="about")
-    options = Option.objects.all()
+    if Information.objects.filter(page_slug="lookup").count() != 1:
+        Information.objects.create(page_title="Look-up".title(), page_summary="Look-up session IDs".capitalize(),
+                                   page_slug="lookup")
+    if Information.objects.filter(page_slug="upload").count() != 1:
+        Information.objects.create(page_title="Upload".title(), page_summary="Upload session ID".capitalize(),
+                                   page_slug="upload")
+    if Information.objects.filter(page_slug="about").count() != 1:
+        Information.objects.create(page_title="About".title(), page_summary="About this project".capitalize(),
+                                   page_slug="about")
+    options = Information.objects.all()
     return render(request, "main/homepage.html", context={"options": options})
 
 

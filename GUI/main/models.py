@@ -4,13 +4,24 @@ from django.conf import settings
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.contrib.auth.models import AbstractUser
+from datetime import datetime
 
 
 
 """
 THESE ARE YOUR DATABASES BRO
 """
+
+class Information(models.Model):
+    page_title = models.CharField(max_length=200, unique=True)
+    page_summary = models.CharField(max_length=200)
+    page_content = models.TextField()
+    page_published = models.DateTimeField('date published', default=datetime.now)
+    page_slug = models.CharField(max_length=200, default=1, unique=True)
+
+    def __str__(self):
+        return self.page_title
 
 
 # Create your models here.
