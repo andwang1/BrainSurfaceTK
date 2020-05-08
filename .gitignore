@@ -1,3 +1,19 @@
+# Tensorboard logs
+
+# Data
+/0
+/experiment_data
+/runs
+/venv
+/data
+slurm-*
+oldsplit*
+log_record.txt
+forCem.vtp
+/new_runs
+
+
+
 # Editors
 .vscode/
 .idea/
@@ -122,6 +138,7 @@ venv.bak/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+<<<<<<< HEAD
 
 # MeshCNN
 models/MeshCNN/datasets/
