@@ -1,0 +1,44 @@
+------------ Options -------------
+arch: mconvnet
+batch_size: 1
+beta1: 0.9
+checkpoints_dir: checkpoints/red50_run2
+continue_train: False
+dataroot: datasets/brains_reg_red50
+dataset_mode: regression
+epoch_count: 1
+export_folder: checkpoints/red50_run2/brains/checkpoints/mesh_collapses
+fc_n: 100
+flip_edges: 0.2
+gpu_ids: [0]
+init_gain: 0.02
+init_type: normal
+is_train: True
+lr: 0.0002
+lr_decay_iters: 50
+lr_policy: lambda
+max_dataset_size: inf
+name: brains
+ncf: [64, 112, 128]
+ninput_edges: 9000
+niter: 5
+niter_decay: 2000
+no_vis: False
+norm: group
+num_aug: 1
+num_groups: 16
+num_threads: 3
+phase: train
+pool_res: [3000, 2500, 2000]
+print_freq: 14
+resblocks: 1
+run_test_freq: 1
+save_epoch_freq: 1
+save_latest_freq: 250
+scale_verts: False
+seed: None
+serial_batches: False
+slide_verts: 0.2
+verbose_plot: True
+which_epoch: latest
+-------------- End ----------------
