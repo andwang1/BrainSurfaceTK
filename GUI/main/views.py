@@ -92,7 +92,6 @@ def view_session_results(request, session_id=None):
                                'debug': search_results.get()})
 
 
-@permission_required('admin.can_add_log_entry')
 def load_data(request):
     if request.method == "POST":
         # Clear each database here
@@ -175,7 +174,7 @@ def lookup(request):
             uploaded_session_ids = [int(session.session_id) for session in UploadedSessionDatabase.objects.all()]
 
             return render(request, "main/lookup.html",
-                          context={"session_ids": reversed(session_ids + uploaded_session_ids)})
+                          context={"session_ids": sorted(session_ids + uploaded_session_ids)})
 
     else:
         messages.error(request, "You must be an admin to access this feature currently!")

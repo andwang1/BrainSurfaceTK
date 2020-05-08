@@ -1,4 +1,3 @@
-
 import macro from 'vtk.js/Sources/macro';
 import HttpDataAccessHelper from 'vtk.js/Sources/IO/Core/DataAccessHelper/HttpDataAccessHelper';
 import vtkActor from 'vtk.js/Sources/Rendering/Core/Actor';
@@ -141,7 +140,7 @@ export function build_brain_surf_window(x, y) {
         const representationSelector = document.createElement('select');
         representationSelector.setAttribute('class', selectorClass);
         representationSelector.innerHTML = [
-            'Hidden',
+            // 'Hidden',
             'Points',
             'Wireframe',
             'Surface',
@@ -149,11 +148,12 @@ export function build_brain_surf_window(x, y) {
         ]
             .map(
                 (name, idx) =>
-                    `<option value="${idx === 0 ? 0 : 1}:${idx < 4 ? idx - 1 : 2}:${
-                        idx === 4 ? 1 : 0
+                    `<option value="${(idx+1) === 0 ? 0 : 1}:${(idx+1) < 4 ? idx+1 - 1 : 2}:${
+                        (idx+1) === 4 ? 1 : 0
                     }">${name}</option>`
             )
             .join('');
+
         representationSelector.value = '1:2:0';
 
         const colorBySelector = document.createElement('select');
@@ -179,9 +179,9 @@ export function build_brain_surf_window(x, y) {
         // controlContainer.appendChild(labelSelector);
         controlContainer.appendChild(representationSelector);
         controlContainer.appendChild(presetSelector);
-        controlContainer.appendChild(colorBySelector);
+        // controlContainer.appendChild(colorBySelector);
         controlContainer.appendChild(componentSelector);
-        controlContainer.appendChild(opacitySelector);
+        // controlContainer.appendChild(opacitySelector);
         rootControllerContainer.appendChild(controlContainer);
 
         // VTK pipeline
