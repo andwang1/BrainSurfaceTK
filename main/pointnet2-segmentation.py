@@ -196,12 +196,7 @@ def train(epoch):
         optimizer.zero_grad()
         out = model(data)
 
-        print(out)
-
         pred = out.max(dim=1)[1]
-        print(torch.max(pred))
-        print(torch.max(data.y))
-
 
         loss = F.nll_loss(out, data.y)
         loss.backward()
@@ -211,7 +206,7 @@ def train(epoch):
         total_nodes += data.num_nodes
 
         # Mean Jaccard indeces PER LABEL (18 numbers)
-        i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
+        i, u = i_and_u(out.max(dim=1)[1], data.y, num_labels, batch=data.batch)
 
         # Add to totals
         i_total, u_total = add_i_and_u(i, u, i_total, u_total, idx)
@@ -265,7 +260,6 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
 
         for batch_idx, data in enumerate(loader):
 
-
             # 1. Get predictions and loss
             data = data.to(device)
             out = model(data)
@@ -283,7 +277,7 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
 
 
             # Mean Jaccard indeces PER LABEL (18 numbers)
-            i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
+            i, u = i_and_u(out.max(dim=1)[1], data.y, num_labels, batch=data.batch)
             i_total, u_total = add_i_and_u(i, u, i_total, u_total, batch_idx)
 
 
@@ -337,8 +331,8 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
             writer.add_scalar('Validation Time/epoch', time.time() - start, epoch)
 
             # 7. Get confusion matrix
-            cm = plot_confusion_matrix(all_datay, all_preds, labels=all_labels)
-            writer.add_figure(f'Confusion Matrix - ID{id}-{experiment_name}', cm)
+            # cm = plot_confusion_matrix(all_datay, all_preds, labels=all_labels)
+            # writer.add_figure(f'Confusion Matrix - ID{id}-{experiment_name}', cm)
 
     return loss, accuracy, mean_iou_per_class, mean_iou
 
@@ -391,22 +385,21 @@ if __name__ == '__main__':
     num_workers = 2
     local_features = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
     grid_features = get_grid_search_local_features(local_features)
-    ids_to_include = [6, 7, 12, 13, 14, 15, 16]
-
+    ids_to_include = [15]
 
     #################################################
     ########### EXPERIMENT DESCRIPTION ##############
     #################################################
-    recording = False
+    recording = True
 
     data_nativeness = 'native'
     data_compression = "30k"
-    data_type = 'inflated'
+    data_type = 'white'
     hemisphere = 'left'
 
     additional_comment = ''
 
-    experiment_name = f'{data_nativeness}_{data_type}_{data_compression}_{additional_comment}'
+    experiment_name = f'{data_nativeness}_{data_type}_{data_compression}_{hemisphere}_{additional_comment}'
 
     #################################################
     ############ EXPERIMENT DESCRIPTION #############
@@ -418,7 +411,7 @@ if __name__ == '__main__':
 
             # 1. Model Parameters
             lr = 0.001
-            batch_size = 5
+            batch_size = 4
             local_feature_combo = grid_features[id-2]
             global_features = global_feature
             target_class = 'gender'
@@ -432,7 +425,7 @@ if __name__ == '__main__':
 
 
             # 4. Get experiment description
-            comment = get_comment(data_nativeness, data_compression, data_type,
+            comment = get_comment(data_nativeness, data_compression, data_type, hemisphere,
                                   lr, batch_size, local_feature_combo, global_features, target_class)
 
             print('='*50 + '\n' + '='*50)
@@ -442,17 +435,17 @@ if __name__ == '__main__':
             # 5. Perform data processing
             data_folder, files_ending = get_data_path(data_nativeness, data_compression, data_type, hemisphere=hemisphere)
 
-            train_dataset, test_dataset, validation_dataset, train_loader, test_loader, val_loader = data(data_folder,
-                                                                                                          files_ending,
-                                                                                                          data_type,
-                                                                                                          target_class,
-                                                                                                          task,
-                                                                                                          REPROCESS,
-                                                                                                          local_feature_combo,
-                                                                                                          global_features,
-                                                                                                          indices,
-                                                                                                          batch_size,
-                                                                                                          num_workers=2)
+            train_dataset, test_dataset, validation_dataset, train_loader, test_loader, val_loader, num_labels = data(data_folder,
+                                                                                                                      files_ending,
+                                                                                                                        data_type,
+                                                                                                                          target_class,
+                                                                                                                          task,
+                                                                                                                          REPROCESS,
+                                                                                                                          local_feature_combo,
+                                                                                                                          global_features,
+                                                                                                                          indices,
+                                                                                                                          batch_size,
+                                                                                                                          num_workers=2)
 
             # 6. Getting the number of features to adapt the architecture
             try:
@@ -460,14 +453,15 @@ if __name__ == '__main__':
             except:
                 num_local_features = 0
             # numb_global_features = train_dataset[0].y.size(1) - 1
-            num_classes = train_dataset.num_labels
+
+            print(f'Unique labels found: {num_labels}')
 
             if not torch.cuda.is_available():
                 print('YOU ARE RUNNING ON A CPU!!!!')
 
             # 7. Create the model
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-            model = Net(18, num_local_features, num_global_features=None).to(device)
+            model = Net(num_labels, num_local_features, num_global_features=None).to(device)
             optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
             gamma = 0.9875
@@ -476,7 +470,7 @@ if __name__ == '__main__':
             id = '0'
             if recording:
                 # 9. Save to log_record.txt
-                log_descr = get_comment(data_nativeness, data_compression, data_type,
+                log_descr = get_comment(data_nativeness, data_compression, data_type, hemisphere,
                                         lr, batch_size, local_feature_combo, global_features, target_class,
                                         log_descr=True)
 

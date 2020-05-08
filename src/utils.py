@@ -5,13 +5,14 @@ from torch_geometric.data import DataLoader
 from src.data_loader import OurDataset
 
 
-def get_comment(data_nativeness, data_compression, data_type,
+def get_comment(data_nativeness, data_compression, data_type, hemisphere,
                 lr, batch_size, local_feature_combo, global_features,
                 target_class, log_descr=False):
 
     comment = f'\nData nativeness: {data_nativeness}, \n' \
               f'Data compression: {data_compression}, \n' \
               f'Data type: {data_type}, \n' \
+              f'Hemispheres: {hemisphere}, \n' \
               f'Local features: {local_feature_combo}, \n' \
               f'Global features: {global_features}, \n' \
               f'\n' \
@@ -20,7 +21,7 @@ def get_comment(data_nativeness, data_compression, data_type,
 
     if log_descr == True:
         # 0. Save to log_record.txt
-        comment = data_nativeness + '  ' + data_compression + "  " + data_type + '  ' \
+        comment = data_nativeness + '  ' + data_compression + "  " + data_type + '  ' + hemisphere + '  ' \
                     + "LR=" + str(lr) + '\t\t' \
                     + "Batch=" + str(batch_size) + '\t\t' \
                     + "Local features:" + str(local_feature_combo) + '\t\t' \
@@ -258,11 +259,13 @@ def data(data_folder, files_ending, data_type, target_class, task, REPROCESS, lo
                                     data_folder=data_folder,
                                     files_ending=files_ending)
 
+    num_labels = train_dataset.num_labels
+
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
     val_loader = DataLoader(validation_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
-    return train_dataset, test_dataset, validation_dataset, train_loader, test_loader, val_loader
+    return train_dataset, test_dataset, validation_dataset, train_loader, test_loader, val_loader, num_labels
 
 
 

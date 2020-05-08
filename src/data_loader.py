@@ -57,7 +57,7 @@ class OurDataset(InMemoryDataset):
         # sulcal_depth, myelin_mapl, smooth_myelin_map
         self.feature_arrays = {'drawem': 'segmentation',
                                'corr_thickness': 'corrected_thickness',
-                               'myelin_map': 'myelin_mapl',
+                               'myelin_map': 'myelin_map',
                                'curvature': 'curvature',
                                'sulc': 'sulcal_depth'}
 
@@ -71,8 +71,10 @@ class OurDataset(InMemoryDataset):
         # Other useful variables
         self.add_features = add_features
         self.add_faces = add_faces
+
         self.unique_labels = []
-        self.num_labels = 0
+        self.num_labels = None
+
         self.reprocess = reprocess
 
         # Initialise path to data
@@ -148,9 +150,8 @@ class OurDataset(InMemoryDataset):
         :param list_features: list of features to add. Mapping is in self.feature_arrays
         :param mesh: pyvista mesh from which to get the arrays.
         :returns: tensor of features or None if list is empty.'''
-        # TODO: ASK AMIR TO SORT THAT DRAWEM CLASS IMBALANCE OUT
 
-        # Very ugly workaround about some classes not being in some data.
+        # Workaround for some classes not being in some data.
         list_of_drawem_labels = [0, 5, 7, 9, 11, 13, 15, 21, 22, 23, 25, 27, 29, 31, 33, 35, 37, 39]
 
         if list_features:
@@ -173,6 +174,7 @@ class OurDataset(InMemoryDataset):
                 drawem_list = []
 
             features = [mesh.get_array(self.feature_arrays[key]) for key in list_features if key != 'drawem']
+
             return torch.tensor(features + drawem_list).t()
         else:
             return None
@@ -219,6 +221,8 @@ class OurDataset(InMemoryDataset):
         unique_labels = torch.unique(ys_concatenated)
         # print(unique_labels)
         unique_labels_normalised = unique_labels.unique(return_inverse=True)[1]
+
+        self.num_labels = len(unique_labels)
 
         # Create the mapping
         label_mapping = {}
@@ -273,7 +277,7 @@ class OurDataset(InMemoryDataset):
         print('Processing patient data for the split...')
         for patient_idx in tqdm(self.indices_):
 
-            # Get file path to .vtk/.vtp for one patient #TODO: Maybe do something more beautiful
+            # Get file path to .vtk/.vtp for one patient
             file_path = self.get_file_path(patient_idx[:11], patient_idx[12:])
 
             # If file exists
