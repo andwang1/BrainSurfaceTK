@@ -179,7 +179,7 @@ export function build_brain_surf_window(x, y) {
         // controlContainer.appendChild(labelSelector);
         controlContainer.appendChild(representationSelector);
         controlContainer.appendChild(presetSelector);
-        // controlContainer.appendChild(colorBySelector);
+        controlContainer.appendChild(colorBySelector);
         controlContainer.appendChild(componentSelector);
         // controlContainer.appendChild(opacitySelector);
         rootControllerContainer.appendChild(controlContainer);

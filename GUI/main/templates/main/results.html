@@ -1,10 +1,4 @@
 {% extends 'main/header.html' %}
-{% load static %}
-
-{% block extra_js %}
-    <script type="text/javascript" src="{% static "main/js/brain_surface_tool.js" | safe %}"></script>
-{% endblock %}
-
 
 {% block title %}Results{% endblock %}
 
@@ -58,14 +52,11 @@
             </button>
         </div>
         <br>
-        <div id="brain_surf_container">
-            <div class="segmented_container"></div>
-        </div>
 
         <script type="text/javascript">
 
             $('#predict').click(function () {
-                document.getElementById("predict").style.color = "green";
+                document.getElementById("predict").style.color = "red";
                 console.log("create post is working!");
                 var table_Exists = document.getElementById("result_table");
 
@@ -98,7 +89,6 @@
                 }
             });
 
-
             $('#segment').click(function () {
 
                 $("#loader-wheel").fadeIn();
@@ -123,9 +113,7 @@
                         console.log(json);
                         console.log("success");
 
-                        {#myLibrary.myFunction(json.segmented_file_path, '.segmented_container');#}
-
-                        brain_surface_library.build_brain_surf_window(json.segmented_file_path, '.segmented_container');
+                        brain_surface_library.build_brain_surf_window(json.segmented_file_path, '.brain_surface_container');
 
                         $("#loader-wheel").fadeOut();
 

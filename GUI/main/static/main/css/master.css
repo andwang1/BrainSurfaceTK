@@ -1,9 +1,8 @@
 @import "materialize.css";
 
 html * {
-    font-family: Roboto !important;
+    font-family: Arial;
 }
-
 
 .small-container {
     padding-top: 5px;
@@ -24,10 +23,19 @@ html * {
 
 #loader-wheel {
     position: fixed;
-    top:-100%; right:-100%; left:-100%; bottom:-100%;
-    margin:auto;
-    z-index:0;
+    top: -100%;
+    right: -100%;
+    left: -100%;
+    bottom: -100%;
+    margin: auto;
+    z-index: 0;
     display: none;
 }
+
+/*#toast-container {*/
+/*    position: fixed !important;*/
+/*    width: 50% !important;*/
+/*    left: 50% !important;*/
+/*}*/
 
 

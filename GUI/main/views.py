@@ -7,7 +7,6 @@ import warnings
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
@@ -299,7 +298,6 @@ def remove_tmp(request, session_id=None):
     data = {
         'success': 'failed'
     }
-
     relative_file_path = request.GET.get('tmp_file_url', None)
     if relative_file_path is not None:
         file_path = os.path.join(settings.MEDIA_ROOT, relative_file_path.strip(settings.MEDIA_URL))
