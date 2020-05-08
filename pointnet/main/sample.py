@@ -17,7 +17,7 @@ from torch_geometric.nn import knn_interpolate
 from torch_geometric.utils import intersection_and_union as i_and_u
 from torch_geometric.utils.metric import mean_iou
 
-from src.data_loader import OurDataset
+from pointnet.src.data_loader import OurDataset
 from src.utils import get_id, save_to_log
 from src.plot_confusion_matrix import plot_confusion_matrix
 from tqdm import tqdm

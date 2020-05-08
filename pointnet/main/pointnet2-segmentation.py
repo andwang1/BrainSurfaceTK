@@ -20,16 +20,16 @@ from tqdm import tqdm
 from torch.optim.lr_scheduler import StepLR
 from src.metrics import add_i_and_u, get_mean_iou_per_class
 
+
 from src.data_loader import OurDataset
 from src.utils import get_id, save_to_log, get_comment, get_data_path, data, get_grid_search_local_features
 from src.plot_confusion_matrix import plot_confusion_matrix
 
 # Global variables
-all_labels = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17])
-num_points_dict = {'original': 32492, '50': 16247}
+all_labels = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8 , 9, 10, 11, 12, 13, 14, 15, 16, 17])
+num_points_dict = {'original': 32492, '50': 16247, '90': None}
 
 recording = True
-
 
 class SAModule(torch.nn.Module):
     def __init__(self, ratio, r, nn):
@@ -206,7 +206,7 @@ def train(epoch):
         total_nodes += data.num_nodes
 
         # Mean Jaccard indeces PER LABEL (18 numbers)
-        i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
+        i, u = i_and_u(out.max(dim=1)[1], data.y, num_labels, batch=data.batch)
 
         # Add to totals
         i_total, u_total = add_i_and_u(i, u, i_total, u_total, idx)
@@ -224,7 +224,7 @@ def train(epoch):
             if recording:
                 writer.add_scalar('Loss/train', total_loss / print_per, epoch)
                 writer.add_scalar('Mean IoU/train', mean_iou, epoch)
-                writer.add_scalar('Accuracy/train', correct_nodes / total_nodes, epoch)
+                writer.add_scalar('Accuracy/train', correct_nodes/total_nodes, epoch)
 
                 for label, iou in enumerate(mean_iou_per_class):
                     writer.add_scalar('IoU{}/train'.format(label), iou, epoch)
@@ -236,6 +236,7 @@ def train(epoch):
 
 
 def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_iou='acc', id=None, experiment_name=''):
+
     # 1. Use this as the identifier for testing or validating
     mode = '_validation'
     _epoch = str(epoch)
@@ -254,6 +255,7 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
 
     start = time.time()
 
+
     with torch.no_grad():
 
         for batch_idx, data in enumerate(loader):
@@ -267,14 +269,17 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
             loss = F.nll_loss(out, data.y)
             total_loss.append(loss)
 
+
             # 2. Get d (positions), _y (actual labels), _out (predictions)
             d = data.pos.cpu().detach().numpy()
             _y = data.y.cpu().detach().numpy()
             _out = out.max(dim=1)[1].cpu().detach().numpy()
 
+
             # Mean Jaccard indeces PER LABEL (18 numbers)
-            i, u = i_and_u(out.max(dim=1)[1], data.y, 18, batch=data.batch)
+            i, u = i_and_u(out.max(dim=1)[1], data.y, num_labels, batch=data.batch)
             i_total, u_total = add_i_and_u(i, u, i_total, u_total, batch_idx)
+
 
             if batch_idx == 0:
                 all_preds = pred
@@ -283,6 +288,7 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
             else:
                 all_preds = torch.cat((all_preds, pred))
                 all_datay = torch.cat((all_datay, data.y))
+
 
             if recording:
                 # 3. Create directory where to place the data
@@ -293,12 +299,12 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
                 # 4. Save the segmented brain in ./[...comment...]/data_valiation3.pkl (3 is for epoch)
                 # for brain_idx, brain in data:
                 if test:
-                    with open(f'experiment_data/new/{experiment_name}-{id}/data{mode}_by_{test_by_acc_OR_iou}.pkl',
-                              'wb') as file:
+                    with open(f'experiment_data/new/{experiment_name}-{id}/data{mode}_by_{test_by_acc_OR_iou}.pkl', 'wb') as file:
                         pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
                 else:
-                    with open(f'experiment_data/new/{experiment_name}-{id}/data{mode + _epoch}.pkl', 'wb') as file:
+                    with open(f'experiment_data/new/{experiment_name}-{id}/data{mode+_epoch}.pkl', 'wb') as file:
                         pickle.dump((d, _y, _out), file, protocol=pickle.HIGHEST_PROTOCOL)
+
 
             # 5. Get accuracy
             correct_nodes += pred.eq(data.y).sum().item()
@@ -311,7 +317,8 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
         accuracy = correct_nodes / total_nodes
         loss = torch.mean(torch.tensor(total_loss))
 
-        # TODO: Validation/tests are being made many times! Why?
+
+        #TODO: Validation/tests are being made many times! Why?
 
         if recording:
 
@@ -320,23 +327,24 @@ def test(loader, experiment_description, epoch=None, test=False, test_by_acc_OR_
             else:
                 writer.add_scalar(f'Mean IoU/validation', mean_iou, epoch)
 
+
             writer.add_scalar('Validation Time/epoch', time.time() - start, epoch)
 
             # 7. Get confusion matrix
-            cm = plot_confusion_matrix(all_datay, all_preds, labels=all_labels)
-            writer.add_figure(f'Confusion Matrix - ID{id}-{experiment_name}', cm)
+            # cm = plot_confusion_matrix(all_datay, all_preds, labels=all_labels)
+            # writer.add_figure(f'Confusion Matrix - ID{id}-{experiment_name}', cm)
 
     return loss, accuracy, mean_iou_per_class, mean_iou
 
 
 def perform_final_testing(model, writer, test_loader, experiment_name, comment, id):
+
     # 1. Load the best model for testing --- both by accuracy and IoU
     model.load_state_dict(
         torch.load(f'./experiment_data/new/{experiment_name}-{id}/' + 'best_acc_model' + '.pt'))
 
     # 2. Test the performance after training
-    loss_acc, acc_acc, iou_acc, mean_iou_acc = test(test_loader, comment, test=True, test_by_acc_OR_iou='acc', id=id,
-                                                    experiment_name=experiment_name)
+    loss_acc, acc_acc, iou_acc, mean_iou_acc = test(test_loader, comment, test=True, test_by_acc_OR_iou='acc', id=id, experiment_name=experiment_name)
 
     # 3. Record test metrics in Tensorboard
     if recording:
@@ -347,13 +355,14 @@ def perform_final_testing(model, writer, test_loader, experiment_name, comment, 
             writer.add_scalar('IoU{}/test_byACC'.format(label), value)
             print('\t\tTest Label (best model by Acc) {}: {}'.format(label, value))
 
+
+
     # 1. Load the best model for testing --- both by accuracy and IoU
     model.load_state_dict(
         torch.load(f'./experiment_data/new/{experiment_name}-{id}/' + 'best_iou_model' + '.pt'))
 
     # 2. Test the performance after training
-    loss_iou, acc_iou, iou_iou, mean_iou_iou = test(test_loader, comment, test=True, test_by_acc_OR_iou='iou', id=id,
-                                                    experiment_name=experiment_name)
+    loss_iou, acc_iou, iou_iou, mean_iou_iou = test(test_loader, comment, test=True, test_by_acc_OR_iou='iou', id=id, experiment_name=experiment_name)
 
     # 3. Record test metrics in Tensorboard
     if recording:
@@ -368,12 +377,15 @@ def perform_final_testing(model, writer, test_loader, experiment_name, comment, 
            loss_iou, acc_iou, iou_iou, mean_iou_iou
 
 
+
+
+
 if __name__ == '__main__':
 
     num_workers = 2
     local_features = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
     grid_features = get_grid_search_local_features(local_features)
-    ids_to_include = [6, 7, 12, 13, 14, 15, 16]
+    ids_to_include = [15]
 
     #################################################
     ########### EXPERIMENT DESCRIPTION ##############
@@ -381,57 +393,59 @@ if __name__ == '__main__':
     recording = True
 
     data_nativeness = 'native'
-    data_compression = "original"
-    data_type = "white"
+    data_compression = "10k"
+    data_type = 'white'
+    hemisphere = 'left'
 
-    additional_comment = 'amir_'
+    additional_comment = ''
 
-    experiment_name = f'{data_nativeness}_{data_type}_{data_compression}_{additional_comment}'
+    experiment_name = f'{data_nativeness}_{data_type}_{data_compression}_{hemisphere}_{additional_comment}'
 
     #################################################
     ############ EXPERIMENT DESCRIPTION #############
     #################################################
 
+
     for id in ids_to_include:
-        for global_feature in [[]]:  # , ['weight']]:
+        for global_feature in [[]]:#, ['weight']]:
 
             # 1. Model Parameters
             lr = 0.001
-            batch_size = 8
-            local_feature_combo = grid_features[id - 2]
+            batch_size = 4
+            local_feature_combo = grid_features[id-2]
             global_features = global_feature
             target_class = 'gender'
             task = 'segmentation'
             REPROCESS = True
 
+
             # 2. Get the data splits indices
             with open('src/names.pk', 'rb') as f:
                 indices = pickle.load(f)
 
+
             # 4. Get experiment description
-            comment = get_comment(data_nativeness, data_compression, data_type,
+            comment = get_comment(data_nativeness, data_compression, data_type, hemisphere,
                                   lr, batch_size, local_feature_combo, global_features, target_class)
 
-            print('=' * 50 + '\n' + '=' * 50)
+            print('='*50 + '\n' + '='*50)
             print(comment)
-            print('=' * 50 + '\n' + '=' * 50)
+            print('='*50 + '\n' + '='*50)
 
             # 5. Perform data processing
-            data_folder, files_ending = get_data_path(data_nativeness, data_compression, data_type, hemisphere='left')
+            data_folder, files_ending = get_data_path(data_nativeness, data_compression, data_type, hemisphere=hemisphere)
 
-            train_dataset, test_dataset, validation_dataset, train_loader, test_loader, val_loader = data(data_folder,
-                                                                                                          files_ending,
-                                                                                                          data_type,
-                                                                                                          target_class,
-                                                                                                          task,
-                                                                                                          REPROCESS,
-                                                                                                          local_feature_combo,
-                                                                                                          global_features,
-                                                                                                          indices,
-                                                                                                          batch_size,
-                                                                                                          num_points_dict[
-                                                                                                              data_compression],
-                                                                                                          num_workers=2)
+            train_dataset, test_dataset, validation_dataset, train_loader, test_loader, val_loader, num_labels = data(data_folder,
+                                                                                                                      files_ending,
+                                                                                                                        data_type,
+                                                                                                                          target_class,
+                                                                                                                          task,
+                                                                                                                          REPROCESS,
+                                                                                                                          local_feature_combo,
+                                                                                                                          global_features,
+                                                                                                                          indices,
+                                                                                                                          batch_size,
+                                                                                                                          num_workers=2)
 
             # 6. Getting the number of features to adapt the architecture
             try:
@@ -439,14 +453,15 @@ if __name__ == '__main__':
             except:
                 num_local_features = 0
             # numb_global_features = train_dataset[0].y.size(1) - 1
-            num_classes = train_dataset.num_labels
+
+            print(f'Unique labels found: {num_labels}')
 
             if not torch.cuda.is_available():
                 print('YOU ARE RUNNING ON A CPU!!!!')
 
             # 7. Create the model
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-            model = Net(18, num_local_features, num_global_features=None).to(device)
+            model = Net(num_labels, num_local_features, num_global_features=None).to(device)
             optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
             gamma = 0.9875
@@ -455,7 +470,7 @@ if __name__ == '__main__':
             id = '0'
             if recording:
                 # 9. Save to log_record.txt
-                log_descr = get_comment(data_nativeness, data_compression, data_type,
+                log_descr = get_comment(data_nativeness, data_compression, data_type, hemisphere,
                                         lr, batch_size, local_feature_combo, global_features, target_class,
                                         log_descr=True)
 
@@ -483,8 +498,7 @@ if __name__ == '__main__':
                     writer.add_scalar('Training Time/epoch', time.time() - start, epoch)
 
                 # 3. Validate the performance after each epoch
-                loss, acc, iou, mean_iou = test(val_loader, comment + 'val' + str(epoch), epoch=epoch, id=id,
-                                                experiment_name=experiment_name)
+                loss, acc, iou, mean_iou = test(val_loader, comment+'val'+str(epoch), epoch=epoch, id=id, experiment_name=experiment_name)
                 print('Epoch: {:02d}, Val Loss/nll: {}, Val Acc: {:.4f}'.format(epoch, loss, acc))
 
                 scheduler.step()
@@ -495,13 +509,11 @@ if __name__ == '__main__':
                     if acc > best_val_acc:
                         best_val_acc = acc
                         best_model_acc = epoch
-                        torch.save(model.state_dict(),
-                                   f'./experiment_data/new/{experiment_name}-{id}/' + 'best_acc_model' + '.pt')
+                        torch.save(model.state_dict(), f'./experiment_data/new/{experiment_name}-{id}/' + 'best_acc_model' + '.pt')
                     if mean_iou > best_val_iou:
                         best_val_iou = mean_iou
                         best_model_iou = epoch
-                        torch.save(model.state_dict(),
-                                   f'./experiment_data/new/{experiment_name}-{id}/' + 'best_iou_model' + '.pt')
+                        torch.save(model.state_dict(), f'./experiment_data/new/{experiment_name}-{id}/' + 'best_iou_model' + '.pt')
 
                     writer.add_scalar('Loss/val_nll', loss, epoch)
                     writer.add_scalar('Accuracy/val', acc, epoch)
@@ -509,19 +521,19 @@ if __name__ == '__main__':
                         writer.add_scalar('IoU{}/validation'.format(label), value, epoch)
                         print('\t\tValidation Label {}: {}'.format(label, value))
 
-                print('=' * 60)
+                print('='*60)
 
             # save the last model
             torch.save(model.state_dict(), f'./experiment_data/new/{experiment_name}-{id}/' + 'last_model' + '.pt')
 
-            loss_acc, acc_acc, iou_acc, mean_iou_acc, loss_iou, acc_iou, iou_iou, mean_iou_iou = perform_final_testing(
-                model, writer, test_loader, experiment_name, comment, id)
+
+            loss_acc, acc_acc, iou_acc, mean_iou_acc, loss_iou, acc_iou, iou_iou, mean_iou_iou = perform_final_testing(model, writer, test_loader, experiment_name, comment, id)
 
 
 
 
 
-
+        
 
 
 

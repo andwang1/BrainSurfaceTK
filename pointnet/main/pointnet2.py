@@ -12,9 +12,9 @@ import torch_geometric.transforms as T
 from torch.utils.tensorboard import SummaryWriter
 from torch_geometric.data import DataLoader
 
-from src.data_loader import OurDataset
+from pointnet.src.data_loader import OurDataset
 
-from src.models.pointnet2_regression import Net
+from pointnet.src.models.pointnet2_regression import Net
 
 
 def train(epoch):

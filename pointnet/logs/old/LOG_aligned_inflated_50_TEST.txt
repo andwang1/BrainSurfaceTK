@@ -1,0 +1,25 @@
+LOG OF ALL THE EXPERIMENTS for aligned_inflated_50_TEST
+#2 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['curvature', 'sulc']		Global features:[]		Data used: 50_inflated		Split class: gender
+#3 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'myelin_map']		Global features:[]		Data used: 50_inflated		Split class: gender
+#4 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'myelin_map']		Global features:[]		Data used: 50_inflated		Split class: gender
+#5 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'myelin_map']		Global features:[]		Data used: 50_inflated		Split class: gender
+#6 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'myelin_map']		Global features:[]		Data used: 50_inflated		Split class: gender
+#7 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'myelin_map']		Global features:[]		Data used: 50_inflated		Split class: gender
+#8 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'myelin_map']		Global features:[]		Data used: 50_inflated		Split class: gender
+#9 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'myelin_map']		Global features:[]		Data used: 50_inflated		Split class: gender
+#10 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'myelin_map']		Global features:[]		Data used: 50_inflated		Split class: gender
+#11 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'myelin_map']		Global features:[]		Data used: 50_inflated		Split class: gender
+#12 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'myelin_map']		Global features:[]		Data used: 50_inflated		Split class: gender
+#13 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'myelin_map']		Global features:[]		Data used: 50_inflated		Split class: gender
+#14 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'myelin_map']		Global features:[]		Data used: 50_inflated		Split class: gender
+#15 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'myelin_map']		Global features:[]		Data used: 50_inflated		Split class: gender
+#16 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'myelin_map']		Global features:[]		Data used: 50_inflated		Split class: gender
+#17 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'myelin_map']		Global features:[]		Data used: 50_inflated		Split class: gender
+#18 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'myelin_map']		Global features:[]		Data used: 50_inflated		Split class: gender
+#19 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'myelin_map']		Global features:[]		Data used: 50_inflated		Split class: gender
+#20 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'myelin_map']		Global features:[]		Data used: 50_inflated		Split class: gender
+#21 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'myelin_map']		Global features:[]		Data used: 50_inflated		Split class: gender
+#22 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'curvature']		Global features:[]		Data used: 50_inflated		Split class: gender
+#23 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'myelin_map']		Global features:[]		Data used: 50_inflated		Split class: gender
+#24 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'myelin_map']		Global features:[]		Data used: 50_inflated		Split class: gender
+#25 ::: aligned  50  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'curvature']		Global features:[]		Data used: 50_inflated		Split class: gender
