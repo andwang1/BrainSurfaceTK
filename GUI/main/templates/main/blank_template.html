@@ -1,0 +1,10 @@
+{% extends "main/header.html" %}
+{% load static %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block content %}
+    <h4>{{ page.page_title }}</h4><h6>{{ page.page_published }}</h6>
+    {{ page.page_content | safe }}
+{% endblock %}
+

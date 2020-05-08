@@ -132,6 +132,21 @@ def get_features(list_features, reader):
     else:
         return None
 
+def get_labels(reader):
+    '''Returns tensor of features to add in every point.
+    :param list_features: list of features to add. Mapping is in self.feature_arrays
+    :param mesh: pyvista mesh from which to get the arrays.
+    :returns: tensor of features or None if list is empty.'''
+
+    # Very ugly workaround about some classes not being in some data.
+    list_of_drawem_labels = [0, 5, 7, 9, 11, 13, 15, 21, 22, 23, 25, 27, 29, 31, 33, 35, 37, 39]
+    feature_arrays = {'drawem': 0, 'corr_thickness': 1, 'myelin_map': 2, 'curvature': 3, 'sulc': 4}
+
+    labels = [vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(feature_arrays[key])) for key in
+                feature_arrays if key == 'drawem']
+
+    return torch.tensor(labels).t()
+
 
 def segment(brain_path, folder_path_to_write, tmp_file_name=None):
 
@@ -148,9 +163,10 @@ def segment(brain_path, folder_path_to_write, tmp_file_name=None):
 
     local_features = ['corr_thickness', 'curvature', 'sulc']
     x = get_features(local_features, reader)
+    y = get_labels(reader)
 
     pre_transform = T.NormalizeScale()
-    data = Data(batch=torch.zeros_like(x[:, 0]).long(), x=x, pos=points)
+    data = Data(batch=torch.zeros_like(x[:, 0]).long(), x=x, y=y, pos=points)
     data = pre_transform(data)
     # data = Data(x=x, pos=points)
 

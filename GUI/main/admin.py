@@ -2,12 +2,29 @@ from django.contrib import admin
 from django.db import models
 from tinymce.widgets import TinyMCE
 
-from .models import Option, SessionDatabase, UploadedSessionDatabase
+from .models import Option, SessionDatabase, UploadedSessionDatabase, Information
 
 """
 This file contains all the Admin versions of the models. This is used in the admin section of the website to modify 
 the users database, options on the home page, modify uploaded sessions & the original data entries.
 """
+
+
+class InformationAdmin(admin.ModelAdmin):
+    """
+    Used to view/modify options in the home page.
+    """
+
+    fieldsets = [
+        ("Title/date", {'fields': ["page_title", "page_published"]}),
+        ("URL", {'fields': ["page_slug"]}),
+        ("Page Summary", {'fields': ["page_summary"]}),
+        ("Content", {"fields": ["page_content"]})
+    ]
+
+    formfield_overrides = {
+        models.TextField: {'widget': TinyMCE(attrs={'cols': 80, 'rows': 30})},
+    }
 
 
 # Register your models here.
@@ -65,6 +82,7 @@ class SessionDatabaseAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(Option)
-admin.site.register(SessionDatabase)
-admin.site.register(UploadedSessionDatabase)
+admin.site.register(Option, OptionAdmin)
+admin.site.register(SessionDatabase, SessionDatabaseAdmin)
+admin.site.register(UploadedSessionDatabase, UploadedSessionDatabaseAdmin)
+admin.site.register(Information, InformationAdmin)
