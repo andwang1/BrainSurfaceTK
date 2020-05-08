@@ -1,10 +1,4 @@
 {% extends 'main/header.html' %}
-{% load static %}
-
-{% block extra_js %}
-    <script type="text/javascript" src="{% static "main/js/brain_surface_tool.js" | safe %}"></script>
-{% endblock %}
-
 
 {% block title %}Results{% endblock %}
 
@@ -58,14 +52,11 @@
             </button>
         </div>
         <br>
-        <div id="brain_surf_container">
-            <div class="segmented_container"></div>
-        </div>
 
         <script type="text/javascript">
 
             $('#predict').click(function () {
-                document.getElementById("predict").style.color = "green";
+                document.getElementById("predict").style.color = "red";
                 console.log("create post is working!");
                 var table_Exists = document.getElementById("result_table");
 
@@ -87,9 +78,9 @@
 
                         success: function (json) {
                             $('#post-text').val('');
-                            console.log(json);
-                            console.log("success");
-                            console.log(json.pred);
+                            {#console.log(json);#}
+                            {#console.log("success");#}
+                            {#console.log(json.pred);#}
 
                             display_results(json.pred);
                             $("#loader-wheel").fadeOut();
@@ -98,14 +89,12 @@
                 }
             });
 
-
             $('#segment').click(function () {
 
                 $("#loader-wheel").fadeIn();
 
                 document.getElementById("segment").style.color = "red";
                 console.log("create post is working!");
-
                 var objCells = document.getElementById("info_table").rows.item(1).cells;
                 console.log(objCells.item(0).innerHTML);
 
@@ -117,16 +106,11 @@
                         'session_id': objCells.item(1).innerHTML,
                         'file_url': "{{ surf_file_url }}"
                     },
-
                     success: function (json) {
                         $('#post-text').val('');
                         console.log(json);
                         console.log("success");
-
-                        {#myLibrary.myFunction(json.segmented_file_path, '.segmented_container');#}
-
-                        brain_surface_library.build_brain_surf_window(json.segmented_file_path, '.segmented_container');
-
+                        brain_surface_library.build_brain_surf_window(json.segmented_file_path, '.brain_surface_container');
                         $("#loader-wheel").fadeOut();
 
                         $.ajax({
@@ -137,54 +121,41 @@
                                 'session_id': objCells.item(1).innerHTML,
                                 'tmp_file_url': json.segmented_file_path
                             },
-
                             success: function () {
                                 console.log("successfully removed tmp");
-
                             }
                         });
-
                     }
                 });
             });
 
 
             function display_results(pred) {
-
                 var table_Exists = document.getElementById("result_table");
-
                 if (table_Exists == null) {
                     // CREATE DYNAMIC TABLE.
                     var table = document.createElement('table');
-
                     // SET THE TABLE ID.
                     // WE WOULD NEED THE ID TO TRAVERSE AND EXTRACT DATA FROM THE TABLE.
                     table.setAttribute('id', 'result_table');
-
                     var arrHead = new Array();
                     arrHead = ['Predicted age'];
-
                     var arrValue = new Array();
                     arrValue.push([pred]);
-
                     var tr = table.insertRow(-1);
-
                     for (var h = 0; h < arrHead.length; h++) {
                         var th = document.createElement('th');              // TABLE HEADER.
                         th.innerHTML = arrHead[h];
                         tr.appendChild(th);
                     }
-
                     for (var c = 0; c <= arrValue.length - 1; c++) {
                         tr = table.insertRow(-1);
-
                         for (var j = 0; j < arrHead.length; j++) {
                             var td = document.createElement('td');          // TABLE DEFINITION.
                             td = tr.insertCell(-1);
                             td.innerHTML = arrValue[c][j];                  // ADD VALUES TO EACH CELL.
                         }
                     }
-
                     // FINALLY ADD THE NEWLY CREATED TABLE AND BUTTON TO THE BODY.
                     document.getElementById("prediction_container").appendChild(table);
                 }
