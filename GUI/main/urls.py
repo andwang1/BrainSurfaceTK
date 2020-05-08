@@ -25,7 +25,14 @@ urlpatterns = [
     path('upload/', views.upload_session, name='upload'),
     path('register/', user_views.register, name='register'),
     path('logout/', user_views.logout_request, name='logout'),
+
     path('login/', user_views.login_request, name='login'),
+    path('lookup/login/', user_views.login_request, name='login'),
+    path('upload/login/', user_views.login_request, name='login'),
+    path('results/login/', user_views.login_request, name='login'),
+    path('results/<int:session_id>/login/', user_views.login_request, name='login'),
+    path("account/login/", user_views.login_request, name='login'),
+
     path('results/', views.view_session_results, name="results"),
     path('results/<int:session_id>', views.view_session_results, name="session_id_results"),
     path("results/<int:session_id>/run_predictions/", result_helper_views.run_prediction, name="run_predictions"),

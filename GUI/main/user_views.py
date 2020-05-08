@@ -1,4 +1,5 @@
 from django.contrib import messages
+from main.custom_wrapper_decorators import custom_superuser_required
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, redirect
@@ -6,12 +7,9 @@ from django.shortcuts import render, redirect
 from .forms import NewUserForm
 
 
+@custom_superuser_required()
 def account_page(request):
-    if request.user.is_superuser:
-        return render(request, "main/admin_options.html")
-    else:
-        messages.error(request, "You are not a superuser.")
-        return redirect("main:homepage")
+    return render(request, "main/admin_options.html")
 
 
 def register(request):
@@ -41,6 +39,8 @@ def login_request(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, message=f"Successfully logged into as: {username}")
+                if 'next' in request.GET.keys():
+                    return redirect(request.GET['next'])
                 return redirect("main:homepage")
             else:
                 for msg in form.error_messages:

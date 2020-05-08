@@ -3,6 +3,7 @@ import os
 from django.contrib import messages
 from django.shortcuts import render, redirect
 
+from main.custom_wrapper_decorators import custom_login_required, custom_staff_member_required, custom_superuser_required
 from main.load_helper import load_original_data
 from main.result_helpers import get_mri_js_html, get_surf_file_url, build_session_table, get_unique_session
 from .forms import UploadFileForm
@@ -35,6 +36,7 @@ def about(request):
     return render(request, "main/about.html")
 
 
+@custom_login_required()
 def view_session_results(request, session_id=None):
     """
     Gets the session ID from the databases and loads the mri file & fetches the vtp file path that is all sent to the
@@ -66,6 +68,7 @@ def view_session_results(request, session_id=None):
                                "mri_js_html": mri_js_html, "surf_file_url": surf_file_url})
 
 
+@custom_staff_member_required()
 def load_data(request):
     """
     Wipes the SessionDatabase and optionally wipes the UploadedSessionDatabase before loading
@@ -90,39 +93,29 @@ def load_data(request):
     return render(request, "main/load_database.html")
 
 
+@custom_login_required()
 def lookup(request):
-    if request.user.is_superuser:
-        if request.method == "GET":
-            session_id = request.GET.get("selected_session_id", None)
-            if session_id is not None:
-                return redirect("main:session_id_results", session_id=session_id, permanent=True)
+    if request.method == "GET":
+        session_id = request.GET.get("selected_session_id", None)
+        if session_id is not None:
+            return redirect("main:session_id_results", session_id=session_id, permanent=True)
 
-            session_ids = [int(session.session_id) for session in SessionDatabase.objects.all()]
-            uploaded_session_ids = [int(session.session_id) for session in UploadedSessionDatabase.objects.all()]
+        session_ids = [int(session.session_id) for session in SessionDatabase.objects.all()]
+        uploaded_session_ids = [int(session.session_id) for session in UploadedSessionDatabase.objects.all()]
 
-            return render(request, "main/lookup.html",
-                          context={"session_ids": sorted(session_ids + uploaded_session_ids)})
-
-    else:
-        messages.error(request, "You must be an admin to access this feature currently!")
-        return redirect("main:homepage")
+        return render(request, "main/lookup.html",
+                      context={"session_ids": sorted(session_ids + uploaded_session_ids)})
 
 
+@custom_login_required(login_url="login/")
 def upload_session(request):
-    if request.user.is_superuser:
-        if request.method == "GET":
-            return render(request, "main/upload_session.html", context={"form": UploadFileForm()})
-        if request.method == "POST":
-            form = UploadFileForm(request.POST, request.FILES)
-            if form.is_valid():
-                form.save()
-                messages.success(request, "Successfully uploaded! Now processing.")
-                return redirect("main:session_id_results", session_id=int(form["session_id"].value()), permanent=True)
-            messages.error(request, "Form is not valid!")
-            return render(request, "main/upload_session.html", context={"form": form})
-    else:
-        messages.error(request, "You must be an admin to access this feature currently!")
-        return redirect("main:homepage")
-
-
-
+    if request.method == "GET":
+        return render(request, "main/upload_session.html", context={"form": UploadFileForm()})
+    if request.method == "POST":
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Successfully uploaded! Now processing.")
+            return redirect("main:session_id_results", session_id=int(form["session_id"].value()), permanent=True)
+        messages.error(request, "Form is not valid!")
+        return render(request, "main/upload_session.html", context={"form": form})
