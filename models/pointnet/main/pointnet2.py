@@ -75,7 +75,7 @@ if __name__ == '__main__':
     batch_size = 4
     num_workers = 4
     # ['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc'] + ['weight']
-   local_features = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
+    local_features = ['corr_thickness', 'curvature', 'sulc']
     # local_features = ['sulc']
     global_features = []
     target_class = 'scan_age'
@@ -93,8 +93,8 @@ if __name__ == '__main__':
 
     data = "reducedto_05k"
     data_ending = "05k.vtk"
-    #type_data = "pial"
-    type_data = "sphere"
+    type_data = "pial"
+    #type_data = "sphere"
     native = "merged"#"surface_native" #surface_fsavg32k
 
     # folder in data/stored for data.
