@@ -6,11 +6,11 @@
 /models/pointnet/runs
 /models/pointnet/venv
 /models/pointnet/data
-/models/pointnet/slurm-*
 /models/pointnet/oldsplit*
 /models/pointnet/log_record.txt
 /models/pointnet/forCem.vtp
 /models/pointnet/new_runs
+/models/pointnet/slurm*
 
 
 
