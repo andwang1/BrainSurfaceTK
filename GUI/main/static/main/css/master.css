@@ -22,4 +22,12 @@ html * {
     height: 75% !important;
 }
 
+#loader-wheel {
+    position: fixed;
+    top:-100%; right:-100%; left:-100%; bottom:-100%;
+    margin:auto;
+    z-index:0;
+    display: none;
+}
+
 

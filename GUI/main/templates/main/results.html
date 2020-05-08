@@ -63,12 +63,15 @@
         </div>
 
         <script type="text/javascript">
+
             $('#predict').click(function () {
                 document.getElementById("predict").style.color = "green";
                 console.log("create post is working!");
                 var table_Exists = document.getElementById("result_table");
 
                 if (table_Exists == null) {
+
+                    $("#loader-wheel").fadeIn();
 
                     var objCells = document.getElementById("info_table").rows.item(1).cells;
                     console.log(objCells.item(0).innerHTML);
@@ -89,6 +92,7 @@
                             console.log(json.pred);
 
                             display_results(json.pred);
+                            $("#loader-wheel").fadeOut();
                         }
                     });
                 }
@@ -96,6 +100,9 @@
 
 
             $('#segment').click(function () {
+
+                $("#loader-wheel").fadeIn();
+
                 document.getElementById("segment").style.color = "red";
                 console.log("create post is working!");
 
@@ -119,6 +126,8 @@
                         {#myLibrary.myFunction(json.segmented_file_path, '.segmented_container');#}
 
                         brain_surface_library.build_brain_surf_window(json.segmented_file_path, '.segmented_container');
+
+                        $("#loader-wheel").fadeOut();
 
                         $.ajax({
                             url: "{{ session_id }}/remove_tmp/",

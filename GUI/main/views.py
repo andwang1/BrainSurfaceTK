@@ -256,7 +256,7 @@ def run_predictions(request, session_id):
         if file_url is None:
             warnings.warn(f"Run predictions was called with an invalid file_url: \n {file_url}")
 
-        pred = predict_age(os.path.join(settings.MEDIA_ROOT, file_url.strip(settings.MEDIA_URL)))
+        pred = round(predict_age(os.path.join(settings.MEDIA_ROOT, file_url.strip(settings.MEDIA_URL))), 3)
         data = {
             'pred': pred
         }
