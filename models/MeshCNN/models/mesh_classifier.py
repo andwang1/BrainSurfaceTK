@@ -156,21 +156,16 @@ class ClassifierModel:
                 out = torch.sigmoid(out)
                 pred_class = torch.round(out).long()
             else:
-                print(out)
+                if self.opt.verbose:
+                    print(out)
                 pred_class = out.data.max(1)[1]
             label_class = self.labels
             self.export_segmentation(pred_class.cpu())
             patient_id = self.path[0].split("/")[-1][:-4]
 
-            re_pattern = r".*\/(CC[a-zA-Z0-9_]+)\.obj$"
-            re_matcher = re.compile(re_pattern)
-            matched_path = re_matcher.match(self.path[-1])
-            #patient_id = matched_path.group(1)
-            # patient_id = self.path[-1][38:-4]
-
             # Print to console
             print('-------')
-            #print('Patient ID:\t', patient_id)
+            print('Patient ID:\t', patient_id)
             print('Predicted:\t', pred_class.item())
             print('Label:\t\t', label_class.item())
             correct = self.get_accuracy(pred_class, label_class)

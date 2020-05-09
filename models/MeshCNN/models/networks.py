@@ -178,7 +178,6 @@ class MeshConvNet(nn.Module):
         if feature_values:
             features = torch.tensor([feature_values]).to(x.device)
             x = torch.cat((x, features), 1)
-        print(x.size())
         x = F.relu(self.fc1(x))
         if self.opt.dropout:
             x = self.d(x)
