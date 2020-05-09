@@ -203,6 +203,8 @@ if __name__ == '__main__':
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     scheduler = StepLR(optimizer, step_size=1, gamma=0.985)
 
+    print(f'number of param: {sum(p.numel() for p in model.parameters() if p.requires_grad)}')
+
     best_val_loss = 999
 
     # MAIN TRAINING LOOP
