@@ -3,6 +3,10 @@ The original MeshCNN GitHub repositary can be found here: https://github.com/ran
 
 We recommend viewing the original README before using this repo as we will describe here only how to use the added functionality that we have implemented.
 
+# .vtk to .obj Conversion
+
+Firstly, we have python scripts to convert a directory of files from `.vtk` to `.obj` (as required by MeshCNN), whilst also creating the `.seseg` and `.eseg` files needed for segmentation. 
+
 # Regression
 
 We implemented regression due to interest in predicting age from brain-surface meshes. Regression is a global task, i.e. akin to classification (with one label per mesh), and as opposed to segmentation which is implemented as an edge-wise classification task. 
