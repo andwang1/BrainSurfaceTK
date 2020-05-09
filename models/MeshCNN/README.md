@@ -1,7 +1,7 @@
 # MeshCNN
 The original MeshCNN GitHub repositary can be found here: https://github.com/ranahanocka/MeshCNN/ in which the MeshCNN architecture is implemented in PyTorch. 
 
-We recommend viewing the original README before using this repo as we will describe here only the added functioanlity that we have implemented.
+We recommend viewing the original README before using this repo as we will describe here only how to use the added functioanlity that we have implemented.
 
 # Regression
 
