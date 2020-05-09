@@ -21,10 +21,11 @@ Similarly global features can be inputted into the final fully-connected layers 
 
 We also added functionality for different learning rate schedulers, this can be accessed by setting `--lr_policy` in training scripts; to the standard `lambda|step|plateau` options we added `cyclic|cosine_restarts|static`. 
 
-# Upweighting
-
-Furthermore, for binary classification tasks (e.g. classification of preterm births) we added functionality to upweight the minority class with the  `--weight_minority` option. 
 
 # Viewing the Mesh with Pyvista
 
 Lastly, we use the PyVista package to view the mesh, including collapsed meshes produced by MeshCNN and key vertices. 
+
+# Acknowledgements 
+
+For the MeshCNN paper see  Rana Hanocka et al. “MeshCNN: A Network with an Edge” (2018). url:https://arxiv.org/abs/1809.05910.
