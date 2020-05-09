@@ -7,11 +7,12 @@ import torch
 import torch.nn.functional as F
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset, DataLoader
-from utils.utils import read_meta, clean_data, split_data, get_ids_and_ages, plot_preds
+from ..utils.utils import read_meta, clean_data, split_data, get_ids_and_ages, plot_preds
 import os.path as osp
-from main.train_validate import train_validate, save_to_log
-from volume3d.main.train_test import train_test, save_to_log_test
+from ..main.train_validate import train_validate, save_to_log
+from ..main.train_test import train_test, save_to_log_test
 from torch.utils.tensorboard import SummaryWriter
+PATH_TO_VOLUME3D = osp.join(osp.dirname(osp.realpath(__file__)), '..') + '/'
 
 
 cuda_dev = '0'  # GPU device 0 (can be changed if multiple GPUs are available)
@@ -58,7 +59,7 @@ def create_subject_folder(test=False):
     number_here = 0
     while True:
 
-        fn = osp.join(osp.dirname(osp.realpath(__file__)), '..', f'{name}_{additional_comment}_{number_here}')
+        fn = PATH_TO_VOLUME3D + f'experiment_data/{name}_{additional_comment}_{number_here}'
 
         if not os.path.exists(fn):
             print(f"Making {number_here}")

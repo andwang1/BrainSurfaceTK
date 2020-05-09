@@ -12,8 +12,8 @@ from torch.nn import Module, Conv3d, ConvTranspose3d, Linear, ReLU, Sequential, 
     Dropout, BatchNorm1d
 from torch.optim import Adam, lr_scheduler
 from torch.utils.data import Dataset, DataLoader
-from utils.utils import plot_preds
-from utils.models import ImageSegmentationDataset, Part3, resample_image, PrintTensor
+from ..utils.utils import plot_preds
+from ..utils.models import ImageSegmentationDataset, Part3, resample_image, PrintTensor
 import os.path as osp
 
 
@@ -88,7 +88,8 @@ def save_to_log_test(model, params, fn, score, num_epochs, batch_size, lr, feats
         log.write('\n')
         torch.save(model, path + '/test_model.pth')
 
-    with open('all_log.txt', 'a+') as log:
+    path = osp.join(fn, '../')
+    with open(path + 'all_log.txt', 'a+') as log:
         log.write(f'Test = {score} .')
         log.write('\n')
 

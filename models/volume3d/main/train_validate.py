@@ -12,10 +12,10 @@ from torch.nn import Module, Conv3d, ConvTranspose3d, Linear, ReLU, Sequential, 
     Dropout, BatchNorm1d
 from torch.optim import Adam, lr_scheduler
 from torch.utils.data import Dataset, DataLoader
-from utils.utils import plot_preds
-from utils.models import ImageSegmentationDataset, Part3, resample_image, PrintTensor
+from ..utils.utils import plot_preds
+from ..utils.models import ImageSegmentationDataset, Part3, resample_image, PrintTensor
 import os.path as osp
-
+PATH_TO_VOLUME3D = osp.join(osp.dirname(osp.realpath(__file__)), '..') + '/'
 
 def save_graphs_train(fn, num_epochs, training_loss, val_loss_epoch5):
 
@@ -88,7 +88,8 @@ def save_to_log(model, params, fn, final_MAE, num_epochs, batch_size, lr, feats,
         log.write('\n')
         torch.save(model, f'{fn}/model.pth')
 
-    with open('all_log.txt', 'a+') as log:
+    path = osp.join(fn, '../')
+    with open(path + 'all_log.txt', 'a+') as log:
         log.write('\n')
         log.write(f'SUBJECT #{fn[-1]}:    Validation = {final_MAE},    ')
 

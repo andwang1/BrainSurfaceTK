@@ -9,7 +9,7 @@ from torch_geometric.data import Data
 from torch_geometric.data import DataLoader
 from torch_geometric.data import InMemoryDataset
 
-from src.read_meta import read_meta
+from ..src.read_meta import read_meta
 from tqdm import tqdm
 
 import pickle

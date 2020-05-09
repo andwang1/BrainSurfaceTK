@@ -1,3 +1,0 @@
-LOG OF ALL THE EXPERIMENTS for native_inflated_original_amir
-#2 ::: native  original  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'curvature', 'sulc']		Global features:[]		Data used: original_inflated		Split class: gender
-#3 ::: native  original  inflated  LR=0.001		Batch=8		Local features:['corr_thickness', 'curvature', 'sulc']		Global features:[]		Data used: original_inflated		Split class: gender

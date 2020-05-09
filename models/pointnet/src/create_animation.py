@@ -11,10 +11,6 @@ with open(path + f'/data_validation1.pkl', 'rb') as file:
     labels = labels[:labels.shape[0] // 2]
     pred = pred[:pred.shape[0] // 2]
 
-    # di = {}
-    # for i in np.unique(pred):
-    #     di[i] = 'HELLELARLEALRL'
-
 # Create and structured surface
 mesh = pv.PolyData(data)
 mesh_target = pv.PolyData(data)

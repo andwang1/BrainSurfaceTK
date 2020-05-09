@@ -2,7 +2,9 @@ import os
 import os.path as osp
 import torch_geometric.transforms as T
 from torch_geometric.data import DataLoader
-from src.data_loader import OurDataset
+import itertools
+from ..src.data_loader import OurDataset
+PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..') + '/'
 
 
 def get_comment(data_nativeness, data_compression, data_type, hemisphere,
@@ -32,16 +34,16 @@ def get_comment(data_nativeness, data_compression, data_type, hemisphere,
     return comment
 
 
-
 def get_id(prefix=''):
     '''
     :return: The next expected id number of an experiment
              that hasn't yet been recorded!
     '''
-    with open(f'logs/new/LOG_{prefix}.txt', 'r') as log_record:
+    with open(PATH_TO_ROOT + f'logs/new/LOG_{prefix}.txt', 'r') as log_record:
         next_id = len(log_record.readlines()) + 1
 
     return str(next_id)
+
 
 def save_to_log(experiment_description, prefix=''):
     '''
@@ -51,19 +53,16 @@ def save_to_log(experiment_description, prefix=''):
 
     # If the log file does not exist - create it
     add_first_line = False
-    if not os.path.exists(f'logs/new/LOG_{prefix}.txt'):
+    if not os.path.exists(PATH_TO_ROOT + f'logs/new/LOG_{prefix}.txt'):
         add_first_line = True
 
     if add_first_line:
-        with open(f'logs/new/LOG_{prefix}.txt', 'w+') as log_record:
+        with open(PATH_TO_ROOT + f'logs/new/LOG_{prefix}.txt', 'w+') as log_record:
             log_record.write(f'LOG OF ALL THE EXPERIMENTS for {prefix}')
 
-    with open(f'logs/new/LOG_{prefix}.txt', 'a+') as log_record:
+    with open(PATH_TO_ROOT + f'logs/new/LOG_{prefix}.txt', 'a+') as log_record:
         next_id = get_id(prefix=prefix)
         log_record.write('\n#{} ::: {}'.format(next_id, experiment_description))
-
-
-import itertools
 
 
 def get_grid_search_local_features(local_feats):
@@ -203,7 +202,8 @@ def get_data_path(data_nativeness, data_compression, data_type, hemisphere='left
 
 
 
-def data(data_folder, files_ending, data_type, target_class, task, REPROCESS, local_features, global_features, indices, batch_size, num_workers=2):
+def data(data_folder, files_ending, data_type, target_class, task, REPROCESS, local_features, global_features, indices, batch_size, num_workers=2,
+         data_compression=None, data_nativeness=None, hemisphere=None):
     '''
     Get data loaders and data sets
 
@@ -222,7 +222,7 @@ def data(data_folder, files_ending, data_type, target_class, task, REPROCESS, lo
     '''
 
     path = osp.join(
-        osp.dirname(osp.realpath(__file__)), '..', 'data/' + target_class + f'/Reduced50/{data_type}')
+        osp.dirname(osp.realpath(__file__)), '..', 'data/' + target_class + f'/{data_compression}_{data_nativeness}_{hemisphere}/{data_type}')
 
     # Transformations
     transform = T.Compose([

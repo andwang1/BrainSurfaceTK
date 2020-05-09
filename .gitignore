@@ -1,7 +1,6 @@
 # Tensorboard logs
 
 # Data
-/models/pointnet/0
 /models/pointnet/experiment_data
 /models/pointnet/runs
 /models/pointnet/venv

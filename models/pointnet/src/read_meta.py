@@ -1,8 +1,8 @@
+import os.path as osp
 import numpy as np
 import csv
-
-
-path = '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv'
+PATH_TO_FILE = osp.dirname(osp.realpath(__file__))
+path = PATH_TO_FILE + '/meta_data.tsv'
 
 def read_meta(path=path):
     '''Correctly reads a .tsv file into a numpy array'''
