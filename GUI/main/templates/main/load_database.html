@@ -4,27 +4,28 @@
 
 {% block content %}
     <div class="row">
-        <div class="col s8 offset-s2">
+        <div class="col s6 m6 l6 offset-s3 offset-m3 offset-l3">
             <div class="row">
                 <h4 class="flow-text">Hard Reset the databases?</h4>
                 <p>Warning: Any modifications to the dataset(s) will be lost!</p>
             </div>
             <div class="row">
-                <form method="POST">
+                <form method="GET">
                     {% csrf_token %}
-                    <div class="col s3 m3 l3">
+                    <div class="col s2 m2 l2">
                         <button class="waves-effect waves-red btn-small imperial blue" type="submit" name="load_data">
                             Reset!
                         </button>
                     </div>
-                    <div class="col s4 m4 l4">
-                            <label>
-                                <input class="filled-in" type="checkbox" name="reset_upload_database"/>
-                                <span>Reset Upload Session Database?</span>
-                            </label>
+                    <div class="col s6 m6 l6">
+                        <label>
+                            <input class="filled-in" type="checkbox" name="reset_upload_database"/>
+                            <span>Reset Upload Session Database?</span>
+                        </label>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
 {% endblock %}
