@@ -1,4 +1,8 @@
 import os.path as osp
+PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..')
+import sys
+sys.path.append(PATH_TO_ROOT)
+
 import os
 import time
 import pickle
@@ -69,6 +73,8 @@ def test_regression(model, loader, indices, device, results_folder, val=True, ep
 
 if __name__ == '__main__':
 
+    PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..') + '/'
+
     # Model Parameters
     lr = 0.001
     batch_size = 4
@@ -110,13 +116,12 @@ if __name__ == '__main__':
     data_folder = '/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native_04152020/'+\
                   native+'/'+data+'/' + type_data + '/vtk'
 
-    print(data_folder)
    # sub-CC00466AN13_ses-138400_right_pial_reduce90.vtk
    #  files_ending = "_hemi-L_" + type_data + "_" + data_ending
    # files_ending = "_left_" + type_data + "_" + data_ending
     files_ending = '_'+ native + '_' + type_data + '_' + data_ending
 
-    with open('src/names.pk', 'rb') as f:
+    with open(PATH_TO_ROOT + 'src/names.pk', 'rb') as f:
         indices = pickle.load(f)
 
     comment = 'TEST_Sphere_scan_age_90' + str(datetime.datetime.now()) \

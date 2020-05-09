@@ -19,7 +19,7 @@ from models.pointnet.src.models.pointnet2_regression import Net
 from models.pointnet.src.data_loader import OurDataset
 from models.pointnet.main.pointnet2 import train, test_regression
 
-
+PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..') + '/'
 if __name__ == '__main__':
 
     # Model Parameters
@@ -68,7 +68,7 @@ if __name__ == '__main__':
     # files_ending = "_left_" + type_data + "_" + data_ending
     files_ending = '_' + native + '_' + type_data + '_' + data_ending
 
-    with open('src/names.pk', 'rb') as f:
+    with open(PATH_TO_ROOT + 'src/names.pk', 'rb') as f:
         indices = pickle.load(f)
 
     comment = 'TEST_Sphere_scan_age_90' + str(datetime.datetime.now()) \
