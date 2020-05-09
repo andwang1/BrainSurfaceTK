@@ -1,8 +1,8 @@
 import csv
 from sklearn.model_selection import train_test_split
 import os
-from ipywidgets import interact, fixed
-from IPython.display import display
+# from ipywidgets import interact, fixed
+# from IPython.display import display
 import os
 import os.path as osp
 import torch
@@ -304,12 +304,12 @@ def display_image(path, img, img_idx, x=None, y=None, z=None, window=None, level
     plt.close()
 
 
-def interactive_view(img):
-    size = img.GetSize()
-    img_array = sitk.GetArrayFromImage(img)
-    interact(display_image, img=fixed(img),
-             x=(0, size[0] - 1),
-             y=(0, size[1] - 1),
-             z=(0, size[2] - 1),
-             window=(0, np.max(img_array) - np.min(img_array)),
-             level=(np.min(img_array), np.max(img_array)))
+# def interactive_view(img):
+#     size = img.GetSize()
+#     img_array = sitk.GetArrayFromImage(img)
+#     interact(display_image, img=fixed(img),
+#              x=(0, size[0] - 1),
+#              y=(0, size[1] - 1),
+#              z=(0, size[2] - 1),
+#              window=(0, np.max(img_array) - np.min(img_array)),
+#              level=(np.min(img_array), np.max(img_array)))

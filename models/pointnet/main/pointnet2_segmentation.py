@@ -177,7 +177,7 @@ def test(model, loader, experiment_description, device, num_labels, writer, epoc
     return loss, accuracy, mean_iou_per_class, mean_iou
 
 
-def perform_final_testing(model, writer, test_loader, experiment_name, comment, id, num_labels, recording=False):
+def perform_final_testing(model, writer, test_loader, experiment_name, comment, id, num_labels, device, best_model_acc, best_model_iou, recording=False):
 
     # 1. Load the best model for testing --- both by accuracy and IoU
     model.load_state_dict(

@@ -179,4 +179,7 @@ if __name__ == '__main__':
                                                                                                                comment,
                                                                                                                id,
                                                                                                                num_labels,
+                                                                                                               device,
+                                                                                                               best_model_acc,
+                                                                                                               best_model_iou,
                                                                                                                recording=recording)
