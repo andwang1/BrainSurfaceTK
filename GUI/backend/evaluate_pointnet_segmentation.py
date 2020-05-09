@@ -184,8 +184,22 @@ def segment(brain_path, folder_path_to_write, tmp_file_name=None):
     out = model(data)
 
     # 2. Get d (positions), _y (actual labels), _out (predictions)
-    _y = data.y.cpu().detach().numpy()
-    _out = out.max(dim=1)[1].cpu().detach().numpy()
+    _y = np.squeeze(data.y.cpu().detach().numpy())
+    _out = np.squeeze(out.max(dim=1)[1].cpu().detach().numpy())
+
+    unique_labels = torch.unique(torch.tensor(_y))
+    unique_labels_normalised = unique_labels.unique(return_inverse=True)[1]
+
+    # Create the mapping
+    label_mapping = {}
+    for original, normalised in zip(unique_labels, np.unique(_out)):
+        label_mapping[original.item()] = normalised.item()
+
+    # Having received y_tensor, use label_mapping
+    temporary_list = []
+    for y in _y:
+        temporary_list.append(label_mapping[y])
+    _y = np.array(temporary_list)
 
     # Record intersections
     intersections = []
@@ -193,9 +207,8 @@ def segment(brain_path, folder_path_to_write, tmp_file_name=None):
         if label == prediction:
             intersections.append(0)
         else:
-            intersections.append(100)
+            intersections.append(10)
     intersections = np.array(intersections)
-
 
     mesh = reader.GetOutput()
 
@@ -214,6 +227,5 @@ def segment(brain_path, folder_path_to_write, tmp_file_name=None):
 
 
 if __name__ == '__main__':
-    segment(
-        "/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/GUI/deepl_brain_surfaces/GUI/media/original/data/vtps/sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp")
+    segment("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/GUI/deepl_brain_surfaces/GUI/media/original/data/vtps/sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp", './')
 
