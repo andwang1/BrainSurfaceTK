@@ -15,7 +15,7 @@ import torch_geometric.transforms as T
 from torch.utils.tensorboard import SummaryWriter
 from torch_geometric.data import DataLoader
 
-from models.pointnet.src.data_loader import OurDataset
+from models.pointnet.src.data_loader_just_features import OurDataset
 from models.pointnet.src.models.pointnet2_regression_just_features import Net
 
 
@@ -91,7 +91,7 @@ if __name__ == '__main__':
     batch_size = 6
     num_workers = 4
     # ['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc'] + ['weight']
-    local_features = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
+    local_features = ['corr_thickness', 'curvature', 'sulc']
     # local_features = []
     global_features = []
     target_class = 'scan_age'

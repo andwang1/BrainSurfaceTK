@@ -78,10 +78,10 @@ if __name__ == '__main__':
     batch_size = 8
     num_workers = 4
     # ['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc'] + ['weight']
-    local_features = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
+    local_features = ['corr_thickness', 'curvature', 'sulc']
     # local_features = []
     global_features = []
-    target_class = 'pre_term'
+    target_class = 'birth_age'
     task = 'classification'
     number_of_points = 500  # 3251# 12000  # 16247
 
