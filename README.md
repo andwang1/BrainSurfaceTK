@@ -1,5 +1,16 @@
-
 # Deep Learning on Brain Surfaces
+
+# Setting up
+To install all required packages, please setup a virtual environment as per the instructions below. This virtual environment is based on a CUDA 10.1.105 installation.
+
+```
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements1.txt -f https://download.pytorch.org/whl/torch_stable.html
+pip install -r requirements2.txt -f https://pytorch-geometric.com/whl/torch-1.5.0.html
+
+```
+
 # MeshCNN
 
 MeshCNN is a general-purpose deep neural network for 3D triangular meshes, which can be used for tasks such as 3D shape classification or segmentation. 
