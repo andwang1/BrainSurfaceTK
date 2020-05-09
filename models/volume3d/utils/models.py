@@ -19,7 +19,7 @@ import seaborn as sns
 # End Imports
 ########################################
 variances = [i for i in range(30)]
-
+PATH_TO_DATA = '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex2/deepl_brain_surfaces/'
 
 """# Dataset & Preprocessing"""
 
@@ -48,9 +48,9 @@ class ImageSegmentationDataset(Dataset):
             self.display(path, img_idx) # Save an example
 
         if edgen:  # resample_image(dts[0][0], [3, 3, 3], [60, 60, 50])
-            self.samples = [torch.from_numpy(sitk.GetArrayFromImage(sitk.SobelEdgeDetection(sitk.DiscreteGaussian(resample_image(sitk.ReadImage(f"gm_volume3d/sub-{ID[0]}_ses-{ID[1]}_T2w_graymatter.nii.gz", sitk.sitkFloat32), self.spacing, self.image_size), smoothen)))).unsqueeze(0) for ID in self.ids]
+            self.samples = [torch.from_numpy(sitk.GetArrayFromImage(sitk.SobelEdgeDetection(sitk.DiscreteGaussian(resample_image(sitk.ReadImage(PATH_TO_DATA + f"gm_volume3d/sub-{ID[0]}_ses-{ID[1]}_T2w_graymatter.nii.gz", sitk.sitkFloat32), self.spacing, self.image_size), smoothen)))).unsqueeze(0) for ID in self.ids]
         else:
-            self.samples = [torch.from_numpy(sitk.GetArrayFromImage(sitk.DiscreteGaussian(resample_image(sitk.ReadImage(f"gm_volume3d/sub-{ID[0]}_ses-{ID[1]}_T2w_graymatter.nii.gz", sitk.sitkFloat32), self.spacing, self.image_size), smoothen))).unsqueeze(0) for ID in self.ids]
+            self.samples = [torch.from_numpy(sitk.GetArrayFromImage(sitk.DiscreteGaussian(resample_image(sitk.ReadImage(PATH_TO_DATA + f"gm_volume3d/sub-{ID[0]}_ses-{ID[1]}_T2w_graymatter.nii.gz", sitk.sitkFloat32), self.spacing, self.image_size), smoothen))).unsqueeze(0) for ID in self.ids]
 
         # self.samples = [(sitk.DiscreteGaussian(sitk.ReadImage(f"{data_dir}/greymatter/wc1sub-{ID}_T1w.nii.gz", sitk.sitkFloat32), smoothen)) for ID in self.ids]
         self.targets = torch.tensor(id_ages, dtype=torch.float).view((-1, 1))
@@ -63,9 +63,9 @@ class ImageSegmentationDataset(Dataset):
         return self.samples[item], self.targets[item]
 
     def display(self, path, item):
-        from utils.utils import display_image
+        from ..utils.utils import display_image
         ID = self.ids[item]
-        img = sitk.SobelEdgeDetection(sitk.DiscreteGaussian(resample_image(sitk.ReadImage(f"gm_volume3d/sub-{ID[0]}_ses-{ID[1]}_T2w_graymatter.nii.gz", sitk.sitkFloat32), self.spacing, self.image_size), self.smoothen))
+        img = sitk.SobelEdgeDetection(sitk.DiscreteGaussian(resample_image(sitk.ReadImage(PATH_TO_DATA + f"gm_volume3d/sub-{ID[0]}_ses-{ID[1]}_T2w_graymatter.nii.gz", sitk.sitkFloat32), self.spacing, self.image_size), self.smoothen))
         display_image(path, img, item)
 
 
