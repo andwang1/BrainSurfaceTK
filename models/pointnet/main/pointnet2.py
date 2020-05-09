@@ -1,7 +1,7 @@
 import os.path as osp
-PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..')
+# PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..')
 import sys
-sys.path.append(PATH_TO_ROOT)
+# sys.path.append(PATH_TO_ROOT)
 
 import os
 import time
