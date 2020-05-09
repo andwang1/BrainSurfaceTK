@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
 ## run the training
-pushd models/MeshCNN
-
 python3 train.py \
 --dataroot datasets/brains_reg_native_5k \
 --checkpoints_dir checkpoints/test \
@@ -14,8 +12,8 @@ python3 train.py \
 --verbose_plot \
 --print_freq 10 \
 --seed 0 \
---dataset_mode binary_class \
---niter 1 \
+--dataset_mode regression \
+--niter 600 \
 --niter_decay 0 \
 --batch_size 32 \
 --ncf 8 16  \
@@ -23,5 +21,3 @@ python3 train.py \
 --lr 0.0003 \
 --init_type kaiming \
 --num_groups 2 \
-
-popd
