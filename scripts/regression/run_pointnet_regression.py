@@ -1,70 +1,23 @@
 import os.path as osp
+PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..')
+import sys
+sys.path.append(PATH_TO_ROOT)
+
 import os
 import time
 import pickle
 import csv
-
 import datetime as datetime
+
 import torch
-import torch.nn.functional as F
 from torch.optim.lr_scheduler import StepLR
 import torch_geometric.transforms as T
 from torch.utils.tensorboard import SummaryWriter
 from torch_geometric.data import DataLoader
 
-from ..src.data_loader import OurDataset
-
-from ..src.models.pointnet2_regression import Net
-
-
-def train(model, train_loader, epoch, device, optimizer, writer):
-    model.train()
-    loss_train = 0.0
-    for data in train_loader:
-        data = data.to(device)
-        optimizer.zero_grad()
-        pred = model(data)
-        loss = F.mse_loss(pred, data.y[:, 0])
-        loss.backward()
-        optimizer.step()
-
-        loss_train += loss.item()
-
-    writer.add_scalar('Loss/train_mse', loss_train / len(train_loader), epoch)
-
-
-def test_regression(model, loader, indices, device, results_folder, val=True, epoch=0):
-
-    model.eval()
-    with open(results_folder + '/results.csv', 'a', newline='') as results_file:
-        result_writer = csv.writer(results_file, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-        if val:
-            print('Validation'.center(60, '-'))
-            result_writer.writerow(['Val scores Epoch - ' + str(epoch)])
-        else:
-            print('Test'.center(60, '-'))
-            result_writer.writerow(['Test scores'])
-
-        mse = 0
-        l1 = 0
-        for idx, data in enumerate(loader):
-            data = data.to(device)
-            with torch.no_grad():
-                pred = model(data)
-                print(str(pred.t().item()).center(20, ' '), str(data.y[:, 0].item()).center(20, ' '), indices[idx])
-                result_writer.writerow([indices[idx][:11], indices[idx][12:],
-                                        str(pred.t().item()), str(data.y[:, 0].item()),
-                                        str(abs(pred.t().item() - data.y[:, 0].item()))])
-                loss_test_mse = F.mse_loss(pred, data.y[:, 0])
-                loss_test_l1 = F.l1_loss(pred, data.y[:, 0])
-                mse += loss_test_mse.item()
-                l1 += loss_test_l1.item()
-        if val:
-            result_writer.writerow(['Epoch average error:', str(l1 / len(loader))])
-        else:
-            result_writer.writerow(['Test average error:', str(l1 / len(loader))])
-
-    return mse / len(loader), l1 / len(loader)
+from models.pointnet.src.models.pointnet2_regression import Net
+from models.pointnet.src.data_loader import OurDataset
+from models.pointnet.main.pointnet2 import train, test_regression
 
 
 if __name__ == '__main__':
@@ -78,23 +31,23 @@ if __name__ == '__main__':
     # local_features = ['sulc']
     global_features = []
     target_class = 'scan_age'
-    #target_class = 'birth_age'
+    # target_class = 'birth_age'
     task = 'regression'
-    number_of_points = 500  #3251# 12000  # 16247
+    number_of_points = 500  # 3251# 12000  # 16247
 
     reprocess = False
 
-    #inflated  midthickness  pial  sphere  veryinflated  white
+    # inflated  midthickness  pial  sphere  veryinflated  white
     # NATIVE: inflated  midthickness	pial  very_inflated  white
-    #data = "reduced_50"
-    #data_ending = "reduce50.vtk"
-    #type_data = "inflated"
+    # data = "reduced_50"
+    # data_ending = "reduce50.vtk"
+    # type_data = "inflated"
 
     data = "reducedto_05k"
     data_ending = "05k.vtk"
     type_data = "pial"
-    #type_data = "sphere"
-    native = "merged"#"surface_native" #surface_fsavg32k
+    # type_data = "sphere"
+    native = "merged"  # "surface_native" #surface_fsavg32k
 
     # folder in data/stored for data.
     stored = target_class + '/' + type_data + '/' + data + '/' + str(local_features + global_features) + '/' + native
@@ -103,29 +56,28 @@ if __name__ == '__main__':
     # data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/" + native + "/" + data \
     #               + "/vtk/" + type_data
 
-   # Native OLD
-   # data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/" + native + "/" + data \
-   #               + "/" + type_data + "/vtk"
+    # Native OLD
+    # data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/" + native + "/" + data \
+    #               + "/" + type_data + "/vtk"
 
-    data_folder = '/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native_04152020/'+\
-                  native+'/'+data+'/' + type_data + '/vtk'
+    data_folder = '/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native_04152020/' + \
+                  native + '/' + data + '/' + type_data + '/vtk'
 
-    print(data_folder)
-   # sub-CC00466AN13_ses-138400_right_pial_reduce90.vtk
-   #  files_ending = "_hemi-L_" + type_data + "_" + data_ending
-   # files_ending = "_left_" + type_data + "_" + data_ending
-    files_ending = '_'+ native + '_' + type_data + '_' + data_ending
+    # sub-CC00466AN13_ses-138400_right_pial_reduce90.vtk
+    #  files_ending = "_hemi-L_" + type_data + "_" + data_ending
+    # files_ending = "_left_" + type_data + "_" + data_ending
+    files_ending = '_' + native + '_' + type_data + '_' + data_ending
 
     with open('src/names.pk', 'rb') as f:
         indices = pickle.load(f)
 
     comment = 'TEST_Sphere_scan_age_90' + str(datetime.datetime.now()) \
-            + "__LR__" + str(lr) \
-            + "__BATCH_" + str(batch_size) \
-            + "__local_features__" + str(local_features)\
-            + "__glogal_features__" + str(global_features) \
-            + "__number_of_points__" + str(number_of_points)\
-            + "__" + data + "__" + type_data + '__no_rotate'
+              + "__LR__" + str(lr) \
+              + "__BATCH_" + str(batch_size) \
+              + "__local_features__" + str(local_features) \
+              + "__glogal_features__" + str(global_features) \
+              + "__number_of_points__" + str(number_of_points) \
+              + "__" + data + "__" + type_data + '__no_rotate'
 
     results_folder = 'runs/' + task + '/' + comment + '/results'
     model_dir = 'runs/' + task + '/' + comment + '/models'
