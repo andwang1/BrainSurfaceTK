@@ -1,7 +1,7 @@
 import os.path as osp
-# PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..')
+PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..', '..')
 import sys
-# sys.path.append(PATH_TO_ROOT)
+sys.path.append(PATH_TO_ROOT)
 
 import os
 import time
@@ -16,9 +16,8 @@ import torch_geometric.transforms as T
 from torch.utils.tensorboard import SummaryWriter
 from torch_geometric.data import DataLoader
 
-from ..src.data_loader import OurDataset
-
-from ..src.models.pointnet2_regression import Net
+from models.pointnet.src.data_loader import OurDataset
+from models.pointnet.src.models.pointnet2_regression import Net
 
 
 def train(model, train_loader, epoch, device, optimizer, writer):
