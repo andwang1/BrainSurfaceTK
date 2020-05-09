@@ -15,7 +15,7 @@ import torch_geometric.transforms as T
 from torch.utils.tensorboard import SummaryWriter
 from torch_geometric.data import DataLoader
 
-from models.pointnet.src.models.pointnet2_regression import Net
+from models.pointnet.src.models.pointnet2_classification import Net
 from models.pointnet.src.data_loader import OurDataset
 from models.pointnet.main.pointnet2_classification import train, test_classification
 

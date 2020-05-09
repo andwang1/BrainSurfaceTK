@@ -26,7 +26,7 @@ def train(model, train_loader, epoch, device, optimizer, writer):
     for data in train_loader:
         data = data.to(device)
         pred = model(data)
-        perd_label = model(data).max(1)[1]
+        perd_label = pred.max(1)[1]
         loss = F.nll_loss(pred, data.y[:, 0])
         loss.backward()
         optimizer.step()
