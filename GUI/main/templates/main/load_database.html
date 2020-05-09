@@ -3,18 +3,28 @@
 {% block title %}LoadData{% endblock %}
 
 {% block content %}
-    <h4>Hard Reset the databases?</h4>
-    <p class="flow-text">Warning: Any modifications to the dataset(s) will be lost!</p>
-    <br>
-    <form method="POST">
-        {% csrf_token %}
-        <button class="waves-effect waves-red btn-small imperial blue" type="submit" name="load_data">
-            Reset!
-        </button>
-        <br>
-        <label>
-            <input type="checkbox" name="reset_upload_database"/>
-            <span>Also Reset Upload Session Database</span>
-        </label>
-    </form>
+    <div class="row">
+        <div class="col s8 offset-s2">
+            <div class="row">
+                <h4 class="flow-text">Hard Reset the databases?</h4>
+                <p>Warning: Any modifications to the dataset(s) will be lost!</p>
+            </div>
+            <div class="row">
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="col s3 m3 l3">
+                        <button class="waves-effect waves-red btn-small imperial blue" type="submit" name="load_data">
+                            Reset!
+                        </button>
+                    </div>
+                    <div class="col s4 m4 l4">
+                            <label>
+                                <input class="filled-in" type="checkbox" name="reset_upload_database"/>
+                                <span>Reset Upload Session Database?</span>
+                            </label>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 {% endblock %}

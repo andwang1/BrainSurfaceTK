@@ -33,24 +33,13 @@ def homepage(request):
     :return: rendered main/homepage.html with all options available to the user.
     """
     if Information.objects.filter(page_slug="lookup").count() != 1:
-        Information.objects.create(page_title="Look-up".title(), page_summary="Look-up session IDs".capitalize(),
-                                   page_slug="lookup")
+        Information.objects.create(page_title="Look-up".title(), page_summary="Look-up session IDs", page_slug="lookup")
     if Information.objects.filter(page_slug="upload").count() != 1:
-        Information.objects.create(page_title="Upload".title(), page_summary="Upload session ID".capitalize(),
-                                   page_slug="upload")
+        Information.objects.create(page_title="Upload".title(), page_summary="Upload session ID", page_slug="upload")
     if Information.objects.filter(page_slug="about").count() != 1:
-        Information.objects.create(page_title="About".title(), page_summary="About this project".capitalize(),
-                                   page_slug="about")
+        Information.objects.create(page_title="About".title(), page_summary="About this project", page_slug="about")
     options = Information.objects.all()
     return render(request, "main/homepage.html", context={"options": options})
-
-
-def about(request):
-    """
-    About page
-    :return: rendered main/about.html
-    """
-    return render(request, "main/about.html")
 
 
 @custom_login_required()

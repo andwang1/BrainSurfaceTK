@@ -5,16 +5,16 @@ html * {
 }
 
 #brain_img {
-   user-drag: none;
-   user-select: none;
-   -moz-user-select: none;
-   -webkit-user-drag: none;
-   -webkit-user-select: none;
-   -ms-user-select: none;
+    user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
 }
 
 .gif-brain {
-    height: 40vh !important;
+    height: min(40vh, 720px) !important;
     position: relative;
     display: block;
     margin: auto;
@@ -34,7 +34,7 @@ html * {
 
 #brain_surf_container {
     width: 100% !important;
-    height: 75% !important;
+    height: min(75vh, 1440px) !important;
 }
 
 #loader-wheel {
@@ -48,5 +48,16 @@ html * {
     display: none;
 }
 
+body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
 
+main {
+    flex: 1 0 auto;
+}
 
+footer {
+    margin-top: min(5%, 50px);
+}

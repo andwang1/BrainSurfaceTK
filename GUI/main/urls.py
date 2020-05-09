@@ -32,6 +32,7 @@ urlpatterns = [
     path('results/login/', user_views.login_request, name='login'),
     path('results/<int:session_id>/login/', user_views.login_request, name='login'),
     path("account/login/", user_views.login_request, name='login'),
+    path("load_database/login/", user_views.login_request, name='login'),
 
     path('results/', views.view_session_results, name="results"),
     path('results/<int:session_id><str:display_mri>', views.view_session_results, name="session_id_results"),

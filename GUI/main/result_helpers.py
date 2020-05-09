@@ -1,6 +1,7 @@
 import os
 import random
 import string
+import time
 
 from django.conf import settings
 from nibabel import load as nib_load
@@ -94,10 +95,13 @@ def random_string(stringLength=8):
     return ''.join(random.choice(letters) for _ in range(stringLength))
 
 
-def remove_file(relative_file_path):
+def remove_file(relative_file_path, allocated_file_life=10):
     if relative_file_path is not None:
         file_path = os.path.join(settings.MEDIA_ROOT, relative_file_path.strip(settings.MEDIA_URL))
         if os.path.exists(file_path):
+            file_life_time = os.path.getmtime(file_path)
+            if time.time() - file_life_time < allocated_file_life:
+                time.sleep(allocated_file_life - (time.time()-file_life_time))
             os.remove(file_path)
             return True
     return False

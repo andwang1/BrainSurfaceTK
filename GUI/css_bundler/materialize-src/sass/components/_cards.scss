@@ -1,5 +1,4 @@
 
-
 .card-panel {
   transition: box-shadow .25s;
   padding: $card-padding;
@@ -21,26 +20,30 @@
   .card-title {
     font-size: 24px;
     font-weight: 300;
+
     &.activator {
       cursor: pointer;
     }
   }
 
   // Card Sizes
-  &.small, &.medium, &.large {
+  &.micro, &.tiny, &.small, &.medium, &.large {
     position: relative;
 
     .card-image {
       max-height: 60%;
       overflow: hidden;
     }
+
     .card-image + .card-content {
       max-height: 40%;
     }
+
     .card-content {
       max-height: 100%;
       overflow: hidden;
     }
+
     .card-action {
       position: absolute;
       bottom: 0;
@@ -48,6 +51,16 @@
       right: 0;
     }
   }
+
+  &.micro {
+    height: 180px;
+  }
+
+
+  &.tiny {
+    height: 200px;
+  }
+
 
   &.small {
     height: 300px;
@@ -63,7 +76,7 @@
 
   // Horizontal Cards
   &.horizontal {
-    &.small, &.medium, &.large {
+    &.micro, &.tiny, &.small, &.medium, &.large {
       .card-image {
         height: 100%;
         max-height: none;
@@ -79,6 +92,7 @@
 
     .card-image {
       max-width: 50%;
+
       img {
         border-radius: 2px 0 0 2px;
         max-width: 100%;
@@ -109,8 +123,6 @@
       padding-bottom: 64px;
     }
   }
-
-
 
 
   .card-image {
@@ -145,6 +157,7 @@
     p {
       margin: 0;
     }
+
     .card-title {
       display: block;
       line-height: 32px;
@@ -160,8 +173,9 @@
     &:last-child {
       border-radius: 0 0 2px 2px;
     }
+
     background-color: inherit; // Use inherit to inherit color classes
-    border-top: 1px solid rgba(160,160,160,.2);
+    border-top: 1px solid rgba(160, 160, 160, .2);
     position: relative;
     padding: 16px $card-padding;
 
@@ -171,7 +185,9 @@
       transition: color .3s ease;
       text-transform: uppercase;
 
-      &:hover { color: $card-link-color-light; }
+      &:hover {
+        color: $card-link-color-light;
+      }
     }
   }
 

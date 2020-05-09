@@ -1,5 +1,6 @@
 from django.http import JsonResponse
-
+import time
+import os
 from main.result_helpers import remove_file, pointnet_run_segmentation, pointnet_run_prediction
 
 

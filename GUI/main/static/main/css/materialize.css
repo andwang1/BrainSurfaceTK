@@ -4654,25 +4654,31 @@ small {
 .card .card-title.activator {
   cursor: pointer;
 }
-.card.small, .card.medium, .card.large {
+.card.micro, .card.tiny, .card.small, .card.medium, .card.large {
   position: relative;
 }
-.card.small .card-image, .card.medium .card-image, .card.large .card-image {
+.card.micro .card-image, .card.tiny .card-image, .card.small .card-image, .card.medium .card-image, .card.large .card-image {
   max-height: 60%;
   overflow: hidden;
 }
-.card.small .card-image + .card-content, .card.medium .card-image + .card-content, .card.large .card-image + .card-content {
+.card.micro .card-image + .card-content, .card.tiny .card-image + .card-content, .card.small .card-image + .card-content, .card.medium .card-image + .card-content, .card.large .card-image + .card-content {
   max-height: 40%;
 }
-.card.small .card-content, .card.medium .card-content, .card.large .card-content {
+.card.micro .card-content, .card.tiny .card-content, .card.small .card-content, .card.medium .card-content, .card.large .card-content {
   max-height: 100%;
   overflow: hidden;
 }
-.card.small .card-action, .card.medium .card-action, .card.large .card-action {
+.card.micro .card-action, .card.tiny .card-action, .card.small .card-action, .card.medium .card-action, .card.large .card-action {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
+}
+.card.micro {
+  height: 180px;
+}
+.card.tiny {
+  height: 200px;
 }
 .card.small {
   height: 300px;
@@ -4686,12 +4692,12 @@ small {
 .card.horizontal {
   display: flex;
 }
-.card.horizontal.small .card-image, .card.horizontal.medium .card-image, .card.horizontal.large .card-image {
+.card.horizontal.micro .card-image, .card.horizontal.tiny .card-image, .card.horizontal.small .card-image, .card.horizontal.medium .card-image, .card.horizontal.large .card-image {
   height: 100%;
   max-height: none;
   overflow: visible;
 }
-.card.horizontal.small .card-image img, .card.horizontal.medium .card-image img, .card.horizontal.large .card-image img {
+.card.horizontal.micro .card-image img, .card.horizontal.tiny .card-image img, .card.horizontal.small .card-image img, .card.horizontal.medium .card-image img, .card.horizontal.large .card-image img {
   height: 100%;
 }
 .card.horizontal .card-image {
