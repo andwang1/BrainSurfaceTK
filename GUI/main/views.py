@@ -71,9 +71,9 @@ def view_session_results(request, session_id=None):
         mri_js_html = None
         if mri_file.name != "":
             if os.path.isfile(mri_file.path) & mri_file.path.endswith("nii"):
-                # img = nib_load(mri_file.path)
-                # mri_js_html = ni_view_img(img, colorbar=False, bg_img=False, black_bg=True, cmap='gray')
-                mri_js_html = None
+                img = nib_load(mri_file.path)
+                mri_js_html = ni_view_img(img, colorbar=False, bg_img=False, black_bg=True, cmap='gray')
+                # mri_js_html = None
             else:
                 messages.error(request, "ERROR: Either MRI file doesn't exist or doesn't end with .nii!")
 
