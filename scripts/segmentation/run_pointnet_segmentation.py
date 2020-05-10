@@ -28,7 +28,7 @@ if __name__ == '__main__':
     #################################################
     ########### EXPERIMENT DESCRIPTION ##############
     #################################################
-    recording = True
+    recording = False
     REPROCESS = True
 
     data_nativeness = 'native'
@@ -107,6 +107,7 @@ if __name__ == '__main__':
     scheduler = StepLR(optimizer, step_size=1, gamma=gamma)
 
     id = '0'
+    writer = None
     if recording:
         # 9. Save to log_record.txt
         log_descr = get_comment(data_nativeness, data_compression, data_type, hemisphere,
@@ -169,17 +170,18 @@ if __name__ == '__main__':
 
         print('=' * 60)
 
-    # save the last model
-    torch.save(model.state_dict(), PATH_TO_POINTNET + f'experiment_data/new/{experiment_name}-{id}/' + 'last_model' + '.pt')
+    if recording:
+        # save the last model
+        torch.save(model.state_dict(), PATH_TO_POINTNET + f'experiment_data/new/{experiment_name}-{id}/' + 'last_model' + '.pt')
 
-    loss_acc, acc_acc, iou_acc, mean_iou_acc, loss_iou, acc_iou, iou_iou, mean_iou_iou = perform_final_testing(model,
-                                                                                                               writer,
-                                                                                                               test_loader,
-                                                                                                               experiment_name,
-                                                                                                               comment,
-                                                                                                               id,
-                                                                                                               num_labels,
-                                                                                                               device,
-                                                                                                               best_model_acc,
-                                                                                                               best_model_iou,
-                                                                                                               recording=recording)
+        loss_acc, acc_acc, iou_acc, mean_iou_acc, loss_iou, acc_iou, iou_iou, mean_iou_iou = perform_final_testing(model,
+                                                                                                                   writer,
+                                                                                                                   test_loader,
+                                                                                                                   experiment_name,
+                                                                                                                   comment,
+                                                                                                                   id,
+                                                                                                                   num_labels,
+                                                                                                                   device,
+                                                                                                                   best_model_acc,
+                                                                                                                   best_model_iou,
+                                                                                                                   recording=recording)
