@@ -1,4 +1,5 @@
 import os
+import json
 
 from django.contrib import messages
 from django.shortcuts import render, redirect
@@ -106,10 +107,16 @@ def load_data(request):
 @csrf_exempt
 def lookup(request):
     if request.method == "GET":
-        session_ids = [int(session.session_id) for session in SessionDatabase.objects.all()]
-        uploaded_session_ids = [int(session.session_id) for session in UploadedSessionDatabase.objects.all()]
+        sessions = [(int(session.session_id), True) if session.mri_file != ""
+                    else (int(session.session_id), False) for session in SessionDatabase.objects.all()]
+
+        uploaded_sessions = [(int(session.session_id), True) if session.mri_file != ""
+                             else (int(session.session_id), False) for session in UploadedSessionDatabase.objects.all()]
+        sessions.extend(uploaded_sessions)
+        sessions.sort()
+        session_ids, has_mri = zip(*sessions)
         return render(request, "main/lookup.html",
-                      context={"session_ids": sorted(session_ids + uploaded_session_ids)})
+                      context={"session_ids": session_ids, "mri_mask": json.dumps(has_mri)})
 
     if request.method == "POST":
         session_id = request.POST.get("selected_session_id", None)
@@ -117,9 +124,12 @@ def lookup(request):
             display_mri = "true"
         else:
             display_mri = "false"
-        if session_id is not None:
-            return redirect("main:session_id_results", session_id=session_id,
-                            display_mri=display_mri, permanent=True)
+        if isinstance(session_id, str):
+            if session_id.isnumeric():
+                return redirect("main:session_id_results", session_id=session_id,
+                                display_mri=display_mri, permanent=True)
+        messages.warning(request, message="Please select a session ID")
+        return redirect("main:lookup", permanent=True)
 
 
 @custom_login_required(login_url="login/")
