@@ -1,12 +1,14 @@
 import os
 import sys
 import time
+import subprocess
 
 SETTINGS = os.path.join(os.getcwd(), "GUI/BasicSite/settings.py")
 MANAGE_PATH = os.path.join(os.getcwd(), "GUI/manage.py")
 MEDIA_PATH = os.path.join(os.getcwd(), "GUI/media")
 
 args = [arg for arg in sys.argv]
+
 
 # expect ordering of args dev runmodwsgi --url-alias /media media
 
@@ -24,17 +26,20 @@ def set_debug_to(boolv=True):
         if "DEBUG" in line:
             filedata[i] = line.replace(cboolv, boolv)
         if "MEDIA_URL" in line:
-            info["MEDIA_URL"] = line.split(" ")[-1].split('"')[-2][:-1]
+            info["MEDIA_URL"] = line.split(" ")[-1].split("'")[-2][:-1]
     with open(SETTINGS, 'w') as file:
         file.writelines(filedata)
     return info
 
 
 if __name__ == "__main__":
+
+    os.system(" ".join(["python", MANAGE_PATH, "makemigrations", "--noinput"]))
+    os.system(" ".join(["python", MANAGE_PATH, "migrate"]))
+
     if "prod" in args:
         info = set_debug_to(False)
         os.system(" ".join(["python", MANAGE_PATH, "collectstatic", "--noinput"]))
-        time.sleep(2)
         os.system(" ".join(["python", MANAGE_PATH, "runmodwsgi", "--url-alias", info["MEDIA_URL"], MEDIA_PATH]))
     else:
         set_debug_to(True)
