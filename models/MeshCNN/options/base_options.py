@@ -3,6 +3,9 @@ import os
 from util import util
 import torch
 
+__author__ = “Rana Hanocka”
+__license__ = “MIT”
+__maintainer__ = ["Andy Wang", "Francis Rhys Ward"]
 
 class BaseOptions:
     def __init__(self):

@@ -2,10 +2,14 @@ import pickle
 import os
 import pandas as pd
 from shutil import copyfile
-# Where them brains at
-source_dir = r"/vol/biomedic2/aa16914/shared/MScAI_brain_surface/andy/deepl_brain_surfaces/MeshCNN-master/datasets/all_brains_merged_10k"
-# Where them brains should be at
-target_dir = r"/vol/biomedic2/aa16914/shared/MScAI_brain_surface/andy/deepl_brain_surfaces/MeshCNN-master/datasets/brains_cls_binary_preterm_merged_10k"
+
+__author__ = “Andy Wang”
+__license__ = “MIT”
+
+# Where the brains at
+source_dir = r"datasets/all_brains_merged_10k"
+# Where the brains should be at
+target_dir = r"datasets/brains_cls_binary_preterm_merged_10k"
 
 #### This is for MeshCNN specifically
 if not os.access(target_dir, mode=os.F_OK):

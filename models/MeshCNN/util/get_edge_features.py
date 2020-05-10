@@ -1,6 +1,14 @@
+import pickle
 import pyvista as pv
+import sys
+from models.layers import mesh_prepare
 
-feature_arrays = {'drawem': 0, 'corr_thickness': 1,               'myelin_map': 2, 'curvature': 3, 'sulc': 4}
+__author__ = “Francis Rhys Ward”
+__license__ = “MIT”
+
+sys.path.insert(1, 'models/layers')
+feature_arrays = {'drawem': 0, 'corr_thickness': 1, 'myelin_map': 2, 'curvature': 3, 'sulc': 4}
+
 
 def get_vert_features(vtk_path):
     """
@@ -9,13 +17,9 @@ def get_vert_features(vtk_path):
     """
     mesh = pv.read(vtk_path)
     feature_arrays = {'drawem': 0, 'corr_thickness': 1, 'myelin_map': 2, 'curvature': 3, 'sulc': 4}
-    vert_features = {feature:mesh.get_array(feature_arrays[feature]) for feature in feature_arrays.keys()}
+    vert_features = {feature: mesh.get_array(feature_arrays[feature]) for feature in feature_arrays.keys()}
     return vert_features
 
-import sys
-sys.path.insert(1, '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/rhys/deepl_brain_surfaces/MeshCNN-master/models/layers')
-
-from mesh_prepare import from_scratch
 
 def get_edge_features(mesh_data, feature_list, vtk_path):
     """
@@ -25,58 +29,45 @@ def get_edge_features(mesh_data, feature_list, vtk_path):
     returns this dict
     """
     vert_features = get_vert_features(vtk_path)
-    mesh_data.edge_local_features = {feature:[] for feature in feature_arrays.keys()}
+    mesh_data.edge_local_features = {feature: [] for feature in feature_arrays.keys()}
     for edge in mesh_data.edges:
         for feature in feature_arrays.keys():
             if feature != "drawem":
                 vertex_feature_vals = vert_features[feature]
-                avg_vert_feature = (vertex_feature_vals[edge[0]] + vertex_feature_vals[edge[1]])/2
+                avg_vert_feature = (vertex_feature_vals[edge[0]] + vertex_feature_vals[edge[1]]) / 2
                 mesh_data.edge_local_features[feature].append(avg_vert_feature)
-        mesh_data.edge_local_features["drawem"].append(vert_features["drawem"][edge[0]]) # just take one label for each edge
+        mesh_data.edge_local_features["drawem"].append(
+            vert_features["drawem"][edge[0]])  # just take one label for each edge
     return mesh_data.edge_local_features
+
 
 def write_eseg(mesh_data, vtk_path, seg_path, patient_id, ses_id):
     get_edge_features(mesh_data, ["drawem"], vtk_path)
     edge_seg_labels = mesh_data.edge_local_features["drawem"]
 
-    eseg_path = seg_path + patient_id+"_"+ses_id+".eseg"
+    eseg_path = seg_path + patient_id + "_" + ses_id + ".eseg"
     with open(eseg_path, 'w') as f:
         for label in edge_seg_labels:
             f.write("%s\n" % label)
 
-def write_seseg(eseg_path, seseg_path, patient_id, ses_id):
-    eseg_file = eseg_path + patient_id +"_"+ses_id+".eseg"
-    seseg_file = seseg_path + patient_id +"_"+ses_id+".seseg"
-    with open(eseg_file) as f:
-        eseg = f.read().splitlines()
 
+def write_seseg(eseg_path, seseg_path, patient_id, ses_id):
+    eseg_file = eseg_path + patient_id + "_" + ses_id + ".eseg"
+    seseg_file = seseg_path + patient_id + "_" + ses_id + ".seseg"
     labels = range(38)
 
+    with open(eseg_file) as f:
+        eseg = f.read().splitlines()
     with open(seseg_file, 'w') as f:
         for label in eseg:
             row = [0 if l is not int(label) else 1 for l in labels]
             f.write(str(row).strip("[]").replace(",", ""))
             f.write("\n")
-import pickle
+
+
 def save_features(mesh_data, vtk_path, feat_path, patient_id, ses_id):
-     feature_names = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
-     features = get_edge_features(mesh_data, feature_names, vtk_path)
+    feature_names = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
+    features = get_edge_features(mesh_data, feature_names, vtk_path)
 
-     save_file = feat_path + patient_id+"_"+ses_id+"_local_features.p"
-     pickle.dump( features, open(save_file, "wb" ) )
-
-if __name__ == '__main__':
-
-    patient_id = "CC00555XX11"
-    ses_id = "162400"
-    vtk_path = patient_id+"_"+ses_id+".vtk"
-    mesh = pv.read(vtk_path)
-
-    feature_arrays = {'drawem': 0, 'corr_thickness': 1, 'myelin_map': 2, 'curvature': 3, 'sulc': 4}
-    vert_features = {feature:mesh.get_array(feature_arrays[feature]) for feature in feature_arrays.keys()}
-
-    obj_path = patient_id+"_"+ses_id+".obj"
-    mesh_data = from_scratch(file=obj_path, opt=None)
-
-    write_eseg(mesh_data)
-
+    save_file = feat_path + patient_id + "_" + ses_id + "_local_features.p"
+    pickle.dump(features, open(save_file, "wb"))

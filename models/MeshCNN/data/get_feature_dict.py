@@ -1,5 +1,7 @@
 import pandas as pd
 
+__author__ = “Francis Rhys Ward”
+__license__ = “MIT”
 
 def get_feature_dict(feature):
     meta_data_path = "util/meta_data.tsv"

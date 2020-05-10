@@ -4,6 +4,9 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pickle
 
+__author__ = “Andy Wang”
+__license__ = “MIT”
+
 # Read the metadata file
 meta = pd.read_csv("combined.tsv", delimiter='\t')
 
@@ -13,13 +16,8 @@ meta.set_index('unique_key', inplace=True)
 meta.drop(['participant_id', 'session_id', 'sedation', 'scan_number'], axis=1, inplace=True)
 
 # Get a list of all files that we currently have
-# os.chdir("/vol/project/2019/545/g1954504/Andy/deepl_brain_surfaces/MeshCNN-master/datasets/all_brains")
-# obj_files = os.listdir(".")
-
-# Due to corona - extracted filenames from above dir
-with open("archive/present_obj_50.txt", "r") as f:
-    obj_files = f.readlines()
-obj_files = [obj.strip() for obj in obj_files]
+os.chdir("datasets/all_brains")
+obj_files = os.listdir(".")
 
 # Extract the same unique keys from the filenames
 unique_key_files = [obj_name[:-4] for obj_name in obj_files]
