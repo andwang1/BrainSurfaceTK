@@ -3,8 +3,10 @@ import numpy as np
 import pickle
 import os
 
-__author__ = "Francis Rhys Ward"
+__author__ = "Rana Hanocka"
 __license__ = "MIT"
+__maintainer__ = "Francis Rhys Ward"
+
 
 class BaseDataset(data.Dataset):
 
