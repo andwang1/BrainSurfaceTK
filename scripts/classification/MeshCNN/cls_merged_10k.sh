@@ -4,7 +4,7 @@
 pushd models/MeshCNN
 
 python3 train.py \
---dataroot datasets/brains_reg_native_5k \
+--dataroot datasets/brains_reg_merged_10k \
 --checkpoints_dir checkpoints/cls_merged_10k_lr_plateau \
 --export_folder checkpoints/mesh_collapses \
 --name brains \
