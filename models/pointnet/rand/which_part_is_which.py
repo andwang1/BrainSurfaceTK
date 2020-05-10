@@ -1,6 +1,13 @@
 import pyvista as pv
 import numpy as np
 
+
+
+#### THIS SCRIPT IS A NICE WAY TO VISUALISE DIFFERENT PARTS OF THE BRAIN
+
+
+
+
 # Default values
 mode = None
 

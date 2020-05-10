@@ -8,7 +8,7 @@ import numpy as np
 import torch
 from torch.utils.tensorboard import SummaryWriter
 from torch.optim.lr_scheduler import StepLR
-from models.pointnet.src.utils import get_id, save_to_log, get_comment, get_data_path, data, get_grid_search_local_features
+from models.pointnet.src.utils import get_id, save_to_log, get_comment, get_data_path, data
 from models.pointnet.src.models.pointnet2_segmentation import Net
 from models.pointnet.main.pointnet2_segmentation import train, test, perform_final_testing
 
@@ -28,7 +28,7 @@ if __name__ == '__main__':
     #################################################
     ########### EXPERIMENT DESCRIPTION ##############
     #################################################
-    recording = False
+    recording = True
     REPROCESS = True
 
     data_nativeness = 'native'
@@ -55,7 +55,6 @@ if __name__ == '__main__':
     gamma = 0.9875
     target_class = 'gender'
     task = 'segmentation'
-    REPROCESS = True
     ################################################
 
     # 2. Get the data splits indices

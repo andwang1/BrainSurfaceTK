@@ -1,26 +1,25 @@
 import csv
-from sklearn.model_selection import train_test_split
-import os
-# from ipywidgets import interact, fixed
-# from IPython.display import display
 import os
 import os.path as osp
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torch.utils.data import Dataset, DataLoader
 from ..utils.models import ImageSegmentationDataset
 import numpy as np
 import SimpleITK as sitk
 import matplotlib.pyplot as plt
 import pickle
-from tqdm import tqdm
 PATH_TO_VOLUME3D = osp.join(osp.dirname(osp.realpath(__file__)), '..') + '/'
 
 
 
-
 def plot_preds(pred_ages, actual_ages, writer, epoch, test=False):
+    '''
+    Plot the prediction graph (predicted vs true age)
+    :param pred_ages: list
+    :param actual_ages: list
+    :param writer: tensorboard
+    :param epoch
+    :param test: boolean
+    :return:
+    '''
 
     mode = 'Validation'
     if test == True:
@@ -144,6 +143,12 @@ def clean_data(meta_data):
 
 
 def get_file_path(patient_id, session_id):
+    '''
+    Get the file path string
+    :param patient_id: string
+    :param session_id: string
+    :return:
+    '''
     # sub-CC00050XX01_ses-7201_T2w_graymatter.nii.gz
     file_name = "sub-" + patient_id +"_ses-" + session_id + '_T2w_graymatter.nii.gz'
     file_path = data_dir + file_name
@@ -212,6 +217,7 @@ def split_data(meta_data, meta_column_idx, spacing, image_size, smoothen, edgen,
         X_val.append((patient_id, session_id))
 
     # ImageSegmentationDataset
+    # If the dataset has already been made and saved, do not pre-process again
     if os.path.exists(PATH_TO_VOLUME3D + 'experiment_data/dataset_train.pkl') and reprocess == False:
 
         with open(PATH_TO_VOLUME3D + 'experiment_data/dataset_train.pkl', 'rb') as file:
@@ -236,6 +242,12 @@ def split_data(meta_data, meta_column_idx, spacing, image_size, smoothen, edgen,
 
 
 def get_ids_and_ages(meta_data, meta_column_idx):
+    '''
+    Return lists of ids and ages of the patients
+    :param meta_data
+    :param meta_column_idx
+    :return:
+    '''
     # 3. Iterate through all patient ids
     ids = []
     ages = []
@@ -258,6 +270,20 @@ def wl_to_lh(window, level):
 
 
 def display_image(path, img, img_idx, x=None, y=None, z=None, window=None, level=None, colormap='gray', crosshair=False):
+    '''
+    Display the image and save it
+    :param img: image file
+    :param img_idx: image index
+    :param x:
+    :param y:
+    :param z:
+    :param window:
+    :param level:
+    :param colormap:
+    :param crosshair:
+    :return:
+    '''
+
     # Convert SimpleITK image to NumPy array
     img_array = sitk.GetArrayFromImage(img)
 
@@ -302,14 +328,3 @@ def display_image(path, img, img_idx, x=None, y=None, z=None, window=None, level
     plt.show()
     plt.savefig(PATH_TO_VOLUME3D + f'experiment_data/preprocessed_exemplar{img_idx}.png')
     plt.close()
-
-
-# def interactive_view(img):
-#     size = img.GetSize()
-#     img_array = sitk.GetArrayFromImage(img)
-#     interact(display_image, img=fixed(img),
-#              x=(0, size[0] - 1),
-#              y=(0, size[1] - 1),
-#              z=(0, size[2] - 1),
-#              window=(0, np.max(img_array) - np.min(img_array)),
-#              level=(np.min(img_array), np.max(img_array)))

@@ -2,20 +2,12 @@ import pickle
 import os
 import os.path as osp
 from tqdm import tqdm
-import pandas as pd
 import pyvista as pv
-import torch
+from ..src.utils import get_data_path
+PATH_TO_POINTNET = osp.join(osp.dirname(osp.realpath(__file__)), '..') + '/'
 
-from torch_geometric.data import Data
-from torch_geometric.data import DataLoader
-from torch_geometric.data import InMemoryDataset
 
-from src.read_meta import read_meta
-
-data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_fsavg32k/reduced_50/vtk/inflated"
-files_ending = "_hemi-L_inflated_reduce50.vtk"
-feature_arrays = {'drawem': 0, 'corr_thickness': 1, 'myelin_map': 2, 'curvature': 3, 'sulc': 4}
-
+data_folder, files_ending = get_data_path(data_nativeness='native', data_compression='30k', data_type='white', hemisphere='left')
 
 def get_file_path(patient_id, session_id):
     file_name = "sub-" + patient_id + "_ses-" + session_id + files_ending
@@ -23,10 +15,11 @@ def get_file_path(patient_id, session_id):
     return file_path
 
 
-with open('src/names.pk', 'rb') as f:
+with open(PATH_TO_POINTNET + 'src/names.pk', 'rb') as f:
     indices = pickle.load(f)
 
 
+myelinless_patients = []
 for mode in ['Train', 'Val', 'Test']:
     print(f'Checking all arrays in {mode}')
     for patient_idx in tqdm(indices[mode]):
@@ -39,8 +32,7 @@ for mode in ['Train', 'Val', 'Test']:
                 mesh = pv.read(file_path)
 
                 # IF array is empty
-                if mesh.get_array(feature_arrays[array]).size == 0:
-                    print('='*30)
-                    print('=' * 30)
-                    print(array)
-                    print(f'{patient_idx}\n\n ', mesh.get_array(feature_arrays[array]))
+                if mesh.get_array('myelin_map') is None:
+                    myelinless_patients.append(f'{patient_idx}')
+
+print('Patients without myelin: {}'.format(myelinless_patients))

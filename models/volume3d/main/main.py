@@ -1,19 +1,14 @@
 import os
 import SimpleITK as sitk
 import matplotlib.pyplot as plt
-import numpy as np
 import seaborn as sns
 import torch
-import torch.nn.functional as F
-from sklearn.model_selection import train_test_split
-from torch.utils.data import Dataset, DataLoader
-from ..utils.utils import read_meta, clean_data, split_data, get_ids_and_ages, plot_preds
+from ..utils.utils import read_meta, split_data, plot_preds
 import os.path as osp
 from ..main.train_validate import train_validate, save_to_log
 from ..main.train_test import train_test, save_to_log_test
 from torch.utils.tensorboard import SummaryWriter
 PATH_TO_VOLUME3D = osp.join(osp.dirname(osp.realpath(__file__)), '..') + '/'
-
 
 cuda_dev = '0'  # GPU device 0 (can be changed if multiple GPUs are available)
 use_cuda = torch.cuda.is_available()
@@ -26,9 +21,9 @@ sns.set(style='darkgrid')
 
 
 def plot_to_image(figure):
-
     """Converts the matplotlib plot specified by 'figure' to a PNG image and
     returns it. The supplied figure is closed and inaccessible after this call."""
+
     # Save the plot to a PNG in memory.
     buf = io.BytesIO()
     plt.savefig(buf, format='png')
@@ -49,7 +44,6 @@ def create_subject_folder(test=False):
     '''
 
     additional_comment = 'final'
-
 
     name = 'Subject'
     if test:
