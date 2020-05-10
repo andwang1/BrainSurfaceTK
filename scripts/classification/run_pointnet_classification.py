@@ -1,72 +1,27 @@
 import os.path as osp
-PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..', '..')
+PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..')
 import sys
 sys.path.append(PATH_TO_ROOT)
+
 import os
 import time
 import pickle
 import csv
-
 import datetime as datetime
+
 import torch
-import torch.nn.functional as F
 from torch.optim.lr_scheduler import StepLR
 import torch_geometric.transforms as T
 from torch.utils.tensorboard import SummaryWriter
 from torch_geometric.data import DataLoader
 
-from models.pointnet.src.data_loader import OurDataset
 from models.pointnet.src.models.pointnet2_classification import Net
+from models.pointnet.src.data_loader import OurDataset
+from models.pointnet.main.pointnet2_classification import train, test_classification
 
+PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..') + '/'
+PATH_TO_POINTNET = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..', 'models', 'pointnet') + '/'
 
-def train(model, train_loader, epoch, device, optimizer, writer):
-    model.train()
-    loss_train = 0.0
-    correct = 0
-    for data in train_loader:
-        data = data.to(device)
-        pred = model(data)
-        perd_label = pred.max(1)[1]
-        loss = F.nll_loss(pred, data.y[:, 0])
-        loss.backward()
-        optimizer.step()
-        correct += perd_label.eq(data.y[:, 0].long()).sum().item()
-        loss_train += loss.item()
-    acc = correct / len(train_loader.dataset)
-    writer.add_scalar('Acc/train', acc, epoch)
-    writer.add_scalar('Loss/train', loss_train / len(train_loader), epoch)
-    print('Train acc: ' + str(acc))
-
-
-def test_classification(model, loader, indices, device, results_folder, val=True, epoch=0):
-    model.eval()
-    with open(results_folder + '/results.csv', 'a', newline='') as results_file:
-        result_writer = csv.writer(results_file, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-        if val:
-            print('Validation'.center(60, '-'))
-            result_writer.writerow(['Val accuracy Epoch - ' + str(epoch)])
-        else:
-            print('Test'.center(60, '-'))
-            result_writer.writerow(['Test accuracy'])
-
-        correct = 0
-        for idx, data in enumerate(loader):
-            data = data.to(device)
-            with torch.no_grad():
-                pred = model(data).max(1)[1]
-                print(str(pred.t().item()).center(20, ' '), str(data.y[:, 0].item()).center(20, ' '), indices[idx])
-                result_writer.writerow([indices[idx][:11], indices[idx][12:],
-                                        str(pred.t().item()), str(data.y[:, 0].item())])
-            correct += pred.eq(data.y[:, 0].long()).sum().item()
-
-        acc = correct / len(loader.dataset)
-
-        if val:
-            result_writer.writerow(['Epoch average error:', str(acc)])
-        else:
-            result_writer.writerow(['Test average error:', str(acc)])
-
-    return acc
 
 
 if __name__ == '__main__':
@@ -104,8 +59,10 @@ if __name__ == '__main__':
     files_ending = '_' + type_data_part + '_' + type_data_surf + '_' + data_ending
     ###############################################
 
-    with open(PATH_TO_ROOT + 'src/names_preterm.pk', 'rb') as f:
+    ########## INDICES FOR DATA SPLIT #############
+    with open(PATH_TO_POINTNET + 'src/names.pk', 'rb') as f:
         indices = pickle.load(f)
+    ###############################################
 
 
     comment = 'Gender' + str(datetime.datetime.now()) \

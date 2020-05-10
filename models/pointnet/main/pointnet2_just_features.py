@@ -1,4 +1,7 @@
 import os.path as osp
+PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..', '..')
+import sys
+sys.path.append(PATH_TO_ROOT)
 import os
 import time
 import pickle
@@ -12,11 +15,11 @@ import torch_geometric.transforms as T
 from torch.utils.tensorboard import SummaryWriter
 from torch_geometric.data import DataLoader
 
-from pointnet.src.data_loader_just_features import OurDataset
-from src.models.pointnet2_regression_just_features import Net
+from models.pointnet.src.data_loader_just_features import OurDataset
+from models.pointnet.src.models.pointnet2_regression_just_features import Net
 
 
-def train(epoch):
+def train(model, train_loader, epoch, device, optimizer, writer):
     model.train()
     loss_train = 0.0
     for data in train_loader:
@@ -46,7 +49,7 @@ def test_classification(loader):
     return correct / len(loader.dataset)
 
 
-def test_regression(loader, indices, results_folder, val=True, epoch=0):
+def test_regression(model, loader, indices, device, results_folder, val=True, epoch=0):
     model.eval()
     with open(results_folder + '/results.csv', 'a', newline='') as results_file:
         result_writer = csv.writer(results_file, delimiter=',', quoting=csv.QUOTE_MINIMAL)
@@ -81,18 +84,20 @@ def test_regression(loader, indices, results_folder, val=True, epoch=0):
 
 if __name__ == '__main__':
 
+    PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..') + '/'
+
     # Model Parameters
     lr = 0.001
     batch_size = 6
     num_workers = 4
     # ['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc'] + ['weight']
-    local_features = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
+    local_features = ['corr_thickness', 'curvature', 'sulc']
     # local_features = []
     global_features = []
     target_class = 'scan_age'
     # target_class = 'birth_age'
     task = 'regression'
-    number_of_points = 3251  # 3251# 12000  # 16247
+    number_of_points = 500  # 3251# 12000  # 16247
 
     # For quick tests
     # indices = {'Train': ['CC00050XX01_7201', 'CC00050XX01_7201'],
@@ -101,46 +106,25 @@ if __name__ == '__main__':
 
     reprocess = False
 
-    # inflated  midthickness  pial  sphere  veryinflated  white
+    ############# DATA INFORMATION ################
+    data = "reducedto_05k"
+    data_ending = "05k.vtk"
+    type_data_surf = "pial"
+    type_data_part = "merged"
 
-    # data = "reduced_50"
-    # data_ending = "reduce50.vtk"
-    # type_data = "inflated"
+    # folder in data/stored for pre-processed data.
+    stored = target_class + '/' + type_data_surf + '/' + data + '/' + str(
+        local_features + global_features) + '/' + type_data_part
+    path = osp.join(osp.dirname(osp.realpath(__file__)), '..', 'data/' + stored)
+    data_folder = '/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native_04152020/' + \
+                  type_data_part + '/' + data + '/' + type_data_surf + '/vtk'
 
-    data = "reduced_90"
-    data_ending = "reduce90.vtk"
-    type_data = "pial"
-    native = "surface_fsavg32k"  # "surface_native" #surface_fsavg32k
-    #
-    # data = "reduced_50"
-    # data_ending = "reduce50.vtk"
-    # type_data = "pial"
-    #
-    # data = "reduced_50"
-    # data_ending = "reduce50.vtk"
-    # type_data = "white"
-
-    # folder in data/stored for data.
-    stored = 'Just_features' + target_class + type_data + '/' + data + '/' + str(local_features + global_features) + '/' + native
-
-    data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/" + native + "/" + data \
-                  + "/vtk/" + type_data
-
-    #    data_folder = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/" + native + "/" + data \
-    #                  + "/" + type_data + "/vtk"
-    print(data_folder)
     # sub-CC00466AN13_ses-138400_right_pial_reduce90.vtk
-    files_ending = "_hemi-L_" + type_data + "_" + data_ending
-    #    files_ending = "_left_" + type_data + "_" + data_ending
+    files_ending = '_' + type_data_part + '_' + type_data_surf + '_' + data_ending
+    ###############################################
 
-    # From quick local test
-    # data_folder = "/home/vital/Group Project/deepl_brain_surfaces/random"
-
-    with open('src/names.pk', 'rb') as f:
+    with open(PATH_TO_ROOT + 'src/names.pk', 'rb') as f:
         indices = pickle.load(f)
-
-    # TESTING PURPOSES
-    # indices['Train'] = indices['Train'][:2]
 
     comment = 'Just_features' + str(datetime.datetime.now()) \
               + "__LR__" + str(lr) \
@@ -148,7 +132,7 @@ if __name__ == '__main__':
               + "__local_features__" + str(local_features) \
               + "__glogal_features__" + str(global_features) \
               + "__number_of_points__" + str(number_of_points) \
-              + "__" + data + "__" + type_data + '__no_rotate'
+              + "__" + data + "__" + type_data_surf + '__no_rotate'
 
     results_folder = 'runs/' + task + '/' + comment + '/results'
     model_dir = 'runs/' + task + '/' + comment + '/models'
@@ -166,7 +150,7 @@ if __name__ == '__main__':
         config_file.write('Global feature - ' + str(global_features) + '\n')
         config_file.write('Number of points - ' + str(number_of_points) + '\n')
         config_file.write('Data res - ' + data + '\n')
-        config_file.write('Data type - ' + type_data + '\n')
+        config_file.write('Data type - ' + type_data_surf + '\n')
         config_file.write('Additional comments - ' + '\n')
 
     with open(results_folder + '/results.csv', 'w', newline='') as results_file:
@@ -176,12 +160,9 @@ if __name__ == '__main__':
     # Tensorboard writer.
     writer = SummaryWriter(log_dir='runs/' + task + '/' + comment, comment=comment)
 
-    path = osp.join(
-        osp.dirname(osp.realpath(__file__)), '..', 'data/' + stored)
-
     # DEFINE TRANSFORMS HERE.
-    transform = None
-    # transform = T.FixedPoints(number_of_points)
+    # transform = None
+    transform = T.FixedPoints(number_of_points)
     # TRANSFORMS DONE BEFORE SAVING THE DATA IF THE DATA IS NOT YET PROCESSED.
     pre_transform = T.NormalizeScale()
 
@@ -225,8 +206,8 @@ if __name__ == '__main__':
     # MAIN TRAINING LOOP
     for epoch in range(1, 501):
         start = time.time()
-        train(epoch)
-        val_mse, val_l1 = test_regression(val_loader, indices['Val'], results_folder, epoch=epoch)
+        train(model, train_loader, epoch, device, optimizer, writer)
+        val_mse, val_l1 = test_regression(model, val_loader, indices['Val'], device, results_folder, epoch=epoch)
 
         scheduler.step()
 
@@ -242,7 +223,7 @@ if __name__ == '__main__':
             print('Saving Model'.center(60, '-'))
         writer.add_scalar('Time/epoch', end - start, epoch)
 
-    test_regression(test_loader, indices['Test'], results_folder, val=False)
+    test_regression(model, test_loader, indices['Test'], device, results_folder, val=False)
 
     # save the last model
     torch.save(model.state_dict(), model_dir + '/model_last.pt')
@@ -254,4 +235,4 @@ if __name__ == '__main__':
         result_writer = csv.writer(results_file, delimiter=',', quoting=csv.QUOTE_MINIMAL)
         result_writer.writerow(['Best model!'])
 
-    test_regression(test_loader, indices['Test'], results_folder, val=False)
+    test_regression(model, test_loader, indices['Test'], device, results_folder, val=False)

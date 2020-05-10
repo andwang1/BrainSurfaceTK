@@ -1,91 +1,44 @@
 import os.path as osp
-PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..', '..')
+PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..')
 import sys
 sys.path.append(PATH_TO_ROOT)
+
 import os
 import time
 import pickle
 import csv
-
 import datetime as datetime
+
 import torch
-import torch.nn.functional as F
 from torch.optim.lr_scheduler import StepLR
 import torch_geometric.transforms as T
 from torch.utils.tensorboard import SummaryWriter
 from torch_geometric.data import DataLoader
 
+from models.pointnet.src.models.pointnet2_regression import Net
 from models.pointnet.src.data_loader import OurDataset
-from models.pointnet.src.models.pointnet2_classification import Net
+from models.pointnet.main.pointnet2 import train, test_regression
 
-
-def train(model, train_loader, epoch, device, optimizer, writer):
-    model.train()
-    loss_train = 0.0
-    correct = 0
-    for data in train_loader:
-        data = data.to(device)
-        pred = model(data)
-        perd_label = pred.max(1)[1]
-        loss = F.nll_loss(pred, data.y[:, 0])
-        loss.backward()
-        optimizer.step()
-        correct += perd_label.eq(data.y[:, 0].long()).sum().item()
-        loss_train += loss.item()
-    acc = correct / len(train_loader.dataset)
-    writer.add_scalar('Acc/train', acc, epoch)
-    writer.add_scalar('Loss/train', loss_train / len(train_loader), epoch)
-    print('Train acc: ' + str(acc))
-
-
-def test_classification(model, loader, indices, device, results_folder, val=True, epoch=0):
-    model.eval()
-    with open(results_folder + '/results.csv', 'a', newline='') as results_file:
-        result_writer = csv.writer(results_file, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-        if val:
-            print('Validation'.center(60, '-'))
-            result_writer.writerow(['Val accuracy Epoch - ' + str(epoch)])
-        else:
-            print('Test'.center(60, '-'))
-            result_writer.writerow(['Test accuracy'])
-
-        correct = 0
-        for idx, data in enumerate(loader):
-            data = data.to(device)
-            with torch.no_grad():
-                pred = model(data).max(1)[1]
-                print(str(pred.t().item()).center(20, ' '), str(data.y[:, 0].item()).center(20, ' '), indices[idx])
-                result_writer.writerow([indices[idx][:11], indices[idx][12:],
-                                        str(pred.t().item()), str(data.y[:, 0].item())])
-            correct += pred.eq(data.y[:, 0].long()).sum().item()
-
-        acc = correct / len(loader.dataset)
-
-        if val:
-            result_writer.writerow(['Epoch average error:', str(acc)])
-        else:
-            result_writer.writerow(['Test average error:', str(acc)])
-
-    return acc
-
+PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..') + '/'
+PATH_TO_POINTNET = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..', 'models', 'pointnet') + '/'
 
 if __name__ == '__main__':
 
-    PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..') + '/'
-
-    # Model Parameters
+    ############# MODEL PARAMETERS ################
     lr = 0.001
-    batch_size = 8
+    batch_size = 4
     num_workers = 4
     # ['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc'] + ['weight']
     local_features = ['corr_thickness', 'curvature', 'sulc']
-    # local_features = []
+    # local_features = ['sulc']
     global_features = []
-    target_class = 'birth_age'
-    task = 'classification'
+    target_class = 'scan_age'
+    # target_class = 'birth_age'
+    task = 'regression'
     number_of_points = 500  # 3251# 12000  # 16247
 
     reprocess = False
+    ###############################################
 
     ############# DATA INFORMATION ################
     data = "reducedto_05k"
@@ -94,8 +47,7 @@ if __name__ == '__main__':
     type_data_part = "merged"
 
     # folder in data/stored for pre-processed data.
-    stored = target_class + '/' + type_data_surf + '/' + data + '/' + str(
-        local_features + global_features) + '/' + type_data_part
+    stored = target_class + '/' + type_data_surf + '/' + data + '/' + str(local_features + global_features) + '/' + type_data_part
     path = osp.join(osp.dirname(osp.realpath(__file__)), '..', 'data/' + stored)
     data_folder = '/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native_04152020/' + \
                   type_data_part + '/' + data + '/' + type_data_surf + '/vtk'
@@ -104,11 +56,13 @@ if __name__ == '__main__':
     files_ending = '_' + type_data_part + '_' + type_data_surf + '_' + data_ending
     ###############################################
 
-    with open(PATH_TO_ROOT + 'src/names_preterm.pk', 'rb') as f:
+    ########## INDICES FOR DATA SPLIT #############
+    with open(PATH_TO_POINTNET + 'src/names.pk', 'rb') as f:
         indices = pickle.load(f)
+    ###############################################
 
-
-    comment = 'Gender' + str(datetime.datetime.now()) \
+    ####### Keeping track of the resulst ##########
+    comment = 'TEST_Sphere_scan_age_90' + str(datetime.datetime.now()) \
               + "__LR__" + str(lr) \
               + "__BATCH_" + str(batch_size) \
               + "__local_features__" + str(local_features) \
@@ -133,14 +87,15 @@ if __name__ == '__main__':
         config_file.write('Number of points - ' + str(number_of_points) + '\n')
         config_file.write('Data res - ' + data + '\n')
         config_file.write('Data type - ' + type_data_surf + '\n')
-        config_file.write('Additional comments - With no rotate transforms' + '\n')
+        config_file.write('Additional comments - With rotate transforms' + '\n')
 
     with open(results_folder + '/results.csv', 'w', newline='') as results_file:
         result_writer = csv.writer(results_file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        result_writer.writerow(['Patient ID', 'Session ID', 'Prediction', 'Label'])
+        result_writer.writerow(['Patient ID', 'Session ID', 'Prediction', 'Label', 'Error'])
 
     # Tensorboard writer.
     writer = SummaryWriter(log_dir='runs/' + task + '/' + comment, comment=comment)
+    ###############################################
 
     # DEFINE TRANSFORMS HERE.
     transform = T.Compose([
@@ -159,12 +114,12 @@ if __name__ == '__main__':
                                local_features=local_features, global_feature=global_features,
                                indices=indices['Train'], data_folder=data_folder)
 
-    test_dataset = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform, val=False,
+    test_dataset = OurDataset(path, train=False, transform=None, pre_transform=pre_transform, val=False,
                               target_class=target_class, task=task, reprocess=reprocess, files_ending=files_ending,
                               local_features=local_features, global_feature=global_features,
                               indices=indices['Test'], data_folder=data_folder)
 
-    val_dataset = OurDataset(path, train=False, transform=transform, pre_transform=pre_transform, val=True,
+    val_dataset = OurDataset(path, train=False, transform=None, pre_transform=pre_transform, val=True,
                              target_class=target_class, task=task, reprocess=reprocess, files_ending=files_ending,
                              local_features=local_features, global_feature=global_features,
                              indices=indices['Val'], data_folder=data_folder)
@@ -188,28 +143,32 @@ if __name__ == '__main__':
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     scheduler = StepLR(optimizer, step_size=1, gamma=0.985)
 
-    best_val_acc = 0.0
+    print(f'number of param: {sum(p.numel() for p in model.parameters() if p.requires_grad)}')
+
+    best_val_loss = 999
 
     # MAIN TRAINING LOOP
     for epoch in range(1, 201):
         start = time.time()
         train(model, train_loader, epoch, device, optimizer, writer)
-        val_acc = test_classification(model, val_loader, indices['Val'], device, results_folder, epoch=epoch)
+
+        val_mse, val_l1 = test_regression(model, val_loader, indices['Val'], device, results_folder, epoch=epoch)
 
         scheduler.step()
 
-        writer.add_scalar('Acc/val', val_acc, epoch)
+        writer.add_scalar('Loss/val_mse', val_mse, epoch)
+        writer.add_scalar('Loss/val_l1', val_l1, epoch)
 
-        print('Epoch: {:03d}, Validation acc: {:.4f}'.format(epoch, val_acc))
+        print('Epoch: {:03d}, Test loss l1: {:.4f}'.format(epoch, val_l1))
         end = time.time()
         print('Time: ' + str(end - start))
-        if val_acc > best_val_acc:
-            best_val_acc = val_acc
+        if val_l1 < best_val_loss:
+            best_val_loss = val_l1
             torch.save(model.state_dict(), model_dir + '/model_best.pt')
             print('Saving Model'.center(60, '-'))
         writer.add_scalar('Time/epoch', end - start, epoch)
 
-    test_classification(model, test_loader, indices['Test'], device, results_folder, val=False)
+    test_regression(model, test_loader, indices['Test'], device, results_folder, val=False)
 
     # save the last model
     torch.save(model.state_dict(), model_dir + '/model_last.pt')
@@ -221,5 +180,4 @@ if __name__ == '__main__':
         result_writer = csv.writer(results_file, delimiter=',', quoting=csv.QUOTE_MINIMAL)
         result_writer.writerow(['Best model!'])
 
-    test_classification(model, test_loader, indices['Test'], device, results_folder, val=False)
-
+    test_regression(model, test_loader, indices['Test'], device, results_folder, val=False)
