@@ -146,3 +146,6 @@ models/MeshCNN/runs/
 models/MeshCNN/slurm*
 models/MeshCNN/util/andy_notes
 models/MeshCNN/*txt
+/GUI/js_bundler/node_modules/
+/GUI/static_cdn/
+/GUI/main/migrations/

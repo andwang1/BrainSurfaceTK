@@ -1,6 +1,6 @@
 {% extends "main/header.html" %}
 
-{% block title %}LoadData{% endblock %}
+{% block title %}Load Data{% endblock %}
 
 {% block content %}
     <div class="row">
@@ -10,7 +10,7 @@
                 <p>Warning: Any modifications to the dataset(s) will be lost!</p>
             </div>
             <div class="row">
-                <form method="GET">
+                <form method="POST">
                     {% csrf_token %}
                     <div class="col s2 m2 l2">
                         <button class="waves-effect waves-red btn-small imperial blue" type="submit" name="load_data">
