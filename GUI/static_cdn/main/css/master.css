@@ -1,0 +1,63 @@
+@import "materialize.css";
+
+html * {
+    font-family: Arial;
+}
+
+#brain_img {
+    user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+}
+
+.gif-brain {
+    height: min(40vh, 720px) !important;
+    position: relative;
+    display: block;
+    margin: auto;
+}
+
+.small-container {
+    padding-top: 5px;
+    max-width: 400px;
+    position: relative;
+    display: block;
+    margin: auto;
+}
+
+.brain_slice_container {
+    background-color: black;
+}
+
+#brain_surf_container {
+    width: 100% !important;
+    height: min(75vh, 1440px) !important;
+}
+
+#loader-wheel {
+    position: fixed;
+    top: -100%;
+    right: -100%;
+    left: -100%;
+    bottom: -100%;
+    margin: auto;
+    z-index: 0;
+    display: none;
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+footer {
+    margin-top: min(5%, 50px);
+}

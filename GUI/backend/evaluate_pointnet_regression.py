@@ -31,8 +31,7 @@ def get_features(list_features, reader):
 
         if 'drawem' in list_features:
 
-            one_hot_drawem = pd.get_dummies(
-                vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(feature_arrays['drawem'])))
+            one_hot_drawem = pd.get_dummies(vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(feature_arrays['drawem'])))
             # one_hot_drawem = pd.get_dummies(mesh.get_array(feature_arrays['drawem']))
 
             new_df = pd.DataFrame()
@@ -50,8 +49,7 @@ def get_features(list_features, reader):
             drawem_list = []
 
         # features = [mesh.get_array(feature_arrays[key]) for key in feature_arrays if key != 'drawem']
-        features = [vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(feature_arrays[key])) for key in
-                    feature_arrays if key != 'drawem']
+        features = [vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(feature_arrays[key])) for key in feature_arrays if key != 'drawem']
 
         return torch.tensor(features + drawem_list).t()
     else:
