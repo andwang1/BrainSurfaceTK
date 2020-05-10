@@ -1,12 +1,11 @@
+import unittest
+from get_feature_dict import get_feature_dict
+
 __author__ = "Francis Rhys Ward"
 __license__ = "MIT"
 
-import unittest
-import sys
-sys.path.insert(1, "/vol/biomedic2/aa16914/shared/MScAI_brain_surface/rhys/deepl_brain_surfaces/MeshCNN-master/data")
-from get_feature_dict import get_feature_dict
-
 SUBJECT = "CC01006XX08_38531"
+
 
 class Test_get_feature(unittest.TestCase):
 
@@ -27,4 +26,4 @@ class Test_get_feature(unittest.TestCase):
 
 
 if __name__ == '__main__':
-  unittest.main()
+    unittest.main()
