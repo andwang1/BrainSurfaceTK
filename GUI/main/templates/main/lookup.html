@@ -1,4 +1,5 @@
 {% extends "main/header.html" %}
+{% load static %}
 
 {% block title %} Lookup{% endblock %}
 
@@ -37,31 +38,9 @@
         </form>
     </div>
 
-    <script type="text/javascript">
+    <script>const mask_mri = {{ mri_mask|safe }};</script>
+    <script type="text/javascript" src="{% static "main/js/lookup_js.js" %}"></script>
 
-        document.getElementById("dropdown-session-id").addEventListener('change', function () {
-            const selected_index = document.getElementById("dropdown-session-id").selectedIndex;
-            const checkbox = document.getElementById("display-mri");
-
-            if ({{ mri_mask|safe }}[selected_index-1]) {
-                checkbox.removeAttribute("disabled");
-            } else {
-                checkbox.setAttribute("disabled", "disabled");
-            }
-        });
-
-        {#document.addEventListener('DOMContentLoaded', function () {#}
-        {#    const instance = document.querySelectorAll('select');#}
-        {#    let options = {dropdownOptions: {"hover": true}};#}
-        {#    M.FormSelect.init(instance, options);#}
-        {#);#}
-
-        $(document).ready(function () {
-            document.getElementById("look-up-btn").addEventListener("click", function () {
-                $("#loader-wheel").fadeIn();
-            }, false);
-        });
-    </script>
 {% endblock %}
 
 
