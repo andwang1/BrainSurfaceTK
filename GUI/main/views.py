@@ -2,22 +2,22 @@ import csv
 import os
 import random
 import string
+import time
 import warnings
 
+from backend.evaluate_pointnet_regression import predict_age
+from backend.evaluate_pointnet_segmentation import segment as brain_segment
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
-
-from backend.evaluate_pointnet_regression import predict_age
-from backend.evaluate_pointnet_segmentation import segment as brain_segment
-from .forms import NewUserForm, UploadFileForm
-from .models import Option, SessionDatabase, UploadedSessionDatabase
-
 from nibabel import load as nib_load
 from nilearn.plotting import view_img as ni_view_img
+
+from .forms import NewUserForm, UploadFileForm
+from .models import Option, SessionDatabase, UploadedSessionDatabase
 
 BASE_DIR = os.getcwd()
 DATA_DIR = os.path.join(BASE_DIR, "/main/static/main/data")
@@ -71,9 +71,9 @@ def view_session_results(request, session_id=None):
         mri_js_html = None
         if mri_file.name != "":
             if os.path.isfile(mri_file.path) & mri_file.path.endswith("nii"):
-                img = nib_load(mri_file.path)
-                mri_js_html = ni_view_img(img, colorbar=False, bg_img=False, black_bg=True, cmap='gray')
-                # mri_js_html = None
+                # img = nib_load(mri_file.path)
+                # mri_js_html = ni_view_img(img, colorbar=False, bg_img=False, black_bg=True, cmap='gray')
+                mri_js_html = None
             else:
                 messages.error(request, "ERROR: Either MRI file doesn't exist or doesn't end with .nii!")
 
@@ -288,23 +288,42 @@ def run_segmentation(request, session_id):
             # Segmented File Path
             tmp_fp = tmp_file_path.split(settings.MEDIA_ROOT.split(os.path.basename(settings.MEDIA_ROOT))[-2][:-1])[-1]
 
+
             data = {
                 'segmented_file_path': tmp_fp
             }
             return JsonResponse(data)
 
 
-def remove_tmp(request, session_id=None):
-    data = {
-        'success': 'failed'
-    }
-    relative_file_path = request.GET.get('tmp_file_url', None)
+# def remove_tmp(request, session_id=None):
+#     data = {
+#         'success': 'failed'
+#     }
+#     relative_file_path = request.GET.get('tmp_file_url', None)
+#     if relative_file_path is not None:
+#         file_path = os.path.join(settings.MEDIA_ROOT, relative_file_path.strip(settings.MEDIA_URL))
+#         if os.path.exists(file_path):
+#             os.remove(file_path)
+#             data['success'] = "success"
+#     return JsonResponse(data)
+
+
+def remove_file(relative_file_path, allocated_file_life=10):
     if relative_file_path is not None:
         file_path = os.path.join(settings.MEDIA_ROOT, relative_file_path.strip(settings.MEDIA_URL))
         if os.path.exists(file_path):
+            file_life_time = os.path.getmtime(file_path)
+            if time.time() - file_life_time < allocated_file_life:
+                time.sleep(allocated_file_life - (time.time() - file_life_time))
             os.remove(file_path)
-            data['success'] = "success"
-    return JsonResponse(data)
+            return True
+    return False
+
+def remove_tmp(request, session_id=None):
+    if request.method == 'GET':
+        if remove_file(request.GET.get('tmp_file_url', None)):
+            return JsonResponse({"success": "success"})
+        return JsonResponse({"success": "failed"})
 
 
 def randomString(stringLength=8):

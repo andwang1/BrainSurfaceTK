@@ -1,16 +1,10 @@
 import os
 import sys
-import time
-import subprocess
 
-SETTINGS = os.path.join("GUI/BasicSite/settings.py")
-MANAGE_PATH = os.path.join("GUI/manage.py")
-MEDIA_PATH = os.path.join("GUI/media")
+SETTINGS = "GUI/BasicSite/settings.py"
+MANAGE_PATH = "GUI/manage.py"
+MEDIA_PATH = "GUI/media"
 
-args = [arg for arg in sys.argv]
-
-
-# expect ordering of args dev runmodwsgi --url-alias /media media
 
 def set_debug_to(boolv=True):
     if boolv:
@@ -33,6 +27,8 @@ def set_debug_to(boolv=True):
 
 
 if __name__ == "__main__":
+
+    args = [arg for arg in sys.argv]
 
     os.system(" ".join(["python", MANAGE_PATH, "makemigrations", "--noinput"]))
     os.system(" ".join(["python", MANAGE_PATH, "migrate"]))
