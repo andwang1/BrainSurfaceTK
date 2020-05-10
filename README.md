@@ -3,16 +3,20 @@
 # Setting up
 To install all required packages, please setup a virtual environment as per the instructions below. This virtual environment is based on a CUDA 10.1.105 installation.
 
-
-
 ```
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements1.txt -f https://download.pytorch.org/whl/torch_stable.html
 pip install -r requirements2.txt -f https://pytorch-geometric.com/whl/torch-1.5.0.html
-
 ```
 
+Alternatively, for a CPU installation, please setup the virtual environment as per the instructions below. Please note that the MeshCNN model requires the CUDA based installation above.
+```
+python3 -m venv venv
+source venv/bin/activate
+pip install -r cpu_requirements1.txt -f https://download.pytorch.org/whl/torch_stable.html
+pip install -r cpu_requirements2.txt -f https://pytorch-geometric.com/whl/torch-1.5.0.html
+``` 
 
 
 # MeshCNN
