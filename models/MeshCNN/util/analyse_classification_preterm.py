@@ -9,6 +9,9 @@ import os
 import re
 sns.set()
 
+__author__ = "Andy Wang"
+__license__ = "MIT"
+
 # Plotting info
 cutoff_age = 38
 task = 'preterm'

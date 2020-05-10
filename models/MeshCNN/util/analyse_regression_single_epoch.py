@@ -1,4 +1,3 @@
-import imageio
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
@@ -15,7 +14,7 @@ __license__ = "MIT"
 # Plotting info
 cutoff_age = 38
 task = 'scan_age'
-imgs_per_sec = 4
+epoch = 52
 num_outliers = 5
 
 # Load metadata
@@ -29,13 +28,6 @@ results = pd.read_csv(f"test_logs/{task}/testacc_full_log_1.csv", header=0,
                       names=['unique_key', 'pred', 'label', 'error'])
 min_actual_age = min(results.loc[:, 'label'])
 max_actual_age = max(results.loc[:, 'label'])
-
-
-# Find the number of epochs
-files = os.listdir(f'test_logs/{task}')
-re_pattern = r'[a-zA-Z_]+(\d+)\.csv$'
-pattern = re.compile(re_pattern)
-max_epoch = max(int(re.match(pattern, file).group(1)) for file in files)
 
 def retrieve_plot_data(epoch):
     # Load test results
@@ -67,34 +59,27 @@ def retrieve_plot_data(epoch):
             male["y"].append(pred)
     return female, male, outlier_lines, acc
 
-def generate_img(epoch):
-    # Data for plotting
-    print(epoch)
-    female, male, outlier_lines, acc = retrieve_plot_data(epoch)
-    fig, ax = plt.subplots(figsize=(10, 5))
-    ax.scatter(**female, label="Female", color="red")
-    ax.scatter(**male, label="Male", color="blue")
-    ax.plot([min_actual_age, max_actual_age], [min_actual_age, max_actual_age], linestyle='dashed')
-    ax.set(xlabel='Actual Scan Age', ylabel='Predicted', title=f'Scan Age Prediction - Epoch {epoch}')
-    ax.set_ylim(min_actual_age - 1, max_actual_age + 1)
 
-    for start, end in outlier_lines:
-        ax.vlines(start, start, end, label=f"Top {num_outliers} Errors", linestyles="dashed")
+female, male, outlier_lines, acc = retrieve_plot_data(epoch)
+fig, ax = plt.subplots(figsize=(10, 5))
+ax.scatter(**female, label="Female", color="red")
+ax.scatter(**male, label="Male", color="blue")
+ax.plot([min_actual_age, max_actual_age], [min_actual_age, max_actual_age], linestyle='dashed')
+ax.set(xlabel='Actual Scan Age', ylabel='Predicted', title=f'Scan Age Prediction - Epoch {epoch}')
+ax.set_ylim(min_actual_age - 1, max_actual_age + 1)
 
-    # To avoid printing multiple labels for vlines
-    handles, labels = plt.gca().get_legend_handles_labels()
-    by_label = dict(zip(labels, handles))
-    plt.legend(by_label.values(), by_label.keys())
+for start, end in outlier_lines:
+    ax.vlines(start, start, end, label=f"Top {num_outliers} Errors", linestyles="dashed")
 
-    textbox = f"L1: {acc}"
-    props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-    # place a text box in upper left in axes coords
-    ax.text(0.025, 0.75, textbox, transform=ax.transAxes, fontsize=14,
-            verticalalignment='top', bbox=props)
+# To avoid printing multiple labels for vlines
+handles, labels = plt.gca().get_legend_handles_labels()
+by_label = dict(zip(labels, handles))
+plt.legend(by_label.values(), by_label.keys())
 
-    fig.canvas.draw()
-    image = np.frombuffer(fig.canvas.tostring_rgb(), dtype='uint8')
-    image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
-    return image
+textbox = f"L1: {acc}"
+props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+# place a text box in upper left in axes coords
+ax.text(0.025, 0.75, textbox, transform=ax.transAxes, fontsize=14,
+        verticalalignment='top', bbox=props)
 
-imageio.mimsave(f'./{task}.gif', [generate_img(i) for i in range(1, max_epoch)], fps=imgs_per_sec)
+plt.savefig("outliers.pdf")

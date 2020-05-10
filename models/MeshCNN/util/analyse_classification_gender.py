@@ -9,13 +9,16 @@ import os
 import re
 sns.set()
 
+__author__ = "Andy Wang"
+__license__ = "MIT"
+
 # Plotting info
 cutoff_age = 38
 task = 'gender'
 x_var = 'scan_age'
 x_label = x_var.split("_")
 x_label = x_label[0].capitalize() + " " + x_label[1].capitalize()
-imgs_per_sec = 4
+imgs_per_sec = 1
 
 # Load metadata
 meta = pd.read_csv("combined.tsv", delimiter='\t')

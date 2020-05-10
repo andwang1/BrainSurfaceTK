@@ -1,5 +1,4 @@
 import pandas as pd
-import os
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pickle
@@ -12,7 +11,7 @@ meta['unique_key'] = meta['participant_id'] + "_" + meta['session_id'].astype(st
 meta.set_index('unique_key', inplace=True)
 meta.drop(['participant_id', 'session_id', 'sedation', 'scan_number'], axis=1, inplace=True)
 
-with open("indices.pk", "rb") as f:
+with open("names_04152020_noCrashSubs.pk", "rb") as f:
     indices = pickle.load(f)
 
 print(indices)
