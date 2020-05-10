@@ -173,19 +173,12 @@ class MeshPool(nn.Module):
     @staticmethod
     def __remove_triplete(mesh, mask, edge_groups, invalid_edges):
         vertex = set(mesh.edges[invalid_edges[0]])
-        #print(len(mesh.edges))
-        #print("pre", vertex)
         for edge_key in invalid_edges:
-            #print("edge_key", edge_key)
-            #print("meshedges", mesh.edges)
-            #print("meshedgeswithkey", set(mesh.edges[edge_key]))
             vertex &= set(mesh.edges[edge_key])
-            #print("after intersec", vertex)
             mask[edge_key] = False
             MeshPool.__remove_group(mesh, edge_groups, edge_key)
         mesh.edges_count -= 3
         vertex = list(vertex)
-        #print("vertex ", len(vertex), vertex)
         assert (len(vertex) == 1)
         mesh.remove_vertex(vertex[0])
 
