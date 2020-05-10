@@ -4,8 +4,8 @@ import pyvista as pv
 from read_meta import read_meta
 from get_edge_features import write_eseg, from_scratch, write_seseg, save_features
 
-__author__ = “Francis Rhys Ward”
-__license__ = “MIT”
+__author__ = "Francis Rhys Ward"
+__license__ = "MIT"
 
 meta_data_path = "combined.tsv"
 vtk_path = "datasets/reducedto_10k/pial/vtk/"

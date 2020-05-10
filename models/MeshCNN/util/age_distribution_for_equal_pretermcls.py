@@ -3,8 +3,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pickle
 
-__author__ = “Andy Wang”
-__license__ = “MIT”
+__author__ = "Andy Wang"
+__license__ = "MIT"
 
 # Read the metadata file
 meta = pd.read_csv("combined.tsv", delimiter='\t')

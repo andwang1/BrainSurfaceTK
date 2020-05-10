@@ -3,8 +3,8 @@ import subprocess
 Tests that training/testing scripts run correctly on a small subset of data.
 """
 
-__author__ = “Francis Rhys Ward”
-__license__ = “MIT”
+__author__ = "Francis Rhys Ward"
+__license__ = "MIT"
 
 print("starting test")
 

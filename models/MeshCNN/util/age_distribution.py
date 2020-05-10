@@ -4,8 +4,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pickle
 
-__author__ = “Andy Wang”
-__license__ = “MIT”
+__author__ = "Andy Wang"
+__license__ = "MIT"
 
 # Read the metadata file
 meta = pd.read_csv("combined.tsv", delimiter='\t')
@@ -31,8 +31,8 @@ present_files_meta.drop(['present_obj_50'], inplace=True)
 print(present_files_meta.describe())
 
 # Plot it out
-# sns.distplot(present_files_meta['scan_age'])
-# plt.show()
+sns.distplot(present_files_meta['scan_age'])
+plt.show()
 
 #### Redistribution of data for regression
 sorted_indices = present_files_meta.sort_values('scan_age').index

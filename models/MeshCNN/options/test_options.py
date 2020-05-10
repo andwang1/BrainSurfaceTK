@@ -1,7 +1,7 @@
 from .base_options import BaseOptions
 
-__author__ = “Rana Hanocka”
-__license__ = “MIT”
+__author__ = "Rana Hanocka"
+__license__ = "MIT"
 __maintainer__ = "Andy Wang"
 
 class TestOptions(BaseOptions):

@@ -5,8 +5,8 @@ from models.layers.mesh_union import MeshUnion
 import numpy as np
 from heapq import heappop, heapify
 
-__author__ = “Rana Hanocka”
-__license__ = “MIT”
+__author__ = "Rana Hanocka"
+__license__ = "MIT"
 __maintainer__ = "Andy Wang"
 
 class MeshPool(nn.Module):

@@ -3,8 +3,8 @@ import os
 import pandas as pd
 from shutil import copyfile
 
-__author__ = “Andy Wang”
-__license__ = “MIT”
+__author__ = "Andy Wang"
+__license__ = "MIT"
 
 # Where the brains at
 source_dir = r"datasets/all_brains_merged_10k"

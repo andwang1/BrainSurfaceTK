@@ -3,8 +3,8 @@ import os
 import pandas as pd
 from shutil import copyfile
 
-__author__ = “Andy Wang”
-__license__ = “MIT”
+__author__ = "Andy Wang"
+__license__ = "MIT"
 
 source_dir_names =["all_brains_merged_10k"
                    ]

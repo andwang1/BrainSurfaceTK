@@ -3,8 +3,8 @@ from data import DataLoader
 from models import create_model
 from util.writer import Writer
 
-__author__ = “Rana Hanocka”
-__license__ = “MIT”
+__author__ = "Rana Hanocka"
+__license__ = "MIT"
 __maintainer__ = "Andy Wang"
 
 def run_test(epoch=-1, is_val=True):

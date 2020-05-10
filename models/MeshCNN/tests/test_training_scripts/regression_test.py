@@ -1,7 +1,7 @@
 import subprocess
 
-__author__ = “Francis Rhys Ward”
-__license__ = “MIT”
+__author__ = "Francis Rhys Ward"
+__license__ = "MIT"
 
 print("starting test")
 try:

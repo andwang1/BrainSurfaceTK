@@ -5,8 +5,8 @@ from models import create_model
 from util.writer import Writer
 from test import run_test
 
-__author__ = “Rana Hanocka”
-__license__ = “MIT”
+__author__ = "Rana Hanocka"
+__license__ = "MIT"
 __maintainer__ = "Andy Wang"
 
 if __name__ == '__main__':

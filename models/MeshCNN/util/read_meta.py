@@ -1,8 +1,8 @@
 import numpy as np
 import csv
 
-__author__ = “Francis Rhys Ward”
-__license__ = “MIT”
+__author__ = "Francis Rhys Ward"
+__license__ = "MIT"
 
 path = 'meta_data.tsv'
 

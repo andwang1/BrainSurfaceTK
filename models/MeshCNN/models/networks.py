@@ -8,8 +8,8 @@ from models.layers.mesh_conv import MeshConv
 from models.layers.mesh_pool import MeshPool
 from models.layers.mesh_unpool import MeshUnpool
 
-__author__ = “Rana Hanocka”
-__license__ = “MIT”
+__author__ = "Rana Hanocka"
+__license__ = "MIT"
 __maintainer__ = "Andy Wang"
 
 ###############################################################################

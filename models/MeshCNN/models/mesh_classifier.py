@@ -4,8 +4,8 @@ from . import networks
 from util.util import seg_accuracy, print_network
 from data.get_feature_dict import get_feature_dict
 
-__author__ = “Rana Hanocka”
-__license__ = “MIT”
+__author__ = "Rana Hanocka"
+__license__ = "MIT"
 __maintainer__ = "Andy Wang"
 
 class ClassifierModel:

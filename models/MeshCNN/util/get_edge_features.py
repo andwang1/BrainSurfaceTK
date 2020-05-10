@@ -3,8 +3,8 @@ import pyvista as pv
 import sys
 from models.layers import mesh_prepare
 
-__author__ = “Francis Rhys Ward”
-__license__ = “MIT”
+__author__ = "Francis Rhys Ward"
+__license__ = "MIT"
 
 sys.path.insert(1, 'models/layers')
 feature_arrays = {'drawem': 0, 'corr_thickness': 1, 'myelin_map': 2, 'curvature': 3, 'sulc': 4}

@@ -1,8 +1,8 @@
 import sys
 from data.get_feature_dict import get_feature_dict
 
-__author__ = “Francis Rhys Ward”
-__license__ = “MIT”
+__author__ = "Francis Rhys Ward"
+__license__ = "MIT"
 
 CC01006XX08_38531_features = ["Male", 28.714285714285715, 1.03, 30.571428571429, 1]
 features = ["gender", "birth_age", "birth_weight", "scan_age", "scan_number"]

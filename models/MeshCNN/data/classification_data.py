@@ -5,8 +5,8 @@ from util.util import is_mesh_file, pad
 from models.layers.mesh import Mesh
 from data.get_feature_dict import get_feature_dict
 
-__author__ = “Rana Hanocka”
-__license__ = “MIT”
+__author__ = "Rana Hanocka"
+__license__ = "MIT"
 __maintainer__ = ["Andy Wang", "Francis Rhys Ward"]
 
 class ClassificationData(BaseDataset):

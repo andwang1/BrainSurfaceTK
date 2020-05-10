@@ -1,5 +1,5 @@
-__author__ = “Francis Rhys Ward”
-__license__ = “MIT”
+__author__ = "Francis Rhys Ward"
+__license__ = "MIT"
 
 def write_seseg(eseg_path, seseg_path, patient_id, ses_id):
     eseg_file = eseg_path + patient_id +"_"+ses_id+".eseg"

@@ -1,5 +1,5 @@
-__author__ = “Andy Wang”
-__license__ = “MIT”
+__author__ = "Andy Wang"
+__license__ = "MIT"
 
 with open("logmerged10k.txt", "r") as f:
     log = [line.strip() for line in f.readlines()]
