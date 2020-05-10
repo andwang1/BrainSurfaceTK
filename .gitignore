@@ -11,6 +11,9 @@
 /models/pointnet/new_runs
 /models/pointnet/slurm*
 
+/models/volume3d/experiment_data
+/models/volume3d/tensorboard_runs
+
 
 
 # Editors
