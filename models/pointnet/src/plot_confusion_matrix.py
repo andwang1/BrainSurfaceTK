@@ -7,25 +7,13 @@ import numpy as np
 from sklearn.metrics import confusion_matrix
 
 
-
 def plot_confusion_matrix(correct_labels, predict_labels, labels, title='Confusion matrix', tensor_name = 'MyFigure/image', normalize=True):
     '''
-    Parameters:
-        correct_labels                  : These are your true classification categories.
-        predict_labels                  : These are you predicted classification categories
-        labels                          : This is a lit of labels which will be used to display the axix labels
-        title='Confusion matrix'        : Title for your matrix
-        tensor_name = 'MyFigure/image'  : Name for the output summay tensor
-
-    Returns:
-        summary: TensorFlow summary
-
-    Other itema to note:
-        - Depending on the number of category and the data , you may have to modify the figzie, font sizes etc.
-        - Currently, some of the ticks dont line up due to rotations.
+    Plots confusion matrix that can be used in Tensorboard
+    :param correct_labels: true classification categories.
+    :param predict_labels: predicted classification categories
+    :param labels: lit of labels which will be used to display the axix labels
     '''
-
-
 
     correct_labels = correct_labels.cpu().detach().numpy()
     predict_labels = predict_labels.cpu().detach().numpy()
@@ -67,6 +55,3 @@ def plot_confusion_matrix(correct_labels, predict_labels, labels, title='Confusi
     fig.set_tight_layout(True)
 
     return fig
-
-if __name__ == '__main__':
-    pass

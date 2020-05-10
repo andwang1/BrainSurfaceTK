@@ -18,7 +18,15 @@ import os.path as osp
 PATH_TO_VOLUME3D = osp.join(osp.dirname(osp.realpath(__file__)), '..') + '/'
 
 def save_graphs_train(fn, num_epochs, training_loss, val_loss_epoch5):
-
+    '''
+    Saves all the necessary graphs
+    :param fn: path to folder where to save
+    :param num_epochs: epoch list
+    :param training_loss: loss list
+    :param test_loss_epoch5: test loss list
+    :param writer: tensorboard writer
+    :return:
+    '''
 
     path = osp.join(osp.dirname(osp.realpath(__file__)), '..', f'{fn}/')
 
@@ -37,6 +45,9 @@ def save_graphs_train(fn, num_epochs, training_loss, val_loss_epoch5):
 
 
 def save_to_log(model, params, fn, final_MAE, num_epochs, batch_size, lr, feats, gamma, smoothen, edgen, dropout_p, img_spacing, img_size, scheduler_freq):
+    '''
+    Save all the information about the run to log
+    '''
 
     print(f"Average Loss on whole val set: {final_MAE}")
 
@@ -95,6 +106,22 @@ def save_to_log(model, params, fn, final_MAE, num_epochs, batch_size, lr, feats,
 
 
 def train_validate(lr, feats, num_epochs, gamma, batch_size, dropout_p, dataset_train, dataset_val, fn, number_here, scheduler_freq, writer):
+    '''
+    Main train-val loop. Train on training data and evaluate on validation data.
+
+    :param lr: learning rate
+    :param feats: feature amplifier (multiplier of the number of parameters in the CNN)
+    :param num_epochs:
+    :param gamma: scheduler gamma
+    :param batch_size
+    :param dropout_p: dropout proba
+    :param dataset_train
+    :param dataset_val
+    :param fn: saving folder
+    :param scheduler_freq
+    :param writer: tensorboard
+    :return: model, params, final_MAE
+    '''
 
     # 1. Display GPU Settings:
     cuda_dev = '0'  # GPU device 0 (can be changed if multiple GPUs are available)

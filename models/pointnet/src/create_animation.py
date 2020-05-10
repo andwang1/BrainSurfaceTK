@@ -1,6 +1,10 @@
 import pyvista as pv
-import numpy as np
 import pickle
+
+
+# THIS SCRIPT IS USED TO CREATE ANIMATIONS
+
+
 path = '/Users/brandelt/Dropbox/EDUCATION/Imperial College/MScAI/010 Software Project/main_repository/deepl_brain_surfaces/experiment_data/aligned_inflated_50_-2'
 
 

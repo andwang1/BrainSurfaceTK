@@ -2,26 +2,17 @@
 # Imports for Model
 ########################################
 from torch.nn import Module, Conv3d, ConvTranspose3d, Linear, ReLU, Sequential, Linear, Flatten, L1Loss, BatchNorm3d, Dropout, BatchNorm1d
-from torch.optim import Adam, lr_scheduler
 import numpy as np
-from sklearn.model_selection import train_test_split
 from torch import nn
-import torch.nn.functional as F
 import SimpleITK as sitk
 import torch
 from torch.utils.data import Dataset, DataLoader
-import pandas as pd
-import os
-import matplotlib.pyplot as plt
-from tqdm import tqdm
-import seaborn as sns
 ########################################
 # End Imports
 ########################################
+
 variances = [i for i in range(30)]
 PATH_TO_DATA = '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex2/deepl_brain_surfaces/'
-
-"""# Dataset & Preprocessing"""
 
 
 class ImageSegmentationDataset(Dataset):
@@ -31,6 +22,15 @@ class ImageSegmentationDataset(Dataset):
         """
 
     def __init__(self, path, selected_ids, id_ages, spacing=[3, 3, 3], image_size=[60, 60, 50], smoothen=None, edgen=False):
+        '''
+        :param path: path to saving folder
+        :param selected_ids: which patients to process
+        :param id_ages: labels
+        :param spacing: image spacing
+        :param image_size: image size
+        :param smoothen: apply smoothening filter (True/False)
+        :param edgen: apply edgening filter (True/False)
+        '''
 
         if smoothen is None:
             smoothen = 0
@@ -52,7 +52,6 @@ class ImageSegmentationDataset(Dataset):
         else:
             self.samples = [torch.from_numpy(sitk.GetArrayFromImage(sitk.DiscreteGaussian(resample_image(sitk.ReadImage(PATH_TO_DATA + f"gm_volume3d/sub-{ID[0]}_ses-{ID[1]}_T2w_graymatter.nii.gz", sitk.sitkFloat32), self.spacing, self.image_size), smoothen))).unsqueeze(0) for ID in self.ids]
 
-        # self.samples = [(sitk.DiscreteGaussian(sitk.ReadImage(f"{data_dir}/greymatter/wc1sub-{ID}_T1w.nii.gz", sitk.sitkFloat32), smoothen)) for ID in self.ids]
         self.targets = torch.tensor(id_ages, dtype=torch.float).view((-1, 1))
         print("Initialisation complete")
 
@@ -126,7 +125,7 @@ class PrintTensor(nn.Module):
 
 class Part3(Module):
     """
-    Neural Network for part 3.
+    The main CNN
     """
 
     def __init__(self, feats, dropout_p):
