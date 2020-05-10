@@ -11,8 +11,12 @@ from torch_geometric.nn import PointConv, fps, radius, global_max_pool
 from torch_geometric.nn import knn_interpolate
 from vtk.numpy_interface import dataset_adapter as dsa
 from vtk.util.numpy_support import vtk_to_numpy
+from django.conf import settings
 
-model_path = os.path.join(os.getcwd(), "backend/pre_trained_models/best_acc_model.pt")
+if settings.DEBUG == True:
+    MODEL_PATH = os.path.join(os.getcwd(), "GUI/backend/pre_trained_models/best_acc_model.pt")
+else:
+    MODEL_PATH = os.path.join(os.getcwd(), "backend/pre_trained_models/best_acc_model.pt")
 
 # Global variables
 all_labels = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17])
@@ -132,12 +136,26 @@ def get_features(list_features, reader):
     else:
         return None
 
+def get_labels(reader):
+    '''Returns tensor of features to add in every point.
+    :param list_features: list of features to add. Mapping is in self.feature_arrays
+    :param mesh: pyvista mesh from which to get the arrays.
+    :returns: tensor of features or None if list is empty.'''
+
+    # Very ugly workaround about some classes not being in some data.
+    list_of_drawem_labels = [0, 5, 7, 9, 11, 13, 15, 21, 22, 23, 25, 27, 29, 31, 33, 35, 37, 39]
+    feature_arrays = {'drawem': 0, 'corr_thickness': 1, 'myelin_map': 2, 'curvature': 3, 'sulc': 4}
+
+    labels = [vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(feature_arrays[key])) for key in
+                feature_arrays if key == 'drawem']
+
+    return torch.tensor(labels).t()
+
 
 def segment(brain_path, folder_path_to_write, tmp_file_name=None):
 
     if tmp_file_name is None:
         tmp_file_name = 'segmented_brain.vtp'
-
 
     torch.manual_seed(0)
     reader = vtk.vtkXMLPolyDataReader()
@@ -148,19 +166,22 @@ def segment(brain_path, folder_path_to_write, tmp_file_name=None):
 
     local_features = ['corr_thickness', 'curvature', 'sulc']
     x = get_features(local_features, reader)
+    y = get_labels(reader)
 
     pre_transform = T.NormalizeScale()
-    data = Data(batch=torch.zeros_like(x[:, 0]).long(), x=x, pos=points)
+    data = Data(batch=torch.zeros_like(x[:, 0]).long(), x=x, y=y, pos=points)
     data = pre_transform(data)
-    # data = Data(x=x, pos=points)
 
+    # data = Data(x=x, pos=
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     numb_local_features = x.size(1)
     numb_global_features = 0
 
     model = Net(18, numb_local_features).to(device)
-    model.load_state_dict(torch.load(model_path, map_location=device))
+
+    model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
+
     model.eval()
 
     # 1. Get predictions and loss
@@ -168,8 +189,22 @@ def segment(brain_path, folder_path_to_write, tmp_file_name=None):
     out = model(data)
 
     # 2. Get d (positions), _y (actual labels), _out (predictions)
-    _y = data.y.cpu().detach().numpy()
-    _out = out.max(dim=1)[1].cpu().detach().numpy()
+    _y = np.squeeze(data.y.cpu().detach().numpy())
+    _out = np.squeeze(out.max(dim=1)[1].cpu().detach().numpy())
+
+    unique_labels = torch.unique(torch.tensor(_y))
+    unique_labels_normalised = unique_labels.unique(return_inverse=True)[1]
+
+    # Create the mapping
+    label_mapping = {}
+    for original, normalised in zip(unique_labels, np.unique(_out)):
+        label_mapping[original.item()] = normalised.item()
+
+    # Having received y_tensor, use label_mapping
+    temporary_list = []
+    for y in _y:
+        temporary_list.append(label_mapping[y])
+    _y = np.array(temporary_list)
 
     # Record intersections
     intersections = []
@@ -177,9 +212,8 @@ def segment(brain_path, folder_path_to_write, tmp_file_name=None):
         if label == prediction:
             intersections.append(0)
         else:
-            intersections.append(100)
+            intersections.append(10)
     intersections = np.array(intersections)
-
 
     mesh = reader.GetOutput()
 
@@ -198,6 +232,5 @@ def segment(brain_path, folder_path_to_write, tmp_file_name=None):
 
 
 if __name__ == '__main__':
-    segment(
-        "/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/GUI/deepl_brain_surfaces/GUI/media/original/data/vtps/sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp")
+    segment("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex/GUI/deepl_brain_surfaces/GUI/media/original/data/vtps/sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp", './')
 

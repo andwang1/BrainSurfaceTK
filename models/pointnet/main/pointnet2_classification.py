@@ -209,7 +209,7 @@ if __name__ == '__main__':
             print('Saving Model'.center(60, '-'))
         writer.add_scalar('Time/epoch', end - start, epoch)
 
-    test_classification(test_loader, indices['Test'], results_folder)
+    test_classification(model, test_loader, indices['Test'], device, results_folder, val=False)
 
     # save the last model
     torch.save(model.state_dict(), model_dir + '/model_last.pt')

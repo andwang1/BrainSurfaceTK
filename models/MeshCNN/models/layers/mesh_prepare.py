@@ -2,6 +2,9 @@ import numpy as np
 import os
 import ntpath
 
+__author__ = "Rana Hanocka"
+__license__ = "MIT"
+__maintainer__ = "Andy Wang"
 
 def fill_mesh(mesh2fill, file: str, opt):
     load_path = get_mesh_path(file, opt.num_aug)

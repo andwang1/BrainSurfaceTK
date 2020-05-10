@@ -1,7 +1,12 @@
-MIT License
+From MeshCNN:
 
 Copyright (c) 2019 Rana Hanocka
 Copyright (c) 2020 Alexey Zhakarov, Andy Wang, Cemlyn Waters, Francis Rhys Ward, Richard Mardiat, Vitalis Vosylius
+
+All other contributions:
+Copyright (c) 2020 Alexey Zhakarov, Andy Wang, Cemlyn Waters, Francis Rhys Ward, Richard Mardiat, Vitalis Vosylius
+
+MIT LICENSE
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,3 +25,5 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+

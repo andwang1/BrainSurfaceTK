@@ -1,14 +1,20 @@
-import os.path as osp
-import torch
-from .pre_trained_models.pointnet2_regression import Net  # TODO
-from torch_geometric.data import Data
-# import pyvista as pv
-import vtk
-# from pyvista import read
-import pandas as pd
 import os
+import os.path as osp
+
 import numpy as np
+import pandas as pd
+import torch
+import vtk
+from django.conf import settings
+from torch_geometric.data import Data
 from vtk.util.numpy_support import vtk_to_numpy
+
+from .pre_trained_models.pointnet2_regression import Net  # TODO
+
+if settings.DEBUG == True:
+    MODEL_PATH = os.path.join(os.getcwd(), "GUI/backend/pre_trained_models/model_best.pt")
+else:
+    MODEL_PATH = os.path.join(os.getcwd(), "backend/pre_trained_models/model_best.pt")
 
 
 def get_features(list_features, reader):
@@ -25,7 +31,8 @@ def get_features(list_features, reader):
 
         if 'drawem' in list_features:
 
-            one_hot_drawem = pd.get_dummies(vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(feature_arrays['drawem'])))
+            one_hot_drawem = pd.get_dummies(
+                vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(feature_arrays['drawem'])))
             # one_hot_drawem = pd.get_dummies(mesh.get_array(feature_arrays['drawem']))
 
             new_df = pd.DataFrame()
@@ -43,7 +50,8 @@ def get_features(list_features, reader):
             drawem_list = []
 
         # features = [mesh.get_array(feature_arrays[key]) for key in feature_arrays if key != 'drawem']
-        features = [vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(feature_arrays[key])) for key in feature_arrays if key != 'drawem']
+        features = [vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(feature_arrays[key])) for key in
+                    feature_arrays if key != 'drawem']
 
         return torch.tensor(features + drawem_list).t()
     else:
@@ -75,8 +83,8 @@ def predict_age(file_path="/media/original/data/vtps/sub-CC00050XX01_ses-7201_he
         numb_global_features = 0
 
         model = Net(numb_local_features, numb_global_features).to(device)
-        model_path = os.path.join(os.getcwd(), "backend/pre_trained_models/model_best.pt")
-        model.load_state_dict(torch.load(model_path, map_location=device))
+
+        model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
         model.eval()
 
         # data_loader = DataLoader([data], batch_size=1, shuffle=False)
@@ -90,6 +98,5 @@ def predict_age(file_path="/media/original/data/vtps/sub-CC00050XX01_ses-7201_he
 
 
 if __name__ == '__main__':
-
-
-    print(predict_age('/mnt/UHDD/Programming/Projects/GroupProject/deepl_brain_surfaces/GUI'+"/media/original/data/vtps/sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp"))
+    print(predict_age(
+        '/mnt/UHDD/Programming/Projects/GroupProject/deepl_brain_surfaces/GUI' + "/media/original/data/vtps/sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp"))

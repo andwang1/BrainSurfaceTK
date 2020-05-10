@@ -5,7 +5,7 @@ We recommend viewing the original README before using this repo as we will descr
 
 # .vtk to .obj Conversion
 
-Firstly, we have python scripts to convert a directory of files from `.vtk` to `.obj` (as required by MeshCNN), whilst also creating the `.seseg` and `.eseg` files needed for segmentation. 
+Firstly, we have python scripts to convert a directory of files from `.vtk` to `.obj` (as required by MeshCNN), whilst also creating the `.seseg` and `.eseg` files needed for segmentation. See the `util/vtk_to_obj_convert.py` file.  This module takes sys args `meta_data_path` (a path to the `.tsv` file containing meta data), `vtk_path` to where the .vtk files are stored, `path` to where the .obj files should be stored, and optionally `seg` to also save the files necessary for segmentation. Run the command `python3 -m  vtk_to_obj_convert <meta_data_path> <vtk_path> <path> seg`. 
 
 # Regression
 
@@ -24,7 +24,7 @@ We also added functionality for different learning rate schedulers, this can be 
 
 # Viewing the Mesh with Pyvista
 
-Lastly, we use the PyVista package to view the mesh, including collapsed meshes produced by MeshCNN and key vertices. 
+Lastly, we use the PyVista package to view the mesh, including collapsed meshes produced by MeshCNN. Run `util/view_mesh_pyvista.py`, this takes a single argument (the file path to the mesh), and accepts .vtk or .obj. 
 
 # Acknowledgements 
 

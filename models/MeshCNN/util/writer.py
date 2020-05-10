@@ -1,6 +1,10 @@
 import os
 import time
 
+__author__ = "Rana Hanocka"
+__license__ = "MIT"
+__maintainer__ = "Andy Wang"
+
 try:
     from tensorboardX import SummaryWriter
 except ImportError as error:
