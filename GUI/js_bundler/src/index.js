@@ -148,8 +148,8 @@ export function build_brain_surf_window(x, y) {
         ]
             .map(
                 (name, idx) =>
-                    `<option value="${(idx+1) === 0 ? 0 : 1}:${(idx+1) < 4 ? idx+1 - 1 : 2}:${
-                        (idx+1) === 4 ? 1 : 0
+                    `<option value="${(idx + 1) === 0 ? 0 : 1}:${(idx + 1) < 4 ? idx + 1 - 1 : 2}:${
+                        (idx + 1) === 4 ? 1 : 0
                     }">${name}</option>`
             )
             .join('');
@@ -391,7 +391,7 @@ export function build_brain_surf_window(x, y) {
 
     function load(container, options) {
         autoInit = false;
-        // emptyContainer(container);
+        emptyContainer(container);
 
         if (options.files) {
             createViewer(container);

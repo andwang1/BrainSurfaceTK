@@ -1,4 +1,5 @@
 {% extends "main/header.html" %}
+{% load static %}
 
 {% block title %} Lookup{% endblock %}
 
@@ -6,28 +7,39 @@
     <div class="small-container">
         <h4 class="flow-text">Lookup</h4>
         <br>
-        <form id="lookup-form" method="get">
+        <form id="lookup-form" method="post">
             <div class="input-field">
-                <select name="selected_session_id">
-                    {% for session_id in session_ids %}
-                        <option value={{ session_id }}>{{ session_id }}</option>
-                    {% endfor %}
-                </select>
-                <label>Select Session ID:</label>
-                <button id="look-up-btn" class="waves-effect waves-green btn-small imperial blue" type="submit" form="lookup-form">
-                    Go
+                <div>
+                    <label>
+                        <span>Select Session ID:</span>
+                        <select id="dropdown-session-id" name="selected_session_id">
+                            <option hidden="" selected disabled class="text-blue">Session ID</option>
+                            {% for session_id in session_ids %}
+                                <option value={{ session_id }}>{{ session_id }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                </div>
+            </div>
+            <div class="right">
+                <label>
+                    <input id="display-mri" name="display-mri" type="checkbox" class="filled-in" disabled/>
+                    <span>Display raw MRI slices?</span>
+                </label>
+            </div>
+
+            <div class="left">
+                <button id="look-up-btn" class="waves-effect waves-green btn-small imperial blue"
+                        type="submit"
+                        form="lookup-form">Go
                 </button>
             </div>
+
         </form>
     </div>
 
-    <script type="text/javascript">
-        $(document).ready(function () {
-            document.getElementById("look-up-btn").addEventListener("click", function () {
-                $("#loader-wheel").fadeIn();
-            }, false);
-        });
-    </script>
+    <script>const mask_mri = {{ mri_mask|safe }};</script>
+    <script type="text/javascript" src="{% static "main/js/lookup_js.js" %}"></script>
 
 {% endblock %}
 

@@ -20,7 +20,7 @@ def set_debug_to(boolv=True):
         if "DEBUG" in line:
             filedata[i] = line.replace(cboolv, boolv)
         if "MEDIA_URL" in line:
-            info["MEDIA_URL"] = line.split(" ")[-1].split("'")[-2][:-1]
+            info["MEDIA_URL"] = line.split(" ")[-1].split('"')[-2][:-1]
     with open(SETTINGS, 'w') as file:
         file.writelines(filedata)
     return info

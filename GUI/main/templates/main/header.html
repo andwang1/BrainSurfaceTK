@@ -1,4 +1,6 @@
 <head>
+    <meta charset="utf-8">
+
     <title>{% block title %}{% endblock %}</title>
 
     {% load static %}
@@ -15,22 +17,28 @@
 
     <script type="application/x-javascript" src="{% static "main/js/brain_surface_tool.js" %}"></script>
 
-    <!--Let browser know website is optimized for mobile-->
-    {#    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>#}
 </head>
+
 
 <body>
 
 {% include 'main/includes/navbar.html' %}
+<main>
+    <div class="container">
+        {% block content %}
+        {% endblock %}
+    </div>
+</main>
 
-<div class="container">
-    {% block content %}
-    {% endblock %}
-</div>
+{% include 'main/includes/footer.html' %}
+
 </body>
 
 {% include 'main/includes/messages.html' %}
 
 {% include 'main/includes/load_wheel.html' %}
 
+
 <script>M.AutoInit();</script>
+
+
