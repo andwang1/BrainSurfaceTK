@@ -1,3 +1,6 @@
+__author__ = "Francis Rhys Ward"
+__license__ = "MIT"
+
 import unittest
 import sys
 sys.path.insert(1, "/vol/biomedic2/aa16914/shared/MScAI_brain_surface/rhys/deepl_brain_surfaces/MeshCNN-master/data")
