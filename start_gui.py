@@ -3,9 +3,9 @@ import sys
 import time
 import subprocess
 
-SETTINGS = os.path.join(os.getcwd(), "GUI/BasicSite/settings.py")
-MANAGE_PATH = os.path.join(os.getcwd(), "GUI/manage.py")
-MEDIA_PATH = os.path.join(os.getcwd(), "GUI/media")
+SETTINGS = os.path.join("GUI/BasicSite/settings.py")
+MANAGE_PATH = os.path.join("GUI/manage.py")
+MEDIA_PATH = os.path.join("GUI/media")
 
 args = [arg for arg in sys.argv]
 
@@ -39,8 +39,8 @@ if __name__ == "__main__":
 
     if "prod" in args:
         info = set_debug_to(False)
-        os.system(" ".join(["python", MANAGE_PATH, "collectstatic", "--noinput"]))
-        os.system(" ".join(["python", MANAGE_PATH, "runmodwsgi", "--url-alias", info["MEDIA_URL"], MEDIA_PATH]))
+        os.system(r" ".join(["python", MANAGE_PATH, "collectstatic", "--noinput"]))
+        os.system(r" ".join(["python", MANAGE_PATH, "runmodwsgi", "--url-alias", info["MEDIA_URL"], MEDIA_PATH]))
     else:
         set_debug_to(True)
         os.system(" ".join(["python", MANAGE_PATH, "runserver"]))
