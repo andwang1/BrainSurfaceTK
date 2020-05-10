@@ -49,8 +49,12 @@ class OurDataset(InMemoryDataset):
         self.classes = dict()
 
         # Mapping between features and array number in the files.
-        self.feature_arrays = {'drawem': 0, 'corr_thickness': 1, 'myelin_map': 2, 'curvature': 3, 'sulc': 4}
-
+        # self.feature_arrays = {'drawem': 0, 'corr_thickness': 1, 'myelin_map': 2, 'curvature': 3, 'sulc': 4}
+        self.feature_arrays = {'drawem': 'segmentation',
+                               'corr_thickness': 'corrected_thickness',
+                               'myelin_map': 'myelin_map',
+                               'curvature': 'curvature',
+                               'sulc': 'sulcal_depth'}
         # The task at hand
         self.task = task
 
