@@ -1,8 +1,10 @@
 import pandas as pd
-import os
 import seaborn as sns
 import matplotlib.pyplot as plt
 import pickle
+
+__author__ = "Andy Wang"
+__license__ = "MIT"
 
 # Read the metadata file
 meta = pd.read_csv("combined.tsv", delimiter='\t')
@@ -24,8 +26,8 @@ preterm_indices = list(present_files_meta[present_files_meta['birth_age'] <= 38]
 nonpreterm_indices = list(present_files_meta[present_files_meta['birth_age'] > 38].index)
 nonpreterm_indices = nonpreterm_indices[::2] + nonpreterm_indices[::3]
 sorted_indices = list(set(preterm_indices + nonpreterm_indices))
-#
-# #
+
+
 test_indices = [index for index in sorted_indices[::6]]
 val_indices = [index for index in sorted_indices[1::6]]
 train_indices = list(set(sorted_indices).difference(set(test_indices).union(val_indices)))
