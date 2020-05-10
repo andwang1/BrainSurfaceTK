@@ -2,15 +2,19 @@ import os
 import numpy as np
 import pyvista as pv
 from read_meta import read_meta
+import sys
 
 from get_edge_features import write_eseg, from_scratch, write_seseg, save_features
 
 #pyvista docs: https://docs.pyvista.org/plotting/plotting.html#pyvista.BasePlotter.add_mesh
 
+__author__ = "Francis Rhys Ward"
+__license__ = "MIT"
+
+
 if __name__ == '__main__':
 
 
-    import sys
     meta_data_path = sys.argv[1]
     vtk_path = sys.argv[2]
     path = sys.argv[3]
@@ -18,9 +22,7 @@ if __name__ == '__main__':
         seg = sys.argv[4] == "seg"
     except:
         seg = False
-    #meta_data_path = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/combined.tsv"
-    #vtk_path = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native_04152020/hemispheres/reducedto_10k/pial/vtk/"
-    #path = "/vol/biomedic2/aa16914/shared/MScAI_brain_surface/rhys/deepl_brain_surfaces/MeshCNN-master/datasets/seg_10k_left/"
+        
     obj_path = path+"obj/"
     seg_path = path+"seg/"
     sseg_path = path+"sseg/"
