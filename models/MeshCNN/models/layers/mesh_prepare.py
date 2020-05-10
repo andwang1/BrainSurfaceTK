@@ -2,6 +2,9 @@ import numpy as np
 import os
 import ntpath
 
+__author__ = "Rana Hanocka"
+__license__ = "MIT"
+__maintainer__ = "Andy Wang"
 
 def fill_mesh(mesh2fill, file: str, opt):
     load_path = get_mesh_path(file, opt.num_aug)
@@ -89,7 +92,7 @@ def fill_from_file(mesh, file, opt):
 
     # Added this from issue 46
     # UPDATE: this did not solve the issue
-    if opt.slide_verts != 0:
+    if hasattr(opt, 'slide_verts') and opt.slide_verts:
         if opt.verbose:
             print("Used F from issue46")
         vs, faces = remove_unused_vertices(vs, faces)

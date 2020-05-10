@@ -1,7 +1,7 @@
 import pickle
 import os.path as osp
 
-from src.pyvista_examples import plot
+from ..src.pyvista_examples import plot
 
 if __name__ == '__main__':
 

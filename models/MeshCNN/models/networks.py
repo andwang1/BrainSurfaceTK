@@ -8,6 +8,9 @@ from models.layers.mesh_conv import MeshConv
 from models.layers.mesh_pool import MeshPool
 from models.layers.mesh_unpool import MeshUnpool
 
+__author__ = "Rana Hanocka"
+__license__ = "MIT"
+__maintainer__ = "Andy Wang"
 
 ###############################################################################
 # Helper Functions
@@ -178,7 +181,6 @@ class MeshConvNet(nn.Module):
         if feature_values:
             features = torch.tensor([feature_values]).to(x.device)
             x = torch.cat((x, features), 1)
-        print(x.size())
         x = F.relu(self.fc1(x))
         if self.opt.dropout:
             x = self.d(x)

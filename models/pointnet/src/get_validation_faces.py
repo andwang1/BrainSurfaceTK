@@ -10,7 +10,7 @@ from torch.utils.tensorboard import SummaryWriter
 from torch_geometric.data import DataLoader
 # Metrics
 
-from src.utils import get_comment, get_data_path, data, get_grid_search_local_features
+from ..src.utils import get_comment, get_data_path, data, get_grid_search_local_features
 
 # Global variables
 all_labels = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17])

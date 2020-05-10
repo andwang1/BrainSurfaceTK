@@ -4,6 +4,9 @@ from . import networks
 from util.util import seg_accuracy, print_network
 from data.get_feature_dict import get_feature_dict
 
+__author__ = "Rana Hanocka"
+__license__ = "MIT"
+__maintainer__ = "Andy Wang"
 
 class ClassifierModel:
     """ Class for training Model weights
@@ -65,7 +68,7 @@ class ClassifierModel:
         self.path = data['path']
         if self.opt.verbose:
             print("DEBUG meshpath ", self.path)
-        # print(self.path[0].split("/")[-1][:-4])
+            print(self.path[0].split("/")[-1][:-4])
         # Retrieving the additional features specified from metadata file
         if self.feature_keys:
             # Using the filename as unique identifier
@@ -76,7 +79,7 @@ class ClassifierModel:
 
     def forward(self):
         if self.opt.dataset_mode == 'segmentation':
-            out = self.net(self.edge_features, self.mesh)#, self.feature_values)
+            out = self.net(self.edge_features, self.mesh)
         else:
             out = self.net(self.edge_features, self.mesh, self.feature_values)
         return out
@@ -86,9 +89,6 @@ class ClassifierModel:
             self.loss = self.criterion(out.view(-1), self.labels)
         elif self.opt.dataset_mode == "binary_class":
             self.loss = self.criterion(out.view(-1), self.labels.float())
-            # Upweighting the minority class by 300% in the loss function
-            if self.opt.weight_minority and self.labels == 1:
-                self.loss *= 3
         else:
             self.loss = self.criterion(out, self.labels)
         self.loss.backward()
@@ -156,21 +156,16 @@ class ClassifierModel:
                 out = torch.sigmoid(out)
                 pred_class = torch.round(out).long()
             else:
-                print(out)
+                if self.opt.verbose:
+                    print(out)
                 pred_class = out.data.max(1)[1]
             label_class = self.labels
             self.export_segmentation(pred_class.cpu())
             patient_id = self.path[0].split("/")[-1][:-4]
 
-            re_pattern = r".*\/(CC[a-zA-Z0-9_]+)\.obj$"
-            re_matcher = re.compile(re_pattern)
-            matched_path = re_matcher.match(self.path[-1])
-            #patient_id = matched_path.group(1)
-            # patient_id = self.path[-1][38:-4]
-
             # Print to console
             print('-------')
-            #print('Patient ID:\t', patient_id)
+            print('Patient ID:\t', patient_id)
             print('Predicted:\t', pred_class.item())
             print('Label:\t\t', label_class.item())
             correct = self.get_accuracy(pred_class, label_class)

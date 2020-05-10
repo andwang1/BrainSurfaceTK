@@ -139,9 +139,114 @@ def upload_session(request):
     if request.method == "POST":
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            messages.success(request, "Successfully uploaded! Now processing.")
-            return redirect("main:session_id_results", session_id=int(form["session_id"].value()),
-                            display_mri=True, permanent=True)
-        messages.error(request, "Form is not valid!")
-        return render(request, "main/upload_session.html", context={"form": form})
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                messages.success(request, message=f"Successfully logged into as: {username}")
+                return redirect("main:homepage")
+            else:
+                for msg in form.error_messages:
+                    print(form.error_messages[msg])
+                messages.error(request, "Invalid username or password")
+        else:
+            messages.error(request, "Invalid username or password")
+    return render(request, "main/login.html", {"form": AuthenticationForm})
+
+
+def logout_request(request):
+    logout(request)
+    messages.info(request, "Logged out successfully!")
+    return redirect("main:homepage")
+
+
+def account_page(request):
+    if request.user.is_superuser:
+        return render(request, "main/admin_options.html")
+    else:
+        messages.error(request, "You are not a superuser.")
+        return redirect("main:homepage")
+
+
+def run_predictions(request, session_id):
+    if request.method == 'GET':
+        file_url = request.GET.get('file_url', None)
+
+        if file_url is None:
+            warnings.warn(f"Run predictions was called with an invalid file_url: \n {file_url}")
+
+        pred = round(predict_age(os.path.join(settings.MEDIA_ROOT, file_url.strip(settings.MEDIA_URL))), 3)
+        data = {
+            'pred': pred
+        }
+        return JsonResponse(data)
+
+
+def run_segmentation(request, session_id):
+    if request.method == 'GET':
+        file_path = request.GET.get('file_url', None)
+
+        if file_path is not None:
+
+            abs_file_path = os.path.join(settings.MEDIA_ROOT, file_path.strip(settings.MEDIA_URL))
+
+            # TODO: Maybe find this puppy a new home
+            tmp_path = os.path.join(settings.MEDIA_ROOT, "tmp/")
+            if not os.path.exists(tmp_path):
+                os.makedirs(tmp_path)
+
+            current_tmp_files = [f for f in os.listdir(tmp_path) if os.path.isfile(os.path.join(tmp_path, f))]
+            while True:
+                tmp_file_name = randomString(stringLength=10) + ".vtp"
+                if tmp_file_name not in current_tmp_files:
+                    break
+
+            tmp_file_path = brain_segment(brain_path=abs_file_path,
+                                          folder_path_to_write=tmp_path,
+                                          tmp_file_name=tmp_file_name)
+
+            # Segmented File Path
+            tmp_fp = tmp_file_path.split(settings.MEDIA_ROOT.split(os.path.basename(settings.MEDIA_ROOT))[-2][:-1])[-1]
+
+
+            data = {
+                'segmented_file_path': tmp_fp
+            }
+            return JsonResponse(data)
+
+
+# def remove_tmp(request, session_id=None):
+#     data = {
+#         'success': 'failed'
+#     }
+#     relative_file_path = request.GET.get('tmp_file_url', None)
+#     if relative_file_path is not None:
+#         file_path = os.path.join(settings.MEDIA_ROOT, relative_file_path.strip(settings.MEDIA_URL))
+#         if os.path.exists(file_path):
+#             os.remove(file_path)
+#             data['success'] = "success"
+#     return JsonResponse(data)
+
+
+def remove_file(relative_file_path, allocated_file_life=10):
+    if relative_file_path is not None:
+        file_path = os.path.join(settings.MEDIA_ROOT, relative_file_path.strip(settings.MEDIA_URL))
+        if os.path.exists(file_path):
+            file_life_time = os.path.getmtime(file_path)
+            if time.time() - file_life_time < allocated_file_life:
+                time.sleep(allocated_file_life - (time.time() - file_life_time))
+            os.remove(file_path)
+            return True
+    return False
+
+def remove_tmp(request, session_id=None):
+    if request.method == 'GET':
+        if remove_file(request.GET.get('tmp_file_url', None)):
+            return JsonResponse({"success": "success"})
+        return JsonResponse({"success": "failed"})
+
+
+def randomString(stringLength=8):
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for _ in range(stringLength))

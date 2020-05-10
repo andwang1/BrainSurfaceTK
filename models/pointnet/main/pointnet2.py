@@ -1,4 +1,8 @@
 import os.path as osp
+PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..', '..')
+import sys
+sys.path.append(PATH_TO_ROOT)
+
 import os
 import time
 import pickle
@@ -12,18 +16,16 @@ import torch_geometric.transforms as T
 from torch.utils.tensorboard import SummaryWriter
 from torch_geometric.data import DataLoader
 
-from pointnet.src.data_loader import OurDataset
+from models.pointnet.src.data_loader import OurDataset
+from models.pointnet.src.models.pointnet2_regression import Net
 
-from pointnet.src.models.pointnet2_regression import Net
 
-
-def train(epoch):
+def train(model, train_loader, epoch, device, optimizer, writer):
     model.train()
     loss_train = 0.0
     for data in train_loader:
         data = data.to(device)
         optimizer.zero_grad()
-        # USE F.nll_loss FOR CLASSIFICATION, F.mse_loss FOR REGRESSION.
         pred = model(data)
         loss = F.mse_loss(pred, data.y[:, 0])
         loss.backward()
@@ -34,7 +36,7 @@ def train(epoch):
     writer.add_scalar('Loss/train_mse', loss_train / len(train_loader), epoch)
 
 
-def test_regression(loader, indices, results_folder, val=True, epoch=0):
+def test_regression(model, loader, indices, device, results_folder, val=True, epoch=0):
 
     model.eval()
     with open(results_folder + '/results.csv', 'a', newline='') as results_file:
@@ -70,23 +72,20 @@ def test_regression(loader, indices, results_folder, val=True, epoch=0):
 
 if __name__ == '__main__':
 
+    PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..') + '/'
+
     # Model Parameters
     lr = 0.001
-    batch_size = 16
+    batch_size = 4
     num_workers = 4
     # ['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc'] + ['weight']
-   # local_features = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
-    local_features = ['sulc']
+    local_features = ['corr_thickness', 'curvature', 'sulc']
+    # local_features = ['sulc']
     global_features = []
     target_class = 'scan_age'
     #target_class = 'birth_age'
     task = 'regression'
-    number_of_points = 5000  #3251# 12000  # 16247
-
-    # For quick tests
-    # indices = {'Train': ['CC00050XX01_7201', 'CC00050XX01_7201'],
-    #            'Test': ['CC00050XX01_7201', 'CC00050XX01_7201'],
-    #            'Val': ['CC00050XX01_7201', 'CC00050XX01_7201']}
+    number_of_points = 500  #3251# 12000  # 16247
 
     reprocess = False
 
@@ -98,8 +97,8 @@ if __name__ == '__main__':
 
     data = "reducedto_05k"
     data_ending = "05k.vtk"
-    #type_data = "pial"
-    type_data = "sphere"
+    type_data = "pial"
+    #type_data = "sphere"
     native = "merged"#"surface_native" #surface_fsavg32k
 
     # folder in data/stored for data.
@@ -116,22 +115,15 @@ if __name__ == '__main__':
     data_folder = '/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native_04152020/'+\
                   native+'/'+data+'/' + type_data + '/vtk'
 
-    print(data_folder)
    # sub-CC00466AN13_ses-138400_right_pial_reduce90.vtk
    #  files_ending = "_hemi-L_" + type_data + "_" + data_ending
    # files_ending = "_left_" + type_data + "_" + data_ending
     files_ending = '_'+ native + '_' + type_data + '_' + data_ending
 
-    # From quick local test
-    # data_folder = "/home/vital/Group Project/deepl_brain_surfaces/random"
-
-    with open('src/names.pk', 'rb') as f:
+    with open(PATH_TO_ROOT + 'src/names.pk', 'rb') as f:
         indices = pickle.load(f)
 
-    # TESTING PURPOSES
-    # indices['Train'] = indices['Train'][:2]
-
-    comment = 'Sphere_scan_age_90' + str(datetime.datetime.now()) \
+    comment = 'TEST_Sphere_scan_age_90' + str(datetime.datetime.now()) \
             + "__LR__" + str(lr) \
             + "__BATCH_" + str(batch_size) \
             + "__local_features__" + str(local_features)\
@@ -170,7 +162,7 @@ if __name__ == '__main__':
 
     # DEFINE TRANSFORMS HERE.
     transform = T.Compose([
-        # T.FixedPoints(number_of_points),
+        T.FixedPoints(number_of_points),
         T.RandomRotate(360, axis=0),
         T.RandomRotate(360, axis=1),
         T.RandomRotate(360, axis=2)
@@ -198,7 +190,7 @@ if __name__ == '__main__':
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
     test_loader = DataLoader(test_dataset, batch_size=1, shuffle=False, num_workers=num_workers)
     val_loader = DataLoader(val_dataset, batch_size=1, shuffle=False, num_workers=num_workers)
-    
+
     # Getting the number of features to adapt the architecture
     if len(local_features) > 0:
         numb_local_features = train_dataset[0].x.size(1)
@@ -214,14 +206,17 @@ if __name__ == '__main__':
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     scheduler = StepLR(optimizer, step_size=1, gamma=0.985)
 
+    print(f'number of param: {sum(p.numel() for p in model.parameters() if p.requires_grad)}')
+
     best_val_loss = 999
 
     # MAIN TRAINING LOOP
     for epoch in range(1, 201):
         start = time.time()
-        train(epoch)
-        val_mse, val_l1 = test_regression(val_loader, indices['Val'], results_folder, epoch=epoch)
-        
+        train(model, train_loader, epoch, device, optimizer, writer)
+
+        val_mse, val_l1 = test_regression(model, val_loader, indices['Val'], device, results_folder, epoch=epoch)
+
         scheduler.step()
 
         writer.add_scalar('Loss/val_mse', val_mse, epoch)
@@ -236,7 +231,7 @@ if __name__ == '__main__':
             print('Saving Model'.center(60, '-'))
         writer.add_scalar('Time/epoch', end - start, epoch)
 
-    test_regression(test_loader, indices['Test'], results_folder, val=False)
+    test_regression(model, test_loader, indices['Test'], device, results_folder, val=False)
 
     # save the last model
     torch.save(model.state_dict(), model_dir + '/model_last.pt')
@@ -248,4 +243,4 @@ if __name__ == '__main__':
         result_writer = csv.writer(results_file, delimiter=',', quoting=csv.QUOTE_MINIMAL)
         result_writer.writerow(['Best model!'])
 
-    test_regression(test_loader, indices['Test'], results_folder, val=False)
+    test_regression(model, test_loader, indices['Test'], device, results_folder, val=False)

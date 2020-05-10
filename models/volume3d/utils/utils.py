@@ -1,19 +1,21 @@
 import csv
 from sklearn.model_selection import train_test_split
 import os
-from ipywidgets import interact, fixed
-from IPython.display import display
+# from ipywidgets import interact, fixed
+# from IPython.display import display
 import os
 import os.path as osp
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
-from utils.models import ImageSegmentationDataset
+from ..utils.models import ImageSegmentationDataset
 import numpy as np
 import SimpleITK as sitk
 import matplotlib.pyplot as plt
 import pickle
+from tqdm import tqdm
+PATH_TO_VOLUME3D = osp.join(osp.dirname(osp.realpath(__file__)), '..') + '/'
 
 
 
@@ -105,11 +107,10 @@ def resample_image(image, out_spacing=(1.0, 1.0, 1.0), out_size=None, is_label=F
     return resample.Execute(image)
 
 
-
-path = 'combined_exist.tsv'
+path = 'utils/combined_exist.tsv'
 data_dir = './gm_volume3d/'
 
-def read_meta(path=path):
+def read_meta(path=PATH_TO_VOLUME3D + path):
     '''Correctly reads a .tsv file into a numpy array'''
 
     with open(path) as fd:
@@ -172,7 +173,7 @@ def split_data(meta_data, meta_column_idx, spacing, image_size, smoothen, edgen,
 
 
     # 2. Get the data splits indices
-    with open('./utils/names.pk', 'rb') as f:
+    with open(PATH_TO_VOLUME3D + 'utils/names.pk', 'rb') as f:
         indices = pickle.load(f)
 
 
@@ -210,27 +211,25 @@ def split_data(meta_data, meta_column_idx, spacing, image_size, smoothen, edgen,
         y_val.append(float(patient_data[meta_column_idx]))
         X_val.append((patient_id, session_id))
 
-    path = osp.join(osp.dirname(osp.realpath(__file__)), '../')
-
     # ImageSegmentationDataset
-    if os.path.exists(path + 'dataset_train.pkl') and reprocess == False:
+    if os.path.exists(PATH_TO_VOLUME3D + 'experiment_data/dataset_train.pkl') and reprocess == False:
 
-        with open(path + 'dataset_train.pkl', 'rb') as file:
+        with open(PATH_TO_VOLUME3D + 'experiment_data/dataset_train.pkl', 'rb') as file:
             dataset_train = pickle.load(file)
-        with open(path + 'dataset_val.pkl', 'rb') as file:
+        with open(PATH_TO_VOLUME3D + 'experiment_data/dataset_val.pkl', 'rb') as file:
             dataset_val = pickle.load(file)
-        with open(path + 'dataset_test.pkl', 'rb') as file:
+        with open(PATH_TO_VOLUME3D + 'experiment_data/dataset_test.pkl', 'rb') as file:
             dataset_test = pickle.load(file)
     else:
         dataset_train = ImageSegmentationDataset(path, X_train, y_train, spacing, image_size, smoothen, edgen)
         dataset_val = ImageSegmentationDataset(path, X_val, y_val, spacing, image_size, smoothen, edgen)
         dataset_test = ImageSegmentationDataset(path, X_test, y_test, spacing, image_size, smoothen, edgen)
 
-        with open('dataset_train.pkl', 'wb') as file:
+        with open(PATH_TO_VOLUME3D + 'experiment_data/dataset_train.pkl', 'wb') as file:
             pickle.dump(dataset_train, file)
-        with open('dataset_val.pkl', 'wb') as file:
+        with open(PATH_TO_VOLUME3D + 'experiment_data/dataset_val.pkl', 'wb') as file:
             pickle.dump(dataset_val, file)
-        with open('dataset_test.pkl', 'wb') as file:
+        with open(PATH_TO_VOLUME3D + 'experiment_data/dataset_test.pkl', 'wb') as file:
             pickle.dump(dataset_test, file)
 
     return dataset_train, dataset_val, dataset_test
@@ -301,16 +300,16 @@ def display_image(path, img, img_idx, x=None, y=None, z=None, window=None, level
         ax3.axvline(y * spacing[1], lw=1)
 
     plt.show()
-    plt.savefig(path + f'preprocessed_exemplar{img_idx}.png')
+    plt.savefig(PATH_TO_VOLUME3D + f'experiment_data/preprocessed_exemplar{img_idx}.png')
     plt.close()
 
 
-def interactive_view(img):
-    size = img.GetSize()
-    img_array = sitk.GetArrayFromImage(img)
-    interact(display_image, img=fixed(img),
-             x=(0, size[0] - 1),
-             y=(0, size[1] - 1),
-             z=(0, size[2] - 1),
-             window=(0, np.max(img_array) - np.min(img_array)),
-             level=(np.min(img_array), np.max(img_array)));
+# def interactive_view(img):
+#     size = img.GetSize()
+#     img_array = sitk.GetArrayFromImage(img)
+#     interact(display_image, img=fixed(img),
+#              x=(0, size[0] - 1),
+#              y=(0, size[1] - 1),
+#              z=(0, size[2] - 1),
+#              window=(0, np.max(img_array) - np.min(img_array)),
+#              level=(np.min(img_array), np.max(img_array)))
