@@ -19,6 +19,31 @@ pip install -r cpu_requirements2.txt -f https://pytorch-geometric.com/whl/torch-
 ``` 
 
 
+# GUI
+
+This server has been developed using the [Django](https://www.djangoproject.com/) framework. We use [MOD-WSGI](https://modwsgi.readthedocs.io/en/develop/) Standalone to run an Apache server to host this webapp.
+
+The MRI visualisation is done thanks to [Nilearn](https://nilearn.github.io/index.html) and the Brain surface is displayed using [VTK.js](https://kitware.github.io/vtk-js/index.html).
+
+###### Run instructions
+
+After following the instructions on creating a virtual environment containing all of our dependencies:
+1. First you will want to create a super user. This can be done by: 
+```
+chmod 700 ./createsuperuser.py
+```
+2. Next you may want to use your own original data, this can be done by overwriting the meta_data.tsv data file in ``GUI/media/original/data``, please take care that the column names are exactly the same and in the same order. If not, then the load data function that can be called in the admin panel will not work. 
+3. After you've created a super user, you can either run the server in developement mode by running:
+```
+python runserver.py
+```
+4. Alternatively you may wish to run the server in production mode. If you want others to remotely access this server, you may need to open port 8000 on your machine and please don't forget to port forward if you are using a modem. After you have done this, you can simply run:
+```
+python runserver.py prod
+```
+
+# PointNet
+
 # MeshCNN
 
 MeshCNN is a general-purpose deep neural network for 3D triangular meshes, which can be used for tasks such as 3D shape classification or segmentation. 
@@ -59,27 +84,3 @@ From the main repository level, the model can then be trained using, e.g. for re
 
 
 
-# PointNet
-
-# GUI
-
-This server has been developed using the [Django](https://www.djangoproject.com/) framework. We use [MOD-WSGI](https://modwsgi.readthedocs.io/en/develop/) Standalone to run an Apache server to host this webapp.
-
-The MRI visualisation is done thanks to [Nilearn](https://nilearn.github.io/index.html) and the Brain surface is displayed using [VTK.js](https://kitware.github.io/vtk-js/index.html).
-
-###### Run instructions
-
-After following the instructions on creating a virtual environment containing all of our dependencies:
-1. First you will want to create a super user. This can be done by: 
-```
-chmod 700 ./createsuperuser.py
-```
-2. Next you may want to use your own original data, this can be done by overwriting the meta_data.tsv data file in ``GUI/media/original/data``, please take care that the column names are exactly the same and in the same order. If not, then the load data function that can be called in the admin panel will not work. 
-3. After you've created a super user, you can either run the server in developement mode by running:
-```
-python runserver.py
-```
-4. Alternatively you may wish to run the server in production mode. If you want others to remotely access this server, you may need to open port 8000 on your machine and please don't forget to port forward if you are using a modem. After you have done this, you can simply run:
-```
-python runserver.py prod
-```
