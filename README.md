@@ -33,7 +33,7 @@ In this repository, we have made multiple modifcations. These include functional
 Place the .obj mesh data files into a folder in *models/MeshCNN/datasets* with the correct folder structure - below is an example of the structure. Here, *brains* denotes the name of the directory in *models/MeshCNN/datasets* which holds one directory for each class, here e.g. *Male* and *Female*.
 In each class, folders *train*, *val* and *test* hold the files.
 
-<img src="https://gitlab.doc.ic.ac.uk/aw1912/deepl_brain_surfaces/-/raw/master/img/meshcnn_data.png" width="450" height="263" />
+<img src="https://gitlab.doc.ic.ac.uk/aw1912/neodeepbrain/-/raw/master/img/meshcnn_data.png" width="450" height="263" />
 
 <!--![MeshCNN dir struct](<src>)-->
 
@@ -41,6 +41,22 @@ In each class, folders *train*, *val* and *test* hold the files.
 <!--Place the data into the data set folder with the correct folder structure. Below is an example of the structure. *brains* denotes the name of the directory -->
 <!--![MeshCNN dir struct](https://gitlab.doc.ic.ac.uk/aw1912/deepl_brain_surfaces/-/raw/master/img/meshcnn_data.png)-->
 
+Please additionally place a file called *meta_data.tsv* in the *models/MeshCNN/util* folder. This tab-seperated file will be used to read in additional labels and features into the model.
+The file should contain columns participant_id and session_id, which will be concatenated to form a unique identifier of a patient's scan. This unique identifier must be used to name the data files in the datasets/ folder structure described above.
+E.g. a *meta_data.tsv* file might look like this:
+
+participant_id	session_id	scan_age
+
+CC00549XX22	100100	42.142347
+
+The corresponding file must then be named
+*CC00549XX22_100100.obj*
+
+Any continuous-valued columns in the *meta_data.tsv* file can then be used as features or labels in the regression using switches
+```
+--label scan_age
+--features birth_age
+```
 
 From the main repository level, the model can then be trained using, e.g. for regression
 ```

@@ -4,8 +4,8 @@
 pushd models/MeshCNN
 
 python3 train.py \
---dataroot datasets/brains_reg_merged_10k \
---checkpoints_dir checkpoints/cls_merged_10k_lr_plateau \
+--dataroot datasets/brains \
+--checkpoints_dir checkpoints/cls \
 --export_folder checkpoints/mesh_collapses \
 --name brains \
 --epoch_count 1 \
@@ -14,6 +14,7 @@ python3 train.py \
 --verbose_plot \
 --print_freq 10 \
 --dataset_mode binary_class \
+--features scan_age \
 --niter 1 \
 --niter_decay 100 \
 --batch_size 1 \

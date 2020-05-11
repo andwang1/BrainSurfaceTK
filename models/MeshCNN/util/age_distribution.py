@@ -8,7 +8,7 @@ __author__ = "Andy Wang"
 __license__ = "MIT"
 
 # Read the metadata file
-meta = pd.read_csv("combined.tsv", delimiter='\t')
+meta = pd.read_csv("meta_data.tsv", delimiter='\t')
 
 # Put participant_id and session_id together to get a unique key and use as index
 meta['unique_key'] = meta['participant_id'] + "_" + meta['session_id'].astype(str)

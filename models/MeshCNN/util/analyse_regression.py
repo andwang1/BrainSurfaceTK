@@ -19,7 +19,7 @@ imgs_per_sec = 4
 num_outliers = 5
 
 # Load metadata
-meta = pd.read_csv("combined.tsv", delimiter='\t')
+meta = pd.read_csv("meta_data.tsv", delimiter='\t')
 # Put participant_id and session_id together to get a unique key and use as index
 meta['unique_key'] = meta['participant_id'] + "_" + meta['session_id'].astype(str)
 meta.set_index('unique_key', inplace=True)
