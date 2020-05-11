@@ -30,7 +30,8 @@ The MRI visualisation is done thanks to [Nilearn](https://nilearn.github.io/inde
 After following the instructions on creating a virtual environment containing all of our dependencies:
 1. First you will want to create a super user. This can be done by: 
 ```
-chmod 700 ./createsuperuser.py
+chmod 700 ./createsuperuser.sh
+./createsuperuser.sh
 ```
 2. Next you may want to use your own original data, this can be done by overwriting the meta_data.tsv data file in ``GUI/media/original/data``, please take care that the column names are exactly the same and in the same order. If not, then the load data function that can be called in the admin panel will not work. 
 3. After you've created a super user, you can either run the server in developement mode by running:
