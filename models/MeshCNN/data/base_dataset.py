@@ -7,6 +7,10 @@ __author__ = "Rana Hanocka"
 __license__ = "MIT"
 __maintainer__ = "Francis Rhys Ward"
 
+"""
+Modifications made to: collate_fn
+Functionality: padding of meshes to same size in same batch
+"""
 
 class BaseDataset(data.Dataset):
 

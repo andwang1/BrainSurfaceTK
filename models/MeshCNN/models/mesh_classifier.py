@@ -8,6 +8,11 @@ __author__ = "Rana Hanocka"
 __license__ = "MIT"
 __maintainer__ = "Andy Wang"
 
+"""
+Modifications made to: __init__, set_input, forward, backward, update_learning_rate, test, get_accuracy
+Functionality: adding in features to linear layers, logging testing performance
+"""
+
 class ClassifierModel:
     """ Class for training Model weights
 

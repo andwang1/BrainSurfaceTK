@@ -1,10 +1,11 @@
 import subprocess
-"""
-Tests that training/testing scripts run correctly on a small subset   of data.
-"""
 
 __author__ = "Francis Rhys Ward"
 __license__ = "MIT"
+
+"""
+Tests that training/testing scripts run correctly on a small subset   of data.
+"""
 
 print("starting test")
 
