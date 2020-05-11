@@ -63,24 +63,23 @@ From the main repository level, the model can then be trained using, e.g. for re
 
 # GUI
 
-The main server has been developed using the Django framework. Please note that the folder **main** actually contains all the main project code & static files. **BasicSite** acts as the head of the server. 
+This server has been developed using the [Django](https://www.djangoproject.com/) framework. We use [MOD-WSGI](https://modwsgi.readthedocs.io/en/develop/) Standalone to run an Apache server to host this webapp.
 
-Have set up mod_wsgi to serve static files.
-See documentation at: [https://pypi.org/project/mod-wsgi/](https://pypi.org/project/mod-wsgi/)
+The MRI visualisation is done thanks to [Nilearn](https://nilearn.github.io/index.html) and the Brain surface is displayed using [VTK.js](https://kitware.github.io/vtk-js/index.html).
 
-To set up the modwsgi, please run: 
-`python -m pip install mod_wsgi-standalone`
+###### Run instructions
 
-To run the server, use: 
-`python manage.py runmodwsgi --url-alias /media media`
-
-Package-wise:
-
-*  Nibabel is used to load the raw MRI patient files
-*  Nilearn is used to output an interactive slicing tool for the loaded MRI patient files.
-*  VTK.js is used to load & interactively display .vtp brain surface files.
-
-
-TODO:
-*  It appears that we have a package conflict between PyVista & Mod-WSGI. This is problematic since both are crucial.
-*  Check that in production, the upload feature works
+After following the instructions on creating a virtual environment containing all of our dependencies:
+1. First you will want to create a super user. This can be done by: 
+```
+chmod 700 ./createsuperuser.py
+```
+2. Next you may want to use your own original data, this can be done by overwriting the meta_data.tsv data file in ``GUI/media/original/data``, please take care that the column names are exactly the same and in the same order. If not, then the load data function that can be called in the admin panel will not work. 
+3. After you've created a super user, you can either run the server in developement mode by running:
+```
+python start_gui.py
+```
+4. Alternatively you may wish to run the server in production mode. If you want others to remotely access this server, you may need to open port 8000 on your machine and please don't forget to port forward if you are using a modem. After you have done this, you can simply run:
+```
+python start_gui.py prod
+```
