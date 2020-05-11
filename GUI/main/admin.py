@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.db import models
 from tinymce.widgets import TinyMCE
 
-from .models import SessionDatabase, UploadedSessionDatabase, Information
+from .models import SessionDatabase, UploadedSessionDatabase, Page
 
 """
 This file contains all the Admin versions of the models. This is used in the admin section of the website to modify 
@@ -10,7 +10,7 @@ the users database, options on the home page, modify uploaded sessions & the ori
 """
 
 
-class InformationAdmin(admin.ModelAdmin):
+class PageAdmin(admin.ModelAdmin):
     """
     Used to view/modify options in the home page.
     """
@@ -30,18 +30,6 @@ class InformationAdmin(admin.ModelAdmin):
     list_display = ('page_title', 'page_published')
 
 
-# class UploadedSessionDatabaseAdmin(admin.ModelAdmin):
-#     """
-#     Used to view/modify uploaded sessions IDs.
-#     """
-#     fieldsets = [
-#         ("Meta Data", {'fields': ["participant_id", "session_id", "gender", "birth_age", "birth_weight", "singleton",
-#                                   "scan_age", "scan_number", "radiology_score", "sedation"]}),
-#         ("File Paths", {'fields': ["mri_file", "surface_file"]}),
-#     ]
-#
-#     search_fields = ('participant_id', 'session_id')
-
 
 class SessionDatabaseAdmin(admin.ModelAdmin):
     """
@@ -53,10 +41,10 @@ class SessionDatabaseAdmin(admin.ModelAdmin):
         ("File Paths", {'fields': ["mri_file", "surface_file"]}),
     ]
 
-    search_fields = ('participant_id', 'session_id')
+    search_fields = ('session_id', 'participant_id')
     list_display = ('session_id', 'participant_id')
 
 
 admin.site.register(SessionDatabase, SessionDatabaseAdmin)
 admin.site.register(UploadedSessionDatabase, SessionDatabaseAdmin)
-admin.site.register(Information, InformationAdmin)
+admin.site.register(Page, PageAdmin)

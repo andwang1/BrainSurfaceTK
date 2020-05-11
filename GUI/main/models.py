@@ -11,7 +11,7 @@ THESE ARE YOUR DATABASES BRO
 """
 
 
-class Information(models.Model):
+class Page(models.Model):
     page_title = models.CharField(max_length=200, unique=True)
     page_summary = models.CharField(max_length=200)
     page_content = models.TextField()
@@ -30,10 +30,7 @@ def validate_session_id_is_unique(session_id):
     """
     if (SessionDatabase.objects.all().filter(session_id=session_id).count() > 0) or \
             (UploadedSessionDatabase.objects.all().filter(session_id=session_id).count() > 0):
-        raise ValidationError(
-            _('%(session_id)s is already in the database!'),
-            params={'session_id': session_id},
-        )
+        raise ValidationError(f'{session_id} is already in the database!', params={'session_id': session_id})
 
 
 class TemplateSessionDatabase(models.Model):
