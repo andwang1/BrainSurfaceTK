@@ -7,6 +7,11 @@ __author__ = "Rana Hanocka"
 __license__ = "MIT"
 __maintainer__ = ["Andy Wang", "Francis Rhys Ward"]
 
+"""
+Modifications made to: initialize 
+Functionality: added additional options
+"""
+
 class BaseOptions:
     def __init__(self):
         self.parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)

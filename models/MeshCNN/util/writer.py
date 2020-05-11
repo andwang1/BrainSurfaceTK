@@ -5,6 +5,11 @@ __author__ = "Rana Hanocka"
 __license__ = "MIT"
 __maintainer__ = "Andy Wang"
 
+"""
+Modifications made to: plot_epoch_loss, plot_test_acc, plot_lr, acc
+Functionality: adding additional statistics and parameters to track
+"""
+
 try:
     from tensorboardX import SummaryWriter
 except ImportError as error:

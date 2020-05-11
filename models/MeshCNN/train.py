@@ -9,6 +9,12 @@ __author__ = "Rana Hanocka"
 __license__ = "MIT"
 __maintainer__ = "Andy Wang"
 
+"""
+Modifications made to: __main__
+Functionality: saving and using best model to run test at end of training, running on val and test split
+plotting to tensorboard
+"""
+
 if __name__ == '__main__':
     opt = TrainOptions().parse()
     dataset = DataLoader(opt)
@@ -46,11 +52,6 @@ if __name__ == '__main__':
                 t = (time.time() - iter_start_time) / opt.batch_size
                 writer.print_current_losses(epoch, epoch_iter, loss, t, t_data)
                 writer.plot_loss(loss, epoch, epoch_iter, dataset_size)
-
-            # if i % opt.save_latest_freq == 0:
-            #     print('saving the latest model (epoch %d, total_steps %d)' %
-            #           (epoch, total_steps))
-            #     model.save_network('latest')
 
             iter_data_time = time.time()
         if epoch % opt.save_epoch_freq == 0:
