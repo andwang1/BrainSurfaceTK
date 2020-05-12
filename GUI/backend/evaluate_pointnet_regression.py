@@ -11,11 +11,15 @@ from vtk.util.numpy_support import vtk_to_numpy
 
 from .pre_trained_models.pointnet2_regression import Net  # TODO
 
+import nvidia_smi
+
 if settings.DEBUG == True:
     MODEL_PATH = os.path.join(os.getcwd(), "GUI/backend/pre_trained_models/model_best.pt")
 else:
     MODEL_PATH = os.path.join(os.getcwd(), "backend/pre_trained_models/model_best.pt")
 
+# Limit of memory in MB when to run on GPU if it's available.
+GPU_MEM_LIMIT = 2000
 
 def get_features(list_features, reader):
     '''Returns tensor of features to add in every point.
@@ -75,7 +79,15 @@ def predict_age(file_path="/media/original/data/vtps/sub-CC00050XX01_ses-7201_he
         data = Data(batch=torch.zeros_like(x[:, 0]).long(), x=x, pos=points)
         # data = Data(x=x, pos=points)
 
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        try:
+            nvidia_smi.nvmlInit()
+            handle = nvidia_smi.nvmlDeviceGetHandleByIndex(0)
+            mem_res = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
+            free_mem = mem_res.free / 1024 ** 2
+        except:
+            free_mem = 0
+
+        device = torch.device('cuda' if torch.cuda.is_available() and free_mem >= GPU_MEM_LIMIT else 'cpu')
 
         numb_local_features = x.size(1)
         numb_global_features = 0
