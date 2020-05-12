@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.db import models
 from tinymce.widgets import TinyMCE
 
-from .models import Option, SessionDatabase, UploadedSessionDatabase, Information
+from .models import SessionDatabase, UploadedSessionDatabase, Page
 
 """
 This file contains all the Admin versions of the models. This is used in the admin section of the website to modify 
@@ -10,7 +10,7 @@ the users database, options on the home page, modify uploaded sessions & the ori
 """
 
 
-class InformationAdmin(admin.ModelAdmin):
+class PageAdmin(admin.ModelAdmin):
     """
     Used to view/modify options in the home page.
     """
@@ -18,7 +18,7 @@ class InformationAdmin(admin.ModelAdmin):
     fieldsets = [
         ("Title/date", {'fields': ["page_title", "page_published"]}),
         ("URL", {'fields': ["page_slug"]}),
-        ("Page Summary", {'fields': ["page_summary"]}),
+        ("Summary", {'fields': ["page_summary"]}),
         ("Content", {"fields": ["page_content"]})
     ]
 
@@ -26,42 +26,9 @@ class InformationAdmin(admin.ModelAdmin):
         models.TextField: {'widget': TinyMCE(attrs={'cols': 80, 'rows': 30})},
     }
 
+    search_fields = ('page_title', 'page_published')
+    list_display = ('page_title', 'page_published')
 
-# Register your models here.
-class OptionAdmin(admin.ModelAdmin):
-    """
-    Used to view/modify options in the home page.
-    """
-
-    fieldsets = [
-        ("Option", {'fields': ["option"]}),
-        ("URL", {'fields': ["url"]}),
-        ("Description", {'fields': ["description"]}),
-    ]
-
-    formfield_overrides = {
-        models.TextField: {'widget': TinyMCE(attrs={'cols': 80, 'rows': 30})},
-    }
-
-
-class UploadedSessionDatabaseAdmin(admin.ModelAdmin):
-    """
-    Used to view/modify uploaded sessions IDs.
-    """
-    fieldsets = [
-        ("Participant_id", {'fields': ["participant_id"]}),
-        ("session_id", {'fields': ["session_id"]}),
-        ("gender", {'fields': ["gender"]}),
-        ("birth_age", {'fields': ["birth_age"]}),
-        ("birth_weight", {'fields': ["birth_weight"]}),
-        ("singleton", {'fields': ["singleton"]}),
-        ("scan_age", {'fields': ["scan_age"]}),
-        ("scan_number", {'fields': ["scan_number"]}),
-        ("radiology_score", {'fields': ["radiology_score"]}),
-        ("sedation", {'fields': ["sedation"]}),
-        ("mri_file", {'fields': ["mri_file"]}),
-        ("surface_file", {'fields': ["surface_file"]}),
-    ]
 
 
 class SessionDatabaseAdmin(admin.ModelAdmin):
@@ -69,20 +36,15 @@ class SessionDatabaseAdmin(admin.ModelAdmin):
     Used to view/modify the original session IDs.
     """
     fieldsets = [
-        ("Participant_id", {'fields': ["participant_id"]}),
-        ("session_id", {'fields': ["session_id"]}),
-        ("gender", {'fields': ["gender"]}),
-        ("birth_age", {'fields': ["birth_age"]}),
-        ("birth_weight", {'fields': ["birth_weight"]}),
-        ("singleton", {'fields': ["singleton"]}),
-        ("scan_age", {'fields': ["scan_age"]}),
-        ("scan_number", {'fields': ["scan_number"]}),
-        ("radiology_score", {'fields': ["radiology_score"]}),
-        ("sedation", {'fields': ["sedation"]}),
+        ("Meta Data", {'fields': ["participant_id", "session_id", "gender", "birth_age", "birth_weight", "singleton",
+                                  "scan_age", "scan_number", "radiology_score", "sedation"]}),
+        ("File Paths", {'fields': ["mri_file", "surface_file"]}),
     ]
 
+    search_fields = ('session_id', 'participant_id')
+    list_display = ('session_id', 'participant_id')
 
-admin.site.register(Option, OptionAdmin)
+
 admin.site.register(SessionDatabase, SessionDatabaseAdmin)
-admin.site.register(UploadedSessionDatabase, UploadedSessionDatabaseAdmin)
-admin.site.register(Information, InformationAdmin)
+admin.site.register(UploadedSessionDatabase, SessionDatabaseAdmin)
+admin.site.register(Page, PageAdmin)

@@ -152,3 +152,4 @@ models/MeshCNN/*txt
 /GUI/js_bundler/node_modules/
 /GUI/static_cdn/
 /GUI/main/migrations/
+/GUI/main/migrations/
