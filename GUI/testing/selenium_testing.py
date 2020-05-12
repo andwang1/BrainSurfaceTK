@@ -273,16 +273,28 @@ class WebsiteTester:
         self.close()
         return upload_time, predict_time, segment_time
 
+    def headless_process(self, session_id):
+        self.login()
+        self.driver.get(website_url + f"results/{session_id}false")
+        predict_time = self.predict()
+        segment_time = self.segment()
+        self.close()
+        return predict_time, segment_time
+
+
     def close(self):
+        if self.verbose:
+            print("Debug: Driver closing.")
         self.driver.close()
 
 
-tester = WebsiteTester(website_url, login_user, login_pw, verbose=True, headless=False)
+tester = WebsiteTester(website_url, login_user, login_pw, verbose=True, headless=True)
 # tester.full_upload_workflow("sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp",
 #                             mri_fpath="sub-CC00050XX01_ses-7201_T2w_graymatter.nii",
 #                             form_session_id=212028)
 # tester.full_upload_workflow("sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp",
 #                             form_session_id=212031)
 
-tester.full_lookup_workflow(7201, False)
+# tester.full_lookup_workflow(7201, False)
+tester.headless_process(7201)
 

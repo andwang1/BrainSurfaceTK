@@ -11,13 +11,13 @@ website_url = "http://146.169.52.15:8000/"
 login_user = "test"
 login_pw = "test"
 
-max_num_parallel = 4
+max_num_parallel = 8
 
-
+# aw1912@corona01
 def multiprocessing(num):
     print(f"Parallel Processes: {num}")
     tester = WebsiteTester(website_url, login_user, login_pw, verbose=False, headless=True)
-    times = tester.full_upload_workflow(7201, False)
+    times = tester.headless_process(7201)
     return times
 
 
@@ -26,20 +26,17 @@ for i in range(1, max_num_parallel + 1):
     list_times = Parallel(n_jobs=-1)(delayed(multiprocessing)(url) for url in range(i))
     times.append(list_times)
 
-access_times = []
 predict_times = []
 segment_times = []
 
 for i, iteration in enumerate(times):
     assert i + 1 == len(iteration)
-    total_time = np.zeros(3)
+    total_time = np.zeros(2)
     for run in iteration:
         total_time += np.array(run)
-    access_times.append(total_time[0])
-    predict_times.append(total_time[1])
-    segment_times.append(total_time[2])
+    predict_times.append(total_time[0])
+    segment_times.append(total_time[1])
 
-access_times = np.array(access_times)
 predict_times = np.array(predict_times)
 segment_times = np.array(segment_times)
 
@@ -56,22 +53,15 @@ with sns.axes_style("white"):
     bar_positions = np.arange(1, max_num_parallel + 1)
 
     # Bottom section
-    bar_access_times = plt.bar(bar_positions, access_times, bar_width,
+    bar_access_times = plt.bar(bar_positions, predict_times, bar_width,
                                color='#ED0020',
-                               label='Access Time')
+                               label='Prediction Time')
     # Middle
-    bar_predict_times = plt.bar(bar_positions, predict_times, bar_width - epsilon,
-                                bottom=access_times,
+    bar_predict_times = plt.bar(bar_positions, segment_times, bar_width - epsilon,
+                                bottom=predict_times,
                                 alpha=opacity,
                                 color='blue',
                                 edgecolor='blue',
-                                linewidth=line_width,
-                                label='Prediction Time')
-    # Top
-    bar_segment_times = plt.bar(bar_positions, segment_times, bar_width - epsilon,
-                                bottom=predict_times + access_times,
-                                alpha=opacity,
-                                color='green',
                                 linewidth=line_width,
                                 label='Segmentation Time')
 
