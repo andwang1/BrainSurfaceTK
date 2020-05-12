@@ -3,7 +3,7 @@
         <ul id="nav-mobile">
             <a href="{% url "main:homepage" %}" class="left flow-text">BrainSurfaceToolKit</a>
         </ul>
-        <ul id="nav-mobile" class="hide-on-med-and-down">
+        <ul id="nav-mobile">
             <li class="right"><a href="{% url "main:homepage" %}">Home</a></li>
             {% if user.is_authenticated %}
                 <li class="right"><a href="{% url "main:account" %}">{{ user.username }}</a></li>
