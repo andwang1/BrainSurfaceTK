@@ -56,14 +56,19 @@ def test_regression(model, loader, indices, device, recording, results_folder, v
             mse = 0
             l1 = 0
             for idx, data in enumerate(loader):
+
                 data = data.to(device)
                 with torch.no_grad():
                     pred = model(data)
                     for i in range(len(pred)):
-                        print(str(pred[i].item()).center(20, ' '), str(data.y[:, 0][i].item()).center(20, ' '), indices[idx+i])
-                        result_writer.writerow([indices[idx+i][:11], indices[idx+i][12:],
+                        print(str(pred[i].item()).center(20, ' '),
+                              str(data.y[:, 0][i].item()).center(20, ' '),
+                              indices[idx*len(pred)+i])
+
+                        result_writer.writerow([indices[idx*len(pred)+i][:11], indices[idx*len(pred)+i][12:],
                                                 str(pred[i].item()), str(data.y[:, 0][i].item()),
                                                 str(abs(pred[i].item() - data.y[:, 0][i].item()))])
+
                     loss_test_mse = F.mse_loss(pred, data.y[:, 0])
                     loss_test_l1 = F.l1_loss(pred, data.y[:, 0])
                     mse += loss_test_mse.item()
@@ -74,13 +79,23 @@ def test_regression(model, loader, indices, device, recording, results_folder, v
                 result_writer.writerow(['Test average error:', str(l1 / len(loader))])
     else:
 
+        if val:
+            print('Validation'.center(60, '-'))
+        else:
+            print('Test'.center(60, '-'))
+
         mse = 0
         l1 = 0
         for idx, data in enumerate(loader):
             data = data.to(device)
             with torch.no_grad():
                 pred = model(data)
-                print(str(pred.t().item()).center(20, ' '), str(data.y[:, 0].item()).center(20, ' '), indices[idx])
+
+                for i in range(len(pred)):
+                    print(str(pred[i].item()).center(20, ' '),
+                          str(data.y[:, 0][i].item()).center(20, ' '),
+                          indices[idx * len(pred) + i])
+
                 loss_test_mse = F.mse_loss(pred, data.y[:, 0])
                 loss_test_l1 = F.l1_loss(pred, data.y[:, 0])
                 mse += loss_test_mse.item()
