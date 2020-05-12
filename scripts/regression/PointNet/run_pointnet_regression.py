@@ -33,8 +33,8 @@ if __name__ == '__main__':
     #################################################
     ########### EXPERIMENT DESCRIPTION ##############
     #################################################
-    recording = True
-    REPROCESS = True
+    recording = False
+    REPROCESS = False
 
     data_nativeness = 'native'
     data_compression = "10k"
@@ -53,12 +53,12 @@ if __name__ == '__main__':
     # 1. Model Parameters
     ################################################
     lr = 0.001
-    batch_size = 2
+    batch_size = 4
     gamma = 0.9875
     scheduler_step_size = 2
     target_class = 'scan_age'
     task = 'regression'
-    numb_epochs = 200
+    numb_epochs = 1
     number_of_points = 10000
     comment = 'comment'
     ################################################
@@ -167,7 +167,7 @@ if __name__ == '__main__':
                 print('Saving Model'.center(60, '-'))
             writer.add_scalar('Time/epoch', end - start, epoch)
 
-    test_regression(model, test_loader, indices['Test'], device, results_folder, val=False)
+    test_regression(model, test_loader, indices['Test'], device, recording, results_folder, val=False)
 
     if recording:
         # save the last model
@@ -180,7 +180,7 @@ if __name__ == '__main__':
             result_writer = csv.writer(results_file, delimiter=',', quoting=csv.QUOTE_MINIMAL)
             result_writer.writerow(['Best model!'])
 
-        test_regression(model, test_loader, indices['Test'], device, results_folder, val=False)
+        test_regression(model, test_loader, indices['Test'], device, recording, results_folder, val=False)
 
 
 
