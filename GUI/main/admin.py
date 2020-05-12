@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.db import models
 from tinymce.widgets import TinyMCE
 
-from .models import SessionDatabase, UploadedSessionDatabase, Page
+from .models import SessionDatabase, Information
 
 """
 This file contains all the Admin versions of the models. This is used in the admin section of the website to modify 
@@ -30,21 +30,20 @@ class PageAdmin(admin.ModelAdmin):
     list_display = ('page_title', 'page_published')
 
 
-
 class SessionDatabaseAdmin(admin.ModelAdmin):
     """
     Used to view/modify the original session IDs.
     """
     fieldsets = [
         ("Meta Data", {'fields': ["participant_id", "session_id", "gender", "birth_age", "birth_weight", "singleton",
-                                  "scan_age", "scan_number", "radiology_score", "sedation"]}),
+                                  "scan_age", "scan_number", "radiology_score", "sedation", "uploaded"]}),
         ("File Paths", {'fields': ["mri_file", "surface_file"]}),
     ]
 
-    search_fields = ('session_id', 'participant_id')
-    list_display = ('session_id', 'participant_id')
+    readonly_fields = ("uploaded",)
+    search_fields = ('participant_id', 'session_id', 'uploaded')
+    list_display = ('session_id', 'participant_id', 'uploaded')
 
 
 admin.site.register(SessionDatabase, SessionDatabaseAdmin)
-admin.site.register(UploadedSessionDatabase, SessionDatabaseAdmin)
-admin.site.register(Page, PageAdmin)
+admin.site.register(Information, InformationAdmin)
