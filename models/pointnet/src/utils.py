@@ -230,7 +230,7 @@ def data(data_folder, files_ending, data_type, target_class, task, REPROCESS, lo
         # T.RandomFlip(0, p=0.3),
         # T.RandomFlip(1, p=0.1),
         # T.RandomFlip(2, p=0.3),
-        # T.FixedPoints(num_points, replace=False), #32492  16247
+        T.FixedPoints(500, replace=False), #32492  16247 #TODO: comment out
         T.RandomRotate(360, axis=0),
         T.RandomRotate(360, axis=1),
         T.RandomRotate(360, axis=2)

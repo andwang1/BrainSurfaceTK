@@ -20,7 +20,7 @@ from models.pointnet.src.data_loader import OurDataset
 from models.pointnet.src.models.pointnet2_regression import Net
 
 
-def train(model, train_loader, epoch, device, optimizer, writer):
+def train(model, train_loader, epoch, device, optimizer, scheduler, writer):
     model.train()
     loss_train = 0.0
     for data in train_loader:
@@ -33,20 +33,45 @@ def train(model, train_loader, epoch, device, optimizer, writer):
 
         loss_train += loss.item()
 
-    writer.add_scalar('Loss/train_mse', loss_train / len(train_loader), epoch)
+    scheduler.step()
+
+    if writer is not None:
+        writer.add_scalar('Loss/train_mse', loss_train / len(train_loader), epoch)
 
 
-def test_regression(model, loader, indices, device, results_folder, val=True, epoch=0):
+def test_regression(model, loader, indices, device, recording, results_folder, val=True, epoch=0):
 
     model.eval()
-    with open(results_folder + '/results.csv', 'a', newline='') as results_file:
-        result_writer = csv.writer(results_file, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-        if val:
-            print('Validation'.center(60, '-'))
-            result_writer.writerow(['Val scores Epoch - ' + str(epoch)])
-        else:
-            print('Test'.center(60, '-'))
-            result_writer.writerow(['Test scores'])
+    if recording:
+
+        with open(results_folder + '/results.csv', 'a', newline='') as results_file:
+            result_writer = csv.writer(results_file, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+            if val:
+                print('Validation'.center(60, '-'))
+                result_writer.writerow(['Val scores Epoch - ' + str(epoch)])
+            else:
+                print('Test'.center(60, '-'))
+                result_writer.writerow(['Test scores'])
+
+            mse = 0
+            l1 = 0
+            for idx, data in enumerate(loader):
+                data = data.to(device)
+                with torch.no_grad():
+                    pred = model(data)
+                    print(str(pred.t().item()).center(20, ' '), str(data.y[:, 0].item()).center(20, ' '), indices[idx])
+                    result_writer.writerow([indices[idx][:11], indices[idx][12:],
+                                            str(pred.t().item()), str(data.y[:, 0].item()),
+                                            str(abs(pred.t().item() - data.y[:, 0].item()))])
+                    loss_test_mse = F.mse_loss(pred, data.y[:, 0])
+                    loss_test_l1 = F.l1_loss(pred, data.y[:, 0])
+                    mse += loss_test_mse.item()
+                    l1 += loss_test_l1.item()
+            if val:
+                result_writer.writerow(['Epoch average error:', str(l1 / len(loader))])
+            else:
+                result_writer.writerow(['Test average error:', str(l1 / len(loader))])
+    else:
 
         mse = 0
         l1 = 0
@@ -55,17 +80,10 @@ def test_regression(model, loader, indices, device, results_folder, val=True, ep
             with torch.no_grad():
                 pred = model(data)
                 print(str(pred.t().item()).center(20, ' '), str(data.y[:, 0].item()).center(20, ' '), indices[idx])
-                result_writer.writerow([indices[idx][:11], indices[idx][12:],
-                                        str(pred.t().item()), str(data.y[:, 0].item()),
-                                        str(abs(pred.t().item() - data.y[:, 0].item()))])
                 loss_test_mse = F.mse_loss(pred, data.y[:, 0])
                 loss_test_l1 = F.l1_loss(pred, data.y[:, 0])
                 mse += loss_test_mse.item()
                 l1 += loss_test_l1.item()
-        if val:
-            result_writer.writerow(['Epoch average error:', str(l1 / len(loader))])
-        else:
-            result_writer.writerow(['Test average error:', str(l1 / len(loader))])
 
     return mse / len(loader), l1 / len(loader)
 

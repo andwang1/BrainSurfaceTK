@@ -39,7 +39,7 @@ if __name__ == '__main__':
     data_nativeness = 'native'
     data_compression = "10k"
     data_type = 'pial'
-    hemisphere = 'merged'
+    hemisphere = 'both'
 
     additional_comment = ''
 
@@ -58,6 +58,9 @@ if __name__ == '__main__':
     scheduler_step_size = 2
     target_class = 'scan_age'
     task = 'regression'
+    numb_epochs = 200
+    number_of_points = 10000
+    comment = 'comment'
     ################################################
 
 
@@ -101,7 +104,83 @@ if __name__ == '__main__':
     print(f'number of param: {sum(p.numel() for p in model.parameters() if p.requires_grad)}')
 
 
+    #################################################
+    ############# EXPERIMENT LOGGING ################
+    #################################################
+    writer = None
+    results_folder = None
+    if recording:
 
+        # Tensorboard writer.
+        writer = SummaryWriter(log_dir='runs/' + task + '/' + comment, comment=comment)
+
+        results_folder = 'runs/' + task + '/' + comment + '/results'
+        model_dir = 'runs/' + task + '/' + comment + '/models'
+
+        if not osp.exists(results_folder):
+            os.makedirs(results_folder)
+
+        if not osp.exists(model_dir):
+            os.makedirs(model_dir)
+
+        with open(results_folder + '/configuration.txt', 'w', newline='') as config_file:
+            config_file.write('Learning rate - ' + str(lr) + '\n')
+            config_file.write('Batch size - ' + str(batch_size) + '\n')
+            config_file.write('Local features - ' + str(local_features) + '\n')
+            config_file.write('Global feature - ' + str(global_features) + '\n')
+            config_file.write('Number of points - ' + str(number_of_points) + '\n')
+            config_file.write('Data res - ' + data + '\n')
+            config_file.write('Data type - ' + data_type + '\n')
+            config_file.write('Data nativeness - ' + data_nativeness + '\n')
+            # config_file.write('Additional comments - With rotate transforms' + '\n')
+
+        with open(results_folder + '/results.csv', 'w', newline='') as results_file:
+            result_writer = csv.writer(results_file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            result_writer.writerow(['Patient ID', 'Session ID', 'Prediction', 'Label', 'Error'])
+
+    #################################################
+    #################################################
+
+    best_val_loss = 999
+
+    # MAIN TRAINING LOOP
+    for epoch in range(1, numb_epochs+1):
+        start = time.time()
+        train(model, train_loader, epoch, device,
+              optimizer, scheduler, writer)
+
+        val_mse, val_l1 = test_regression(model, val_loader,
+                                          indices['Val'], device,
+                                          recording, results_folder,
+                                          epoch=epoch)
+
+        if recording:
+            writer.add_scalar('Loss/val_mse', val_mse, epoch)
+            writer.add_scalar('Loss/val_l1', val_l1, epoch)
+
+            print('Epoch: {:03d}, Test loss l1: {:.4f}'.format(epoch, val_l1))
+            end = time.time()
+            print('Time: ' + str(end - start))
+            if val_l1 < best_val_loss:
+                best_val_loss = val_l1
+                torch.save(model.state_dict(), model_dir + '/model_best.pt')
+                print('Saving Model'.center(60, '-'))
+            writer.add_scalar('Time/epoch', end - start, epoch)
+
+    test_regression(model, test_loader, indices['Test'], device, results_folder, val=False)
+
+    if recording:
+        # save the last model
+        torch.save(model.state_dict(), model_dir + '/model_last.pt')
+
+        # Eval best model on test
+        model.load_state_dict(torch.load(model_dir + '/model_best.pt'))
+
+        with open(results_folder + '/results.csv', 'a', newline='') as results_file:
+            result_writer = csv.writer(results_file, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+            result_writer.writerow(['Best model!'])
+
+        test_regression(model, test_loader, indices['Test'], device, results_folder, val=False)
 
 
 
