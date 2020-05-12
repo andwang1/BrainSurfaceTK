@@ -1,9 +1,5 @@
-import os
 from datetime import datetime
-
-from django.conf import settings
 from django.core import validators
-from django.core.exceptions import ValidationError
 from django.db import models
 
 """
@@ -11,95 +7,56 @@ THESE ARE YOUR DATABASES BRO
 """
 
 
-class Information(models.Model):
+class Page(models.Model):
     page_title = models.CharField(max_length=200, unique=True)
-    page_summary = models.CharField(max_length=200)
-    page_content = models.TextField()
-    page_published = models.DateTimeField('date published', default=datetime.now)
-    page_slug = models.CharField(max_length=200, default=1, unique=True)
+    page_summary = models.CharField(max_length=200, blank=True)
+    page_content = models.TextField(blank=True)
+    page_published = models.DateTimeField('date published', default=datetime.now, blank=True)
+    page_slug = models.SlugField(max_length=100, unique=True, blank=True)
 
     def __str__(self):
         return self.page_title
 
 
-def validate_session_id_is_unique(session_id):
-    """
-    Checks that this session ID is not already in the database.
-    :param session_id: integer value that is checked for uniqueness
-    :return: None if no errors, else raises a Validation Error if session id is non-unique
-    """
-    if (SessionDatabase.objects.all().filter(session_id=session_id).count() > 0) or \
-            (UploadedSessionDatabase.objects.all().filter(session_id=session_id).count() > 0):
-        raise ValidationError(
-            _('%(session_id)s is already in the database!'),
-            params={'session_id': session_id},
-        )
+def get_upload_path(instance, filename):
+    out = ""
+    if instance.uploaded:
+        out += "uploads/data/"
+    else:
+        out += "original/data/"
+    if filename.endswith(".nii"):
+        return f"{out}/mris/{filename}"
+    else:
+        return f"{out}/vtps/{filename}"
 
 
-class TemplateSessionDatabase(models.Model):
+class SessionDatabase(models.Model):
     """
     General form for session records to be inserted into
     """
-    participant_id = models.CharField(verbose_name="Participant ID", max_length=100)
+
+    participant_id = models.CharField(verbose_name="Participant ID", max_length=100, blank=True)
     session_id = models.IntegerField(verbose_name="Session ID", unique=True, primary_key=True,
-                                     validators=[validate_session_id_is_unique, validators.MinValueValidator(0)])
-    gender = models.CharField(verbose_name="Gender", max_length=100)
-    birth_age = models.FloatField(verbose_name="Birth Age")
-    birth_weight = models.FloatField(verbose_name="Birth Weight")
-    singleton = models.CharField(verbose_name="Singleton", max_length=100)
-    scan_age = models.FloatField(verbose_name="Scan Age")
-    scan_number = models.IntegerField(verbose_name="Scan Number")
-    radiology_score = models.CharField(verbose_name="Radiology Score", max_length=200)
-    sedation = models.CharField(verbose_name="Sedation", max_length=200)
+                                     validators=[validators.MinValueValidator(0)])
+    gender = models.CharField(verbose_name="Gender", max_length=100, blank=True)
+    birth_age = models.FloatField(verbose_name="Birth Age", blank=True)
+    birth_weight = models.FloatField(verbose_name="Birth Weight", blank=True)
+    singleton = models.CharField(verbose_name="Singleton", max_length=100, blank=True)
+    scan_age = models.FloatField(verbose_name="Scan Age", blank=True)
+    scan_number = models.IntegerField(verbose_name="Scan Number", blank=True)
+    radiology_score = models.CharField(verbose_name="Radiology Score", max_length=200, blank=True)
+    sedation = models.CharField(verbose_name="Sedation", max_length=200, blank=True)
 
-    mri_file = models.FileField(verbose_name="MRI file path", upload_to="", default="", max_length=250)
-    surface_file = models.FileField(verbose_name="Surface file path", upload_to="", default="", max_length=250)
+    uploaded = models.BooleanField(verbose_name="Uploaded", default=True)
 
-    class Meta:
-        abstract = True
-
-    def __str__(self):
-        return f"Session ID: {self.session_id}"
-
-
-class UploadedSessionDatabase(TemplateSessionDatabase):
-    """
-    Inheriting from the TemplateSessionDatabase, the main modifications here is the additional file fields that
-    accept vtps & nii which are used to render the brain. This class also contains where these file
-    types would be stored.
-    """
-    mri_file_storage_path = "uploads/data/mris/"
-    surface_file_storage_path = "uploads/data/vtps/"
-
-    mri_file = models.FileField(verbose_name="MRI file path", upload_to=mri_file_storage_path, default="",
-                                max_length=250)
-    surface_file = models.FileField(verbose_name="Surface file path", upload_to=surface_file_storage_path, default="",
-                                    max_length=250)
-
-    class Meta:
-        ordering = ['-session_id']
-        verbose_name_plural = "Uploaded Session Database"
-
-
-class SessionDatabase(TemplateSessionDatabase):
-    """
-    Inheriting from the TemplateSessionDatabase, the main modifications here is the additional file fields that
-    accept vtps & nii which are used to render the brain. This class also contains where these file
-    types would be stored.
-    """
-
-    mri_file_storage_path = "original/data/mris/"
-    surface_file_storage_path = "original/data/vtps/"
-
-    mri_file = models.FileField(verbose_name="MRI file path", upload_to=mri_file_storage_path, default="",
-                                max_length=250)
-    surface_file = models.FileField(verbose_name="Surface file path", upload_to=surface_file_storage_path, default="",
-                                    max_length=250)
-
-    tsv_path = os.path.join(settings.MEDIA_ROOT, "original/data/meta_data.tsv")
-    default_mri_path = os.path.join(settings.MEDIA_ROOT, mri_file_storage_path)
-    default_vtps_path = os.path.join(settings.MEDIA_ROOT, surface_file_storage_path)
-
+    mri_file = models.FileField(verbose_name="MRI file path", upload_to=get_upload_path, max_length=250, blank=True,
+                                validators=[validators.FileExtensionValidator(allowed_extensions=["", "nii"])])
+    surface_file = models.FileField(verbose_name="Surface file path", upload_to=get_upload_path, max_length=250,
+                                    blank=True,
+                                    validators=[validators.FileExtensionValidator(allowed_extensions=["", "vtp"])])
     class Meta:
         ordering = ['-session_id']
         verbose_name_plural = "Session Database"
+
+    def __str__(self):
+        return f"Session ID: {self.session_id}"

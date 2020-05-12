@@ -1,4 +1,4 @@
-from .models import SessionDatabase, UploadedSessionDatabase
+from .models import SessionDatabase
 import os
 from csv import reader as csv_reader
 from django.conf import settings
@@ -11,22 +11,26 @@ def load_original_data(reset_upload_database):
     :return: redirects to homepage with messages to notify the user for success or any errors
     """
     # Clear each database here
-    SessionDatabase.objects.all().delete()
+    SessionDatabase.objects.all().filter(uploaded=False).delete()
     if reset_upload_database == 'on':
-        UploadedSessionDatabase.objects.all().delete()
+        SessionDatabase.objects.all().filter(uploaded=True).delete()
 
-    if not os.path.isfile(SessionDatabase.tsv_path):
+    tsv_path = os.path.join(settings.MEDIA_ROOT, settings.ORIGINAL_META_DATA_PATH)
+    mri_path = os.path.join(settings.MEDIA_ROOT, settings.ORIGINAL_MRI_DATA_PATH)
+    vtp_path = os.path.join(settings.MEDIA_ROOT, settings.ORIGINAL_VTP_DATA_PATH)
+
+    if not os.path.isfile(tsv_path):
         return {"success": False, "message": "Either this is not a file or the location is wrong!"}
 
     # Check if the tsv file exists
     expected_ordering = ['participant_id', 'session_id', 'gender', 'birth_age', 'birth_weight', 'singleton',
                          'scan_age', 'scan_number', 'radiology_score', 'sedation']
 
-    found_mri_file_names = [f for f in os.listdir(SessionDatabase.default_mri_path) if f.endswith("nii")]
-    found_vtps_files_names = [f for f in os.listdir(SessionDatabase.default_vtps_path)
+    found_mri_file_names = [f for f in os.listdir(mri_path) if f.endswith("nii")]
+    found_vtps_files_names = [f for f in os.listdir(vtp_path)
                               if f.endswith("vtp") & f.find("inflated") != -1 & f.find("hemi-L") != -1]
 
-    with open(SessionDatabase.tsv_path) as foo:
+    with open(tsv_path) as foo:
         reader = csv_reader(foo, delimiter='\t')
         for i, row in enumerate(reader):
             if i == 0:
@@ -38,10 +42,10 @@ def load_original_data(reset_upload_database):
             (participant_id, session_id, gender, birth_age, birth_weight, singleton, scan_age,
              scan_number, radiology_score, sedation) = row
 
-            mri_file_path = next((f"{os.path.join(SessionDatabase.default_mri_path, x)}"
+            mri_file_path = next((os.path.join(settings.ORIGINAL_MRI_DATA_PATH, x)
                                   for x in found_mri_file_names if (participant_id and session_id) in x), "")
 
-            surface_file_path = next((f"{os.path.join(SessionDatabase.default_vtps_path, x)}"
+            surface_file_path = next((os.path.join(settings.ORIGINAL_VTP_DATA_PATH, x)
                                       for x in found_vtps_files_names if (participant_id and session_id) in x), "")
 
             # Check for session ID uniqueness
@@ -59,20 +63,9 @@ def load_original_data(reset_upload_database):
                                            scan_number=int(scan_number),
                                            radiology_score=radiology_score,
                                            sedation=sedation,
+                                           uploaded=False,
                                            mri_file=mri_file_path,
                                            surface_file=surface_file_path)
-
-            # If an .nii file was found, correct the record.mri_file.name
-            if mri_file_path != "":
-                record = SessionDatabase.objects.get(session_id=session_id)
-                record.mri_file.name = record.mri_file.name.split(settings.MEDIA_URL)[-1]
-                record.save()
-
-            # If an .nii file was found, correct the record.surface_file.name
-            if surface_file_path != "":
-                record = SessionDatabase.objects.get(session_id=session_id)
-                record.surface_file.name = record.surface_file.name.split(settings.MEDIA_URL)[-1]
-                record.save()
 
     return {"success": True, "message": "SUCCESS"}
 
