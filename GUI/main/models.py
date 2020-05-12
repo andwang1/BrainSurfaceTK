@@ -1,19 +1,17 @@
 import os
+from datetime import datetime
 
 from django.conf import settings
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.contrib.auth.models import AbstractUser
-from datetime import datetime
-
-
 
 """
 THESE ARE YOUR DATABASES BRO
 """
 
-class Information(models.Model):
+
+class Page(models.Model):
     page_title = models.CharField(max_length=200, unique=True)
     page_summary = models.CharField(max_length=200)
     page_content = models.TextField()
@@ -24,19 +22,6 @@ class Information(models.Model):
         return self.page_title
 
 
-# Create your models here.
-class Option(models.Model):
-    """
-    Model responsible for spawning new options to be displayed in the home page.
-    """
-    name = models.CharField(max_length=200)
-    summary = models.CharField(max_length=200)
-    slug = models.CharField(max_length=200)
-
-    def __str__(self):
-        return self.name
-
-
 def validate_session_id_is_unique(session_id):
     """
     Checks that this session ID is not already in the database.
@@ -45,10 +30,7 @@ def validate_session_id_is_unique(session_id):
     """
     if (SessionDatabase.objects.all().filter(session_id=session_id).count() > 0) or \
             (UploadedSessionDatabase.objects.all().filter(session_id=session_id).count() > 0):
-        raise ValidationError(
-            _('%(session_id)s is already in the database!'),
-            params={'session_id': session_id},
-        )
+        raise ValidationError(f'{session_id} is already in the database!', params={'session_id': session_id})
 
 
 class TemplateSessionDatabase(models.Model):
