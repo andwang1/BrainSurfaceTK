@@ -24,6 +24,59 @@ PATH_TO_POINTNET = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..', 'mo
 
 if __name__ == '__main__':
 
+    num_workers = 2
+    local_features = ['corr_thickness', 'curvature', 'sulc']
+    global_features = []
+
+    #################################################
+    ########### EXPERIMENT DESCRIPTION ##############
+    #################################################
+    recording = True
+    REPROCESS = True
+
+    data_nativeness = 'native'
+    data_compression = "20k"
+    data_type = 'white'
+    hemisphere = 'left'
+
+    additional_comment = ''
+
+    experiment_name = f'{data_nativeness}_{data_type}_{data_compression}_{hemisphere}_{additional_comment}'
+
+    #################################################
+    ############ EXPERIMENT DESCRIPTION #############
+    #################################################
+
+
+    # 1. Model Parameters
+    ################################################
+    lr = 0.001
+    batch_size = 2
+    gamma = 0.9875
+    target_class = 'gender'
+    task = 'segmentation'
+    ################################################
+
+
+    ########## INDICES FOR DATA SPLIT #############
+    with open(PATH_TO_POINTNET + 'src/names.pk', 'rb') as f:
+        indices = pickle.load(f)
+    ###############################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     ############# MODEL PARAMETERS ################
     lr = 0.001
     batch_size = 4
