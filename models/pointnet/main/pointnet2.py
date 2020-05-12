@@ -59,10 +59,11 @@ def test_regression(model, loader, indices, device, recording, results_folder, v
                 data = data.to(device)
                 with torch.no_grad():
                     pred = model(data)
-                    print(str(pred.t().item()).center(20, ' '), str(data.y[:, 0].item()).center(20, ' '), indices[idx])
-                    result_writer.writerow([indices[idx][:11], indices[idx][12:],
-                                            str(pred.t().item()), str(data.y[:, 0].item()),
-                                            str(abs(pred.t().item() - data.y[:, 0].item()))])
+                    for i in range(len(pred)):
+                        print(str(pred[i].item()).center(20, ' '), str(data.y[:, 0][i].item()).center(20, ' '), indices[idx+i])
+                        result_writer.writerow([indices[idx+i][:11], indices[idx+i][12:],
+                                                str(pred[i].item()), str(data.y[:, 0][i].item()),
+                                                str(abs(pred[i].item() - data.y[:, 0][i].item()))])
                     loss_test_mse = F.mse_loss(pred, data.y[:, 0])
                     loss_test_l1 = F.l1_loss(pred, data.y[:, 0])
                     mse += loss_test_mse.item()
