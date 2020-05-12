@@ -11,9 +11,8 @@ website_url = "http://146.169.52.15:8000/"
 login_user = "test"
 login_pw = "test"
 
-max_num_parallel = 8
+max_num_parallel = 24
 
-# aw1912@corona01
 def multiprocessing(num):
     print(f"Parallel Processes: {num}")
     tester = WebsiteTester(website_url, login_user, login_pw, verbose=False, headless=True)
@@ -71,4 +70,5 @@ with sns.axes_style("white"):
     plt.title("GUI Stress Testing")
     plt.legend(loc='best')
     sns.despine()
-    plt.show()
+    # plt.show()
+    plt.savefig("stress_test.pdf")
