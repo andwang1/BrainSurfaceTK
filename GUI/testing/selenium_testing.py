@@ -102,7 +102,7 @@ class WebsiteTester:
         bs_lookup = BeautifulSoup(self.driver.page_source, "lxml")
         if "You need to be logged in" in bs_lookup.text:
             print("Error: Not logged in. Please login to access Lookup")
-            # replace this with a call to login
+            # TODO replace this with a call to login
             return False
 
         # Click on the dropdown
