@@ -25,7 +25,7 @@ num_points_dict = {'original': 32492, '50': 16247}
 
 recording = True
 # Limit of memory in MB when to run on GPU if it's available.
-GPU_MEM_LIMIT = 1000
+GPU_MEM_LIMIT = 2000
 
 class SAModule(torch.nn.Module):
     def __init__(self, ratio, r, nn):
