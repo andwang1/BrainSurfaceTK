@@ -19,7 +19,7 @@ from models.pointnet.main.pointnet2_classification import train, test_classifica
 from models.pointnet.src.utils import get_data_path, data
 
 PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..') + '/'
-PATH_TO_POINTNET = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..', 'models', 'pointnet') + '/'
+PATH_TO_POINTNET = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..', '..', 'models', 'pointnet') + '/'
 
 if __name__ == '__main__':
 
