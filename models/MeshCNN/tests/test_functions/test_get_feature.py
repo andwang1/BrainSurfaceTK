@@ -1,5 +1,5 @@
 import unittest
-from get_feature_dict import get_feature_dict
+from data.get_feature_dict import get_feature_dict
 
 __author__ = "Francis Rhys Ward"
 __license__ = "MIT"
@@ -7,8 +7,7 @@ __license__ = "MIT"
 SUBJECT = "CC01006XX08_38531"
 
 
-class Test_get_feature(unittest.TestCase):
-
+class TestGetFeature(unittest.TestCase):
     def test_gender(self):
         self.assertEqual(get_feature_dict("gender")[SUBJECT], "Male", "Should be Male")
 

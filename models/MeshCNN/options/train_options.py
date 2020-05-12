@@ -4,6 +4,11 @@ __author__ = "Rana Hanocka"
 __license__ = "MIT"
 __maintainer__ = "Andy Wang"
 
+"""
+Modifications made to: initialize 
+Functionality: added additional options
+"""
+
 class TrainOptions(BaseOptions):
     def initialize(self):
         BaseOptions.initialize(self)

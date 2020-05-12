@@ -12,6 +12,7 @@ from torch_geometric.nn import knn_interpolate
 from vtk.numpy_interface import dataset_adapter as dsa
 from vtk.util.numpy_support import vtk_to_numpy
 from django.conf import settings
+import nvidia_smi
 
 if settings.DEBUG == True:
     MODEL_PATH = os.path.join(os.getcwd(), "GUI/backend/pre_trained_models/best_acc_model.pt")
@@ -23,7 +24,8 @@ all_labels = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
 num_points_dict = {'original': 32492, '50': 16247}
 
 recording = True
-
+# Limit of memory in MB when to run on GPU if it's available.
+GPU_MEM_LIMIT = 2000
 
 class SAModule(torch.nn.Module):
     def __init__(self, ratio, r, nn):
@@ -173,7 +175,15 @@ def segment(brain_path, folder_path_to_write, tmp_file_name=None):
     data = pre_transform(data)
 
     # data = Data(x=x, pos=
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    try:
+        nvidia_smi.nvmlInit()
+        handle = nvidia_smi.nvmlDeviceGetHandleByIndex(0)
+        mem_res = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
+        free_mem = mem_res.free / 1024 ** 2
+    except:
+        free_mem = 0
+
+    device = torch.device('cuda' if torch.cuda.is_available() and free_mem >= GPU_MEM_LIMIT else 'cpu')
 
     numb_local_features = x.size(1)
     numb_global_features = 0

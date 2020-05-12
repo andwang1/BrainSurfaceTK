@@ -6,6 +6,11 @@ __author__ = "Rana Hanocka"
 __license__ = "MIT"
 __maintainer__ = "Andy Wang"
 
+"""
+Modifications made to: remove_unused_vertices
+Functionality: resolve issue when using augmentation (not working)
+"""
+
 def fill_mesh(mesh2fill, file: str, opt):
     load_path = get_mesh_path(file, opt.num_aug)
     if os.path.exists(load_path):

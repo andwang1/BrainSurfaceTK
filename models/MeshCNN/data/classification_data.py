@@ -3,11 +3,16 @@ import torch
 from data.base_dataset import BaseDataset
 from util.util import is_mesh_file, pad
 from models.layers.mesh import Mesh
-from data.get_feature_dict import get_feature_dict
+from get_feature_dict import get_feature_dict
 
 __author__ = "Rana Hanocka"
 __license__ = "MIT"
 __maintainer__ = ["Andy Wang", "Francis Rhys Ward"]
+
+"""
+Modifications made to: __init__, make_dataset_by_class
+Functionality: retrieving labels from metadata file for regression
+"""
 
 class ClassificationData(BaseDataset):
     def __init__(self, opt):
