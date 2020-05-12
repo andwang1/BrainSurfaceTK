@@ -1,6 +1,8 @@
 import os.path as osp
+
 PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..', '..')
 import sys
+
 sys.path.append(PATH_TO_ROOT)
 
 import os
@@ -37,7 +39,6 @@ def train(model, train_loader, epoch, device, optimizer, scheduler, writer):
 
 
 def test_regression(model, loader, indices, device, recording, results_folder, val=True, epoch=0):
-
     model.eval()
     if recording:
 
@@ -60,9 +61,9 @@ def test_regression(model, loader, indices, device, recording, results_folder, v
                     for i in range(len(pred)):
                         print(str(pred[i].item()).center(20, ' '),
                               str(data.y[:, 0][i].item()).center(20, ' '),
-                              indices[idx*len(pred)+i])
+                              indices[idx * len(pred) + i])
 
-                        result_writer.writerow([indices[idx*len(pred)+i][:11], indices[idx*len(pred)+i][12:],
+                        result_writer.writerow([indices[idx * len(pred) + i][:11], indices[idx * len(pred) + i][12:],
                                                 str(pred[i].item()), str(data.y[:, 0][i].item()),
                                                 str(abs(pred[i].item() - data.y[:, 0][i].item()))])
 
@@ -112,7 +113,6 @@ if __name__ == '__main__':
 
     PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..') + '/'
 
-
     num_workers = 2
     local_features = ['corr_thickness', 'curvature', 'sulc']
     global_features = []
@@ -136,7 +136,6 @@ if __name__ == '__main__':
     ############ EXPERIMENT DESCRIPTION #############
     #################################################
 
-
     # 1. Model Parameters
     ################################################
     lr = 0.001
@@ -150,31 +149,29 @@ if __name__ == '__main__':
     comment = 'comment'
     ################################################
 
-
     ########## INDICES FOR DATA SPLIT #############
     with open(PATH_TO_ROOT + 'src/names.pk', 'rb') as f:
         indices = pickle.load(f)
     ###############################################
 
-
     data_folder, files_ending = get_data_path(data_nativeness, data_compression, data_type, hemisphere=hemisphere)
 
     train_dataset, test_dataset, validation_dataset, train_loader, test_loader, val_loader, num_labels = data(
-                                                                                                                data_folder,
-                                                                                                                files_ending,
-                                                                                                                data_type,
-                                                                                                                target_class,
-                                                                                                                task,
-                                                                                                                REPROCESS,
-                                                                                                                local_features,
-                                                                                                                global_features,
-                                                                                                                indices,
-                                                                                                                batch_size,
-                                                                                                                num_workers=2,
-                                                                                                                data_nativeness=data_nativeness,
-                                                                                                                data_compression=data_compression,
-                                                                                                                hemisphere=hemisphere
-                                                                                                                )
+        data_folder,
+        files_ending,
+        data_type,
+        target_class,
+        task,
+        REPROCESS,
+        local_features,
+        global_features,
+        indices,
+        batch_size,
+        num_workers=2,
+        data_nativeness=data_nativeness,
+        data_compression=data_compression,
+        hemisphere=hemisphere
+    )
 
     if len(local_features) > 0:
         numb_local_features = train_dataset[0].x.size(1)
@@ -189,7 +186,6 @@ if __name__ == '__main__':
     scheduler = StepLR(optimizer, step_size=scheduler_step_size, gamma=gamma)
 
     print(f'number of param: {sum(p.numel() for p in model.parameters() if p.requires_grad)}')
-
 
     #################################################
     ############# EXPERIMENT LOGGING ################
@@ -231,7 +227,7 @@ if __name__ == '__main__':
     best_val_loss = 999
 
     # MAIN TRAINING LOOP
-    for epoch in range(1, numb_epochs+1):
+    for epoch in range(1, numb_epochs + 1):
         start = time.time()
         train(model, train_loader, epoch, device,
               optimizer, scheduler, writer)

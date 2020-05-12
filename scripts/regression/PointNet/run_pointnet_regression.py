@@ -1,6 +1,8 @@
 import os.path as osp
+
 PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..')
 import sys
+
 sys.path.append(PATH_TO_ROOT)
 
 import os
@@ -45,7 +47,6 @@ if __name__ == '__main__':
     ############ EXPERIMENT DESCRIPTION #############
     #################################################
 
-
     # 1. Model Parameters
     ################################################
     lr = 0.001
@@ -59,31 +60,29 @@ if __name__ == '__main__':
     comment = 'comment'
     ################################################
 
-
     ########## INDICES FOR DATA SPLIT #############
     with open(PATH_TO_POINTNET + 'src/names.pk', 'rb') as f:
         indices = pickle.load(f)
     ###############################################
 
-
     data_folder, files_ending = get_data_path(data_nativeness, data_compression, data_type, hemisphere=hemisphere)
 
     train_dataset, test_dataset, validation_dataset, train_loader, test_loader, val_loader, num_labels = data(
-                                                                                                                data_folder,
-                                                                                                                files_ending,
-                                                                                                                data_type,
-                                                                                                                target_class,
-                                                                                                                task,
-                                                                                                                REPROCESS,
-                                                                                                                local_features,
-                                                                                                                global_features,
-                                                                                                                indices,
-                                                                                                                batch_size,
-                                                                                                                num_workers=2,
-                                                                                                                data_nativeness=data_nativeness,
-                                                                                                                data_compression=data_compression,
-                                                                                                                hemisphere=hemisphere
-                                                                                                                )
+        data_folder,
+        files_ending,
+        data_type,
+        target_class,
+        task,
+        REPROCESS,
+        local_features,
+        global_features,
+        indices,
+        batch_size,
+        num_workers=2,
+        data_nativeness=data_nativeness,
+        data_compression=data_compression,
+        hemisphere=hemisphere
+    )
 
     if len(local_features) > 0:
         numb_local_features = train_dataset[0].x.size(1)
@@ -98,7 +97,6 @@ if __name__ == '__main__':
     scheduler = StepLR(optimizer, step_size=scheduler_step_size, gamma=gamma)
 
     print(f'number of param: {sum(p.numel() for p in model.parameters() if p.requires_grad)}')
-
 
     #################################################
     ############# EXPERIMENT LOGGING ################
@@ -140,7 +138,7 @@ if __name__ == '__main__':
     best_val_loss = 999
 
     # MAIN TRAINING LOOP
-    for epoch in range(1, numb_epochs+1):
+    for epoch in range(1, numb_epochs + 1):
         start = time.time()
         train(model, train_loader, epoch, device,
               optimizer, scheduler, writer)
