@@ -16,8 +16,10 @@ class WebsiteTester:
     The required files to be uploaded are passed in via file path, please place them in the same folder as this script.
     """
 
-    def __init__(self, website_url, verbose=False):
+    def __init__(self, website_url, login_user, login_pw, verbose=False):
         self.verbose = verbose
+        self.login_user = login_user
+        self.login_pw = login_pw
         self.driver = self.start_driver(website_url)
 
     def start_driver(self, website_url):
@@ -56,7 +58,7 @@ class WebsiteTester:
         self.driver.find_element_by_link_text("Homepage").click()
         return True
 
-    def login(self, login_user, login_pw):
+    def login(self):
         # Click on Login
         bs_start = BeautifulSoup(self.driver.page_source, "lxml")
         bs_navbar = bs_start.find("div", class_="nav-wrapper imperial blue")
@@ -67,8 +69,8 @@ class WebsiteTester:
             if self.verbose:
                 print("Debug: Logging in.")
             self.driver.find_element_by_link_text("Login").click()
-            self.driver.find_element_by_name("username").send_keys(login_user)
-            self.driver.find_element_by_name("password").send_keys(login_pw)
+            self.driver.find_element_by_name("username").send_keys(self.login_user)
+            self.driver.find_element_by_name("password").send_keys(self.login_pw)
             bs_login = BeautifulSoup(self.driver.page_source, "lxml")
             bs_login_button = bs_login.find("button", text="Login")
             self.driver.find_element_by_xpath(self.xpath_soup(bs_login_button)).click()
@@ -102,7 +104,6 @@ class WebsiteTester:
         bs_lookup = BeautifulSoup(self.driver.page_source, "lxml")
         if "You need to be logged in" in bs_lookup.text:
             print("Error: Not logged in. Please login to access Lookup")
-            # TODO replace this with a call to login
             return False
 
         # Click on the dropdown
@@ -229,21 +230,21 @@ class WebsiteTester:
             assert value == dict_table[key], f"Table does contain value {value} passed in, in column {key}"
         return True
 
-    def full_lookup_workflow(self, login_user, login_pw):
+    def full_lookup_workflow(self, session_id, is_display_MRI=False, is_from_home=True):
         self.home()
-        self.login(login_user, login_pw)
-        self.lookup(7201, True, False)
+        self.login()
+        self.lookup(session_id, is_display_MRI, is_from_home)
         self.predict()
         self.segment()
         if self.verbose:
             print("Debug: Full lookup workflow completed.")
 
-    def full_upload_workflow(self, login_user, login_pw, vtp_fpath, mri_fpath=None, form_participant_id="CC9999",
+    def full_upload_workflow(self, vtp_fpath, mri_fpath=None, form_participant_id="CC9999",
                              form_session_id=9999, form_gender="Male",
                              form_birth_age=30.123, form_birth_weight=0.99, form_singleton=1, form_scan_age=30.123,
                              form_scan_number=4, form_radiology_score=2, form_sedation=0):
         self.home()
-        self.login(login_user, login_pw)
+        self.login()
         self.upload(vtp_fpath, mri_fpath=mri_fpath, form_participant_id=form_participant_id,
                     form_session_id=form_session_id, form_gender=form_gender,
                     form_birth_age=form_birth_age, form_birth_weight=form_birth_weight, form_singleton=form_singleton,
@@ -255,7 +256,10 @@ class WebsiteTester:
             print("Debug: Full upload workflow completed.")
 
 
-tester = WebsiteTester(website_url, verbose=True)
-tester.full_upload_workflow(login_user, login_pw, "sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp",
-                            mri_fpath="sub-CC00050XX01_ses-7201_T2w_graymatter.nii",
-                            form_session_id=212027)
+tester = WebsiteTester(website_url, login_user, login_pw, verbose=True)
+# tester.full_upload_workflow("sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp",
+#                             mri_fpath="sub-CC00050XX01_ses-7201_T2w_graymatter.nii",
+#                             form_session_id=212028)
+tester.full_upload_workflow("sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp",
+                            form_session_id=212031)
+# tester.full_lookup_workflow(7201, True)
