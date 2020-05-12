@@ -12,8 +12,6 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
-from django.conf import settings
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -24,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '&e^6vrts8u_f%7ayi@u^o#+#hi=uys(zt5ncm0i*z3i*e4d9$s'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["80.6.198.240", "localhost", "192.168.0.14", "127.0.0.1", "192.168.0.1"]
 
@@ -114,6 +112,8 @@ USE_L10N = True
 
 USE_TZ = True
 
+LOGIN_URL = "login/"
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
@@ -129,7 +129,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 MEDIA_URL = "/media/"
 
-LOGIN_URL = "login/"
+# Must be relative to MEDIA_ROOT
+ORIGINAL_META_DATA_PATH = "original/data/meta_data.tsv"
+ORIGINAL_MRI_DATA_PATH = "original/data/mris/"
+ORIGINAL_VTP_DATA_PATH = "original/data/vtps/"
 
 TINYMCE_DEFAULT_CONFIG = {
     'height': 360,

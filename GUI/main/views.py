@@ -9,12 +9,12 @@ from main.custom_wrapper_decorators import custom_login_required, custom_staff_m
 from main.load_helper import load_original_data
 from main.result_helpers import get_mri_js_html, get_surf_file_url, build_session_table, get_unique_session
 from .forms import UploadFileForm
-from .models import SessionDatabase, UploadedSessionDatabase, Information
+from .models import SessionDatabase, Information
 
 BASE_DIR = os.getcwd()
 DATA_DIR = os.path.join(BASE_DIR, "/main/static/main/data")
 
-SESSIONDATABASES = (SessionDatabase, UploadedSessionDatabase)
+SESSIONDATABASES = (SessionDatabase,)
 
 
 def single_slug(request, page_slug):
@@ -109,12 +109,11 @@ def lookup(request):
     if request.method == "GET":
         sessions = [(int(session.session_id), True) if session.mri_file != ""
                     else (int(session.session_id), False) for session in SessionDatabase.objects.all()]
-
-        uploaded_sessions = [(int(session.session_id), True) if session.mri_file != ""
-                             else (int(session.session_id), False) for session in UploadedSessionDatabase.objects.all()]
-        sessions.extend(uploaded_sessions)
-        sessions.sort()
-        session_ids, has_mri = zip(*sessions)
+        if len(sessions) > 0:
+            sessions.sort()
+            session_ids, has_mri = zip(*sessions)
+        else:
+            session_ids, has_mri = [], []
         return render(request, "main/lookup.html",
                       context={"session_ids": session_ids, "mri_mask": json.dumps(has_mri)})
 
@@ -142,6 +141,6 @@ def upload_session(request):
             form.save()
             messages.success(request, "Successfully uploaded! Now processing.")
             return redirect("main:session_id_results", session_id=int(form["session_id"].value()),
-                            display_mri=True, permanent=True)
+                            display_mri="true", permanent=True)
         messages.error(request, "Form is not valid!")
         return render(request, "main/upload_session.html", context={"form": form})

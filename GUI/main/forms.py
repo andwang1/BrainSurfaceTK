@@ -2,9 +2,7 @@ from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import UploadedSessionDatabase
-from django.conf import settings
-import os
+from .models import SessionDatabase
 
 
 class NewUserForm(UserCreationForm):
@@ -30,17 +28,10 @@ class UploadFileForm(ModelForm):
     The form used to upload a new session with the .vtp & mri files attached.
     """
     class Meta:
-        model = UploadedSessionDatabase
+        model = SessionDatabase
         fields = ('participant_id', 'session_id', 'gender', 'birth_age', 'birth_weight', 'singleton',
                   'scan_age', 'scan_number', 'radiology_score', 'sedation', 'mri_file', 'surface_file')
 
     def __init__(self, *args, **kwargs):
         super(UploadFileForm, self).__init__(*args, **kwargs)
-        self.fields['mri_file'].required = False
-
-        if not os.path.isdir(os.path.join(settings.MEDIA_ROOT, UploadedSessionDatabase.surface_file_storage_path)):
-            os.makedirs(os.path.join(settings.MEDIA_ROOT, UploadedSessionDatabase.surface_file_storage_path))
-
-        if not os.path.isdir(os.path.join(settings.MEDIA_ROOT, UploadedSessionDatabase.mri_file_storage_path)):
-            os.makedirs(os.path.join(settings.MEDIA_ROOT, UploadedSessionDatabase.mri_file_storage_path))
 
