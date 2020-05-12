@@ -22,7 +22,7 @@ from models.pointnet.main.pointnet2 import train, test_regression
 from models.pointnet.src.utils import get_id, save_to_log, get_comment, get_data_path, data
 
 PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..') + '/'
-PATH_TO_POINTNET = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..', 'models', 'pointnet') + '/'
+PATH_TO_POINTNET = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..', '..', 'models', 'pointnet') + '/'
 
 if __name__ == '__main__':
 
@@ -129,7 +129,7 @@ if __name__ == '__main__':
             config_file.write('Local features - ' + str(local_features) + '\n')
             config_file.write('Global feature - ' + str(global_features) + '\n')
             config_file.write('Number of points - ' + str(number_of_points) + '\n')
-            config_file.write('Data res - ' + data + '\n')
+            config_file.write('Data res - ' + data_compression + '\n')
             config_file.write('Data type - ' + data_type + '\n')
             config_file.write('Data nativeness - ' + data_nativeness + '\n')
             # config_file.write('Additional comments - With rotate transforms' + '\n')
