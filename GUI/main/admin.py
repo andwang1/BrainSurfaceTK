@@ -36,8 +36,8 @@ class SessionDatabaseAdmin(admin.ModelAdmin):
     """
     fieldsets = [
         ("Meta Data", {'fields': ["participant_id", "session_id", "gender", "birth_age", "birth_weight", "singleton",
-                                  "scan_age", "scan_number", "radiology_score", "sedation", "uploaded"]}),
-        ("File Paths", {'fields': ["mri_file", "surface_file"]}),
+                                  "scan_age", "scan_number", "radiology_score", "sedation"]}),
+        ("File Paths", {'fields': ["uploaded", "mri_file", "surface_file"]}),
     ]
 
     readonly_fields = ("uploaded",)
