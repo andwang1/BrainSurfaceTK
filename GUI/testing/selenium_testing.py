@@ -5,8 +5,8 @@ from selenium import webdriver
 from bs4 import BeautifulSoup
 
 website_url = "http://146.169.52.15:8000/"
-login_user = "test"
-login_pw = "testslave"
+login_user = "slave"
+login_pw = "slave"
 
 
 class WebsiteTester:
@@ -16,16 +16,21 @@ class WebsiteTester:
     The required files to be uploaded are passed in via file path, please place them in the same folder as this script.
     """
 
-    def __init__(self, website_url, login_user, login_pw, verbose=False):
+    def __init__(self, website_url, login_user, login_pw, verbose=False, headless=False):
         self.verbose = verbose
         self.login_user = login_user
         self.login_pw = login_pw
-        self.driver = self.start_driver(website_url)
+        self.driver = self.start_driver(website_url, headless)
 
-    def start_driver(self, website_url):
+    def start_driver(self, website_url, headless):
         # This is the webdriver for Chrome 81, if this is not your Chrome version please
         # download your version from the Selenium website
-        driver = webdriver.Chrome(os.path.join(os.getcwd(), "chromedriver"))
+        if headless:
+            op = webdriver.ChromeOptions()
+            op.add_argument('headless')
+            driver = webdriver.Chrome(os.path.join(os.getcwd(), "chromedriver"), options=op)
+        else:
+            driver = webdriver.Chrome(os.path.join(os.getcwd(), "chromedriver"))
         driver.get(website_url)
         driver.maximize_window()
         if self.verbose:
@@ -60,31 +65,33 @@ class WebsiteTester:
 
     def login(self):
         # Click on Login
+        start = time.time()
         bs_start = BeautifulSoup(self.driver.page_source, "lxml")
         bs_navbar = bs_start.find("div", class_="nav-wrapper imperial blue")
         bs_login_button = bs_navbar.find("a", text="Login")
 
-        if bs_login_button:
+        # if bs_login_button:
             # Click login button in navbar
-            if self.verbose:
-                print("Debug: Logging in.")
-            self.driver.find_element_by_link_text("Login").click()
-            self.driver.find_element_by_name("username").send_keys(self.login_user)
-            self.driver.find_element_by_name("password").send_keys(self.login_pw)
-            bs_login = BeautifulSoup(self.driver.page_source, "lxml")
-            bs_login_button = bs_login.find("button", text="Login")
-            self.driver.find_element_by_xpath(self.xpath_soup(bs_login_button)).click()
-            bs_login = BeautifulSoup(self.driver.page_source, "lxml")
-            if "Invalid" in bs_login.text:
-                print("Error: LOGIN FAILED - Please check credentials.")
-                return False
-        else:
-            print("Warning: Already logged in.")
+        if self.verbose:
+            print("Debug: Logging in.")
+        self.driver.find_element_by_link_text("Login").click()
+        self.driver.find_element_by_name("username").send_keys(self.login_user)
+        self.driver.find_element_by_name("password").send_keys(self.login_pw)
+        bs_login = BeautifulSoup(self.driver.page_source, "lxml")
+        bs_login_button = bs_login.find("button", text="Login")
+        self.driver.find_element_by_xpath(self.xpath_soup(bs_login_button)).click()
+        bs_login = BeautifulSoup(self.driver.page_source, "lxml")
+        if "Invalid" in bs_login.text:
+            print("Error: LOGIN FAILED - Please check credentials.")
+            return False
+        # else:
+        #     print("Warning: Already logged in.")
         if self.verbose:
             print("Debug: Logged in.")
-        return True
+        return time.time() - start
 
     def lookup(self, session_id, is_display_MRI, is_from_home):
+        start = time.time()
         session_id = str(session_id)
         # Accessing from the home website
         if is_from_home:
@@ -150,35 +157,41 @@ class WebsiteTester:
                 print("Warning: The MRI segment slices are missing even though the option was checked.")
         if self.verbose:
             print("Debug: Lookup successful.")
-        return True
+        return time.time() - start
 
-    def predict(self, delay=5):
+    def predict(self, wait_max=5):
         self.driver.find_element_by_id("predict").click()
-        time.sleep(delay)
-        bs_results = BeautifulSoup(self.driver.page_source, "lxml")
-        if bs_results.find("table", {"id": "result_table"}):
-            if self.verbose:
-                print("Debug: Prediction results found.")
-            return True
-        else:
-            print(f"ERROR: Results table was not generated from prediction after waiting {delay} seconds.")
-            return False
+        start = time.time()
+        time_expired = 0
+        while time_expired < wait_max:
+            bs_results = BeautifulSoup(self.driver.page_source, "lxml")
+            if bs_results.find("table", {"id": "result_table"}):
+                if self.verbose:
+                    print("Debug: Prediction results found.")
+                return time.time() - start
+            time_expired = time.time() - start
+        print(f"ERROR: Results table was not generated from prediction after waiting {wait_max} seconds.")
+        return time.time() - start
 
-    def segment(self, delay=10):
+
+    def segment(self, wait_max=10):
         self.driver.find_element_by_id("segment").click()
-        time.sleep(delay)
-        bs_results = BeautifulSoup(self.driver.page_source, "lxml")
-        if bs_results.find("option", {"value": "PointData:Predicted Labels"}):
-            if self.verbose:
-                print("Debug: Segmentation results found.")
-            return True
-        else:
-            print(f"ERROR: Segmentation was not generated from prediction after waiting {delay} seconds.")
-            return False
+        start = time.time()
+        time_expired = 0
+        while time_expired < wait_max:
+            bs_results = BeautifulSoup(self.driver.page_source, "lxml")
+            if bs_results.find("option", {"value": "PointData:Predicted Labels"}):
+                if self.verbose:
+                    print("Debug: Segmentation results found.")
+                return time.time() - start
+            time_expired = time.time() - start
+        print(f"ERROR: Segmentation was not generated from prediction after waiting {wait_max} seconds.")
+        return False
 
     def upload(self, vtp_fpath, mri_fpath=None, form_participant_id="CC9999", form_session_id=9999, form_gender="Male",
                form_birth_age=30.123, form_birth_weight=0.99, form_singleton=1, form_scan_age=30.123,
                form_scan_number=4, form_radiology_score=2, form_sedation=0):
+        start = time.time()
         if self.verbose:
             print("Debug: Accessing Upload from home.")
         bs_home = BeautifulSoup(self.driver.page_source, "lxml")
@@ -228,16 +241,18 @@ class WebsiteTester:
         for key, value in dict_passed_values.items():
             assert key in dict_table, f"Table does not contain {key} which was passed in"
             assert value == dict_table[key], f"Table does contain value {value} passed in, in column {key}"
-        return True
+        return time.time() - start
 
     def full_lookup_workflow(self, session_id, is_display_MRI=False, is_from_home=True):
         self.home()
         self.login()
-        self.lookup(session_id, is_display_MRI, is_from_home)
-        self.predict()
-        self.segment()
+        lookup_time = self.lookup(session_id, is_display_MRI, is_from_home)
+        predict_time = self.predict()
+        segment_time = self.segment()
         if self.verbose:
             print("Debug: Full lookup workflow completed.")
+        self.close()
+        return lookup_time, predict_time, segment_time
 
     def full_upload_workflow(self, vtp_fpath, mri_fpath=None, form_participant_id="CC9999",
                              form_session_id=9999, form_gender="Male",
@@ -245,21 +260,29 @@ class WebsiteTester:
                              form_scan_number=4, form_radiology_score=2, form_sedation=0):
         self.home()
         self.login()
-        self.upload(vtp_fpath, mri_fpath=mri_fpath, form_participant_id=form_participant_id,
-                    form_session_id=form_session_id, form_gender=form_gender,
-                    form_birth_age=form_birth_age, form_birth_weight=form_birth_weight, form_singleton=form_singleton,
-                    form_scan_age=form_scan_age, form_scan_number=form_scan_number,
-                    form_radiology_score=form_radiology_score, form_sedation=form_sedation)
-        self.predict()
-        self.segment()
+        upload_time = self.upload(vtp_fpath, mri_fpath=mri_fpath, form_participant_id=form_participant_id,
+                                  form_session_id=form_session_id, form_gender=form_gender,
+                                  form_birth_age=form_birth_age, form_birth_weight=form_birth_weight,
+                                  form_singleton=form_singleton,
+                                  form_scan_age=form_scan_age, form_scan_number=form_scan_number,
+                                  form_radiology_score=form_radiology_score, form_sedation=form_sedation)
+        predict_time = self.predict()
+        segment_time = self.segment()
         if self.verbose:
             print("Debug: Full upload workflow completed.")
+        self.close()
+        return upload_time, predict_time, segment_time
+
+    def close(self):
+        self.driver.close()
 
 
-tester = WebsiteTester(website_url, login_user, login_pw, verbose=True)
+tester = WebsiteTester(website_url, login_user, login_pw, verbose=True, headless=False)
 # tester.full_upload_workflow("sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp",
 #                             mri_fpath="sub-CC00050XX01_ses-7201_T2w_graymatter.nii",
 #                             form_session_id=212028)
-tester.full_upload_workflow("sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp",
-                            form_session_id=212031)
-# tester.full_lookup_workflow(7201, True)
+# tester.full_upload_workflow("sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp",
+#                             form_session_id=212031)
+
+tester.full_lookup_workflow(7201, False)
+
