@@ -110,7 +110,6 @@ def lookup(request):
         sessions = [(int(session.session_id), True) if session.mri_file != ""
                     else (int(session.session_id), False) for session in SessionDatabase.objects.all()]
         if len(sessions) > 0:
-            sessions.sort()
             session_ids, has_mri = zip(*sessions)
         else:
             session_ids, has_mri = [], []
