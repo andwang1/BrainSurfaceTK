@@ -1,17 +1,15 @@
 import os
+from datetime import datetime
 
 from django.conf import settings
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.contrib.auth.models import AbstractUser
-from datetime import datetime
-
-
 
 """
 THESE ARE YOUR DATABASES BRO
 """
+
 
 class Information(models.Model):
     page_title = models.CharField(max_length=200, unique=True)
@@ -22,19 +20,6 @@ class Information(models.Model):
 
     def __str__(self):
         return self.page_title
-
-
-# Create your models here.
-class Option(models.Model):
-    """
-    Model responsible for spawning new options to be displayed in the home page.
-    """
-    name = models.CharField(max_length=200)
-    summary = models.CharField(max_length=200)
-    slug = models.CharField(max_length=200)
-
-    def __str__(self):
-        return self.name
 
 
 def validate_session_id_is_unique(session_id):
