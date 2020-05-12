@@ -9,7 +9,7 @@ from main.custom_wrapper_decorators import custom_login_required, custom_staff_m
 from main.load_helper import load_original_data
 from main.result_helpers import get_mri_js_html, get_surf_file_url, build_session_table, get_unique_session
 from .forms import UploadFileForm
-from .models import SessionDatabase, Information
+from .models import SessionDatabase, Page
 
 BASE_DIR = os.getcwd()
 DATA_DIR = os.path.join(BASE_DIR, "/main/static/main/data")

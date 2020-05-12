@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.db import models
 from tinymce.widgets import TinyMCE
 
-from .models import SessionDatabase, Information
+from .models import SessionDatabase, Page
 
 """
 This file contains all the Admin versions of the models. This is used in the admin section of the website to modify 
@@ -46,4 +46,4 @@ class SessionDatabaseAdmin(admin.ModelAdmin):
 
 
 admin.site.register(SessionDatabase, SessionDatabaseAdmin)
-admin.site.register(Information, InformationAdmin)
+admin.site.register(Page, PageAdmin)
