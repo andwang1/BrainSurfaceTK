@@ -7,7 +7,7 @@ THESE ARE YOUR DATABASES BRO
 """
 
 
-class Information(models.Model):
+class Page(models.Model):
     page_title = models.CharField(max_length=200, unique=True)
     page_summary = models.CharField(max_length=200, blank=True)
     page_content = models.TextField(blank=True)

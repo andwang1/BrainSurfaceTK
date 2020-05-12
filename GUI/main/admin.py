@@ -10,7 +10,7 @@ the users database, options on the home page, modify uploaded sessions & the ori
 """
 
 
-class InformationAdmin(admin.ModelAdmin):
+class PageAdmin(admin.ModelAdmin):
     """
     Used to view/modify options in the home page.
     """

@@ -18,7 +18,7 @@ SESSIONDATABASES = (SessionDatabase,)
 
 
 def single_slug(request, page_slug):
-    results = Information.objects.all().filter(page_slug=page_slug)
+    results = Page.objects.all().filter(page_slug=page_slug)
     if results.count() == 1:
         page = results.get()
         return render(request=request,
@@ -33,13 +33,13 @@ def homepage(request):
     Homepage page
     :return: rendered main/homepage.html with all options available to the user.
     """
-    if Information.objects.filter(page_slug="lookup").count() != 1:
-        Information.objects.create(page_title="Look-up".title(), page_summary="Look-up session IDs", page_slug="lookup")
-    if Information.objects.filter(page_slug="upload").count() != 1:
-        Information.objects.create(page_title="Upload".title(), page_summary="Upload session ID", page_slug="upload")
-    if Information.objects.filter(page_slug="about").count() != 1:
-        Information.objects.create(page_title="About".title(), page_summary="About this project", page_slug="about")
-    options = Information.objects.all()
+    if Page.objects.filter(page_slug="lookup").count() != 1:
+        Page.objects.create(page_title="Look-up".title(), page_summary="Look-up session IDs", page_slug="lookup")
+    if Page.objects.filter(page_slug="upload").count() != 1:
+        Page.objects.create(page_title="Upload".title(), page_summary="Upload session ID", page_slug="upload")
+    if Page.objects.filter(page_slug="about").count() != 1:
+        Page.objects.create(page_title="About".title(), page_summary="About this project", page_slug="about")
+    options = Page.objects.all()
     return render(request, "main/homepage.html", context={"options": options})
 
 

@@ -35,6 +35,11 @@ urlpatterns = [
     path("load_database/login/", user_views.login_request, name='login'),
 
     path('results/', views.view_session_results, name="results"),
+    path('results/<int:session_id>', views.view_session_results, name="session_id_results"),
+    path("results/<int:session_id>/run_predictions/", result_helper_views.run_prediction, name="run_predictions"),
+    path("results/<int:session_id>/run_segmentation/", result_helper_views.run_segmentation, name="run_segmentation"),
+    path("results/<int:session_id>/remove_tmp/", result_helper_views.remove_tmp, name="remove_tmp"),
+
     path('results/<int:session_id><str:display_mri>', views.view_session_results, name="session_id_results"),
     path("results/<int:session_id><str:display_mri>/run_predictions/", result_helper_views.run_prediction,
          name="run_predictions"),
