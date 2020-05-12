@@ -130,9 +130,7 @@ if __name__ == '__main__':
     data_type = 'pial'
     hemisphere = 'both'
 
-    additional_comment = ''
-
-    experiment_name = f'{data_nativeness}_{data_type}_{data_compression}_{hemisphere}_{additional_comment}'
+    comment = 'comment'
 
     #################################################
     ############ EXPERIMENT DESCRIPTION #############
@@ -148,7 +146,7 @@ if __name__ == '__main__':
     task = 'classification'
     numb_epochs = 1
     number_of_points = 10000
-    comment = 'comment'
+
     ################################################
 
     ########## INDICES FOR DATA SPLIT #############
