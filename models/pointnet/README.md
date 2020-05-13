@@ -56,7 +56,7 @@ And you're done! These are the only data-related conventions you must follow to 
 #### 2. Run Segmentation
 
 Now that you have prepared your data, it's time to run the scripts. Before doing so, please follow the following steps:
-1. Define the local features you want to use in the list `local_features = ['corr_thickness', ...]`. Please follow this convention: `'segmentation'` = `'drawem'`, `'corrected_thickness'` = `'corr_thickness'`, `'sulcal_depth'` = `'sulc'`, and `'myelin_mapl'` = `'myelin_map'`. For example, if you would like to include all the specified features, your `'local_features'` list should be defined as `'['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc']'`. 
+1. Define the local features you want to use in the list `local_features = ['corrected_thickness', ...]`. Simply follow the local feature convention above.
 
 2. Note, for segmentation, global features are not yet implemented – we hope to release it in the near future.
 
