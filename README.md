@@ -1,6 +1,6 @@
 # Deep Learning on Brain Surfaces
 
-![til](GUI/main/static/main/gifs/rotate-big.gif)
+![til](GUI/main/static/main/gifs/rotate-big.gif){:height="36px" width="36px"}
 
 # Setting up
 To install all required packages, please setup a virtual environment as per the instructions below. This virtual environment is based on a CUDA 10.1.105 installation.
