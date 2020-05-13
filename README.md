@@ -1,6 +1,6 @@
 # Deep Learning on Brain Surfaces
 
-<img src="https://gitlab.doc.ic.ac.uk/aw1912/neodeepbrain/-/raw/master/GUI/main/static/main/gifs/rotate-big.gif" width="450" height="450" />
+<img src="https://gitlab.doc.ic.ac.uk/aw1912/neodeepbrain/-/raw/master/GUI/main/static/main/gifs/rotate-big.gif" width="600" height="450" />
 
 
 # Setting up
