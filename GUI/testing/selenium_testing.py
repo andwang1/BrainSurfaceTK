@@ -72,6 +72,7 @@ class WebsiteTester:
             print("Debug: Logging in.")
         start = time.time()
 
+        # Find login and send user details
         self.driver.find_element_by_link_text("Login").click()
         self.driver.find_element_by_name("username").send_keys(self.login_user)
         self.driver.find_element_by_name("password").send_keys(self.login_pw)

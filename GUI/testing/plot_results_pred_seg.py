@@ -9,6 +9,7 @@ import seaborn as sns
 matplotlib.use('TkAgg')
 # Fix plt cutting off the xlabel
 plt.gcf().subplots_adjust(bottom=0.15)
+plt.gcf().subplots_adjust(left=0.15)
 
 with open("results/data_tex1.pk", "rb") as f:
     data = pk.load(f)
