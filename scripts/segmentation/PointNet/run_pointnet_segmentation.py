@@ -29,7 +29,7 @@ if __name__ == '__main__':
     ########### EXPERIMENT DESCRIPTION ##############
     #################################################
     recording = False
-    REPROCESS = True
+    REPROCESS = False
 
     data_nativeness = 'native'
     data_compression = "20k"
