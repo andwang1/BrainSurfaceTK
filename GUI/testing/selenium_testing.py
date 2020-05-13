@@ -4,7 +4,7 @@ import os
 from selenium import webdriver
 from bs4 import BeautifulSoup
 
-website_url = "http://146.169.52.15:8000/"
+website_url = "http://146.169.53.170:8000/"
 login_user = "slave"
 login_pw = "slave"
 
@@ -16,13 +16,13 @@ class WebsiteTester:
     The required files to be uploaded are passed in via file path, please place them in the same folder as this script.
     """
 
-    def __init__(self, website_url, login_user, login_pw, verbose=False, headless=False):
+    def __init__(self, website_url, login_user, login_pw, verbose=False, headless=False, implicit_wait=False):
         self.verbose = verbose
         self.login_user = login_user
         self.login_pw = login_pw
-        self.driver = self.start_driver(website_url, headless)
+        self.driver = self.start_driver(website_url, headless, implicit_wait)
 
-    def start_driver(self, website_url, headless):
+    def start_driver(self, website_url, headless, implicit_wait):
         # This is the webdriver for Chrome 81, if this is not your Chrome version please
         # download your version from the Selenium website
         if headless:
@@ -32,6 +32,10 @@ class WebsiteTester:
             driver = webdriver.Chrome(os.path.join(os.getcwd(), "chromedriver"), options=op)
         else:
             driver = webdriver.Chrome(os.path.join(os.getcwd(), "chromedriver"))
+        if implicit_wait:
+            if self.verbose:
+                print("Debug: Implicitly waiting.")
+            driver.implicitly_wait(20)
         driver.get(website_url)
         if self.verbose:
             print("Debug: Driver started.")
@@ -286,3 +290,6 @@ class WebsiteTester:
         if self.verbose:
             print("Debug: Driver closing.")
         self.driver.close()
+
+# tester = WebsiteTester(website_url, login_pw=login_pw, login_user=login_user, verbose=True, headless=True)
+# tester.headless_process(7201)
