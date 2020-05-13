@@ -104,7 +104,7 @@ python3 -m scripts.regression.PointNet.run_pointnet_regression
 ```
 
 
-### Regression
+### Classification
 
 Following the same procedure as for regression in /scripts/classification/PointNet/run_pointnet_classification.py
 
