@@ -4,6 +4,7 @@
 
 <img src="https://gitlab.doc.ic.ac.uk/aw1912/neodeepbrain/-/raw/master/GUI/main/static/main/gifs/rotate-big.gif" width="600" height="450"/>
 </div>
+
 # Setting up
 To install all required packages, please setup a virtual environment as per the instructions below. This virtual environment is based on a CUDA 10.1.105 installation.
 
