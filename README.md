@@ -43,7 +43,13 @@ python startserver.py
 python startserver.py prod
 ```
 
-# PointNet
+# PointNet++
+PointNet++ is a hierarchical neural network, which was proposed to be used on point-cloud geometric data [1] for the tasks of regression, classification, and segmentation. In this project, we apply this architecture onto point-cloud representations of brain surfaces to tackle the tasks of age regression and brain segmentation.
+
+###### Run instructions
+
+The run instructions differ slightly for Pointnet regression and segmentation. Please proceed to the README in models/pointnet of this repository for full information.
+
 
 # MeshCNN
 
@@ -83,5 +89,8 @@ From the main repository level, the model can then be trained using, e.g. for re
 ./scripts/regression/MeshCNN/regression.sh
 ```
 
+
+###### References
+[1] Qi, C.R., Yi, L., Su, H., & Guibas, L.J. (2017). PointNet++: Deep Hierarchical Feature Learning on Point Sets in a Metric Space. NIPS.
 
 
