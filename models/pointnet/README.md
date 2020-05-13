@@ -1,8 +1,8 @@
 ## Run instructions
 
-#### Steps for both regression and segmentation
+### Steps for both regression and segmentation
 
-##### 1. Prepare your data
+#### 1. Prepare your data
 To run Pointnet models, you mist first prepare your data. We only require that the data
 1. has the *file-naming* convention specified below;
 2. has the *local feature naming* conventions specified below;
@@ -53,7 +53,7 @@ CC00407BN11	    124100	    Male	35.1	        2.41	        Multiple	35.5714285714
 
 And you're done! These are the only data-related conventions you must follow to use our PointNet toolkit. 
 
-##### 2. Run Segmentation
+#### 2. Run Segmentation
 
 Now that you have prepared your data, it's time to run the scripts. Before doing so, please follow the following steps:
 1. Define the local features you want to use in the list `local_features = ['corr_thickness', ...]`. Please follow this convention: `'segmentation'` = `'drawem'`, `'corrected_thickness'` = `'corr_thickness'`, `'sulcal_depth'` = `'sulc'`, and `'myelin_mapl'` = `'myelin_map'`. For example, if you would like to include all the specified features, your `'local_features'` list should be defined as `'['drawem', 'corr_thickness', 'myelin_map', 'curvature', 'sulc']'`. 
@@ -70,7 +70,7 @@ Now that you have prepared your data, it's time to run the scripts. Before doing
 
 6. Bravo! You're ready to run PointNet++ Segmentation.
 
-If you've set up the virtual environment from before, you can run your experiment by calling the following script from the main level of the repository:
+If you've set up the virtual environment from main-level README, you can run your experiment by calling the following script from the main level of the repository:
 
 ```
 python3 -m scripts.segmentation.PointNet.run_pointnet_segmentation
@@ -78,6 +78,4 @@ python3 -m scripts.segmentation.PointNet.run_pointnet_segmentation
 
 
 
-####### Regression
-
-Replace data_folder and files_ending with 
+### Regression
