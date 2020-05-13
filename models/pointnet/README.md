@@ -1,39 +1,38 @@
-
 ## Run instructions
 
 #### Steps for both regression and segmentation
 
 ##### 1. Prepare your data
 To run Pointnet models, you mist first prepare your data. We only require that the data
-1. has the file naming convention specified below
-2. has the local feature naming conventions
-3. is accompanied by a meta file that includes a list of all patient and session ids
-4. is accompanied by a train/val/test data split pickle file
-5. is of .vtp / .vtk file format
+1. has the *file-naming* convention specified below;
+2. has the *local feature naming* conventions specified below;
+3. is accompanied by a *meta file* that includes a list of all patient and session ids;
+4. is accompanied by a *train/val/test data split* pickle file;
+5. is of *.vtp / .vtk* file format.
 
-First, the files must all be named in the following way,
+**First**, the files must all be named in the following way,
 
 ```
 'sub-{patient_id}_ses-{session_id}_{files_ending}'
 ```
 
-* `'patient_id'` is the patient's id of the subject
+* `'patient_id'` is the patient id of the subject
 * `'session_id'` is the session id of the subject
-* `'files_ending'` is any preferred file ending with `'.vtk'` or `'.vtp'` (eg. `'_white_lefthemi_30k.vtp'`)
+* `'files_ending'` is any preferred file ending with `'.vtk'` or `'.vtp'` at the end (eg. `'_white_lefthemi_30k.vtp'`)
 
 
-Second, the local feature naming conventions are as follows:
+**Second**, your .vtk/.vtp likely contains local (per-node) features you'd like to use. To do that, make sure these arrays are named as follows:
 * Brain regions labels for segmentation is `'segmentation'`
 * Corrected thickness is `'corrected_thickness'`
 * Curvature is `'curvature'`
 * Sulcal depth is `'sulcal_depth'`
 * Myelin map is `'myelin_mapl'`
 
-These are the only local features supported at this point. Please refer to the `models/pointnet/src/dataloader.py` to add your own features.
+These are the only local features supported at this point. Please refer to the `models/pointnet/src/dataloader.py` to add your own features. All the functions are easiliy customisable, so you will not have any problem adding your own features.
 
-Third, place a file called `meta_data.tsv` in the `models/pointnet/src` folder. This tab-seperated file will be used to read all the patient and session ids during the pre-processing of the data, as well as meta data like gender or .
-The file should contain columns participant_id and session_id, which will be concatenated to form a unique identifier of a patient's scan. This unique identifier must be used to name the data files in the datasets/ folder structure described above.
-E.g. a *meta_data.tsv* file might look like this:
+**Third**, place a file called `meta_data.tsv` in the `models/pointnet/src` folder. This tab-seperated file will be used to read all the patient and session ids during the pre-processing of the data, as well as meta data like sex or scan age.
+The file should contain columns *participant_id* and *session_id*, which will be concatenated to form a unique identifier of a patient's scan.
+Eg. a *meta_data.tsv* file might look like this:
 
 ```
 participant_id	session_id	    gender	birth_age	birth_weight	singleton	scan_age	     scan_number	radiology_score	     sedation
@@ -42,7 +41,7 @@ CC00407BN11	    124100	    Male	35.1	        2.41	        Multiple	35.5714285714
 
 ```
 
-Lastly, make sure to include a data split file, which must be a pickle file placed in `models/pointnet/src/names.pk`. The pickle must contain a dictionary in the following format, 
+**Lastly**, make sure to include a data split file, which must be a pickle file placed in `models/pointnet/src/names.pk`. The pickle must contain a dictionary in the following format, 
 
 ```
 {
