@@ -26,6 +26,7 @@ class WebsiteTester:
         # This is the webdriver for Chrome 81, if this is not your Chrome version please
         # download your version from the Selenium website
         if headless:
+            # Headless means no actual browser will pop up
             op = webdriver.ChromeOptions()
             op.add_argument('headless')
             driver = webdriver.Chrome(os.path.join(os.getcwd(), "chromedriver"), options=op)
@@ -63,28 +64,23 @@ class WebsiteTester:
         return True
 
     def login(self):
-        # Click on Login
-        start = time.time()
-        bs_start = BeautifulSoup(self.driver.page_source, "lxml")
-        bs_navbar = bs_start.find("div", class_="nav-wrapper imperial blue")
-        bs_login_button = bs_navbar.find("a", text="Login")
-
-        # if bs_login_button:
-            # Click login button in navbar
         if self.verbose:
             print("Debug: Logging in.")
+        start = time.time()
+
         self.driver.find_element_by_link_text("Login").click()
         self.driver.find_element_by_name("username").send_keys(self.login_user)
         self.driver.find_element_by_name("password").send_keys(self.login_pw)
         bs_login = BeautifulSoup(self.driver.page_source, "lxml")
         bs_login_button = bs_login.find("button", text="Login")
         self.driver.find_element_by_xpath(self.xpath_soup(bs_login_button)).click()
+
+        # Check if login successful
         bs_login = BeautifulSoup(self.driver.page_source, "lxml")
         if "Invalid" in bs_login.text:
             print("Error: LOGIN FAILED - Please check credentials.")
             return False
-        # else:
-        #     print("Warning: Already logged in.")
+
         if self.verbose:
             print("Debug: Logged in.")
         return time.time() - start
@@ -119,6 +115,7 @@ class WebsiteTester:
         bs_dropdown = bs_lookup.find("form", {"id": "lookup-form"})
         bs_sessions = bs_dropdown.find_all("li")
 
+        # Look for the specified session
         found_session = False
         for session in bs_sessions:
             # If the session is available
@@ -132,6 +129,7 @@ class WebsiteTester:
             print("Error: The session ID you specified is not available.")
             return False
 
+        # Check the MRI checkbox if requested
         if is_display_MRI:
             if self.verbose:
                 print("Debug: MRI slices requested - checking.")
@@ -145,6 +143,7 @@ class WebsiteTester:
                 if self.verbose:
                     print("Debug: MRI slices requested - successful.")
 
+        # Start lookup
         self.driver.find_element_by_id("look-up-btn").click()
         if self.verbose:
             print("Debug: Looking up.")
@@ -273,27 +272,17 @@ class WebsiteTester:
         return upload_time, predict_time, segment_time
 
     def headless_process(self, session_id):
+        # Login and then predict and segment only
         self.login()
         self.driver.get(website_url + f"results/{session_id}false")
         predict_time = self.predict()
         segment_time = self.segment()
+        if self.verbose:
+            print("Debug: Full headless process.")
         self.close()
         return predict_time, segment_time
-
 
     def close(self):
         if self.verbose:
             print("Debug: Driver closing.")
         self.driver.close()
-
-
-tester = WebsiteTester(website_url, login_user, login_pw, verbose=True, headless=False)
-# tester.full_upload_workflow("sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp",
-#                             mri_fpath="sub-CC00050XX01_ses-7201_T2w_graymatter.nii",
-#                             form_session_id=212028)
-# tester.full_upload_workflow("sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp",
-#                             form_session_id=212031)
-
-tester.full_lookup_workflow(7201, False)
-# tester.headless_process(7201)
-
