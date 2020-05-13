@@ -77,6 +77,7 @@ class OurDataset(InMemoryDataset):
 
         self.reprocess = reprocess
 
+
         # Initialise path to data
         if data_folder is None:
             self.data_folder =\
@@ -88,6 +89,11 @@ class OurDataset(InMemoryDataset):
             self.files_ending = "_hemi-L_inflated_reduce50.vtk"
         else:
             self.files_ending = files_ending
+
+        # If the user asked to not reprocess and this is the train dataset, retrieve unique labels straight away
+        if not self.reprocess and train:
+            meta_data = read_meta()
+            self.get_all_unique_labels(meta_data)
 
         super(OurDataset, self).__init__(root, transform, pre_transform, pre_filter)
 
@@ -192,6 +198,7 @@ class OurDataset(InMemoryDataset):
         patient_data = meta_data[
             (meta_data[:, 0] == patient_id) & (meta_data[:, 1] == session_id)][0]
         return [float(patient_data[self.categories[feature]]) for feature in list_features]
+
 
     def get_all_unique_labels(self, meta_data):
         '''
