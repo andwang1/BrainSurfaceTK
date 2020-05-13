@@ -80,7 +80,7 @@ with sns.axes_style("white"):
 
     plt.xticks(bar_positions, range(1, max_num_parallel + 1))
     plt.xlabel("Number of parallel executions")
-    plt.ylabel('Time in seconds')
+    plt.ylabel('Average time in secs')
     plt.title("GUI Stress Testing")
     plt.legend(loc='best')
     sns.despine()

@@ -2,6 +2,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
+import pickle as pk
 from joblib import Parallel, delayed
 from selenium_testing import WebsiteTester
 
@@ -14,7 +15,7 @@ login_user = "test"
 login_pw = "test"
 session_id = 7201
 
-max_num_parallel = 24
+max_num_parallel = 8
 
 def multiprocessing(num):
     tester = WebsiteTester(website_url, login_user, login_pw, verbose=False, headless=True)
@@ -41,6 +42,10 @@ for i, iteration in enumerate(times):
 
 predict_times = np.array(predict_times)
 segment_times = np.array(segment_times)
+
+with open(f"data.pk", "wb") as f:
+    data = {"predict": predict_times, "segment": segment_times}
+    pk.dump(data, f)
 
 with sns.axes_style("white"):
     sns.set_style()
@@ -69,7 +74,7 @@ with sns.axes_style("white"):
 
     plt.xticks(bar_positions, range(1, max_num_parallel + 1))
     plt.xlabel("Number of parallel executions")
-    plt.ylabel('Time in seconds')
+    plt.ylabel('Average time in secs')
     plt.title("GUI Stress Testing")
     plt.legend(loc='best')
     sns.despine()

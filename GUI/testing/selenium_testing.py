@@ -32,7 +32,6 @@ class WebsiteTester:
         else:
             driver = webdriver.Chrome(os.path.join(os.getcwd(), "chromedriver"))
         driver.get(website_url)
-        driver.maximize_window()
         if self.verbose:
             print("Debug: Driver started.")
         return driver
@@ -288,13 +287,13 @@ class WebsiteTester:
         self.driver.close()
 
 
-# tester = WebsiteTester(website_url, login_user, login_pw, verbose=True, headless=True)
+tester = WebsiteTester(website_url, login_user, login_pw, verbose=True, headless=False)
 # tester.full_upload_workflow("sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp",
 #                             mri_fpath="sub-CC00050XX01_ses-7201_T2w_graymatter.nii",
 #                             form_session_id=212028)
 # tester.full_upload_workflow("sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp",
 #                             form_session_id=212031)
 
-# tester.full_lookup_workflow(7201, False)
+tester.full_lookup_workflow(7201, False)
 # tester.headless_process(7201)
 
