@@ -2,7 +2,7 @@ from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import SessionDatabase
+from .models import Session
 
 
 class NewUserForm(UserCreationForm):
@@ -28,7 +28,7 @@ class UploadFileForm(ModelForm):
     The form used to upload a new session with the .vtp & mri files attached.
     """
     class Meta:
-        model = SessionDatabase
+        model = Session
         fields = ('participant_id', 'session_id', 'gender', 'birth_age', 'birth_weight', 'singleton',
                   'scan_age', 'scan_number', 'radiology_score', 'sedation', 'mri_file', 'surface_file')
 
