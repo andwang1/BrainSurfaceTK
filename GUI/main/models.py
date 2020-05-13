@@ -30,7 +30,7 @@ def get_upload_path(instance, filename):
         return f"{out}/vtps/{filename}"
 
 
-class SessionDatabase(models.Model):
+class Session(models.Model):
     """
     General form for session records to be inserted into
     """
@@ -56,7 +56,7 @@ class SessionDatabase(models.Model):
                                     validators=[validators.FileExtensionValidator(allowed_extensions=["", "vtp"])])
     class Meta:
         ordering = ['-session_id']
-        verbose_name_plural = "Session Database"
+        verbose_name_plural = "Sessions"
 
     def __str__(self):
         return f"Session ID: {self.session_id}"

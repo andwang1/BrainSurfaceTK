@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.db import models
 from tinymce.widgets import TinyMCE
 
-from .models import SessionDatabase, Page
+from .models import Session, Page
 
 """
 This file contains all the Admin versions of the models. This is used in the admin section of the website to modify 
@@ -30,7 +30,7 @@ class PageAdmin(admin.ModelAdmin):
     list_display = ('page_title', 'page_published')
 
 
-class SessionDatabaseAdmin(admin.ModelAdmin):
+class SessionAdmin(admin.ModelAdmin):
     """
     Used to view/modify the original session IDs.
     """
@@ -45,5 +45,5 @@ class SessionDatabaseAdmin(admin.ModelAdmin):
     list_display = ('session_id', 'participant_id', 'uploaded')
 
 
-admin.site.register(SessionDatabase, SessionDatabaseAdmin)
+admin.site.register(Session, SessionAdmin)
 admin.site.register(Page, PageAdmin)
