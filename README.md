@@ -1,4 +1,4 @@
-# Deep Learning on Brain Surfaces
+# BrainSurfaceToolKit
 
 <div align="center"> 
 
@@ -98,6 +98,16 @@ Similarly, a pretrained model can be applied to the test set, e.g.
 ./scripts/regression/MeshCNN/test_reg_brains.sh
 ```
 
+# Happy Researching!
+
+<div align="center"> 
+
+<img src="https://gitlab.doc.ic.ac.uk/aw1912/neodeepbrain/-/raw/master/img/CC00380XX10_121200.gif" width="600" height="450"/>
+</div>
+
+
+
 ###### References
 [1] Qi, C.R., Yi, L., Su, H., & Guibas, L.J. (2017). PointNet++: Deep Hierarchical Feature Learning on Point Sets in a Metric Space. NIPS.
+
 [2] Rana Hanocka et al. (2019). MeshCNN: A Network with an Edge. SIGGRAPH 2019.
