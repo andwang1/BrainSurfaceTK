@@ -47,19 +47,20 @@ class OurDataset(InMemoryDataset):
 
         # Metadata categories
         self.categories = {'gender': 2, 'birth_age': 3, 'weight': 4, 'scan_age': 6, 'scan_num': 7}
-        self.meta_column_idx = self.categories[target_class]
+
+        if not task == 'segmentation':
+            self.meta_column_idx = self.categories[target_class]
 
         # Classes dict. Populated later. Saved in case you need to look this up.
         self.classes = dict()
 
         # Mapping between features and array number in the files.
-        # initial_thickness, segmentation, corrected_thickness, curvature
-        # sulcal_depth, myelin_mapl, smooth_myelin_map
-        self.feature_arrays = {'drawem': 'segmentation',
-                               'corr_thickness': 'corrected_thickness',
+        # Old labels: 'drawem', 'corr_thickness', 'myelin_map', 'curvature','sulc'
+        self.feature_arrays = {'segmentation': 'segmentation',
+                               'corrected_thickness': 'corrected_thickness',
                                'myelin_map': 'myelin_map',
                                'curvature': 'curvature',
-                               'sulc': 'sulcal_depth'}
+                               'sulcal_depth': 'sulcal_depth'}
 
         # The task at hand
         self.task = task
@@ -268,12 +269,15 @@ class OurDataset(InMemoryDataset):
 
         if self.task == 'classification' and self.meta_column_idx == 3:
             categories = {'preterm', 'not_preterm'}
+        elif self.task == 'segmentation':
+            pass
         else:
             categories = set(meta_data[:, self.meta_column_idx])           # Set of categories {male, female}
 
-        # 2. Create category dictionary (mapping: category --> class), e.g. 'male' --> 0, 'female' --> 1
-        for class_num, category in enumerate(categories):
-            self.classes[category] = class_num
+        if not self.task == 'segmentation':
+            # 2. Create category dictionary (mapping: category --> class), e.g. 'male' --> 0, 'female' --> 1
+            for class_num, category in enumerate(categories):
+                self.classes[category] = class_num
 
         # 3. These lists will collect all the information for each patient in order
         lens = []
@@ -309,8 +313,9 @@ class OurDataset(InMemoryDataset):
                 # Features
                 x = self.get_features(self.local_features, mesh)
 
-                # Global features
-                global_x = self.get_global_features(self.global_feature, meta_data, patient_idx)
+                if not self.task == 'segmentation':
+                    # Global features
+                    global_x = self.get_global_features(self.global_feature, meta_data, patient_idx)
 
                 # Generating label based on the task. By default regression.
                 if self.task == 'classification':
