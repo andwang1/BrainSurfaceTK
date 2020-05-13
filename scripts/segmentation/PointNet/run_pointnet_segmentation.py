@@ -1,5 +1,5 @@
 import os.path as osp
-PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..')
+PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..', '..')
 import sys
 sys.path.append(PATH_TO_ROOT)
 import pickle
@@ -15,8 +15,8 @@ from models.pointnet.main.pointnet2_segmentation import train, test, perform_fin
 # Global variables
 all_labels = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8 , 9, 10, 11, 12, 13, 14, 15, 16, 17])
 num_points_dict = {'original': 32492, '50': 16247, '90': None}
-PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..') + '/'
-PATH_TO_POINTNET = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..', 'models', 'pointnet') + '/'
+PATH_TO_ROOT = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..', '..') + '/'
+PATH_TO_POINTNET = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..', '..', 'models', 'pointnet') + '/'
 
 
 if __name__ == '__main__':
@@ -28,7 +28,7 @@ if __name__ == '__main__':
     #################################################
     ########### EXPERIMENT DESCRIPTION ##############
     #################################################
-    recording = True
+    recording = False
     REPROCESS = True
 
     data_nativeness = 'native'

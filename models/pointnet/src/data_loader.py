@@ -186,8 +186,11 @@ class OurDataset(InMemoryDataset):
         :param meta_data: meta_data.
         :param patient_idx: index of the patient from the metadata.
         :return list: list of features from meta data.'''
+
+        patient_id, session_id = patient_idx.split('_')
+
         patient_data = meta_data[
-            (meta_data[:, 0] == patient_idx[:11]) & (meta_data[:, 1] == patient_idx[12:])][0]
+            (meta_data[:, 0] == patient_id) & (meta_data[:, 1] == session_id)][0]
         return [float(patient_data[self.categories[feature]]) for feature in list_features]
 
     def get_all_unique_labels(self, meta_data):
@@ -277,8 +280,10 @@ class OurDataset(InMemoryDataset):
         print('Processing patient data for the split...')
         for patient_idx in tqdm(self.indices_):
 
+            patient_id, session_id = patient_idx.split('_')
+
             # Get file path to .vtk/.vtp for one patient
-            file_path = self.get_file_path(patient_idx[:11], patient_idx[12:])
+            file_path = self.get_file_path(patient_id, session_id)
 
             # If file exists
             if os.path.isfile(file_path):
@@ -303,7 +308,7 @@ class OurDataset(InMemoryDataset):
                 # Generating label based on the task. By default regression.
                 if self.task == 'classification':
                     patient_data = meta_data[
-                        (meta_data[:, 0] == patient_idx[:11]) & (meta_data[:, 1] == patient_idx[12:])][0]
+                        (meta_data[:, 0] == patient_id) & (meta_data[:, 1] == session_id)][0]
                     if self.task == 'classification' and self.meta_column_idx == 3:
                         y = torch.tensor([[int(float(patient_data[self.meta_column_idx]) <= 38)] + global_x])
                     else:
@@ -319,7 +324,7 @@ class OurDataset(InMemoryDataset):
                 # Else, regression
                 else:
                     patient_data = meta_data[
-                        (meta_data[:, 0] == patient_idx[:11]) & (meta_data[:, 1] == patient_idx[12:])][0]
+                        (meta_data[:, 0] == patient_id) & (meta_data[:, 1] == session_id)][0]
                     y = torch.tensor([[float(patient_data[self.meta_column_idx])] + global_x])
                     # y = torch.tensor([[float(meta_data[idx, self.meta_column_idx])] + global_x]) #TODO
 
