@@ -27,7 +27,7 @@ sub-{patient_id}_ses-{session_id}_T2w_graymatter.nii.gz
 ```
 
 
-**Lastly**, add your volumetric `.nii.gz` data to any desirable destination with the name `gm_volume3d/`. Once this is done, you will need to change the global variable `PATH_TO_DATA` in `models/volume3d/utils/models.py`, such that `PATH_TO_DATA/` contains the folder `gm_volume3d/` with all the data.
+**Lastly**, add your volumetric `.nii.gz` data to any desirable destination with the folder name `gm_volume3d/`. Once this is done, you will need to change the global variable `PATH_TO_DATA` in `models/volume3d/utils/models.py`, such that `PATH_TO_DATA/` contains the folder `gm_volume3d/` with all the data.
 
 Great! Now that everything is set up, you can configure any hyperparameters in `scripts/regression/VolumeCNN/run_volume3d_regression.py` and after setting up the virtual environment (refer to main-level README), call the following to run:
 
