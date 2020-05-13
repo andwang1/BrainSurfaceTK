@@ -80,7 +80,7 @@ Any continuous-valued columns in the *meta_data.tsv* file can then be used as fe
 
 From the main repository level, the model can then be trained using, e.g. for regression
 ```
-./scripts/regression/MeshCNN/regression.sh
+./scripts/regression/MeshCNN/reg_brains.sh
 ```
 
 

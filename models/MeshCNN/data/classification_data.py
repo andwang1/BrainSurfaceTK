@@ -3,7 +3,7 @@ import torch
 from data.base_dataset import BaseDataset
 from util.util import is_mesh_file, pad
 from models.layers.mesh import Mesh
-from get_feature_dict import get_feature_dict
+from data.get_feature_dict import get_feature_dict
 
 __author__ = "Rana Hanocka"
 __license__ = "MIT"
