@@ -38,4 +38,5 @@ def run_test(epoch=-1, is_val=True):
 
 
 if __name__ == '__main__':
-    run_test()
+    opt = TestOptions().parse()
+    run_test(opt.which_epoch, is_val=False)
