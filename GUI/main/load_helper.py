@@ -49,7 +49,7 @@ def load_original_data(reset_upload_database):
                                       for x in found_vtps_files_names if (participant_id and session_id) in x), "")
 
             # Check for session ID uniqueness
-            if Session.objects.all().filter(session_id=session_id, participant_id=participant_id).count() > 0:
+            if Session.objects.all().filter(session_id=session_id).count() > 0:
                 print(f'tsv contains non-uniques: {session_id}, {participant_id}')
                 continue
 

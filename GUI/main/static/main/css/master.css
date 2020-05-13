@@ -4,6 +4,20 @@ html * {
     font-family: Arial;
 }
 
+li {
+    list-style-type: circle;
+}
+
+body {
+display: flex;
+min-height: 100vh;
+flex-direction: column;
+}
+
+main {
+flex: 1 0 auto;
+}
+
 #brain_img {
     user-drag: none;
     user-select: none;
@@ -48,16 +62,3 @@ html * {
     display: none;
 }
 
-body {
-    display: flex;
-    min-height: 100vh;
-    flex-direction: column;
-}
-
-main {
-    flex: 1 0 auto;
-}
-
-footer {
-    margin-top: min(5%, 50px);
-}
