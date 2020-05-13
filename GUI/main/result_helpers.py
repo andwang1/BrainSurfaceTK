@@ -32,7 +32,7 @@ def build_session_table(record):
     for field_name in field_names:
         # This removes field names that we don't want to be displayed to the user.
         if field_name.startswith("_") or field_name == "id" or field_name.endswith("file") \
-                or field_name.endswith("path"):
+                or field_name.endswith("path") or "uploaded" in field_name.lower():
             continue
         tmp_value = record_dict[field_name]
         if isinstance(tmp_value, float):
