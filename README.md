@@ -83,5 +83,8 @@ From the main repository level, the model can then be trained using, e.g. for re
 ./scripts/regression/MeshCNN/reg_brains.sh
 ```
 
-
+Similarly, a pretrained model can be applied to the test set, e.g.
+```
+./scripts/regression/MeshCNN/test_reg_brains.sh
+```
 
