@@ -18,6 +18,7 @@ class PageAdmin(admin.ModelAdmin):
     fieldsets = [
         ("Title/date", {'fields': ["page_title", "page_published"]}),
         ("URL", {'fields': ["page_slug"]}),
+        ("HTML Template", {'fields': ["page_template"]}),
         ("Summary", {'fields': ["page_summary"]}),
         ("Content", {"fields": ["page_content"]})
     ]

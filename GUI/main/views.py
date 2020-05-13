@@ -1,13 +1,13 @@
-import os
 import json
+import os
 
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
-
 from main.custom_wrapper_decorators import custom_login_required, custom_staff_member_required
 from main.load_helper import load_original_data
 from main.result_helpers import get_mri_js_html, get_surf_file_url, build_session_table, get_unique_session
+
 from .forms import UploadFileForm
 from .models import Session, Page
 
@@ -22,7 +22,7 @@ def single_slug(request, page_slug):
     if results.count() == 1:
         page = results.get()
         return render(request=request,
-                      template_name='main/blank_template.html',
+                      template_name=f'main/{page.page_template}',
                       context={"page": page})
     messages.error(request, message="Could not locate webpage.")
     return redirect("main:homepage")
@@ -34,11 +34,14 @@ def homepage(request):
     :return: rendered main/homepage.html with all options available to the user.
     """
     if Page.objects.filter(page_slug="lookup").count() != 1:
-        Page.objects.create(page_title="Look-up".title(), page_summary="Look-up session IDs", page_slug="lookup")
+        Page.objects.create(page_title="Look-up".title(), page_summary="Look-up session IDs", page_slug="lookup",
+                            page_template="lookup.html")
     if Page.objects.filter(page_slug="upload").count() != 1:
-        Page.objects.create(page_title="Upload".title(), page_summary="Upload session ID", page_slug="upload")
+        Page.objects.create(page_title="Upload".title(), page_summary="Upload session ID", page_slug="upload",
+                            page_template="upload.html")
     if Page.objects.filter(page_slug="about").count() != 1:
-        Page.objects.create(page_title="About".title(), page_summary="About this project", page_slug="about")
+        Page.objects.create(page_title="About".title(), page_summary="About this project", page_slug="about",
+                            page_template="about.html")
     options = Page.objects.all()
     return render(request, "main/homepage.html", context={"options": options})
 
