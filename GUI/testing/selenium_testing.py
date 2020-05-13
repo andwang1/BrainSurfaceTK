@@ -161,7 +161,7 @@ class WebsiteTester:
             print("Debug: Lookup successful.")
         return time.time() - start
 
-    def predict(self, wait_max=100):
+    def predict(self, wait_max=300):
         self.driver.find_element_by_id("predict").click()
         start = time.time()
         time_expired = 0
@@ -174,7 +174,6 @@ class WebsiteTester:
             time_expired = time.time() - start
         print(f"ERROR: Results table was not generated from prediction after waiting {wait_max} seconds.")
         return time.time() - start
-
 
     def segment(self, wait_max=100):
         self.driver.find_element_by_id("segment").click()
@@ -211,6 +210,7 @@ class WebsiteTester:
         self.driver.find_element_by_name("scan_number").send_keys(str(form_scan_number))
         self.driver.find_element_by_name("radiology_score").send_keys(str(form_radiology_score))
         self.driver.find_element_by_name("sedation").send_keys(str(form_sedation))
+        # Specify the files to upload
         if mri_fpath:
             if self.verbose:
                 print("Debug: Upload of MRI requested.")
@@ -291,5 +291,3 @@ class WebsiteTester:
             print("Debug: Driver closing.")
         self.driver.close()
 
-# tester = WebsiteTester(website_url, login_pw=login_pw, login_user=login_user, verbose=True, headless=True)
-# tester.headless_process(7201)

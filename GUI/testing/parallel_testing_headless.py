@@ -4,14 +4,14 @@ from joblib import Parallel, delayed
 from selenium_testing import WebsiteTester
 
 website_url = "http://146.169.53.170:8000/"
-login_user = "test"
-login_pw = "test"
+login_user = "slave"
+login_pw = "slave"
 session_id = 7201
 
 max_num_parallel = 8
 
 def multiprocessing(num):
-    tester = WebsiteTester(website_url, login_user, login_pw, verbose=False, headless=True)
+    tester = WebsiteTester(website_url, login_user, login_pw, verbose=False, headless=False)
     times = tester.headless_process(session_id)
     return times
 

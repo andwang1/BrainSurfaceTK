@@ -34,7 +34,7 @@ with sns.axes_style("white"):
     bar_access_times = plt.bar(bar_positions, access_times, bar_width,
                                color='#ED0020',
                                label='Access Time')
-    # Middle
+    # Middle section
     bar_predict_times = plt.bar(bar_positions, predict_times, bar_width - epsilon,
                                 bottom=access_times,
                                 alpha=opacity,
@@ -42,7 +42,7 @@ with sns.axes_style("white"):
                                 edgecolor='blue',
                                 linewidth=line_width,
                                 label='Prediction Time')
-    # Top
+    # Top section
     bar_segment_times = plt.bar(bar_positions, segment_times, bar_width - epsilon,
                                 bottom=predict_times + access_times,
                                 alpha=opacity,

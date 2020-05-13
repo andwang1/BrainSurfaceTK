@@ -10,7 +10,7 @@ matplotlib.use('TkAgg')
 # Fix plt cutting off the xlabel
 plt.gcf().subplots_adjust(bottom=0.15)
 
-with open("results/data_texel1.pk", "rb") as f:
+with open("results/data_tex1.pk", "rb") as f:
     data = pk.load(f)
 
 predict_times = data["predict"]
@@ -34,7 +34,7 @@ with sns.axes_style("white"):
                                color='#ED0020',
                                linewidth=line_width,
                                label='Prediction')
-    # Middle
+    # Top section
     bar_predict_times = plt.bar(bar_positions, segment_times, bar_width - epsilon,
                                 bottom=predict_times,
                                 alpha=opacity,
