@@ -47,7 +47,7 @@ python startserver.py prod
 
 # MeshCNN
 
-MeshCNN is a general-purpose deep neural network for 3D triangular meshes, which can be used for tasks such as 3D shape classification or segmentation. 
+MeshCNN [2] is a general-purpose deep neural network for 3D triangular meshes, which can be used for tasks such as 3D shape classification or segmentation. 
 This framework includes convolution, pooling and unpooling layers which are applied directly on the mesh edges.
 
 The original GitHub repo and additional run instructions can be found here: https://github.com/ranahanocka/MeshCNN/
@@ -80,8 +80,13 @@ Any continuous-valued columns in the *meta_data.tsv* file can then be used as fe
 
 From the main repository level, the model can then be trained using, e.g. for regression
 ```
-./scripts/regression/MeshCNN/reg_brains.sh
+./scripts/regression/MeshCNN/train_reg_brains.sh
+```
+Similarly, a pretrained model can be applied to the test set, e.g.
+```
+./scripts/regression/MeshCNN/test_reg_brains.sh
 ```
 
-
-
+###### References
+[1] Qi, C.R., Yi, L., Su, H., & Guibas, L.J. (2017). PointNet++: Deep Hierarchical Feature Learning on Point Sets in a Metric Space. NIPS.
+[2] Rana Hanocka et al. (2019). MeshCNN: A Network with an Edge. SIGGRAPH 2019.
