@@ -22,14 +22,15 @@ PATH_TO_POINTNET = osp.join(osp.dirname(osp.realpath(__file__)), '..', '..', '..
 if __name__ == '__main__':
 
     num_workers = 2
-    local_features = ['corr_thickness', 'curvature', 'sulc']
-    global_features = []
+
+    local_features = ['corrected_thickness', 'curvature', 'sulcal_depth']
+    global_features = None
 
     #################################################
     ########### EXPERIMENT DESCRIPTION ##############
     #################################################
     recording = False
-    REPROCESS = False
+    REPROCESS = True
 
     data_nativeness = 'native'
     data_compression = "20k"
@@ -53,13 +54,18 @@ if __name__ == '__main__':
     lr = 0.001
     batch_size = 2
     gamma = 0.9875
-    target_class = 'gender'
+    target_class = None
     task = 'segmentation'
     ################################################
 
+
+
+    ###### SPECIFY PATH TO YOUR DATA_SPLIT PICKLE #####
     # 2. Get the data splits indices
     with open(PATH_TO_POINTNET + 'src/names.pk', 'rb') as f:
         indices = pickle.load(f)
+
+
 
     # 4. Get experiment description
     comment = get_comment(data_nativeness, data_compression, data_type, hemisphere,
@@ -69,8 +75,13 @@ if __name__ == '__main__':
     print(comment)
     print('=' * 50 + '\n' + '=' * 50)
 
-    # 5. Perform data processing
+
+
+    ##### SPECIFY YOUR DATA_FOLDER AND FILES_ENDING #####
+    # 5. Perform data processing.
     data_folder, files_ending = get_data_path(data_nativeness, data_compression, data_type, hemisphere=hemisphere)
+
+
 
     train_dataset, test_dataset, validation_dataset, train_loader, test_loader, val_loader, num_labels = data(
                                                                                                                 data_folder,
@@ -126,7 +137,7 @@ if __name__ == '__main__':
     best_model_iou = 0
 
     # 10. ====== TRAINING LOOP ======
-    for epoch in range(1, 3):
+    for epoch in range(1, 150):
 
         # 1. Start recording time
         start = time.time()

@@ -222,7 +222,7 @@ def data(data_folder, files_ending, data_type, target_class, task, REPROCESS, lo
     '''
 
     path = osp.join(
-        osp.dirname(osp.realpath(__file__)), '..', 'data/' + target_class + f'/{data_compression}_{data_nativeness}_{hemisphere}/{data_type}')
+        osp.dirname(osp.realpath(__file__)), '..', 'data/' + 'segmentation' + f'/{data_compression}_{data_nativeness}_{hemisphere}/{data_type}')
 
     # Transformations
     transform = T.Compose([
