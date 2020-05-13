@@ -48,7 +48,6 @@ urlpatterns = [
     path("results/<int:session_id><str:display_mri>/remove_tmp/", result_helper_views.remove_tmp, name="remove_tmp"),
     path("load_database/", views.load_data, name="load_database"),
     path("account/", user_views.account_page, name="account"),
-    # path("about/", views.about, name="about"),
 
     path("<page_slug>/", views.single_slug, name="single_slug"),
 

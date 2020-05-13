@@ -36,7 +36,7 @@ if __name__ == "__main__":
     if "prod" in args:
         info = set_debug_to(False)
         os.system(r" ".join(["python", MANAGE_PATH, "collectstatic", "--noinput"]))
-        os.system(r" ".join(["python", MANAGE_PATH, "runmodwsgi", "--url-alias", info["MEDIA_URL"], MEDIA_PATH, "--limit-request-body", "104857600"]))
+        os.system(r" ".join(["python", MANAGE_PATH, "runmodwsgi", "--url-alias", info["MEDIA_URL"], MEDIA_PATH, "--limit-request-body", "104857600", "--request-timeout 120"]))
     else:
         set_debug_to(True)
         os.system(" ".join(["python", MANAGE_PATH, "runserver"]))
