@@ -30,13 +30,13 @@ def get_upload_path(instance, filename):
         return f"{out}/vtps/{filename}"
 
 
-class SessionDatabase(models.Model):
+class Session(models.Model):
     """
     General form for session records to be inserted into
     """
 
     participant_id = models.CharField(verbose_name="Participant ID", max_length=100, blank=True)
-    session_id = models.IntegerField(verbose_name="Session ID", unique=True, primary_key=True,
+    session_id = models.IntegerField(verbose_name="Session ID", primary_key=True,
                                      validators=[validators.MinValueValidator(0)])
     gender = models.CharField(verbose_name="Gender", max_length=100, blank=True)
     birth_age = models.FloatField(verbose_name="Birth Age", blank=True)
@@ -57,6 +57,7 @@ class SessionDatabase(models.Model):
     class Meta:
         ordering = ['-session_id']
         verbose_name_plural = "Session Database"
+        unique_together = ('participant_id', 'session_id',)
 
     def __str__(self):
         return f"Session ID: {self.session_id}"
