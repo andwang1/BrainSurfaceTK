@@ -187,7 +187,7 @@ class MeshConvNet(nn.Module):
 
         # Add in extra features into fully connected layer
         if feature_values:
-            features = torch.tensor([feature_values]).to(x.device)
+            features = torch.tensor([feature_values], dtype=torch.float).to(x.device)
             x = torch.cat((x, features), 1)
         x = F.relu(self.fc1(x))
         if self.opt.dropout:
