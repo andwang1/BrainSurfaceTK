@@ -5,23 +5,26 @@ import numpy as np
 from joblib import Parallel, delayed
 from selenium_testing import WebsiteTester
 
-matplotlib.use('TkAgg')
+# Machine dependent
+matplotlib.use('Agg')
+# matplotlib.use('TkAgg')
 
 website_url = "http://146.169.52.15:8000/"
 login_user = "test"
 login_pw = "test"
+session_id = 7201
 
 max_num_parallel = 24
 
 def multiprocessing(num):
-    print(f"Parallel Processes: {num}")
     tester = WebsiteTester(website_url, login_user, login_pw, verbose=False, headless=True)
-    times = tester.headless_process(7201)
+    times = tester.headless_process(session_id)
     return times
 
 
 times = []
 for i in range(1, max_num_parallel + 1):
+    print(f"Parallel Processes: {i}")
     list_times = Parallel(n_jobs=-1)(delayed(multiprocessing)(url) for url in range(i))
     times.append(list_times)
 
