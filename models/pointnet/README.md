@@ -79,3 +79,52 @@ python3 -m scripts.segmentation.PointNet.run_pointnet_segmentation
 
 
 ### Regression
+
+Similarly for regression, you should make the desired changes to /scripts/regression/PointNet/run_pointnet_regression.py
+
+
+1. Define the local features you want to use in the list `local_features = ['corrected_thickness', ...]`. Simply follow the local feature convention above.
+
+2. Define the global features you can to use and (are present in the meta data) in the list 'global_features = ['birth_age']'. Make sure that column in meta data doesn't have missing values!
+
+3. Next, specify the following variables:
+* `recording` = if True, will record the experiment data.
+* `REPROCESS` = if True, will reprocess the data.
+* 'target_class' = column of the meta data that the target label (e.g.'scan_age')
+* 'comment' = comment that is descriptive of the experiment to help you keep track and store the results.
+* All of the other parameter of the model you want to change.
+
+4. Specify the path to the data splits
+
+5. Specify `data_folder` – path to the folder with all the data files and `files_ending` – the endings of the files as specified in Section 1.
+
+
+```
+python3 -m scripts.regression.PointNet.run_pointnet_regression
+```
+
+
+### Classification
+
+Following the same procedure as for regression in /scripts/classification/PointNet/run_pointnet_classification.py
+
+1. Define the local features you want to use in the list `local_features = ['corrected_thickness', ...]`. Simply follow the local feature convention above.
+
+2. Define the global features you can to use and (are present in the meta data) in the list 'global_features = ['birth_age']'. Make sure that column in meta data doesn't have missing values!
+
+3. Next, specify the following variables:
+* `recording` = if True, will record the experiment data.
+* `REPROCESS` = if True, will reprocess the data.
+* 'target_class' = column of the meta data that the target label (e.g.'gender'). (Pre-term classification is run if 'target_class' = 'birth_age')
+* 'comment' = comment that is descriptive of the experiment to help you keep track and store the results.
+* All of the other parameter of the model you want to change.
+
+4. Specify the path to the data splits
+
+5. Specify `data_folder` – path to the folder with all the data files and `files_ending` – the endings of the files as specified in Section 1.
+
+
+```
+python3 -m scripts.classification.PointNet.run_pointnet_classification
+```
+
