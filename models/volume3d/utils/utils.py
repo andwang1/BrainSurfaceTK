@@ -189,8 +189,7 @@ def split_data(meta_data, meta_column_idx, spacing, image_size, smoothen, edgen,
     X_train = []
     y_train = []
     for pat_ses_id in train_indices:
-        patient_id = pat_ses_id[:11]
-        session_id = pat_ses_id[12:]
+        patient_id, session_id = pat_ses_id.split('_')
         patient_data = meta_data[(meta_data[:, 1] == patient_id) & (meta_data[:, 2] == session_id)][0]
 
         y_train.append(float(patient_data[meta_column_idx]))
@@ -199,8 +198,7 @@ def split_data(meta_data, meta_column_idx, spacing, image_size, smoothen, edgen,
     X_test = []
     y_test = []
     for pat_ses_id in test_indices:
-        patient_id = pat_ses_id[:11]
-        session_id = pat_ses_id[12:]
+        patient_id, session_id = pat_ses_id.split('_')
         patient_data = meta_data[(meta_data[:, 1] == patient_id) & (meta_data[:, 2] == session_id)][0]
 
         y_test.append(float(patient_data[meta_column_idx]))
@@ -209,8 +207,7 @@ def split_data(meta_data, meta_column_idx, spacing, image_size, smoothen, edgen,
     X_val = []
     y_val = []
     for pat_ses_id in val_indices:
-        patient_id = pat_ses_id[:11]
-        session_id = pat_ses_id[12:]
+        patient_id, session_id = pat_ses_id.split('_')
         patient_data = meta_data[(meta_data[:, 1] == patient_id) & (meta_data[:, 2] == session_id)][0]
 
         y_val.append(float(patient_data[meta_column_idx]))
