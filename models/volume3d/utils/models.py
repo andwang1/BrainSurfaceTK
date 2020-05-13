@@ -12,8 +12,13 @@ from torch.utils.data import Dataset, DataLoader
 ########################################
 
 variances = [i for i in range(30)]
+
+#### ! CHANGE THIS ! #####
+# Change this path such that in that path you have a folder named 'gmvolume3d/' containing all your data #
+
 PATH_TO_DATA = '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/alex2/deepl_brain_surfaces/'
 
+##########################
 
 class ImageSegmentationDataset(Dataset):
     """Dataset for image segmentation.
