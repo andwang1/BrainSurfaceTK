@@ -1,4 +1,4 @@
-from .models import SessionDatabase
+from .models import Session
 import os
 from csv import reader as csv_reader
 from django.conf import settings
@@ -11,9 +11,9 @@ def load_original_data(reset_upload_database):
     :return: redirects to homepage with messages to notify the user for success or any errors
     """
     # Clear each database here
-    SessionDatabase.objects.all().filter(uploaded=False).delete()
+    Session.objects.all().filter(uploaded=False).delete()
     if reset_upload_database == 'on':
-        SessionDatabase.objects.all().filter(uploaded=True).delete()
+        Session.objects.all().filter(uploaded=True).delete()
 
     tsv_path = os.path.join(settings.MEDIA_ROOT, settings.ORIGINAL_META_DATA_PATH)
     mri_path = os.path.join(settings.MEDIA_ROOT, settings.ORIGINAL_MRI_DATA_PATH)
@@ -49,23 +49,23 @@ def load_original_data(reset_upload_database):
                                       for x in found_vtps_files_names if (participant_id and session_id) in x), "")
 
             # Check for session ID uniqueness
-            if SessionDatabase.objects.all().filter(session_id=session_id).count() > 0:
-                print(f'tsv contains non-uniques session id: {session_id}')
+            if Session.objects.all().filter(session_id=session_id, participant_id=participant_id).count() > 0:
+                print(f'tsv contains non-uniques: {session_id}, {participant_id}')
                 continue
 
-            SessionDatabase.objects.create(participant_id=participant_id,
-                                           session_id=int(session_id),
-                                           gender=gender,
-                                           birth_age=float(birth_age),
-                                           birth_weight=float(birth_weight),
-                                           singleton=singleton,
-                                           scan_age=float(scan_age),
-                                           scan_number=int(scan_number),
-                                           radiology_score=radiology_score,
-                                           sedation=sedation,
-                                           uploaded=False,
-                                           mri_file=mri_file_path,
-                                           surface_file=surface_file_path)
+            Session.objects.create(participant_id=participant_id,
+                                   session_id=int(session_id),
+                                   gender=gender,
+                                   birth_age=float(birth_age),
+                                   birth_weight=float(birth_weight),
+                                   singleton=singleton,
+                                   scan_age=float(scan_age),
+                                   scan_number=int(scan_number),
+                                   radiology_score=radiology_score,
+                                   sedation=sedation,
+                                   uploaded=False,
+                                   mri_file=mri_file_path,
+                                   surface_file=surface_file_path)
 
     return {"success": True, "message": "SUCCESS"}
 
