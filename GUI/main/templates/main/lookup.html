@@ -7,20 +7,10 @@
     <div class="small-container">
         <h4 class="flow-text">Look Up</h4>
         <br>
-        <form id="lookup-form" method="post">
-            <div class="input-field">
-                <div>
-                    <label>
-                        <span>Select Session ID:</span>
-                        <select id="dropdown-session-id" name="selected_session_id">
-                            <option hidden="" selected disabled class="text-blue">Session ID</option>
-                            {% for session_id in session_ids %}
-                                <option value={{ session_id }}>{{ session_id }}</option>
-                            {% endfor %}
-                        </select>
-                    </label>
-                </div>
-            </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            {{ dropdown.as_table }}
             <div class="right">
                 <label>
                     <input id="display-mri" name="display-mri" type="checkbox" class="filled-in" disabled/>
@@ -30,12 +20,12 @@
 
             <div class="left">
                 <button id="look-up-btn" class="waves-effect waves-green btn-small imperial blue"
-                        type="submit"
-                        form="lookup-form">Go
+                        type="submit">Go
                 </button>
             </div>
-
         </form>
+
+
     </div>
 
     <script>const mask_mri = {{ mri_mask|safe }};</script>

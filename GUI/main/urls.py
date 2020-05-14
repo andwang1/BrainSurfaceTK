@@ -6,7 +6,7 @@ Examples:
 Function views
     1. Add an import:  from my_app import views
     2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
+Class_based views
     1. Add an import:  from other_app.views import Home
     2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
 Including another URLconf
@@ -30,22 +30,33 @@ urlpatterns = [
     path('lookup/login/', user_views.login_request, name='login'),
     path('upload/login/', user_views.login_request, name='login'),
     path('results/login/', user_views.login_request, name='login'),
-    path('results/<int:session_id>/login/', user_views.login_request, name='login'),
+    path('results/<str:participant_id>_<int:session_id>/login/', user_views.login_request, name='login'),
     path("account/login/", user_views.login_request, name='login'),
     path("load_database/login/", user_views.login_request, name='login'),
 
     path('results/', views.view_session_results, name="results"),
-    path('results/<int:session_id>', views.view_session_results, name="session_id_results"),
-    path("results/<int:session_id>/run_predictions/", result_helper_views.run_prediction, name="run_predictions"),
-    path("results/<int:session_id>/run_segmentation/", result_helper_views.run_segmentation, name="run_segmentation"),
-    path("results/<int:session_id>/remove_tmp/", result_helper_views.remove_tmp, name="remove_tmp"),
 
-    path('results/<int:session_id><str:display_mri>', views.view_session_results, name="session_id_results"),
-    path("results/<int:session_id><str:display_mri>/run_predictions/", result_helper_views.run_prediction,
+
+
+    path("results/<str:participant_id>_<int:session_id>/remove_tmp/", result_helper_views.remove_tmp, name="remove_tmp"),
+
+    path('results/<str:participant_id>_<int:session_id>_<str:display_mri>', views.view_session_results,
+         name="session_id_results"),
+
+    path("results/<str:participant_id>_<int:session_id>_<str:display_mri>/run_predictions/",
+         result_helper_views.run_prediction,
          name="run_predictions"),
-    path("results/<int:session_id><str:display_mri>/run_segmentation/", result_helper_views.run_segmentation,
+
+    path("results/<str:participant_id>_<int:session_id>_<str:display_mri>/run_segmentation/",
+         result_helper_views.run_segmentation,
          name="run_segmentation"),
-    path("results/<int:session_id><str:display_mri>/remove_tmp/", result_helper_views.remove_tmp, name="remove_tmp"),
+
+    path("results/<str:participant_id>_<int:session_id>_<str:display_mri>/remove_tmp/", result_helper_views.remove_tmp,
+         name="remove_tmp"),
+
+    path('results/<str:participant_id>_<int:session_id>', views.view_session_results,
+         name="session_id_results_default"),
+
     path("load_database/", views.load_data, name="load_database"),
     path("account/", user_views.account_page, name="account"),
 
