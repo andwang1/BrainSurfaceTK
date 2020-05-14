@@ -137,9 +137,8 @@ def upload_session(request):
         if form.is_valid():
             form.save()
             messages.success(request, "Successfully uploaded! Now processing.")
-            return redirect("main:session_id_results", session_id=int(form["session_id"].value()),<<<<<<< HEAD
+            return redirect("main:session_id_results", session_id=int(form["session_id"].value()),
                             participant_id=str(form["participant_id"].value()),
-
                             display_mri="true", permanent=True)
         messages.error(request, "Form is not valid!")
         return render(request, "main/upload_session.html", context={"form": form})
