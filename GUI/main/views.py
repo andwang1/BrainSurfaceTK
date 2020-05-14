@@ -8,13 +8,11 @@ from main.custom_wrapper_decorators import custom_login_required, custom_staff_m
 from main.load_helper import load_original_data
 from main.result_helpers import get_mri_js_html, get_surf_file_url, build_session_table, get_unique_session
 
-from .forms import UploadFileForm
+from .forms import UploadFileForm, LookUpForm
 from .models import Session, Page
 
 BASE_DIR = os.getcwd()
 DATA_DIR = os.path.join(BASE_DIR, "/main/static/main/data")
-
-SESSIONDATABASES = (Session,)
 
 
 def single_slug(request, page_slug):
@@ -34,10 +32,10 @@ def homepage(request):
     :return: rendered main/homepage.html with all options available to the user.
     """
     if Page.objects.filter(page_slug="lookup").count() != 1:
-        Page.objects.create(page_title="Look-up".title(), page_summary="Look-up session IDs", page_slug="lookup",
+        Page.objects.create(page_title="Look Up".title(), page_summary="Look up the results of a given Session ID and Participant ID", page_slug="lookup",
                             page_template="lookup.html")
     if Page.objects.filter(page_slug="upload").count() != 1:
-        Page.objects.create(page_title="Upload".title(), page_summary="Upload session ID", page_slug="upload",
+        Page.objects.create(page_title="Upload".title(), page_summary="Upload a given Session ID and Participant ID", page_slug="upload",
                             page_template="upload.html")
     if Page.objects.filter(page_slug="about").count() != 1:
         Page.objects.create(page_title="About".title(), page_summary="About this project", page_slug="about",
@@ -47,7 +45,7 @@ def homepage(request):
 
 
 @custom_login_required()
-def view_session_results(request, session_id=None, display_mri="true"):
+def view_session_results(request, session_id=None, participant_id=None, display_mri="true"):
     """
     Gets the session ID from the databases and loads the mri file & fetches the vtp file path that is all sent to the
     user to visualise the results. If there is an error with the session_id then the user is redirected to "main:lookup"
@@ -57,7 +55,7 @@ def view_session_results(request, session_id=None, display_mri="true"):
     """
     if request.method == "GET":
 
-        record, msg = get_unique_session(session_id, SESSIONDATABASES)
+        record, msg = get_unique_session(session_id, participant_id)
 
         if record is None:
             messages.error(request, msg)
@@ -110,24 +108,21 @@ def load_data(request):
 @csrf_exempt
 def lookup(request):
     if request.method == "GET":
-        sessions = [(int(session.session_id), True) if session.mri_file != ""
-                    else (int(session.session_id), False) for session in Session.objects.all()]
-        if len(sessions) > 0:
-            session_ids, has_mri = zip(*sessions)
-        else:
-            session_ids, has_mri = [], []
         return render(request, "main/lookup.html",
-                      context={"session_ids": session_ids, "mri_mask": json.dumps(has_mri)})
+                      context={"dropdown": LookUpForm,
+                               "mri_mask": json.dumps([False if mri_file == "" else True for mri_file
+                                                       in Session.objects.all().values_list("mri_file", flat=True)])})
 
     if request.method == "POST":
-        session_id = request.POST.get("selected_session_id", None)
+        selected = request.POST.get("choices", '')
         if request.POST.get("display-mri", 'off') == 'on':
             display_mri = "true"
         else:
             display_mri = "false"
-        if isinstance(session_id, str):
-            if session_id.isnumeric():
-                return redirect("main:session_id_results", session_id=session_id,
+        if selected != '':
+            selected = selected.replace("'", "").strip("()").split(", ")
+            if selected[1].isnumeric():
+                return redirect("main:session_id_results", participant_id=selected[0], session_id=int(selected[1]),
                                 display_mri=display_mri, permanent=True)
         messages.warning(request, message="Please select a session ID")
         return redirect("main:lookup", permanent=True)
@@ -143,6 +138,7 @@ def upload_session(request):
             form.save()
             messages.success(request, "Successfully uploaded! Now processing.")
             return redirect("main:session_id_results", session_id=int(form["session_id"].value()),
+                            participant_id=str(form["participant_id"].value()),
                             display_mri="true", permanent=True)
         messages.error(request, "Form is not valid!")
         return render(request, "main/upload_session.html", context={"form": form})

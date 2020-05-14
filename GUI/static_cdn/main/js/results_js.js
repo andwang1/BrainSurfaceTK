@@ -44,7 +44,8 @@ $('#segment').click(function () {
         },
         success: function (json) {
             $('#post-text').val('');
-            console.log("success");
+            console.log(surf_file_url);
+            console.log(json.segmented_file_path);
 
             document.querySelector(".brain_surface_container").innerHTML = "";
             brain_surface_library.build_brain_surf_window(json.segmented_file_path, '.brain_surface_container');

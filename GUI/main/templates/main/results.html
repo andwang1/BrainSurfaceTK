@@ -76,10 +76,10 @@
         <br>
 
         <script type="text/javascript">
-            let predict_url = "{{ session_id }}/run_predictions/";
+            let predict_url = "run_predictions/";
             let surf_file_url = "{{ surf_file_url }}";
-            let segment_url = "{{ session_id }}/run_segmentation/";
-            let remove_tmp_url = "{{ session_id }}/remove_tmp/";
+            let segment_url = "run_segmentation/";
+            let remove_tmp_url = "remove_tmp/";
         </script>
         <script type="text/javascript" src="{% static "main/js/results_js.js" %}"></script>
     {% endif %}

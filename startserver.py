@@ -3,7 +3,7 @@ import sys
 
 SETTINGS = "GUI/BasicSite/settings.py"
 MANAGE_PATH = "GUI/manage.py"
-MEDIA_PATH = "GUI/media"
+MEDIA_PATH = "/vol/biomedic2/aa16914/shared/MScAI_brain_surface/media"
 
 
 def set_debug_to(boolv=True):
@@ -35,6 +35,7 @@ if __name__ == "__main__":
 
     if "prod" in args:
         info = set_debug_to(False)
+        print("--url-alias", info["MEDIA_URL"], MEDIA_PATH)
         os.system(r" ".join(["python", MANAGE_PATH, "collectstatic", "--noinput"]))
         os.system(r" ".join(["python", MANAGE_PATH, "runmodwsgi", "--url-alias", info["MEDIA_URL"], MEDIA_PATH, "--limit-request-body", "104857600", "--request-timeout 120"]))
     else:

@@ -3,28 +3,28 @@ import random
 import string
 import time
 
+from backend.evaluate_pointnet_regression import predict_age
+from backend.evaluate_pointnet_segmentation import segment as brain_segment
 from django.conf import settings
 from nibabel import load as nib_load
 from nilearn.plotting import view_img as ni_view_img
 
-from backend.evaluate_pointnet_regression import predict_age
-from backend.evaluate_pointnet_segmentation import segment as brain_segment
+from .models import Session
 
 
-def get_unique_session(session_id, databases):
-    dbs_results = [database.objects.filter(session_id=session_id) for database in databases]
-    dbs_count = [db_result.count() for db_result in dbs_results]
-    count = sum(dbs_count)
-    if count == 0:
-        return None, "ERROR: No records were found, this session id was not found in the database!"
-    elif count == 1:
-        return dbs_results[dbs_count.index(1)].get(), None
+def get_unique_session(session_id, participant_id):
+    result = Session.objects.filter(session_id=session_id, participant_id=participant_id).defer('uploaded')
+    if result.count() == 1:
+        return result.get(), None
+    elif result.count() == 0:
+        return None, "ERROR: No search were found in the database!"
     else:
-        return None, "ERROR: Multiple records were found, session id is not unique!"
+        return None, "ERROR: Multiple searches were found, search is not unique!"
 
 
 def build_session_table(record):
     record_dict = vars(record)
+
     # TODO: Rewrite to exclude clutter
     field_names = record_dict.keys()
     table_names = list()
@@ -47,7 +47,7 @@ def build_session_table(record):
 def get_mri_js_html(record):
     mri_file = record.mri_file
     if mri_file.name != "":
-        if os.path.isfile(mri_file.path) & mri_file.path.endswith("nii"):
+        if os.path.isfile(mri_file.path) & (mri_file.path.endswith("nii") or mri_file.path.endswith("nii.gz")):
             img = nib_load(mri_file.path)
             mri_js_html = ni_view_img(img, colorbar=False, bg_img=False, black_bg=True, cmap='gray')
             return mri_js_html, None
@@ -87,7 +87,7 @@ def pointnet_run_segmentation(file_url):
                                   tmp_file_name=tmp_file_name)
 
     # Segmented Temporary File URL
-    return tmp_file_path.split(settings.MEDIA_ROOT.split(os.path.basename(settings.MEDIA_ROOT))[-2][:-1])[-1]
+    return os.path.join(settings.MEDIA_URL,tmp_file_path.split(settings.MEDIA_ROOT)[-1][1:])
 
 
 def random_string(stringLength=8):
@@ -101,7 +101,7 @@ def remove_file(relative_file_path, allocated_file_life=10):
         if os.path.exists(file_path):
             file_life_time = os.path.getmtime(file_path)
             if time.time() - file_life_time < allocated_file_life:
-                time.sleep(allocated_file_life - (time.time()-file_life_time))
+                time.sleep(allocated_file_life - (time.time() - file_life_time))
             os.remove(file_path)
             return True
     return False

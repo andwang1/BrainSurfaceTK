@@ -23,21 +23,21 @@ class Page(models.Model):
 def get_upload_path(instance, filename):
     out = ""
     if instance.uploaded:
-        out += "uploads/data/"
+        out = os.path.join(out, "uploads/data/")
     else:
-        out += "original/data/"
+        out = os.path.join(out, "original/data/")
     if filename.endswith(".nii"):
-        return f"{out}/mris/{filename}"
+        return os.path.join(out, "mris", filename)
     else:
-        return f"{out}/vtps/{filename}"
+        return os.path.join(out, "vtps", filename)
 
 
 class Session(models.Model):
     """
     General form for session records to be inserted into
     """
-    participant_id = models.CharField(verbose_name="Participant ID", max_length=100, blank=True)
-    session_id = models.IntegerField(verbose_name="Session ID", primary_key=True, validators=[validators.MinValueValidator(0)])
+    participant_id = models.CharField(verbose_name="Participant ID", max_length=100)
+    session_id = models.IntegerField(verbose_name="Session ID", validators=[validators.MinValueValidator(0)])
     gender = models.CharField(verbose_name="Gender", max_length=100, blank=True)
     birth_age = models.FloatField(verbose_name="Birth Age", blank=True)
     birth_weight = models.FloatField(verbose_name="Birth Weight", blank=True)
@@ -48,13 +48,13 @@ class Session(models.Model):
     sedation = models.CharField(verbose_name="Sedation", max_length=200, blank=True)
     uploaded = models.BooleanField(verbose_name="Uploaded", default=True)
     mri_file = models.FileField(verbose_name="MRI file path", upload_to=get_upload_path, max_length=250, blank=True,
-                                validators=[validators.FileExtensionValidator(allowed_extensions=["", "nii"])])
+                                validators=[validators.FileExtensionValidator(allowed_extensions=["", "nii", "nii.gz"])])
     surface_file = models.FileField(verbose_name="Surface file path", upload_to=get_upload_path, max_length=250,
                                     blank=True,
                                     validators=[validators.FileExtensionValidator(allowed_extensions=["", "vtp"])])
 
     class Meta:
-        ordering = ['-session_id']
+        ordering = ['participant_id', 'session_id']
         unique_together = ('participant_id', 'session_id',)
         verbose_name_plural = "Sessions"
 

@@ -22,9 +22,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '&e^6vrts8u_f%7ayi@u^o#+#hi=uys(zt5ncm0i*z3i*e4d9$s'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ["80.6.198.240", "localhost", "192.168.0.14", "127.0.0.1", "192.168.0.1", "146.169.52.15"]
+ALLOWED_HOSTS = ["146.169.52.15"]
 
 # Application definition
 
@@ -125,14 +125,15 @@ STATICFILES_DIRS = [
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static_cdn")
 
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+#MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_ROOT = "/vol/biomedic2/aa16914/shared/MScAI_brain_surface/media"
 
 MEDIA_URL = "/media/"
 
 # Must be relative to MEDIA_ROOT
-ORIGINAL_META_DATA_PATH = "original/data/meta_data.tsv"
-ORIGINAL_MRI_DATA_PATH = "original/data/mris/"
-ORIGINAL_VTP_DATA_PATH = "original/data/vtps/"
+ORIGINAL_META_DATA_PATH = "original/meta_data.tsv"
+ORIGINAL_MRI_DATA_PATH = "original/mris/"
+ORIGINAL_VTP_DATA_PATH = "original/vtps/"
 
 TINYMCE_DEFAULT_CONFIG = {
     'height': 360,
