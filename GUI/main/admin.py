@@ -43,7 +43,7 @@ class SessionAdmin(admin.ModelAdmin):
 
     readonly_fields = ("uploaded",)
     search_fields = ('participant_id', 'session_id', 'uploaded')
-    list_display = ('session_id', 'participant_id', 'uploaded')
+    list_display = ('participant_id', 'session_id', 'uploaded')
 
 
 admin.site.register(Session, SessionAdmin)
