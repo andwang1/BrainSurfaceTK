@@ -2,6 +2,7 @@ import os
 import os.path as osp
 
 import numpy as np
+import nvidia_smi
 import pandas as pd
 import torch
 import vtk
@@ -11,8 +12,6 @@ from vtk.util.numpy_support import vtk_to_numpy
 
 from .pre_trained_models.pointnet2_regression import Net  # TODO
 
-import nvidia_smi
-
 if settings.DEBUG == True:
     MODEL_PATH = os.path.join(os.getcwd(), "GUI/backend/pre_trained_models/model_best.pt")
 else:
@@ -20,6 +19,7 @@ else:
 
 # Limit of memory in MB when to run on GPU if it's available.
 GPU_MEM_LIMIT = 2000
+
 
 def get_features(list_features, reader):
     '''Returns tensor of features to add in every point.
@@ -35,7 +35,8 @@ def get_features(list_features, reader):
 
         if 'drawem' in list_features:
 
-            one_hot_drawem = pd.get_dummies(vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(feature_arrays['drawem'])))
+            one_hot_drawem = pd.get_dummies(
+                vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(feature_arrays['drawem'])))
             # one_hot_drawem = pd.get_dummies(mesh.get_array(feature_arrays['drawem']))
 
             new_df = pd.DataFrame()
@@ -53,7 +54,8 @@ def get_features(list_features, reader):
             drawem_list = []
 
         # features = [mesh.get_array(feature_arrays[key]) for key in feature_arrays if key != 'drawem']
-        features = [vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(feature_arrays[key])) for key in feature_arrays if key != 'drawem']
+        features = [vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(feature_arrays[key])) for key in
+                    feature_arrays if key != 'drawem']
 
         return torch.tensor(features + drawem_list).t()
     else:

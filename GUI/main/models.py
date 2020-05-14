@@ -36,8 +36,8 @@ class Session(models.Model):
     """
     General form for session records to be inserted into
     """
-    participant_id = models.CharField(verbose_name="Participant ID", max_length=100, blank=True)
-    session_id = models.IntegerField(verbose_name="Session ID", primary_key=True, validators=[validators.MinValueValidator(0)])
+    participant_id = models.CharField(verbose_name="Participant ID", max_length=100)
+    session_id = models.IntegerField(verbose_name="Session ID", validators=[validators.MinValueValidator(0)])
     gender = models.CharField(verbose_name="Gender", max_length=100, blank=True)
     birth_age = models.FloatField(verbose_name="Birth Age", blank=True)
     birth_weight = models.FloatField(verbose_name="Birth Weight", blank=True)
@@ -54,7 +54,7 @@ class Session(models.Model):
                                     validators=[validators.FileExtensionValidator(allowed_extensions=["", "vtp"])])
 
     class Meta:
-        ordering = ['-session_id']
+        ordering = ['participant_id', 'session_id']
         unique_together = ('participant_id', 'session_id',)
         verbose_name_plural = "Sessions"
 
