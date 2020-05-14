@@ -1,4 +1,9 @@
-# Deep Learning on Brain Surfaces
+# BrainSurfaceToolKit
+
+<div align="center"> 
+
+<img src="https://gitlab.doc.ic.ac.uk/aw1912/neodeepbrain/-/raw/master/GUI/main/static/main/gifs/rotate-big.gif" width="600" height="450"/>
+</div>
 
 # Setting up
 To install all required packages, please setup a virtual environment as per the instructions below. This virtual environment is based on a CUDA 10.1.105 installation.
@@ -28,26 +33,36 @@ The MRI visualisation is done thanks to [Nilearn](https://nilearn.github.io/inde
 ###### Run instructions
 
 After following the instructions on creating a virtual environment containing all of our dependencies:
-1. First you will want to create a super user. This can be done by: 
+1. First run this until the server is successfully running:
+```
+python startserver.py
+```
+2. Next you will want to create a super user. This can be done by: 
 ```
 chmod 700 ./createsuperuser.sh
 ./createsuperuser.sh
 ```
-2. Next you may want to use your own original data, this can be done by overwriting the meta_data.tsv data file in ``GUI/media/original/data``, please take care that the column names are exactly the same and in the same order. If not, then the load data function that can be called in the admin panel will not work. 
-3. After you've created a super user, you can either run the server in developement mode by running:
+3. Next you may want to use your own original data, this can be done by overwriting the meta_data.tsv data file in ``GUI/media/original/data``, please take care that the column names are exactly the same and in the same order. If not, then the load data function that can be called in the admin panel will not work. 
+4. After you've created a super user, you can either run the server in developement mode by running:
 ```
 python startserver.py
 ```
-4. Alternatively you may wish to run the server in production mode. If you want others to remotely access this server, you may need to open port 8000 on your machine and please don't forget to port forward if you are using a modem. After you have done this, you can simply run:
+5. Alternatively you may wish to run the server in production mode. If you want others to remotely access this server, you may need to open port 8000 on your machine and please don't forget to port forward if you are using a modem. After you have done this, you can simply run:
 ```
 python startserver.py prod
 ```
 
-# PointNet
+# PointNet++
+PointNet++ is a hierarchical neural network, which was proposed to be used on point-cloud geometric data [1] for the tasks of regression, classification, and segmentation. In this project, we apply this architecture onto point-cloud representations of brain surfaces to tackle the tasks of age regression and brain segmentation.
+
+###### Run instructions
+
+The run instructions differ slightly for Pointnet regression and segmentation. Please proceed to the README in models/pointnet of this repository for full information.
+
 
 # MeshCNN
 
-MeshCNN is a general-purpose deep neural network for 3D triangular meshes, which can be used for tasks such as 3D shape classification or segmentation. 
+MeshCNN [2] is a general-purpose deep neural network for 3D triangular meshes, which can be used for tasks such as 3D shape classification or segmentation. 
 This framework includes convolution, pooling and unpooling layers which are applied directly on the mesh edges.
 
 The original GitHub repo and additional run instructions can be found here: https://github.com/ranahanocka/MeshCNN/
@@ -80,8 +95,23 @@ Any continuous-valued columns in the *meta_data.tsv* file can then be used as fe
 
 From the main repository level, the model can then be trained using, e.g. for regression
 ```
-./scripts/regression/MeshCNN/regression.sh
+./scripts/regression/MeshCNN/train_reg_brains.sh
+```
+Similarly, a pretrained model can be applied to the test set, e.g.
+```
+./scripts/regression/MeshCNN/test_reg_brains.sh
 ```
 
+# Happy Researching!
+
+<div align="center"> 
+
+<img src="https://gitlab.doc.ic.ac.uk/aw1912/neodeepbrain/-/raw/master/img/CC00380XX10_121200.gif" width="600" height="450"/>
+</div>
 
 
+
+###### References
+[1] Qi, C.R., Yi, L., Su, H., & Guibas, L.J. (2017). PointNet++: Deep Hierarchical Feature Learning on Point Sets in a Metric Space. NIPS.
+
+[2] Rana Hanocka et al. (2019). MeshCNN: A Network with an Edge. SIGGRAPH 2019.

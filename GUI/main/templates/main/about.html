@@ -1,0 +1,48 @@
+{% extends "main/header.html" %}
+{% load static %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block content %}
+<div>
+<h4>{{ page.page_title }}</h4><h6>{{ page.page_published }}</h6>
+
+<div align="center">
+    <img id="brain-img" class="responsive-img" draggable='false'
+         src="{% static 'main/gifs/rotate-big.gif' %}" alt="Rotating Brains"
+         style="height: 50%; width: 50%; object-fit: contain;">
+</div>
+
+<h5>BrainSurfaceTK</h5>
+<p>
+    Here we present BrainSurfaceTK, a tool designed for the application of deep learning techniques for brain surfaces.
+    We
+    implement the visualisation and manipulation of geometrical representations of brain-surfaces (using <a
+        href="https://docs.pyvista.org/">PyVista</a>).
+    Alongside visualization, we integrate several deep learning networks for two tasks: the regression of age, and
+    segmentation of the brain into component regions.
+    The following functionality is available:
+</p>
+<ol>
+    <li>Visualisation of volumetric data as 2D MRI images.</li>
+    <li>Visualisation of 3D segmented brain surfaces. An interactive display of the surface is provided.</li>
+    <li>Integration of the deep learning networks with capabilities to predict age and segment the brain into 37
+        different regions.
+    </li>
+</ol>
+
+<p>
+    This tool can be used by researchers, engineers, and medical professionals to inspect brain surfaces and has
+    potential to aid diagnosis with the age-prediction and segmentation capabilities.
+</p>
+
+
+<h5>Support</h5>
+<p>
+    For general questions about the project, its applications, or about software usage, please create an issue at
+    <a href="https://gitlab.doc.ic.ac.uk/aw1912/neodeepbrain">GitLab</a>.
+</p>
+
+</div>
+{% endblock %}
+

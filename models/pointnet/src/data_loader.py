@@ -47,19 +47,20 @@ class OurDataset(InMemoryDataset):
 
         # Metadata categories
         self.categories = {'gender': 2, 'birth_age': 3, 'weight': 4, 'scan_age': 6, 'scan_num': 7}
-        self.meta_column_idx = self.categories[target_class]
+
+        if not task == 'segmentation':
+            self.meta_column_idx = self.categories[target_class]
 
         # Classes dict. Populated later. Saved in case you need to look this up.
         self.classes = dict()
 
         # Mapping between features and array number in the files.
-        # initial_thickness, segmentation, corrected_thickness, curvature
-        # sulcal_depth, myelin_mapl, smooth_myelin_map
-        self.feature_arrays = {'drawem': 'segmentation',
-                               'corr_thickness': 'corrected_thickness',
+        # Old labels: 'drawem', 'corr_thickness', 'myelin_map', 'curvature','sulc'
+        self.feature_arrays = {'segmentation': 'segmentation',
+                               'corrected_thickness': 'corrected_thickness',
                                'myelin_map': 'myelin_map',
                                'curvature': 'curvature',
-                               'sulc': 'sulcal_depth'}
+                               'sulcal_depth': 'sulcal_depth'}
 
         # The task at hand
         self.task = task
@@ -77,6 +78,7 @@ class OurDataset(InMemoryDataset):
 
         self.reprocess = reprocess
 
+
         # Initialise path to data
         if data_folder is None:
             self.data_folder =\
@@ -88,6 +90,11 @@ class OurDataset(InMemoryDataset):
             self.files_ending = "_hemi-L_inflated_reduce50.vtk"
         else:
             self.files_ending = files_ending
+
+        # If the user asked to not reprocess and this is the train dataset, retrieve unique labels straight away
+        if not self.reprocess and train:
+            meta_data = read_meta()
+            self.get_all_unique_labels(meta_data)
 
         super(OurDataset, self).__init__(root, transform, pre_transform, pre_filter)
 
@@ -186,9 +193,13 @@ class OurDataset(InMemoryDataset):
         :param meta_data: meta_data.
         :param patient_idx: index of the patient from the metadata.
         :return list: list of features from meta data.'''
+
+        patient_id, session_id = patient_idx.split('_')
+
         patient_data = meta_data[
-            (meta_data[:, 0] == patient_idx[:11]) & (meta_data[:, 1] == patient_idx[12:])][0]
+            (meta_data[:, 0] == patient_id) & (meta_data[:, 1] == session_id)][0]
         return [float(patient_data[self.categories[feature]]) for feature in list_features]
+
 
     def get_all_unique_labels(self, meta_data):
         '''
@@ -258,12 +269,15 @@ class OurDataset(InMemoryDataset):
 
         if self.task == 'classification' and self.meta_column_idx == 3:
             categories = {'preterm', 'not_preterm'}
+        elif self.task == 'segmentation':
+            pass
         else:
             categories = set(meta_data[:, self.meta_column_idx])           # Set of categories {male, female}
 
-        # 2. Create category dictionary (mapping: category --> class), e.g. 'male' --> 0, 'female' --> 1
-        for class_num, category in enumerate(categories):
-            self.classes[category] = class_num
+        if not self.task == 'segmentation':
+            # 2. Create category dictionary (mapping: category --> class), e.g. 'male' --> 0, 'female' --> 1
+            for class_num, category in enumerate(categories):
+                self.classes[category] = class_num
 
         # 3. These lists will collect all the information for each patient in order
         lens = []
@@ -277,8 +291,10 @@ class OurDataset(InMemoryDataset):
         print('Processing patient data for the split...')
         for patient_idx in tqdm(self.indices_):
 
+            patient_id, session_id = patient_idx.split('_')
+
             # Get file path to .vtk/.vtp for one patient
-            file_path = self.get_file_path(patient_idx[:11], patient_idx[12:])
+            file_path = self.get_file_path(patient_id, session_id)
 
             # If file exists
             if os.path.isfile(file_path):
@@ -297,13 +313,14 @@ class OurDataset(InMemoryDataset):
                 # Features
                 x = self.get_features(self.local_features, mesh)
 
-                # Global features
-                global_x = self.get_global_features(self.global_feature, meta_data, patient_idx)
+                if not self.task == 'segmentation':
+                    # Global features
+                    global_x = self.get_global_features(self.global_feature, meta_data, patient_idx)
 
                 # Generating label based on the task. By default regression.
                 if self.task == 'classification':
                     patient_data = meta_data[
-                        (meta_data[:, 0] == patient_idx[:11]) & (meta_data[:, 1] == patient_idx[12:])][0]
+                        (meta_data[:, 0] == patient_id) & (meta_data[:, 1] == session_id)][0]
                     if self.task == 'classification' and self.meta_column_idx == 3:
                         y = torch.tensor([[int(float(patient_data[self.meta_column_idx]) <= 38)] + global_x])
                     else:
@@ -319,7 +336,7 @@ class OurDataset(InMemoryDataset):
                 # Else, regression
                 else:
                     patient_data = meta_data[
-                        (meta_data[:, 0] == patient_idx[:11]) & (meta_data[:, 1] == patient_idx[12:])][0]
+                        (meta_data[:, 0] == patient_id) & (meta_data[:, 1] == session_id)][0]
                     y = torch.tensor([[float(patient_data[self.meta_column_idx])] + global_x])
                     # y = torch.tensor([[float(meta_data[idx, self.meta_column_idx])] + global_x]) #TODO
 
