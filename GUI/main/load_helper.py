@@ -1,10 +1,12 @@
-from .models import Session
 import os
 from csv import reader as csv_reader
+
 from django.conf import settings
 
+from .models import Session
 
-def load_original_data(reset_upload_database):
+
+def load_original_data(reset_upload_database, batch_size=64):
     """
     Wipes the SessionDatabase and optionally wipes the UploadedSessionDatabase before loading
      the original dataset into the Django builtin database & detects their associated files
@@ -32,12 +34,17 @@ def load_original_data(reset_upload_database):
 
     with open(tsv_path) as foo:
         reader = csv_reader(foo, delimiter='\t')
+        sessions = list()
         for i, row in enumerate(reader):
             if i == 0:
                 if row != expected_ordering:
                     return {"success": False,
                             "message": "FAILED! The table column names aren't what was expected or in the wrong order."}
                 continue
+
+            elif i % batch_size == 0:
+                Session.objects.bulk_create(sessions, batch_size=batch_size)
+                sessions = list()
 
             (participant_id, session_id, gender, birth_age, birth_weight, singleton, scan_age,
              scan_number, radiology_score, sedation) = row
@@ -53,19 +60,18 @@ def load_original_data(reset_upload_database):
                 print(f'tsv contains non-uniques: {session_id}, {participant_id}')
                 continue
 
-            Session.objects.create(participant_id=participant_id,
-                                   session_id=int(session_id),
-                                   gender=gender,
-                                   birth_age=float(birth_age),
-                                   birth_weight=float(birth_weight),
-                                   singleton=singleton,
-                                   scan_age=float(scan_age),
-                                   scan_number=int(scan_number),
-                                   radiology_score=radiology_score,
-                                   sedation=sedation,
-                                   uploaded=False,
-                                   mri_file=mri_file_path,
-                                   surface_file=surface_file_path)
+            sessions.append(Session(participant_id=participant_id,
+                                    session_id=int(session_id),
+                                    gender=gender,
+                                    birth_age=float(birth_age),
+                                    birth_weight=float(birth_weight),
+                                    singleton=singleton,
+                                    scan_age=float(scan_age),
+                                    scan_number=int(scan_number),
+                                    radiology_score=radiology_score,
+                                    sedation=sedation,
+                                    uploaded=False,
+                                    mri_file=mri_file_path,
+                                    surface_file=surface_file_path))
 
     return {"success": True, "message": "SUCCESS"}
-
