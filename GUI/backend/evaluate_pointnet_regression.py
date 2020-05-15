@@ -9,13 +9,15 @@ import vtk
 from django.conf import settings
 from torch_geometric.data import Data
 from vtk.util.numpy_support import vtk_to_numpy
+import torch_geometric.transforms as T
 
-from .pre_trained_models.pointnet2_regression import Net  # TODO
+
+from .pre_trained_models.pointnet2_regression_v2 import Net  # TODO
 
 if settings.DEBUG == True:
-    MODEL_PATH = os.path.join(os.getcwd(), "GUI/backend/pre_trained_models/model_best.pt")
+    MODEL_PATH = os.path.join(os.getcwd(), "GUI/backend/pre_trained_models/model_best_1.pt")
 else:
-    MODEL_PATH = os.path.join(os.getcwd(), "backend/pre_trained_models/model_best.pt")
+    MODEL_PATH = os.path.join(os.getcwd(), "backend/pre_trained_models/model_best_1.pt")
 
 # Limit of memory in MB when to run on GPU if it's available.
 GPU_MEM_LIMIT = 2000
@@ -29,7 +31,11 @@ def get_features(list_features, reader):
 
     # Very ugly workaround about some classes not being in some data.
     list_of_drawem_labels = [0, 5, 7, 9, 11, 13, 15, 21, 22, 23, 25, 27, 29, 31, 33, 35, 37, 39]
-    feature_arrays = {'drawem': 0, 'corr_thickness': 1, 'myelin_map': 2, 'curvature': 3, 'sulc': 4}
+    feature_arrays = {'segmentation': 'segmentation',
+                      'corrected_thickness': 'corrected_thickness',
+                      'myelin_map': 'myelin_map',
+                      'curvature': 'curvature',
+                      'sulcal_depth': 'sulcal_depth'}
 
     if list_features:
 
@@ -55,7 +61,7 @@ def get_features(list_features, reader):
 
         # features = [mesh.get_array(feature_arrays[key]) for key in feature_arrays if key != 'drawem']
         features = [vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(feature_arrays[key])) for key in
-                    feature_arrays if key != 'drawem']
+                    list_features if key != 'drawem']
 
         return torch.tensor(features + drawem_list).t()
     else:
@@ -75,10 +81,16 @@ def predict_age(file_path="/media/original/data/vtps/sub-CC00050XX01_ses-7201_he
 
         points = torch.tensor(np.array(reader.GetOutput().GetPoints().GetData()))
 
-        local_features = ['corr_thickness', 'myelin_map', 'curvature', 'sulc']
-        x = get_features(local_features, reader)
+        local_features = ['corrected_thickness', 'curvature', 'sulcal_depth']
 
+
+        x = get_features(local_features, reader)
+        transform = T.NormalizeScale()
+        # transform_samp = T.FixedPoints(10000)
         data = Data(batch=torch.zeros_like(x[:, 0]).long(), x=x, pos=points)
+        data = transform(data)
+        # data = transform_samp(data)
+        # data = Data(batch=torch.zeros_like(x[:, 0]).long(), x=x, pos=points)
         # data = Data(x=x, pos=points)
 
         try:
