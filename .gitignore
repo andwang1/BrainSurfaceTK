@@ -153,3 +153,4 @@ models/MeshCNN/*txt
 /GUI/static_cdn/
 /GUI/main/migrations/
 /GUI/media/tmp/
+/GUI/etc/
