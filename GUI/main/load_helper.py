@@ -22,7 +22,8 @@ def load_original_data(reset_upload_database, batch_size=64):
     vtp_path = os.path.join(settings.MEDIA_ROOT, settings.ORIGINAL_VTP_DATA_PATH)
 
     if not os.path.isfile(tsv_path):
-        return {"success": False, "message": "Either this is not a file or the location is wrong!"}
+        # return {"success": False, "message": "Either this is not a file or the location is wrong!"}
+        return {"success": False, "message": tsv_path}
 
     # Check if the tsv file exists
     expected_ordering = ['participant_id', 'session_id', 'gender', 'birth_age', 'birth_weight', 'singleton',
