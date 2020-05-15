@@ -278,7 +278,7 @@ export function build_brain_surf_window(x, y) {
                 .getPointData()
                 .getArrays().filter(function (a) {
                 let tmp = a.getName().toLowerCase();
-                return !(tmp.includes("roi") || tmp.includes("initial_thickness"))
+                return !(tmp.includes("roi") || tmp.includes("initial_thickness") || tmp.includes("smooth_myelin_map"))
             })
                 .map((a) => ({
                     label: `${cleanLabel(a)}`,

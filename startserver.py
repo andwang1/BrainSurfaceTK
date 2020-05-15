@@ -1,6 +1,5 @@
 import os
 import sys
-import time
 
 SETTINGS = "GUI/BasicSite/settings.py"
 MANAGE_PATH = "GUI/manage.py"
@@ -23,7 +22,10 @@ def modify_settings(set_debug_status_to=True, media_path=""):
         if "MEDIA_URL" in line and line.strip(" ")[0] != "#":
             info["MEDIA_URL"] = line.split(" ")[-1].split('"')[-2][:-1]
         if "MEDIA_ROOT" in line and line.strip(" ")[0] != "#":
-            filedata[i] = 'MEDIA_ROOT = ' + '\"' + str(media_path) + '\"' + "\n"
+            if "os.path.join" in media_path:
+                filedata[i] = 'MEDIA_ROOT = ' + str(media_path) + "\n"
+            else:
+                filedata[i] = 'MEDIA_ROOT = ' + '\"' + str(media_path) + '\"' + "\n"
     with open(SETTINGS, 'w') as file:
         file.writelines(filedata)
     return info
@@ -37,18 +39,19 @@ if __name__ == "__main__":
     os.system(" ".join(["python", MANAGE_PATH, "migrate"]))
 
     if "imperial" not in args:
-        MEDIA_ROOT = "GUI/media"
+        DEV_MEDIA_ROOT = ["GUI", "media"]
+        MEDIA_ROOT = "os.path.join(BASE_DIR, " + '\"' + DEV_MEDIA_ROOT[1] + '\"' + ")"
 
+    PORT = "8000"
     for i, arg in enumerate(args):
-
         if "port" in arg:
-            PORT = args[i+1]
-    else:
-        PORT = "8000"
-
+            PORT = args[i + 1]
 
     if "prod" in args:
         info = modify_settings(False, MEDIA_ROOT)
+        if "os.path.join" in MEDIA_ROOT:
+            exec("MEDIA_ROOT=os.path.join(os.path.join(os.path.dirname(__file__)," + '\"' + os.path.join(*DEV_MEDIA_ROOT) + '\"' + "))")
+
         print("--url-alias", info["MEDIA_URL"], MEDIA_ROOT)
         os.system(r" ".join(["python", MANAGE_PATH, "collectstatic", "--noinput"]))
         os.system(r" ".join(
