@@ -248,17 +248,48 @@ export function build_brain_surf_window(x, y) {
         // ColorBy handling { value: ':', label: 'Solid color' }
         // --------------------------------------------------------------------
 
+        function toTitleCase(str) {
+            return str.replace(/\w\S*/g, function (txt) {
+                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+            });
+        }
+
+        function cleanLabel(a) {
+            //.split("_").pop()
+            let tmp = a.getName().toLowerCase();
+            if (tmp.includes("drawem") || tmp.includes("segmentation")) {
+                tmp = "Labels";
+            } else if (tmp.includes("corrected_thickness")) {
+                tmp = "Corrected Thickness";
+            } else if (tmp.includes("curvature")) {
+                tmp = "Curvature";
+            } else if (tmp.includes("sulcal_depth")) {
+                tmp = "Sulcal Depth";
+            } else if (tmp.includes("myelin_mapl")) {
+                tmp = "Myelin Map";
+            } else {
+                tmp = toTitleCase(tmp);
+            }
+            return tmp;
+        }
+
         const colorByOptions = [].concat(
             source
                 .getPointData()
-                .getArrays()
+                .getArrays().filter(function (a) {
+                let tmp = a.getName().toLowerCase();
+                return !(tmp.includes("roi") || tmp.includes("initial_thickness"))
+            })
                 .map((a) => ({
-                    label: `Point ${a.getName()}`,
+                    label: `${cleanLabel(a)}`,
                     value: `PointData:${a.getName()}`,
                 })),
             source
                 .getCellData()
-                .getArrays()
+                .getArrays().filter(function (a) {
+                let tmp = a.getName().toLowerCase();
+                return !(tmp.includes("roi") || tmp.includes("initial_thickness"))
+            })
                 .map((a) => ({
                     label: `(c) ${a.getName()}`,
                     value: `CellData:${a.getName()}`,
