@@ -52,11 +52,15 @@ if __name__ == "__main__":
         if "os.path.join" in MEDIA_ROOT:
             exec("MEDIA_ROOT=os.path.join(os.path.join(os.path.dirname(__file__)," + '\"' + os.path.join(*DEV_MEDIA_ROOT) + '\"' + "))")
 
+        mod_wsgi_home = os.path.join(os.path.dirname(__file__), "etc")
+        if not os.path.exists(mod_wsgi_home):
+            os.mkdir(mod_wsgi_home)
+
         print("--url-alias", info["MEDIA_URL"], MEDIA_ROOT)
         os.system(r" ".join(["python", MANAGE_PATH, "collectstatic", "--noinput"]))
         os.system(r" ".join(
             ["python", MANAGE_PATH, "runmodwsgi", "--url-alias", info["MEDIA_URL"], MEDIA_ROOT, "--limit-request-body",
-             "104857600", "--request-timeout 120", "--port", PORT]))
+             "104857600", "--request-timeout 120", "--port", PORT, f"--user www-data --group www-data --server-root={mod_wsgi_home}/mod_wsgi-{PORT}"]))
     else:
         modify_settings(True, MEDIA_ROOT)
         os.system(" ".join(["python", MANAGE_PATH, "runserver"]))
