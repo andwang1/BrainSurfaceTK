@@ -11,7 +11,7 @@
 
         <form method="POST">
             {% csrf_token %}
-            {{ dropdown.as_table }}
+            {{ dropdown.as_p }}
             <div class="right">
                 <label>
                     <input id="display-mri" name="display-mri" type="checkbox" class="filled-in" disabled/>
@@ -25,7 +25,6 @@
                 </button>
             </div>
         </form>
-
 
     </div>
 

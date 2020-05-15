@@ -5,6 +5,7 @@
         </ul>
         <ul id="nav-mobile">
             <li class="right"><a href="{% url "main:homepage" %}">Home</a></li>
+            <li class="right"><a href="{% url "main:lookup" %}">Look Up</a></li>
             {% if user.is_authenticated %}
                 <li class="right"><a href="{% url "main:account" %}">{{ user.username }}</a></li>
                 <li class="right"><a href="{% url "main:logout" %}">Logout</a></li>

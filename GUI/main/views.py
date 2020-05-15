@@ -40,8 +40,7 @@ def homepage(request):
     if Page.objects.filter(page_slug="about").count() != 1:
         Page.objects.create(page_title="About".title(), page_summary="About this project", page_slug="about",
                             page_template="about.html")
-    options = Page.objects.all()
-    return render(request, "main/homepage.html", context={"options": options})
+    return render(request, "main/homepage.html", context={"options": Page.objects.all()})
 
 
 @custom_login_required()

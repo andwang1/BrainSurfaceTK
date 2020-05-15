@@ -13,12 +13,12 @@
             <div class="row">
                 <form method="POST">
                     {% csrf_token %}
-                    <div class="col s2 m2 l2">
+                    <div class="left">
                         <button class="waves-effect waves-red btn-small imperial blue" type="submit" name="load_data">
                             Reset!
                         </button>
                     </div>
-                    <div class="col s6 m6 l6">
+                    <div class="right">
                         <label>
                             <input class="filled-in" type="checkbox" name="reset_upload_database"/>
                             <span>Reset Upload Session Database?</span>
