@@ -197,7 +197,7 @@ class WebsiteTester:
         if self.verbose:
             print("Debug: Accessing Upload from home.")
         bs_home = BeautifulSoup(self.driver.page_source, "lxml")
-        assert bs_home.find("p", text="Upload session ID"), "Tried to access Upload from Home but not on Home."
+        assert bs_home.find("p", text="Upload a given Session ID and Participant ID"), "Tried to access Upload from Home but not on Home."
         # Click on Upload
         self.driver.find_element_by_xpath("/html/body/main/div/div[2]/div[2]/div/div[2]/a").click()
         # Fill in the form

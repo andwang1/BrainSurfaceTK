@@ -265,7 +265,7 @@ export function build_brain_surf_window(x, y) {
                 tmp = "Curvature";
             } else if (tmp.includes("sulcal_depth")) {
                 tmp = "Sulcal Depth";
-            } else if (tmp.includes("myelin_mapl")) {
+            } else if (tmp.includes("myelin_map")) {
                 tmp = "Myelin Map";
             } else {
                 tmp = toTitleCase(tmp);
@@ -288,7 +288,7 @@ export function build_brain_surf_window(x, y) {
                 .getCellData()
                 .getArrays().filter(function (a) {
                 let tmp = a.getName().toLowerCase();
-                return !(tmp.includes("roi") || tmp.includes("initial_thickness"))
+                return !(tmp.includes("roi") || tmp.includes("initial_thickness") || tmp.includes("smooth_myelin_map"))
             })
                 .map((a) => ({
                     label: `(c) ${a.getName()}`,
