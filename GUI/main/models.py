@@ -3,6 +3,8 @@ from datetime import datetime
 from django.core import validators
 from django.db import models
 
+import os
+
 """
 THESE ARE YOUR DATABASES BRO
 """
@@ -13,8 +15,8 @@ class Page(models.Model):
     page_summary = models.CharField(max_length=200, blank=True)
     page_content = models.TextField(blank=True)
     page_published = models.DateTimeField('date published', default=datetime.now, blank=True)
+    page_template = models.CharField(verbose_name="Page Template", default="blank_template.html", max_length=100)
     page_slug = models.SlugField(max_length=100, unique=True, blank=True)
-    page_template = models.SlugField(verbose_name="Page Template", default="blank_template.html", blank=True, null=True)
 
     def __str__(self):
         return self.page_title
