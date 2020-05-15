@@ -39,16 +39,21 @@ if __name__ == "__main__":
     if "imperial" not in args:
         MEDIA_ROOT = "GUI/media"
 
+    for i, arg in enumerate(args):
+
+        if "port" in arg:
+            PORT = args[i+1]
+    else:
+        PORT = "8000"
+
+
     if "prod" in args:
         info = modify_settings(False, MEDIA_ROOT)
-        print(MEDIA_ROOT)
-        print(os.getcwd())
-        time.time()
         print("--url-alias", info["MEDIA_URL"], MEDIA_ROOT)
         os.system(r" ".join(["python", MANAGE_PATH, "collectstatic", "--noinput"]))
         os.system(r" ".join(
             ["python", MANAGE_PATH, "runmodwsgi", "--url-alias", info["MEDIA_URL"], MEDIA_ROOT, "--limit-request-body",
-             "104857600", "--request-timeout 120"]))
+             "104857600", "--request-timeout 120", "--port", PORT]))
     else:
         modify_settings(True, MEDIA_ROOT)
         os.system(" ".join(["python", MANAGE_PATH, "runserver"]))

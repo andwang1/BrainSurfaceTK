@@ -2198,3 +2198,136 @@
 [Fri May 15 15:12:15.430961 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666] django.db.utils.IntegrityError: NOT NULL constraint failed: main_session.birth_age
 [Fri May 15 15:12:15.430967 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666] 
 [Fri May 15 15:12:46.600584 2020] [mpm_event:notice] [pid 5052:tid 140717213593600] AH00491: caught SIGTERM, shutting down
+[Fri May 15 16:20:10.320227 2020] [mpm_event:notice] [pid 6016:tid 140048273833984] AH00489: Apache/2.4.41 (Unix) mod_wsgi/4.7.1 Python/3.6 configured -- resuming normal operations
+[Fri May 15 16:20:10.320351 2020] [core:notice] [pid 6016:tid 140048273833984] AH00094: Command line: 'httpd (mod_wsgi-express)    -f /home/server/neodeepbrain/GUI/etc/mod_wsgi-8000/httpd.conf -D MOD_WSGI_MPM_ENABLE_EVENT_MODULE -D MOD_WSGI_MPM_EXISTS_EVENT_MODULE -D MOD_WSGI_MPM_EXISTS_WORKER_MODULE -D MOD_WSGI_MPM_EXISTS_PREFORK_MODULE'
+[Fri May 15 15:21:22.648806 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.224.30:34812] /vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/vtk/util/numpy_support.py:137: FutureWarning: Conversion of the second argument of issubdtype from `complex` to `np.complexfloating` is deprecated. In future, it will be treated as `np.complex128 == np.dtype(complex).type`.
+[Fri May 15 15:21:22.648868 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.224.30:34812]   assert not numpy.issubdtype(z.dtype, complex), \\
+[Fri May 15 15:23:19.221682 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.224.30:35014] [2020-05-15 15:23:18,837] log: ERROR - Internal Server Error: /results/CC00126XX11_43100_false/run_segmentation/
+[Fri May 15 15:23:19.221723 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.224.30:35014] Traceback (most recent call last):
+[Fri May 15 15:23:19.221728 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.224.30:35014]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/exception.py", line 34, in inner
+[Fri May 15 15:23:19.221733 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.224.30:35014]     response = get_response(request)
+[Fri May 15 15:23:19.221737 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.224.30:35014]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/base.py", line 115, in _get_response
+[Fri May 15 15:23:19.221741 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.224.30:35014]     response = self.process_exception_by_middleware(e, request)
+[Fri May 15 15:23:19.221745 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.224.30:35014]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/base.py", line 113, in _get_response
+[Fri May 15 15:23:19.221749 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.224.30:35014]     response = wrapped_callback(request, *callback_args, **callback_kwargs)
+[Fri May 15 15:23:19.221763 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.224.30:35014]   File "/home/server/neodeepbrain/GUI/main/result_helper_views.py", line 16, in run_segmentation
+[Fri May 15 15:23:19.221767 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.224.30:35014]     return JsonResponse({'segmented_file_path': pointnet_run_segmentation(file_url)})
+[Fri May 15 15:23:19.221770 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.224.30:35014]   File "/home/server/neodeepbrain/GUI/main/result_helpers.py", line 87, in pointnet_run_segmentation
+[Fri May 15 15:23:19.221774 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.224.30:35014]     tmp_file_name=tmp_file_name)
+[Fri May 15 15:23:19.221777 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.224.30:35014]   File "/home/server/neodeepbrain/GUI/backend/evaluate_pointnet_segmentation.py", line 130, in segment
+[Fri May 15 15:23:19.221781 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.224.30:35014]     temporary_list.append(label_mapping[y])
+[Fri May 15 15:23:19.221785 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.224.30:35014] KeyError: 39
+[Fri May 15 15:23:19.221791 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.224.30:35014] 
+[Fri May 15 15:23:41.069710 2020] [wsgi:error] [pid 6017:tid 140047952283392] [remote 129.31.224.30:35018] [2020-05-15 15:23:41,042] log: ERROR - Internal Server Error: /results/CC00126XX11_43100_false/run_segmentation/
+[Fri May 15 15:23:41.069757 2020] [wsgi:error] [pid 6017:tid 140047952283392] [remote 129.31.224.30:35018] Traceback (most recent call last):
+[Fri May 15 15:23:41.069762 2020] [wsgi:error] [pid 6017:tid 140047952283392] [remote 129.31.224.30:35018]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/exception.py", line 34, in inner
+[Fri May 15 15:23:41.069766 2020] [wsgi:error] [pid 6017:tid 140047952283392] [remote 129.31.224.30:35018]     response = get_response(request)
+[Fri May 15 15:23:41.069769 2020] [wsgi:error] [pid 6017:tid 140047952283392] [remote 129.31.224.30:35018]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/base.py", line 115, in _get_response
+[Fri May 15 15:23:41.069773 2020] [wsgi:error] [pid 6017:tid 140047952283392] [remote 129.31.224.30:35018]     response = self.process_exception_by_middleware(e, request)
+[Fri May 15 15:23:41.069776 2020] [wsgi:error] [pid 6017:tid 140047952283392] [remote 129.31.224.30:35018]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/base.py", line 113, in _get_response
+[Fri May 15 15:23:41.069780 2020] [wsgi:error] [pid 6017:tid 140047952283392] [remote 129.31.224.30:35018]     response = wrapped_callback(request, *callback_args, **callback_kwargs)
+[Fri May 15 15:23:41.069784 2020] [wsgi:error] [pid 6017:tid 140047952283392] [remote 129.31.224.30:35018]   File "/home/server/neodeepbrain/GUI/main/result_helper_views.py", line 16, in run_segmentation
+[Fri May 15 15:23:41.069787 2020] [wsgi:error] [pid 6017:tid 140047952283392] [remote 129.31.224.30:35018]     return JsonResponse({'segmented_file_path': pointnet_run_segmentation(file_url)})
+[Fri May 15 15:23:41.069791 2020] [wsgi:error] [pid 6017:tid 140047952283392] [remote 129.31.224.30:35018]   File "/home/server/neodeepbrain/GUI/main/result_helpers.py", line 87, in pointnet_run_segmentation
+[Fri May 15 15:23:41.069794 2020] [wsgi:error] [pid 6017:tid 140047952283392] [remote 129.31.224.30:35018]     tmp_file_name=tmp_file_name)
+[Fri May 15 15:23:41.069798 2020] [wsgi:error] [pid 6017:tid 140047952283392] [remote 129.31.224.30:35018]   File "/home/server/neodeepbrain/GUI/backend/evaluate_pointnet_segmentation.py", line 130, in segment
+[Fri May 15 15:23:41.069801 2020] [wsgi:error] [pid 6017:tid 140047952283392] [remote 129.31.224.30:35018]     temporary_list.append(label_mapping[y])
+[Fri May 15 15:23:41.069817 2020] [wsgi:error] [pid 6017:tid 140047952283392] [remote 129.31.224.30:35018] KeyError: 39
+[Fri May 15 15:23:41.069823 2020] [wsgi:error] [pid 6017:tid 140047952283392] [remote 129.31.224.30:35018] 
+[Fri May 15 15:23:41.091037 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35020] [2020-05-15 15:23:41,048] log: ERROR - Internal Server Error: /results/CC00126XX11_43100_false/run_segmentation/
+[Fri May 15 15:23:41.091070 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35020] Traceback (most recent call last):
+[Fri May 15 15:23:41.091074 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35020]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/exception.py", line 34, in inner
+[Fri May 15 15:23:41.091078 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35020]     response = get_response(request)
+[Fri May 15 15:23:41.091082 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35020]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/base.py", line 115, in _get_response
+[Fri May 15 15:23:41.091085 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35020]     response = self.process_exception_by_middleware(e, request)
+[Fri May 15 15:23:41.091089 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35020]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/base.py", line 113, in _get_response
+[Fri May 15 15:23:41.091093 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35020]     response = wrapped_callback(request, *callback_args, **callback_kwargs)
+[Fri May 15 15:23:41.091096 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35020]   File "/home/server/neodeepbrain/GUI/main/result_helper_views.py", line 16, in run_segmentation
+[Fri May 15 15:23:41.091100 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35020]     return JsonResponse({'segmented_file_path': pointnet_run_segmentation(file_url)})
+[Fri May 15 15:23:41.091103 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35020]   File "/home/server/neodeepbrain/GUI/main/result_helpers.py", line 87, in pointnet_run_segmentation
+[Fri May 15 15:23:41.091107 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35020]     tmp_file_name=tmp_file_name)
+[Fri May 15 15:23:41.091110 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35020]   File "/home/server/neodeepbrain/GUI/backend/evaluate_pointnet_segmentation.py", line 130, in segment
+[Fri May 15 15:23:41.091114 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35020]     temporary_list.append(label_mapping[y])
+[Fri May 15 15:23:41.091118 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35020] KeyError: 39
+[Fri May 15 15:23:41.091124 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35020] 
+[Fri May 15 15:25:16.750463 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35046] [2020-05-15 15:25:16,713] log: ERROR - Internal Server Error: /results/CC00126XX11_43100_false/run_segmentation/
+[Fri May 15 15:25:16.750507 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35046] Traceback (most recent call last):
+[Fri May 15 15:25:16.750512 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35046]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/exception.py", line 34, in inner
+[Fri May 15 15:25:16.750517 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35046]     response = get_response(request)
+[Fri May 15 15:25:16.750521 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35046]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/base.py", line 115, in _get_response
+[Fri May 15 15:25:16.750534 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35046]     response = self.process_exception_by_middleware(e, request)
+[Fri May 15 15:25:16.750537 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35046]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/base.py", line 113, in _get_response
+[Fri May 15 15:25:16.750541 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35046]     response = wrapped_callback(request, *callback_args, **callback_kwargs)
+[Fri May 15 15:25:16.750545 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35046]   File "/home/server/neodeepbrain/GUI/main/result_helper_views.py", line 16, in run_segmentation
+[Fri May 15 15:25:16.750548 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35046]     return JsonResponse({'segmented_file_path': pointnet_run_segmentation(file_url)})
+[Fri May 15 15:25:16.750552 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35046]   File "/home/server/neodeepbrain/GUI/main/result_helpers.py", line 87, in pointnet_run_segmentation
+[Fri May 15 15:25:16.750555 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35046]     tmp_file_name=tmp_file_name)
+[Fri May 15 15:25:16.750559 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35046]   File "/home/server/neodeepbrain/GUI/backend/evaluate_pointnet_segmentation.py", line 130, in segment
+[Fri May 15 15:25:16.750563 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35046]     temporary_list.append(label_mapping[y])
+[Fri May 15 15:25:16.750567 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35046] KeyError: 39
+[Fri May 15 15:25:16.750573 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35046] 
+[Fri May 15 15:25:37.468795 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35070] [2020-05-15 15:25:37,445] log: ERROR - Internal Server Error: /results/CC00126XX11_43100_false/run_segmentation/
+[Fri May 15 15:25:37.468822 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35070] Traceback (most recent call last):
+[Fri May 15 15:25:37.468827 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35070]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/exception.py", line 34, in inner
+[Fri May 15 15:25:37.468831 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35070]     response = get_response(request)
+[Fri May 15 15:25:37.468834 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35070]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/base.py", line 115, in _get_response
+[Fri May 15 15:25:37.468838 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35070]     response = self.process_exception_by_middleware(e, request)
+[Fri May 15 15:25:37.468841 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35070]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/base.py", line 113, in _get_response
+[Fri May 15 15:25:37.468845 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35070]     response = wrapped_callback(request, *callback_args, **callback_kwargs)
+[Fri May 15 15:25:37.468849 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35070]   File "/home/server/neodeepbrain/GUI/main/result_helper_views.py", line 16, in run_segmentation
+[Fri May 15 15:25:37.468852 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35070]     return JsonResponse({'segmented_file_path': pointnet_run_segmentation(file_url)})
+[Fri May 15 15:25:37.468856 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35070]   File "/home/server/neodeepbrain/GUI/main/result_helpers.py", line 87, in pointnet_run_segmentation
+[Fri May 15 15:25:37.468869 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35070]     tmp_file_name=tmp_file_name)
+[Fri May 15 15:25:37.468872 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35070]   File "/home/server/neodeepbrain/GUI/backend/evaluate_pointnet_segmentation.py", line 130, in segment
+[Fri May 15 15:25:37.468876 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35070]     temporary_list.append(label_mapping[y])
+[Fri May 15 15:25:37.468881 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35070] KeyError: 39
+[Fri May 15 15:25:37.468886 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35070] 
+[Fri May 15 15:26:18.032315 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35112] [2020-05-15 15:26:17,992] log: ERROR - Internal Server Error: /results/CC00126XX11_43100_false/run_segmentation/
+[Fri May 15 15:26:18.032360 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35112] Traceback (most recent call last):
+[Fri May 15 15:26:18.032366 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35112]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/exception.py", line 34, in inner
+[Fri May 15 15:26:18.032370 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35112]     response = get_response(request)
+[Fri May 15 15:26:18.032374 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35112]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/base.py", line 115, in _get_response
+[Fri May 15 15:26:18.032378 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35112]     response = self.process_exception_by_middleware(e, request)
+[Fri May 15 15:26:18.032382 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35112]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/base.py", line 113, in _get_response
+[Fri May 15 15:26:18.032386 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35112]     response = wrapped_callback(request, *callback_args, **callback_kwargs)
+[Fri May 15 15:26:18.032391 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35112]   File "/home/server/neodeepbrain/GUI/main/result_helper_views.py", line 16, in run_segmentation
+[Fri May 15 15:26:18.032395 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35112]     return JsonResponse({'segmented_file_path': pointnet_run_segmentation(file_url)})
+[Fri May 15 15:26:18.032399 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35112]   File "/home/server/neodeepbrain/GUI/main/result_helpers.py", line 87, in pointnet_run_segmentation
+[Fri May 15 15:26:18.032403 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35112]     tmp_file_name=tmp_file_name)
+[Fri May 15 15:26:18.032406 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35112]   File "/home/server/neodeepbrain/GUI/backend/evaluate_pointnet_segmentation.py", line 130, in segment
+[Fri May 15 15:26:18.032411 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35112]     temporary_list.append(label_mapping[y])
+[Fri May 15 15:26:18.032416 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35112] KeyError: 39
+[Fri May 15 15:26:18.032422 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35112] 
+[Fri May 15 15:31:04.269646 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35368] [2020-05-15 15:31:04,225] log: ERROR - Internal Server Error: /results/CC00126XX11_43100_false/run_segmentation/
+[Fri May 15 15:31:04.269693 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35368] Traceback (most recent call last):
+[Fri May 15 15:31:04.269708 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35368]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/exception.py", line 34, in inner
+[Fri May 15 15:31:04.269712 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35368]     response = get_response(request)
+[Fri May 15 15:31:04.269715 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35368]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/base.py", line 115, in _get_response
+[Fri May 15 15:31:04.269719 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35368]     response = self.process_exception_by_middleware(e, request)
+[Fri May 15 15:31:04.269722 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35368]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/base.py", line 113, in _get_response
+[Fri May 15 15:31:04.269726 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35368]     response = wrapped_callback(request, *callback_args, **callback_kwargs)
+[Fri May 15 15:31:04.269730 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35368]   File "/home/server/neodeepbrain/GUI/main/result_helper_views.py", line 16, in run_segmentation
+[Fri May 15 15:31:04.269733 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35368]     return JsonResponse({'segmented_file_path': pointnet_run_segmentation(file_url)})
+[Fri May 15 15:31:04.269737 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35368]   File "/home/server/neodeepbrain/GUI/main/result_helpers.py", line 87, in pointnet_run_segmentation
+[Fri May 15 15:31:04.269740 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35368]     tmp_file_name=tmp_file_name)
+[Fri May 15 15:31:04.269744 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35368]   File "/home/server/neodeepbrain/GUI/backend/evaluate_pointnet_segmentation.py", line 130, in segment
+[Fri May 15 15:31:04.269747 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35368]     temporary_list.append(label_mapping[y])
+[Fri May 15 15:31:04.269752 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35368] KeyError: 39
+[Fri May 15 15:31:04.269758 2020] [wsgi:error] [pid 6017:tid 140047960676096] [remote 129.31.224.30:35368] 
+[Fri May 15 15:32:04.207636 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.241.130:43046] [2020-05-15 15:32:04,184] log: ERROR - Internal Server Error: /results/CC00126XX11_43100_false/run_segmentation/
+[Fri May 15 15:32:04.207675 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.241.130:43046] Traceback (most recent call last):
+[Fri May 15 15:32:04.207681 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.241.130:43046]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/exception.py", line 34, in inner
+[Fri May 15 15:32:04.207685 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.241.130:43046]     response = get_response(request)
+[Fri May 15 15:32:04.207690 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.241.130:43046]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/base.py", line 115, in _get_response
+[Fri May 15 15:32:04.207694 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.241.130:43046]     response = self.process_exception_by_middleware(e, request)
+[Fri May 15 15:32:04.207698 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.241.130:43046]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/base.py", line 113, in _get_response
+[Fri May 15 15:32:04.207702 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.241.130:43046]     response = wrapped_callback(request, *callback_args, **callback_kwargs)
+[Fri May 15 15:32:04.207716 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.241.130:43046]   File "/home/server/neodeepbrain/GUI/main/result_helper_views.py", line 16, in run_segmentation
+[Fri May 15 15:32:04.207720 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.241.130:43046]     return JsonResponse({'segmented_file_path': pointnet_run_segmentation(file_url)})
+[Fri May 15 15:32:04.207724 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.241.130:43046]   File "/home/server/neodeepbrain/GUI/main/result_helpers.py", line 87, in pointnet_run_segmentation
+[Fri May 15 15:32:04.207727 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.241.130:43046]     tmp_file_name=tmp_file_name)
+[Fri May 15 15:32:04.207731 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.241.130:43046]   File "/home/server/neodeepbrain/GUI/backend/evaluate_pointnet_segmentation.py", line 130, in segment
+[Fri May 15 15:32:04.207734 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.241.130:43046]     temporary_list.append(label_mapping[y])
+[Fri May 15 15:32:04.207739 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.241.130:43046] KeyError: 39
+[Fri May 15 15:32:04.207745 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 129.31.241.130:43046] 
+[Fri May 15 15:35:47.225212 2020] [wsgi:error] [pid 6017:tid 140047977461504] [remote 146.169.53.1:45190] [2020-05-15 15:35:47,225] log: WARNING - Not Found: /results/CC00126XX11_43100_false/login/
