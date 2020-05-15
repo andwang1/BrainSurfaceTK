@@ -26,12 +26,8 @@ DEBUG = False
 
 ALLOWED_HOSTS = ["146.169.52.15", "localhost"]
 
-
-
 # Must be relative to MEDIA_ROOT
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-
-
 
 ORIGINAL_META_DATA_PATH = "original/meta_data.tsv"
 ORIGINAL_MRI_DATA_PATH = "original/mris/"
