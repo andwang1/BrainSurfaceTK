@@ -36,20 +36,13 @@ def get_features(list_features, reader):
     :param mesh: pyvista mesh from which to get the arrays.
     :returns: tensor of features or None if list is empty.'''
 
-    # Very ugly workaround about some classes not being in some data.
-    list_of_drawem_labels = [0, 5, 7, 9, 11, 13, 15, 21, 22, 23, 25, 27, 29, 31, 33, 35, 37, 39]
-    feature_arrays = {'drawem': 0, 'corr_thickness': 1, 'myelin_map': 2, 'curvature': 3, 'sulc': 4}
+    # feature_arrays = ['corrected_thickness', 'curvature', 'sulcal_depth']
+    drawem_list = []
 
-    if list_features:
-        drawem_list = []
+    features = [vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(array)) for array in list_features]
 
-        # features = [mesh.get_array(feature_arrays[key]) for key in feature_arrays if key != 'drawem']
-        features = [vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(feature_arrays[key])) for key in
-                    feature_arrays if key != 'drawem']
+    return torch.tensor(features + drawem_list).t()
 
-        return torch.tensor(features + drawem_list).t()
-    else:
-        return None
 
 def get_labels(reader):
     '''Returns tensor of features to add in every point.
@@ -57,13 +50,7 @@ def get_labels(reader):
     :param mesh: pyvista mesh from which to get the arrays.
     :returns: tensor of features or None if list is empty.'''
 
-    # Very ugly workaround about some classes not being in some data.
-    list_of_drawem_labels = [0, 5, 7, 9, 11, 13, 15, 21, 22, 23, 25, 27, 29, 31, 33, 35, 37, 39]
-    feature_arrays = {'drawem': 0, 'corr_thickness': 1, 'myelin_map': 2, 'curvature': 3, 'sulc': 4}
-
-    labels = [vtk_to_numpy(reader.GetOutput().GetPointData().GetArray(feature_arrays[key])) for key in
-                feature_arrays if key == 'drawem']
-
+    labels = vtk_to_numpy(reader.GetOutput().GetPointData().GetArray('segmentation'))
     return torch.tensor(labels).t()
 
 
@@ -82,7 +69,7 @@ def segment(brain_path, folder_path_to_write, tmp_file_name=None):
 
     points = torch.tensor(np.array(reader.GetOutput().GetPoints().GetData()))
 
-    local_features = ['corr_thickness', 'curvature', 'sulc']
+    local_features = ['corrected_thickness', 'curvature', 'sulcal_depth']
     x = get_features(local_features, reader)
 
     try:
