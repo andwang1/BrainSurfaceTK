@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# ['manage.py', 'runmodwsgi', '--port=8000', '--user', 'www-data', '--group', 'www-data', '--server-root=etc/mod_wsgi-8000', '--url-alias', '/media', '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/media', '--limit-request-body', '104857600', '--request-timeout', '120']
+# ['manage.py', 'runmodwsgi', '--setup-only', '--port=80', '--user', 'www-data', '--group', 'www-data', '--server-root=etc/mod_wsgi-80', '--url-alias', '/media', '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/media', '--limit-request-body', '104857600', '--request-timeout', '120']
 
 HTTPD="/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/mod_wsgi_packages/httpd/bin/httpd"
-HTTPD_ARGS="-f /home/server/neodeepbrain/GUI/etc/mod_wsgi-8000/httpd.conf -DMOD_WSGI_MPM_ENABLE_EVENT_MODULE -DMOD_WSGI_MPM_EXISTS_EVENT_MODULE -DMOD_WSGI_MPM_EXISTS_WORKER_MODULE -DMOD_WSGI_MPM_EXISTS_PREFORK_MODULE"
+HTTPD_ARGS="-f /home/server/neodeepbrain/GUI/etc/mod_wsgi-80/httpd.conf -DMOD_WSGI_MPM_ENABLE_EVENT_MODULE -DMOD_WSGI_MPM_EXISTS_EVENT_MODULE -DMOD_WSGI_MPM_EXISTS_WORKER_MODULE -DMOD_WSGI_MPM_EXISTS_PREFORK_MODULE"
 
 HTTPD_COMMAND="$HTTPD $HTTPD_ARGS"
 
@@ -17,7 +17,7 @@ if [ "x$SHLIBPATH" != "x" ]; then
     export LD_LIBRARY_PATH
 fi
 
-MOD_WSGI_SERVER_ROOT="/home/server/neodeepbrain/GUI/etc/mod_wsgi-8000"
+MOD_WSGI_SERVER_ROOT="/home/server/neodeepbrain/GUI/etc/mod_wsgi-80"
 
 export MOD_WSGI_SERVER_ROOT
 
@@ -25,7 +25,7 @@ MOD_WSGI_LISTENER_HOST="localhost"
 
 export MOD_WSGI_LISTENER_HOST
 
-MOD_WSGI_HTTP_PORT="8000"
+MOD_WSGI_HTTP_PORT="80"
 MOD_WSGI_HTTPS_PORT="None"
 
 export MOD_WSGI_HTTP_PORT
@@ -68,11 +68,11 @@ export LC_ALL
 ACMD="$1"
 ARGV="$@"
 
-if test -f /home/server/neodeepbrain/GUI/etc/mod_wsgi-8000/envvars; then
-    . /home/server/neodeepbrain/GUI/etc/mod_wsgi-8000/envvars
+if test -f /home/server/neodeepbrain/GUI/etc/mod_wsgi-80/envvars; then
+    . /home/server/neodeepbrain/GUI/etc/mod_wsgi-80/envvars
 fi
 
-STATUSURL="http://localhost:8000/server-status"
+STATUSURL="http://localhost:80/server-status"
 
 if [ "x$ARGV" = "x" ]; then
     ARGV="-h"
@@ -81,15 +81,15 @@ fi
 GDB="gdb"
 ENABLE_GDB="False"
 
-PROCESS_NAME="httpd (mod_wsgi-express)   "
+PROCESS_NAME="httpd (mod_wsgi-express) "
 
 case $ACMD in
 start|stop|restart|graceful|graceful-stop)
     if [ "x$ENABLE_GDB" != "xTrue" ]; then
         exec -a "$PROCESS_NAME" $HTTPD_COMMAND -k $ARGV
     else
-        echo "run $HTTPD_ARGS -k $ARGV" > /home/server/neodeepbrain/GUI/etc/mod_wsgi-8000/gdb.cmds
-        gdb -x /home/server/neodeepbrain/GUI/etc/mod_wsgi-8000/gdb.cmds $HTTPD
+        echo "run $HTTPD_ARGS -k $ARGV" > /home/server/neodeepbrain/GUI/etc/mod_wsgi-80/gdb.cmds
+        gdb -x /home/server/neodeepbrain/GUI/etc/mod_wsgi-80/gdb.cmds $HTTPD
     fi
     ;;
 configtest)

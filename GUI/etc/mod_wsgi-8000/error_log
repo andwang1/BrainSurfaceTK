@@ -2142,3 +2142,59 @@
 [Thu May 14 22:51:39.450547 2020] [wsgi:error] [pid 14065:tid 140651617425152] [remote 129.31.243.58:50888]                                                                                            ^
 [Thu May 14 22:51:39.450551 2020] [wsgi:error] [pid 14065:tid 140651617425152] [remote 129.31.243.58:50888] SyntaxError: invalid syntax
 [Thu May 14 23:51:42.509403 2020] [mpm_event:notice] [pid 14063:tid 140651951435776] AH00491: caught SIGTERM, shutting down
+[Fri May 15 15:09:51.035108 2020] [mpm_event:notice] [pid 5052:tid 140717213593600] AH00489: Apache/2.4.41 (Unix) mod_wsgi/4.7.1 Python/3.6 configured -- resuming normal operations
+[Fri May 15 15:09:51.035227 2020] [core:notice] [pid 5052:tid 140717213593600] AH00094: Command line: 'httpd (mod_wsgi-express)    -f /home/server/neodeepbrain/GUI/etc/mod_wsgi-8000/httpd.conf -D MOD_WSGI_MPM_ENABLE_EVENT_MODULE -D MOD_WSGI_MPM_EXISTS_EVENT_MODULE -D MOD_WSGI_MPM_EXISTS_WORKER_MODULE -D MOD_WSGI_MPM_EXISTS_PREFORK_MODULE -D FOREGROUND'
+[Fri May 15 15:11:00.211574 2020] [wsgi:error] [pid 5094:tid 140716925613824] [remote 129.31.224.30:34588] /vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/vtk/util/numpy_support.py:137: FutureWarning: Conversion of the second argument of issubdtype from `complex` to `np.complexfloating` is deprecated. In future, it will be treated as `np.complex128 == np.dtype(complex).type`.
+[Fri May 15 15:11:00.211743 2020] [wsgi:error] [pid 5094:tid 140716925613824] [remote 129.31.224.30:34588]   assert not numpy.issubdtype(z.dtype, complex), \\
+[Fri May 15 15:12:15.430729 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666] [2020-05-15 15:12:15,253] log: ERROR - Internal Server Error: /upload/
+[Fri May 15 15:12:15.430768 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666] Traceback (most recent call last):
+[Fri May 15 15:12:15.430774 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/db/backends/utils.py", line 86, in _execute
+[Fri May 15 15:12:15.430778 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]     return self.cursor.execute(sql, params)
+[Fri May 15 15:12:15.430782 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/db/backends/sqlite3/base.py", line 396, in execute
+[Fri May 15 15:12:15.430787 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]     return Database.Cursor.execute(self, query, params)
+[Fri May 15 15:12:15.430791 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666] sqlite3.IntegrityError: NOT NULL constraint failed: main_session.birth_age
+[Fri May 15 15:12:15.430795 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666] 
+[Fri May 15 15:12:15.430798 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666] The above exception was the direct cause of the following exception:
+[Fri May 15 15:12:15.430802 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666] 
+[Fri May 15 15:12:15.430806 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666] Traceback (most recent call last):
+[Fri May 15 15:12:15.430810 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/exception.py", line 34, in inner
+[Fri May 15 15:12:15.430814 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]     response = get_response(request)
+[Fri May 15 15:12:15.430818 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/base.py", line 115, in _get_response
+[Fri May 15 15:12:15.430822 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]     response = self.process_exception_by_middleware(e, request)
+[Fri May 15 15:12:15.430826 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/core/handlers/base.py", line 113, in _get_response
+[Fri May 15 15:12:15.430830 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]     response = wrapped_callback(request, *callback_args, **callback_kwargs)
+[Fri May 15 15:12:15.430834 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]   File "/home/server/neodeepbrain/GUI/main/custom_wrapper_decorators.py", line 21, in _wrapped_view
+[Fri May 15 15:12:15.430838 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]     return view_func(request, *args, **kwargs)
+[Fri May 15 15:12:15.430842 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]   File "/home/server/neodeepbrain/GUI/main/views.py", line 138, in upload_session
+[Fri May 15 15:12:15.430845 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]     form.save()
+[Fri May 15 15:12:15.430849 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/forms/models.py", line 459, in save
+[Fri May 15 15:12:15.430853 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]     self.instance.save()
+[Fri May 15 15:12:15.430865 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/db/models/base.py", line 746, in save
+[Fri May 15 15:12:15.430869 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]     force_update=force_update, update_fields=update_fields)
+[Fri May 15 15:12:15.430872 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/db/models/base.py", line 784, in save_base
+[Fri May 15 15:12:15.430876 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]     force_update, using, update_fields,
+[Fri May 15 15:12:15.430879 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/db/models/base.py", line 887, in _save_table
+[Fri May 15 15:12:15.430883 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]     results = self._do_insert(cls._base_manager, using, fields, returning_fields, raw)
+[Fri May 15 15:12:15.430886 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/db/models/base.py", line 926, in _do_insert
+[Fri May 15 15:12:15.430890 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]     using=using, raw=raw,
+[Fri May 15 15:12:15.430893 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/db/models/manager.py", line 82, in manager_method
+[Fri May 15 15:12:15.430897 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]     return getattr(self.get_queryset(), name)(*args, **kwargs)
+[Fri May 15 15:12:15.430900 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/db/models/query.py", line 1204, in _insert
+[Fri May 15 15:12:15.430904 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]     return query.get_compiler(using=using).execute_sql(returning_fields)
+[Fri May 15 15:12:15.430907 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/db/models/sql/compiler.py", line 1391, in execute_sql
+[Fri May 15 15:12:15.430911 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]     cursor.execute(sql, params)
+[Fri May 15 15:12:15.430914 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/db/backends/utils.py", line 68, in execute
+[Fri May 15 15:12:15.430918 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]     return self._execute_with_wrappers(sql, params, many=False, executor=self._execute)
+[Fri May 15 15:12:15.430921 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/db/backends/utils.py", line 77, in _execute_with_wrappers
+[Fri May 15 15:12:15.430925 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]     return executor(sql, params, many, context)
+[Fri May 15 15:12:15.430928 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/db/backends/utils.py", line 86, in _execute
+[Fri May 15 15:12:15.430932 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]     return self.cursor.execute(sql, params)
+[Fri May 15 15:12:15.430935 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/db/utils.py", line 90, in __exit__
+[Fri May 15 15:12:15.430942 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]     raise dj_exc_value.with_traceback(traceback) from exc_value
+[Fri May 15 15:12:15.430945 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/db/backends/utils.py", line 86, in _execute
+[Fri May 15 15:12:15.430949 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]     return self.cursor.execute(sql, params)
+[Fri May 15 15:12:15.430952 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]   File "/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/django/db/backends/sqlite3/base.py", line 396, in execute
+[Fri May 15 15:12:15.430956 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666]     return Database.Cursor.execute(self, query, params)
+[Fri May 15 15:12:15.430961 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666] django.db.utils.IntegrityError: NOT NULL constraint failed: main_session.birth_age
+[Fri May 15 15:12:15.430967 2020] [wsgi:error] [pid 5094:tid 140716892043008] [remote 129.31.224.30:34666] 
+[Fri May 15 15:12:46.600584 2020] [mpm_event:notice] [pid 5052:tid 140717213593600] AH00491: caught SIGTERM, shutting down
