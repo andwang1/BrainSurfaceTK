@@ -4,9 +4,9 @@ import os
 from selenium import webdriver
 from bs4 import BeautifulSoup
 
-website_url = "http://146.169.53.170:8000/"
-login_user = "slave"
-login_pw = "slave"
+website_url = "http://146.169.40.58:8000/"
+login_user = "aw19"
+login_pw = "Imperial-2019"
 
 
 class WebsiteTester:
@@ -90,7 +90,7 @@ class WebsiteTester:
             print("Debug: Logged in.")
         return time.time() - start
 
-    def lookup(self, session_id, is_display_MRI, is_from_home):
+    def lookup(self, participant_id, session_id, is_display_MRI, is_from_home):
         start = time.time()
         session_id = str(session_id)
         # Accessing from the home website
@@ -117,14 +117,14 @@ class WebsiteTester:
         bs_dropdown = bs_lookup.find("input", class_="select-dropdown dropdown-trigger")
         self.driver.find_element_by_xpath(self.xpath_soup(bs_dropdown)).click()
         bs_lookup = BeautifulSoup(self.driver.page_source, "lxml")
-        bs_dropdown = bs_lookup.find("form", {"id": "lookup-form"})
+        bs_dropdown = bs_lookup.find("ul", class_="dropdown-content select-dropdown")
         bs_sessions = bs_dropdown.find_all("li")
 
         # Look for the specified session
         found_session = False
         for session in bs_sessions:
             # If the session is available
-            if session_id == session.find("span").text:
+            if f"{participant_id} : {session_id}" == session.find("span").text:
                 # Click on the session ID
                 self.driver.find_element_by_xpath(self.xpath_soup(session)).click()
                 found_session = True
@@ -246,10 +246,10 @@ class WebsiteTester:
             assert value == dict_table[key], f"Table does contain value {value} passed in, in column {key}"
         return time.time() - start
 
-    def full_lookup_workflow(self, session_id, is_display_MRI=False, is_from_home=True):
+    def full_lookup_workflow(self, participant_id, session_id, is_display_MRI=False, is_from_home=True):
         self.home()
         self.login()
-        lookup_time = self.lookup(session_id, is_display_MRI, is_from_home)
+        lookup_time = self.lookup(participant_id, session_id, is_display_MRI, is_from_home)
         predict_time = self.predict()
         segment_time = self.segment()
         if self.verbose:
@@ -276,10 +276,10 @@ class WebsiteTester:
         self.close()
         return upload_time, predict_time, segment_time
 
-    def headless_process(self, session_id):
+    def headless_process(self, participant_id, session_id):
         # Login and then predict and segment only
         self.login()
-        self.driver.get(website_url + f"results/{session_id}false")
+        self.driver.get(website_url + f"results/{participant_id}_{session_id}_false")
         predict_time = self.predict()
         segment_time = self.segment()
         if self.verbose:
@@ -292,3 +292,6 @@ class WebsiteTester:
             print("Debug: Driver closing.")
         self.driver.close()
 
+# tester = WebsiteTester(website_url, login_user=login_user, login_pw=login_pw, verbose=True)
+# tester.full_lookup_workflow("CC00050XX01", 7201, True, True)
+# tester.full_upload_workflow("sub-CC00050XX01_ses-7201_hemi-L_inflated_reduce50.vtp", "sub-CC00050XX01_ses-7201_T2w_graymatter.nii")
