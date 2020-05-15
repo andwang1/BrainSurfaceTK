@@ -3,17 +3,19 @@ import pickle as pk
 from joblib import Parallel, delayed
 from selenium_testing import WebsiteTester
 
-website_url = "http://146.169.52.15:8000/"
-login_user = "test"
-login_pw = "test"
+website_url = "http://146.169.40.58:8000/"
+login_user = "aw19"
+login_pw = "Imperial-2019"
+
+participant_id = "CC00050XX01"
 session_id = 7201
 
 max_num_parallel = 8
 
 
 def multiprocessing(num):
-    tester = WebsiteTester(website_url, login_user, login_pw, verbose=False, headless=True)
-    times = tester.full_upload_workflow(session_id, False)
+    tester = WebsiteTester(website_url, login_user, login_pw, verbose=False, headless=False)
+    times = tester.full_upload_workflow(participant_id, session_id, False)
     return times
 
 
