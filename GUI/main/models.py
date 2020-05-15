@@ -25,9 +25,9 @@ class Page(models.Model):
 def get_upload_path(instance, filename):
     out = ""
     if instance.uploaded:
-        out = os.path.join(out, "uploads/data/")
+        out = os.path.join(out, "uploads", "data")
     else:
-        out = os.path.join(out, "original/data/")
+        out = os.path.join(out, "original", "data")
     if filename.endswith(".nii"):
         return os.path.join(out, "mris", filename)
     else:
@@ -40,19 +40,19 @@ class Session(models.Model):
     """
     participant_id = models.CharField(verbose_name="Participant ID", max_length=100)
     session_id = models.IntegerField(verbose_name="Session ID", validators=[validators.MinValueValidator(0)])
-    gender = models.CharField(verbose_name="Gender", max_length=100, blank=True)
-    birth_age = models.FloatField(verbose_name="Birth Age", blank=True)
-    birth_weight = models.FloatField(verbose_name="Birth Weight", blank=True)
-    singleton = models.CharField(verbose_name="Singleton", max_length=100, blank=True)
-    scan_age = models.FloatField(verbose_name="Scan Age", blank=True)
-    scan_number = models.IntegerField(verbose_name="Scan Number", blank=True)
-    radiology_score = models.CharField(verbose_name="Radiology Score", max_length=200, blank=True)
-    sedation = models.CharField(verbose_name="Sedation", max_length=200, blank=True)
-    uploaded = models.BooleanField(verbose_name="Uploaded", default=True)
+    gender = models.CharField(verbose_name="Gender", max_length=100, blank=True, null=True)
+    birth_age = models.FloatField(verbose_name="Birth Age", blank=True, null=True)
+    birth_weight = models.FloatField(verbose_name="Birth Weight", blank=True, null=True)
+    singleton = models.CharField(verbose_name="Singleton", max_length=100, blank=True, null=True)
+    scan_age = models.FloatField(verbose_name="Scan Age", blank=True, null=True)
+    scan_number = models.IntegerField(verbose_name="Scan Number", blank=True, null=True)
+    radiology_score = models.CharField(verbose_name="Radiology Score", max_length=200, blank=True, null=True)
+    sedation = models.CharField(verbose_name="Sedation", max_length=200, blank=True, null=True)
+    uploaded = models.BooleanField(verbose_name="Uploaded", default=True, null=True)
     mri_file = models.FileField(verbose_name="MRI file path", upload_to=get_upload_path, max_length=250, blank=True,
-                                validators=[validators.FileExtensionValidator(allowed_extensions=["", "nii", "nii.gz"])])
+                                validators=[validators.FileExtensionValidator(allowed_extensions=["", "nii", "nii.gz"])], null=True)
     surface_file = models.FileField(verbose_name="Surface file path", upload_to=get_upload_path, max_length=250,
-                                    blank=True,
+                                    blank=True, null=True,
                                     validators=[validators.FileExtensionValidator(allowed_extensions=["", "vtp"])])
 
     class Meta:
