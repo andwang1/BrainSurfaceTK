@@ -37,7 +37,7 @@ def build_session_table(record):
         tmp_value = record_dict[field_name]
         if isinstance(tmp_value, float):
             tmp_value = round(tmp_value, 3)
-        elif tmp_value == "":
+        elif tmp_value == "" or tmp_value == "None":
             tmp_value = "NA"
         table_names.append(field_name.replace("_", " ").title().replace("Id", "ID"))
         table_values.append(tmp_value)
