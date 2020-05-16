@@ -50,7 +50,7 @@ class Session(models.Model):
     sedation = models.CharField(verbose_name="Sedation", max_length=200, blank=True, null=True)
     uploaded = models.BooleanField(verbose_name="Uploaded", default=True, null=True)
     mri_file = models.FileField(verbose_name="MRI file path", upload_to=get_upload_path, max_length=250, blank=True,
-                                validators=[validators.FileExtensionValidator(allowed_extensions=["", "nii", "nii.gz"])], null=True)
+                                validators=[validators.FileExtensionValidator(allowed_extensions=["", "nii", "gz"])], null=True)
     surface_file = models.FileField(verbose_name="Surface file path", upload_to=get_upload_path, max_length=250,
                                     blank=True, null=True,
                                     validators=[validators.FileExtensionValidator(allowed_extensions=["", "vtp"])])
