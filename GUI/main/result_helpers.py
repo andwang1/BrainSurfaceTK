@@ -47,7 +47,7 @@ def build_session_table(record):
 def get_mri_js_html(record):
     mri_file = record.mri_file
     if mri_file.name != "":
-        if os.path.isfile(mri_file.path) & (mri_file.path.endswith("nii") or mri_file.path.endswith("nii.gz")):
+        if os.path.isfile(mri_file.path) & (mri_file.path.endswith("nii") or mri_file.path.endswith("gz")):
             img = nib_load(mri_file.path)
             mri_js_html = ni_view_img(img, colorbar=False, bg_img=False, black_bg=True, cmap='gray')
             return mri_js_html, None
