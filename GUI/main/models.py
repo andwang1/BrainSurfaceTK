@@ -3,6 +3,8 @@ from datetime import datetime
 from django.core import validators
 from django.db import models
 
+from ./result_helpers import random_string
+
 import os
 
 """
@@ -30,8 +32,19 @@ def get_upload_path(instance, filename):
         out = os.path.join(out, "original", "data")
     if filename.endswith(".nii"):
         return os.path.join(out, "mris", filename)
+    elif filename.endswith("gz"):
+        i = 0
+        while True:
+            newfilename = filename.split(".")
+            newfilename[0] = newfilename[0] + randomstring(i)
+            newfilename = ".".join(newfilename)
+            if not os.path.exists(os.path.join(out, "mris", newfilename)):
+                return os.path.join(out, "mris", newfilename)
+            i += 1
+    elif filename.endswith(".vtp"):
+        return os.path.join(out, "vtps", filename
     else:
-        return os.path.join(out, "vtps", filename)
+        return os.path.join(out, "misc", filename)
 
 
 class Session(models.Model):

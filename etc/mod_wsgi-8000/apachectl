@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# ['manage.py', 'runmodwsgi', '--port=8000', '--user', 'www-data', '--group', 'www-data', '--server-root=etc/mod_wsgi-8000', '--url-alias', '/media', '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/media', '--limit-request-body', '104857600', '--request-timeout', '120']
+# ['GUI/manage.py', 'runmodwsgi', '--url-alias', '/media', '/vol/biomedic2/aa16914/shared/MScAI_brain_surface/media', '--limit-request-body', '104857600', '--request-timeout', '120', '--port', '8000', '--user', 'www-data', '--group', 'www-data', '--server-root=etc/mod_wsgi-8000']
 
 HTTPD="/vol/project/2019/545/g1954504/Andy/prod/lib/python3.6/site-packages/mod_wsgi_packages/httpd/bin/httpd"
-HTTPD_ARGS="-f /home/server/neodeepbrain/GUI/etc/mod_wsgi-8000/httpd.conf -DMOD_WSGI_MPM_ENABLE_EVENT_MODULE -DMOD_WSGI_MPM_EXISTS_EVENT_MODULE -DMOD_WSGI_MPM_EXISTS_WORKER_MODULE -DMOD_WSGI_MPM_EXISTS_PREFORK_MODULE"
+HTTPD_ARGS="-f /home/server/neodeepbrain/etc/mod_wsgi-8000/httpd.conf -DMOD_WSGI_MPM_ENABLE_EVENT_MODULE -DMOD_WSGI_MPM_EXISTS_EVENT_MODULE -DMOD_WSGI_MPM_EXISTS_WORKER_MODULE -DMOD_WSGI_MPM_EXISTS_PREFORK_MODULE"
 
 HTTPD_COMMAND="$HTTPD $HTTPD_ARGS"
 
@@ -17,7 +17,7 @@ if [ "x$SHLIBPATH" != "x" ]; then
     export LD_LIBRARY_PATH
 fi
 
-MOD_WSGI_SERVER_ROOT="/home/server/neodeepbrain/GUI/etc/mod_wsgi-8000"
+MOD_WSGI_SERVER_ROOT="/home/server/neodeepbrain/etc/mod_wsgi-8000"
 
 export MOD_WSGI_SERVER_ROOT
 
@@ -68,8 +68,8 @@ export LC_ALL
 ACMD="$1"
 ARGV="$@"
 
-if test -f /home/server/neodeepbrain/GUI/etc/mod_wsgi-8000/envvars; then
-    . /home/server/neodeepbrain/GUI/etc/mod_wsgi-8000/envvars
+if test -f /home/server/neodeepbrain/etc/mod_wsgi-8000/envvars; then
+    . /home/server/neodeepbrain/etc/mod_wsgi-8000/envvars
 fi
 
 STATUSURL="http://localhost:8000/server-status"
@@ -88,8 +88,8 @@ start|stop|restart|graceful|graceful-stop)
     if [ "x$ENABLE_GDB" != "xTrue" ]; then
         exec -a "$PROCESS_NAME" $HTTPD_COMMAND -k $ARGV
     else
-        echo "run $HTTPD_ARGS -k $ARGV" > /home/server/neodeepbrain/GUI/etc/mod_wsgi-8000/gdb.cmds
-        gdb -x /home/server/neodeepbrain/GUI/etc/mod_wsgi-8000/gdb.cmds $HTTPD
+        echo "run $HTTPD_ARGS -k $ARGV" > /home/server/neodeepbrain/etc/mod_wsgi-8000/gdb.cmds
+        gdb -x /home/server/neodeepbrain/etc/mod_wsgi-8000/gdb.cmds $HTTPD
     fi
     ;;
 configtest)

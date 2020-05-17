@@ -1,0 +1,19 @@
+if [ -f /vol/cuda/10.1.105-cudnn7.6.5.32/setup.sh ]
+  then
+        . /vol/cuda/10.1.105-cudnn7.6.5.32/setup.sh
+fi
+#if [ -f /vol/cuda/10.0.130/setup.sh ]
+#  then
+#       . /vol/cuda/10.0.130/setup.sh
+#fi
+# if [ -f /vol/cuda/9.2.148-cudnn7.2.1/setup.sh ]
+#   then
+#       . /vol/cuda/9.2.148-cudnn7.2.1/setup.sh
+# fi
+export PYTHONUSERBASE=/vol/lab/ml/pypi
+export PATH=/vol/lab/ml/pypi/bin:$PATH
+export PATH=/vol/cuda/10.1.105-cudnn7.6.5.32/bin:$PATH
+export CPATH=/vol/cuda/10.1.105-cudnn7.6.5.32/include:$CPATH
+export LD_LIBRARY_PATH=/vol/cuda/10.1.105-cudnn7.6.5.32/lib64:$LD_LIBRARY_PATH
+export DYLD_LIBRARY_PATH=/vol/cuda/10.1.105-cudnn7.6.5.32/lib:$DYLD_LIBRARY_PATH
+export CUDA="cu101"
