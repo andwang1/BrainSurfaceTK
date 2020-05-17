@@ -24,7 +24,7 @@ pip install -r cpu_requirements2.txt -f https://pytorch-geometric.com/whl/torch-
 ``` 
 
 
-# GUI
+# Web Application
 
 This server has been developed using the [Django](https://www.djangoproject.com/) framework. We use [MOD-WSGI](https://modwsgi.readthedocs.io/en/develop/) Standalone to run an Apache server to host this webapp.
 
