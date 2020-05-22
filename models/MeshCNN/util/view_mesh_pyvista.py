@@ -4,7 +4,7 @@ import sys
 __author__ = "Francis Rhys Ward"
 __license__ = "MIT"
  
-file_path = sys.arg[1]
+file_path = sys.argv[1]
 mesh = pv.read(file_path)
 surf_faces = pv.PolyData(mesh.points, mesh.faces)
 plotter = pv.Plotter()
