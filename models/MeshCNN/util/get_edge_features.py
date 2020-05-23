@@ -51,10 +51,10 @@ def write_eseg(mesh_data, vtk_path, seg_path, patient_id, ses_id):
             f.write("%s\n" % label)
 
 
-def write_seseg(eseg_path, seseg_path, patient_id, ses_id):
+def write_seseg(eseg_path, seseg_path, patient_id, ses_id, num_labels):
     eseg_file = eseg_path + patient_id + "_" + ses_id + ".eseg"
     seseg_file = seseg_path + patient_id + "_" + ses_id + ".seseg"
-    labels = range(38)
+    labels = range(num_labels)
 
     with open(eseg_file) as f:
         eseg = f.read().splitlines()

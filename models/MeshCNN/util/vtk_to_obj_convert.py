@@ -20,9 +20,10 @@ if __name__ == '__main__':
     path = sys.argv[3]
     try:
         seg = sys.argv[4] == "seg"
+        num_labels = int(sys.argv[5])
     except:
         seg = False
-        
+
     obj_path = path+"obj/"
     seg_path = path+"seg/"
     sseg_path = path+"sseg/"
@@ -57,6 +58,8 @@ if __name__ == '__main__':
 
             write_eseg(mesh_data, vtk_path+"sub-"+patient_id+"_ses-"+  ses_id+extension, seg_path, patient_id, ses_id)
 
-            write_seseg(seg_path, sseg_path, patient_id, ses_id)
-
+            try:
+                write_seseg(seg_path, sseg_path, patient_id, ses_id, num_labels)
+            except:
+                continue
             save_features(mesh_data, vtk_path+"sub-"+patient_id+"_ses-"+ses_id+extension, feat_path, patient_id, ses_id)

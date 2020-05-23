@@ -4,13 +4,10 @@
 python train.py \
 --dataroot datasets/seg_test \
 --name brain_seg_test \
---arch meshunet \
 --dataset_mode segmentation \
+--arch meshunet \
 --ninput_edges 30000 \
---ncf 32 64 128 256 \
---pool_res 4000 3000 2000 \
---resblocks 3 \
+--ncf 2 2 \
+--pool_res 2000 \
 --batch_size 1 \
 --lr 0.001 \
---num_aug 20 \
---slide_verts 0.2 \
