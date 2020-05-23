@@ -5,7 +5,7 @@ We recommend viewing the original README before using this repo as we will descr
 
 # .vtk to .obj Conversion
 
-Firstly, we have python scripts to convert a directory of files from `.vtk` to `.obj` (as required by MeshCNN), whilst also creating the `.seseg` and `.eseg` files needed for segmentation. See the `util/vtk_to_obj_convert.py` file.  This module takes sys args `meta_data_path` (a path to the `.tsv` file containing meta data), `vtk_path` to where the .vtk files are stored, `path` to where the .obj files should be stored, and optionally `seg` to also save the files necessary for segmentation. Run the command `python3 -m  vtk_to_obj_convert <meta_data_path> <vtk_path> <path> seg`. 
+Firstly, we have python scripts to convert a directory of files from `.vtk` to `.obj` (as required by MeshCNN), whilst also creating the `.seseg` and `.eseg` files needed for segmentation. See the `util/vtk_to_obj_convert.py` file.  This module takes sys args `meta_data_path` (a path to the `.tsv` file containing meta data), `vtk_path` to where the .vtk files are stored, `path` to where the .obj files should be stored, and optionally `seg`, and `num_labels` (the number of segmentation labels), to also save the files necessary for segmentation. Run the command `python3 -m  vtk_to_obj_convert <meta_data_path> <vtk_path> <path> seg <num_labels>`. 
 
 # Regression
 
