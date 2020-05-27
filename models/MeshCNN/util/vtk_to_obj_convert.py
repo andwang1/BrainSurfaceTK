@@ -1,10 +1,10 @@
 import os
 import numpy as np
 import pyvista as pv
-from read_meta import read_meta
+from util.read_meta import read_meta
 import sys
 
-from get_edge_features import write_eseg, from_scratch, write_seseg, save_features
+from util.get_edge_features import write_eseg, from_scratch, write_seseg, save_features
 
 #pyvista docs: https://docs.pyvista.org/plotting/plotting.html#pyvista.BasePlotter.add_mesh
 
@@ -29,7 +29,7 @@ if __name__ == '__main__':
     sseg_path = path+"sseg/"
     feat_path = path+"local_features/"
 
-    extension = "_left_pial_10k.vtk"
+    extension = "_left_white_10k.vtk"
     meta_data = read_meta(meta_data_path)
     patient_names = []
     ses_ids = []
@@ -42,6 +42,7 @@ if __name__ == '__main__':
         p = pv.Plotter(off_screen=True)
 
         try:
+            print(vtk_path+"sub-"+patient_id+"_ses-"+ses_id+extension)
             meshv = pv.read(vtk_path+"sub-"+patient_id+"_ses-"+ses_id+extension)
         except:
             print("failed")

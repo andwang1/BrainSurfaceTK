@@ -1,7 +1,7 @@
 import pickle
 import pyvista as pv
 import sys
-from models.layers import mesh_prepare
+from models.layers.mesh_prepare import from_scratch
 
 __author__ = "Francis Rhys Ward"
 __license__ = "MIT"
