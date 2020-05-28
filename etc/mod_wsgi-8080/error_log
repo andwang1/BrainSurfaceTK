@@ -1,6 +1,0 @@
-[Fri May 15 18:32:43.088613 2020] [mpm_event:notice] [pid 22243:tid 140653413208064] AH00489: Apache/2.4.41 (Unix) mod_wsgi/4.7.1 Python/3.6 configured -- resuming normal operations
-[Fri May 15 18:32:43.088793 2020] [core:notice] [pid 22243:tid 140653413208064] AH00094: Command line: 'httpd (mod_wsgi-express)    -f /home/server/neodeepbrain/etc/mod_wsgi-8080/httpd.conf -D MOD_WSGI_MPM_ENABLE_EVENT_MODULE -D MOD_WSGI_MPM_EXISTS_EVENT_MODULE -D MOD_WSGI_MPM_EXISTS_WORKER_MODULE -D MOD_WSGI_MPM_EXISTS_PREFORK_MODULE -D FOREGROUND'
-[Fri May 15 18:33:43.641167 2020] [mpm_event:notice] [pid 22243:tid 140653413208064] AH00491: caught SIGTERM, shutting down
-[Fri May 15 20:49:18.415877 2020] [mpm_event:notice] [pid 37863:tid 140334985666560] AH00489: Apache/2.4.41 (Unix) mod_wsgi/4.7.1 Python/3.6 configured -- resuming normal operations
-[Fri May 15 20:49:18.415995 2020] [core:notice] [pid 37863:tid 140334985666560] AH00094: Command line: 'httpd (mod_wsgi-express)    -f /home/server/neodeepbrain/etc/mod_wsgi-8080/httpd.conf -D MOD_WSGI_MPM_ENABLE_EVENT_MODULE -D MOD_WSGI_MPM_EXISTS_EVENT_MODULE -D MOD_WSGI_MPM_EXISTS_WORKER_MODULE -D MOD_WSGI_MPM_EXISTS_PREFORK_MODULE -D FOREGROUND'
-[Fri May 15 20:49:49.539157 2020] [mpm_event:notice] [pid 37863:tid 140334985666560] AH00491: caught SIGTERM, shutting down
