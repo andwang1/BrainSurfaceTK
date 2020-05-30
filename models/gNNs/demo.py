@@ -44,7 +44,7 @@ if __name__ == "__main__":
     # meta_data_file_path = os.path.join(os.getcwd(), "meta_data.tsv")
     meta_data_file_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
     # save_path = os.path.join(os.getcwd(), "tmp", "dataset.pk")
-    save_path = "/vol/bitbucket/cnw119/tmp/dataset.pk"
+    save_path = "/vol/bitbucket/cnw119/tmp/dataset"
 
 
     train_test_split = 0.8
