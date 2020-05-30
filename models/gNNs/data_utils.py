@@ -8,6 +8,7 @@ import pyvista as pv
 import torch
 from torch.utils.data.dataset import Dataset
 from tqdm import tqdm
+import pickle
 
 
 class BrainNetworkDataset(Dataset):
@@ -15,11 +16,11 @@ class BrainNetworkDataset(Dataset):
     Dataset for Brain Networks
     """
 
-    def __init__(self, files_path, meta_data_filepath, max_workers=6):
+    def __init__(self, files_path, meta_data_filepath, save_path=None, max_workers=6, save_dataset=False, load_from_pk=True):
         if not os.path.isdir(files_path):
-            raise IsADirectoryError("This Location doesn't exist")
+            raise IsADirectoryError(f"This Location: {files_path} doesn't exist")
         if not os.path.isfile(meta_data_filepath):
-            raise FileExistsError("The meta_data.tsv file doesn't exist!")
+            raise FileNotFoundError(f"The meta_data.tsv file address ({meta_data_filepath}) doesn't exist!")
         print("Initialising Dataset")
         # Datapaths
         self.path = files_path
@@ -30,8 +31,13 @@ class BrainNetworkDataset(Dataset):
         self.samples = None
         self.targets = None
         # Loading
-        self.load_dataset(files_path, meta_data_filepath)
-        self.convert_ds_to_tensors()
+        if load_from_pk and os.path.isfile(save_path):
+            self.load_saved_dataset_with_pickle(save_path)
+        else:
+            self.load_dataset(files_path, meta_data_filepath)
+            self.convert_ds_to_tensors()
+            if save_dataset and (save_path is not None):
+                self.save_dataset_with_pickle(save_path)
         print("Initialisation complete")
 
     def __len__(self):
@@ -95,6 +101,24 @@ class BrainNetworkDataset(Dataset):
             (torch.from_numpy(np.concatenate([src, dst])), torch.from_numpy(np.concatenate([dst, src]))))
         G.ndata['feat'] = torch.tensor(point_array)
         return G
+
+    def save_dataset_with_pickle(self, ds_store_fp):
+        if not ds_store_fp.endswith(".pk"):
+            ds_store_fp += ".pk"
+        if not os.path.exists(os.path.dirname(ds_store_fp)):
+            os.makedirs(os.path.dirname(ds_store_fp))
+        data = (self.samples, self.targets)
+        with open(ds_store_fp, "w"):
+            pickle.dumps(data)
+        return ds_store_fp
+
+    def load_saved_dataset_with_pickle(self, ds_store_fp):
+        if not ds_store_fp.endswith(".pk"):
+            ds_store_fp += ".pk"
+        if os.path.exists(ds_store_fp):
+            self.samples, self.targets = pickle.load(ds_store_fp)
+        else:
+            raise FileNotFoundError("No pickle file exists!")
 
 
 if __name__ == "__main__":
