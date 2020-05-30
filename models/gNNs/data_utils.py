@@ -117,7 +117,7 @@ class BrainNetworkDataset(Dataset):
 
     def load_saved_dataset_with_pickle(self, ds_store_fp):
         if os.path.exists(ds_store_fp):
-            fps = [os.path.join(ds_store_fp, fp) for fp in os.listdir(ds_store_fp)]
+            fps = [fp for fp in os.listdir(ds_store_fp)]
             data = list()
             for fp in tqdm(fps):
                 with open(os.path.join(ds_store_fp, fp), "rb") as f:
