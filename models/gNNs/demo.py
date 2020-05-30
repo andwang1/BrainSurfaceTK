@@ -7,7 +7,7 @@ import torch.nn.functional as F
 from dgl.nn.pytorch import GraphConv
 from torch.utils.data.dataloader import DataLoader
 
-from models.gNNs.data_utils import BrainNetworkDataset
+from data_utils import BrainNetworkDataset
 
 
 class Classifier(nn.Module):
@@ -39,13 +39,16 @@ def collate(samples):
 
 
 if __name__ == "__main__":
-    load_path = os.path.join(os.getcwd(), "models", "gNNs", "data")
-    meta_data_file_path = os.path.join(os.getcwd(), "models", "gNNs", "meta_data.tsv")
+    load_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/vtps/white/30k/left")
+    meta_data_file_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
+    save_path = "/vol/bitbucket/cnw119/tmp/dataset.pk"
+
 
     train_test_split = 0.8
     # Use PyTorch's DataLoader and the collate function
     # defined before.
-    dataset = BrainNetworkDataset(load_path, meta_data_file_path, max_workers=8)
+    dataset = BrainNetworkDataset(load_path, meta_data_file_path, save_path, max_workers=8, 
+                                    save_dataset=True, load_from_pk=True)
 
     # Calculate the train/test splits
     train_size = round(len(dataset) * train_test_split)
