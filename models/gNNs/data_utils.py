@@ -16,7 +16,8 @@ class BrainNetworkDataset(Dataset):
     Dataset for Brain Networks
     """
 
-    def __init__(self, files_path, meta_data_filepath, save_path=None, max_workers=6, save_dataset=False, load_from_pk=True):
+    def __init__(self, files_path, meta_data_filepath, save_path=None, max_workers=6, save_dataset=False,
+                 load_from_pk=True):
         if not os.path.isdir(files_path):
             raise IsADirectoryError(f"This Location: {files_path} doesn't exist")
         if not os.path.isfile(meta_data_filepath):
@@ -106,19 +107,22 @@ class BrainNetworkDataset(Dataset):
         return G
 
     def save_dataset_with_pickle(self, ds_store_fp):
-        if not ds_store_fp.endswith(".pk"):
-            ds_store_fp += ".pk"
         if not os.path.exists(os.path.dirname(ds_store_fp)):
             os.makedirs(os.path.dirname(ds_store_fp))
-        data = (self.samples, self.targets)
-        pickle.dump(data, open(ds_store_fp, "wb"))
+        for i in tqdm(range(len(self.samples)), total=len(self.samples)):
+            pair = (self.samples[i], self.targets[i])
+            with open(os.path.join(ds_store_fp, f"{i}.pickle"), "wb") as f:
+                pickle.dump(pair, f)
         return ds_store_fp
 
     def load_saved_dataset_with_pickle(self, ds_store_fp):
-        if not ds_store_fp.endswith(".pk"):
-            ds_store_fp += ".pk"
         if os.path.exists(ds_store_fp):
-            self.samples, self.targets = pickle.load(open(ds_store_fp, 'rb'))
+            fps = [os.path.join(ds_store_fp, fp) for fp in os.listdir(ds_store_fp)]
+            data = list()
+            for fp in tqdm(fps):
+                with open(os.path.join(ds_store_fp, fp), "rb") as f:
+                    data.append(pickle.load(fp))
+            self.samples, self.targets = zip(*data)
         else:
             raise FileNotFoundError("No pickle file exists!")
 
