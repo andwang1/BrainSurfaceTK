@@ -1,16 +1,14 @@
 import os
-from tqdm import tqdm
+
 import dgl
-import numpy as np
-import pyvista as pv
 import torch
-from dgl.nn.pytorch import GraphConv
-from models.gNNs.data_utils import BrainNetworkDataset
-from torch.utils.data.dataloader import DataLoader
-
-
 import torch.nn as nn
 import torch.nn.functional as F
+from dgl.nn.pytorch import GraphConv
+from torch.utils.data.dataloader import DataLoader
+
+from models.gNNs.data_utils import BrainNetworkDataset
+
 
 class Classifier(nn.Module):
     def __init__(self, in_dim, hidden_dim, n_classes):
@@ -22,7 +20,7 @@ class Classifier(nn.Module):
     def forward(self, g):
         # Use node degree as the initial node feature. For undirected graphs, the in-degree
         # is the same as the out_degree.
-        h = g.in_degrees().view(-1, 1).to(device)#.float()
+        h = g.in_degrees().view(-1, 1).to(device)  # TODO Why do I have to do this here :(
         # Perform graph convolution and activation function.
         h = F.relu(self.conv1(g, h))
         h = F.relu(self.conv2(g, h))
@@ -30,6 +28,7 @@ class Classifier(nn.Module):
         # Calculate graph representation by averaging all the node representations.
         hg = dgl.mean_nodes(g, 'h')
         return self.classify(hg)
+
 
 def collate(samples):
     # The input `samples` is a list of pairs
@@ -39,28 +38,37 @@ def collate(samples):
     return batched_graph, torch.tensor(labels).view(len(graphs), -1)
 
 
-
-
 if __name__ == "__main__":
     load_path = os.path.join(os.getcwd(), "models", "gNNs", "data")
+    meta_data_file_path = os.path.join(os.getcwd(), "models", "gNNs", "meta_data.tsv")
+
+    train_test_split = 0.8
     # Use PyTorch's DataLoader and the collate function
     # defined before.
-    dataset = BrainNetworkDataset(load_path, max_workers=8)
-    data_loader = DataLoader(dataset, batch_size=32, shuffle=True, collate_fn=collate)
+    dataset = BrainNetworkDataset(load_path, meta_data_file_path, max_workers=8)
+
+    # Calculate the train/test splits
+    train_size = round(len(dataset) * train_test_split)
+    test_size = len(dataset) - train_size
+    # Split the dataset randomly
+    train_ds, test_ds = torch.utils.data.random_split(dataset, [train_size, test_size])
+    # Create the dataloaders for both the training and test datasets
+    train_dl = DataLoader(train_ds, batch_size=32, shuffle=True, collate_fn=collate)
+    test_dl = DataLoader(test_ds, batch_size=32, shuffle=True, collate_fn=collate)
 
     # Create model
     model = Classifier(1, 256, 1)
-    loss_func = nn.MSELoss()
+    loss_func = nn.L1Loss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     model.train()
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)
 
-    epoch_losses = []
-    for epoch in range(80):
-        epoch_loss = 0
-        for iter, (bg, label) in enumerate(data_loader):
+    for epoch in range(200):
+        train_epoch_loss = 0
+        model.train()
+        for iter, (bg, label) in enumerate(train_dl):
             bg = bg.to(device)
             label = label.to(device)
             prediction = model(bg)
@@ -68,8 +76,15 @@ if __name__ == "__main__":
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            epoch_loss += loss.detach().item()
-        epoch_loss /= (iter + 1)
-        print('Epoch {}, loss {:.4f}'.format(epoch, epoch_loss))
-        epoch_losses.append(epoch_loss)
-
+            train_epoch_loss += loss.detach().item()
+        train_epoch_loss /= (iter + 1)
+        test_epoch_loss = 0
+        model.eval()
+        with torch.no_grad():
+            for test_iter, (bg, label) in enumerate(test_dl):
+                bg = bg.to(device)
+                label = label.to(device)
+                prediction = model(bg)
+                loss = loss_func(prediction, label)
+                test_epoch_loss += loss.detach().item()
+        print('Epoch {}, train_loss {:.4f}, test_loss {:.4f}'.format(epoch, train_epoch_loss, test_epoch_loss))
