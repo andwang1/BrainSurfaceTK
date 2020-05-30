@@ -1,26 +1,37 @@
-from torch.utils.data.dataset import Dataset
-import torch
-import dgl
 import os
-from tqdm import tqdm
+from concurrent.futures import ProcessPoolExecutor
+
+import dgl
 import numpy as np
+import pandas as pd
 import pyvista as pv
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
-import concurrent
-import time
+import torch
+from torch.utils.data.dataset import Dataset
+from tqdm import tqdm
+
 
 class BrainNetworkDataset(Dataset):
     """
     Dataset for Brain Networks
     """
 
-    def __init__(self, path, targets=[1 for _ in range(6)], max_workers=6):
+    def __init__(self, files_path, meta_data_filepath, max_workers=6):
+        if not os.path.isdir(files_path):
+            raise IsADirectoryError("This Location doesn't exist")
+        if not os.path.isfile(meta_data_filepath):
+            raise FileExistsError("The meta_data.tsv file doesn't exist!")
         print("Initialising Dataset")
-        self.path = path
-        self.targets = torch.tensor(targets, dtype=torch.float).view((-1, 1))
+        # Datapaths
+        self.path = files_path
+        self.meta_data_path = meta_data_filepath
+        # Number of workers for loading
         self.max_workers = max_workers
+        # Samples & respective targets
         self.samples = None
-        self.load_dataset(path)
+        self.targets = None
+        # Loading
+        self.load_dataset(files_path, meta_data_filepath)
+        self.convert_ds_to_tensors()
         print("Initialisation complete")
 
     def __len__(self):
@@ -51,12 +62,27 @@ class BrainNetworkDataset(Dataset):
                 point = next_point
         return edges_list
 
-    def load_dataset(self, load_path):
+    def load_dataset(self, load_path, meta_data_file_path):
         self.samples = list()
-        filepaths = [os.path.join(load_path, f) for f in os.listdir(load_path)]
+        self.targets = list()
+        df = pd.read_csv(meta_data_file_path, sep='\t', header=0)
+        potential_files = [f for f in os.listdir(load_path)]
+        files_to_load = list()
+        for fn in potential_files:
+            participant_id, session_id = fn.split("_")[:2]
+            records = df[(df.participant_id == participant_id) & (df.session_id == int(session_id))]
+            if len(records) == 1:
+                files_to_load.append(os.path.join(load_path, fn))
+                self.targets.append(records.scan_age.values)
         with ProcessPoolExecutor(max_workers=self.max_workers) as executor:
-            self.samples = [graph for graph in tqdm(executor.map(self.load_data, filepaths), total=len(filepaths))]
-        return self.samples
+            self.samples = [graph for graph in tqdm(executor.map(self.load_data, files_to_load),
+                                                    total=len(files_to_load))]
+        return self.samples, self.targets
+
+    def convert_ds_to_tensors(self):
+        # Don't believe self.samples needs to be converted.
+        # self.targets = np.array(self.targets, dtype=np.float)
+        self.targets = torch.tensor(self.targets, dtype=torch.float).view((-1, 1))
 
     def load_data(self, filepath):
         mesh = pv.read(filepath)
@@ -73,5 +99,5 @@ class BrainNetworkDataset(Dataset):
 
 if __name__ == "__main__":
     load_path = os.path.join(os.getcwd(), "models", "gNNs", "data")
-    dataset = BrainNetworkDataset(load_path, max_workers=8)
-
+    meta_data_file_path = os.path.join(os.getcwd(), "models", "gNNs", "meta_data.tsv")
+    dataset = BrainNetworkDataset(load_path, meta_data_file_path, max_workers=8)
