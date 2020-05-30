@@ -118,7 +118,7 @@ class BrainNetworkDataset(Dataset):
         if not ds_store_fp.endswith(".pk"):
             ds_store_fp += ".pk"
         if os.path.exists(ds_store_fp):
-            self.samples, self.targets = pickle.load(ds_store_fp)
+            self.samples, self.targets = pickle.load(open(ds_store_fp, 'rb'))
         else:
             raise FileNotFoundError("No pickle file exists!")
 
