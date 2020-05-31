@@ -32,7 +32,7 @@ class BrainNetworkDataset(Dataset):
         self.samples = None
         self.targets = None
         # Loading
-        if load_from_pk and os.path.isfile(save_path):
+        if load_from_pk and os.path.isdir(save_path):
             print("Loading dataset from pickle!")
             self.load_saved_dataset_with_pickle(save_path)
         else:
@@ -130,7 +130,7 @@ class BrainNetworkDataset(Dataset):
             data = list()
             for fp in tqdm(fps):
                 with open(os.path.join(ds_store_fp, fp), "rb") as f:
-                    data.append(pickle.load(fp))
+                    data.append(pickle.load(f))
             self.samples, self.targets = zip(*data)
         else:
             raise FileNotFoundError("No pickle file exists!")
