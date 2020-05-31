@@ -109,11 +109,20 @@ class BrainNetworkDataset(Dataset):
     def save_dataset_with_pickle(self, ds_store_fp):
         if not os.path.exists(os.path.dirname(ds_store_fp)):
             os.makedirs(os.path.dirname(ds_store_fp))
-        for i in tqdm(range(len(self.samples)), total=len(self.samples)):
-            pair = (self.samples[i], self.targets[i])
-            with open(os.path.join(ds_store_fp, f"{i}.pickle"), "wb") as f:
-                pickle.dump(pair, f)
+        if self.max_workers > 1:
+            filepaths = [os.path.join(ds_store_fp, f"{i}.pickle") for i in range(len(self))]
+            with ProcessPoolExecutor(max_workers=8) as e:
+                [0 for _ in tqdm(e.map(self._save_data_with_pickle, filepaths, self), total=len(self))]
+        else:
+            for i in tqdm(range(len(self.samples)), total=len(self.samples)):
+                pair = (self.samples[i], self.targets[i])
+                with open(os.path.join(ds_store_fp, f"{i}.pickle"), "wb") as f:
+                    pickle.dump(pair, f)
         return ds_store_fp
+
+    def _save_data_with_pickle(self, filepath, data):
+        with open(filepath, "wb") as f:
+            pickle.dump(data, f)
 
     def load_saved_dataset_with_pickle(self, ds_store_fp):
         if os.path.exists(ds_store_fp):
