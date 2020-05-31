@@ -107,8 +107,8 @@ class BrainNetworkDataset(Dataset):
         return G
 
     def save_dataset_with_pickle(self, ds_store_fp):
-        if not os.path.exists(os.path.dirname(ds_store_fp)):
-            os.makedirs(os.path.dirname(ds_store_fp))
+        if not os.path.exists(ds_store_fp):
+            os.makedirs(ds_store_fp)
         if self.max_workers > 1:
             filepaths = [os.path.join(ds_store_fp, f"{i}.pickle") for i in range(len(self))]
             with ProcessPoolExecutor(max_workers=8) as e:
