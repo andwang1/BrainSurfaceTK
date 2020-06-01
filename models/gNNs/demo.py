@@ -39,12 +39,14 @@ def collate(samples):
 
 
 if __name__ == "__main__":
-    load_path = os.path.join(os.getcwd(), "data")
-    # load_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/vtps/white/30k/left")
-    meta_data_file_path = os.path.join(os.getcwd(), "meta_data.tsv")
-    # meta_data_file_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
-    save_path = os.path.join(os.getcwd(), "tmp", "dataset")
-    # save_path = "/vol/bitbucket/cnw119/tmp/dataset"
+    # load_path = os.path.join(os.getcwd(), "data")
+    load_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/vtps/white/30k/left")
+    # load_path ="/vol/bitbucket/cnw119/tmp_data"
+    # meta_data_file_path = os.path.join(os.getcwd(), "meta_data.tsv")
+    meta_data_file_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
+    # save_path = os.path.join(os.getcwd(), "tmp", "dataset")
+    save_path = "/vol/bitbucket/cnw119/tmp/dataset"
+    batch_size = 12
 
 
     train_test_split = 0.8
@@ -57,20 +59,27 @@ if __name__ == "__main__":
     train_size = round(len(dataset) * train_test_split)
     test_size = len(dataset) - train_size
     # Split the dataset randomly
+    print("splitting dataset")
     train_ds, test_ds = torch.utils.data.random_split(dataset, [train_size, test_size])
     # Create the dataloaders for both the training and test datasets
-    train_dl = DataLoader(train_ds, batch_size=32, shuffle=True, collate_fn=collate)
-    test_dl = DataLoader(test_ds, batch_size=32, shuffle=True, collate_fn=collate)
+    print("Building dataloaders")
+    train_dl = DataLoader(train_ds, batch_size=batch_size, shuffle=True, collate_fn=collate)
+    test_dl = DataLoader(test_ds, batch_size=batch_size, shuffle=True, collate_fn=collate)
 
     # Create model
+    print("Creating Model")
     model = Classifier(1, 256, 1)
     loss_func = nn.L1Loss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     model.train()
+    print("Model made")
 
+
+    print("Sending model to device")
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)
-
+    print(f"Model is on: {'cuda' if torch.cuda.is_available() else 'cpu'}")
+    print("Starting")
     for epoch in range(200):
         train_epoch_loss = 0
         model.train()

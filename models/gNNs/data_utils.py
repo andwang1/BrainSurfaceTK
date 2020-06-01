@@ -33,14 +33,12 @@ class BrainNetworkDataset(Dataset):
         self.targets = None
         # Loading
         if load_from_pk and os.path.isdir(save_path):
-            print("Loading dataset from pickle!")
             self.load_saved_dataset_with_pickle(save_path)
         else:
             print("Generating Dataset")
             self.load_dataset(files_path, meta_data_filepath)
             self.convert_ds_to_tensors()
             if save_dataset and (save_path is not None):
-                print("Saving")
                 self.save_dataset_with_pickle(save_path)
         print("Initialisation complete")
 
@@ -107,6 +105,7 @@ class BrainNetworkDataset(Dataset):
         return G
 
     def save_dataset_with_pickle(self, ds_store_fp):
+        print("Saving")
         if not os.path.exists(ds_store_fp):
             os.makedirs(ds_store_fp)
         if self.max_workers > 1:
@@ -125,6 +124,7 @@ class BrainNetworkDataset(Dataset):
             pickle.dump(data, f)
 
     def load_saved_dataset_with_pickle(self, ds_store_fp):
+        print("Loading dataset from pickle files!")
         if os.path.exists(ds_store_fp):
             fps = [fp for fp in os.listdir(ds_store_fp)]
             data = list()
