@@ -29,12 +29,12 @@ class BrainNetworkDataset(Dataset):
         # Number of workers for loading
         self.max_workers = max_workers
         # Samples & respective targets
-        self.samples = None
-        self.targets = None
+        self.sample_filepaths = None
         # Loading
-        if load_from_pk and os.path.isdir(save_path):
-            print("Loading dataset from pickle!")
-            self.load_saved_dataset_with_pickle(save_path)
+        if load_from_pk and isinstance(save_path, str):
+            if os.path.exists(save_path):
+                print("Prepared dataset already exists in: ", save_path)
+                self.sample_filepaths = self.get_sample_file_paths(save_path)
         else:
             print("Generating Dataset")
             self.load_dataset(files_path, meta_data_filepath)
@@ -45,10 +45,10 @@ class BrainNetworkDataset(Dataset):
         print("Initialisation complete")
 
     def __len__(self):
-        return len(self.targets)
+        return len(self.sample_filepaths)
 
     def __getitem__(self, item):
-        return self.samples[item], self.targets[item]
+        return self.load_sample_from_pickle(self.sample_filepaths[item])
 
     @staticmethod
     def build_face_array(face_indices, include_n_verts=False):
@@ -124,6 +124,13 @@ class BrainNetworkDataset(Dataset):
         with open(filepath, "wb") as f:
             pickle.dump(data, f)
 
+    def load_sample_from_pickle(self, filepath):
+        with open(filepath, "rb") as f:
+            return pickle.load(f)
+
+    def get_sample_file_paths(self, ds_store_fp):
+        return [os.path.join(ds_store_fp, fp) for fp in os.listdir(ds_store_fp)]
+
     def load_saved_dataset_with_pickle(self, ds_store_fp):
         if os.path.exists(ds_store_fp):
             fps = [fp for fp in os.listdir(ds_store_fp)]
@@ -131,7 +138,7 @@ class BrainNetworkDataset(Dataset):
             for fp in tqdm(fps):
                 with open(os.path.join(ds_store_fp, fp), "rb") as f:
                     data.append(pickle.load(f))
-            self.samples, self.targets = zip(*data)
+            return zip(*data)
         else:
             raise FileNotFoundError("No pickle file exists!")
 
@@ -139,4 +146,5 @@ class BrainNetworkDataset(Dataset):
 if __name__ == "__main__":
     load_path = os.path.join(os.getcwd(), "models", "gNNs", "data")
     meta_data_file_path = os.path.join(os.getcwd(), "models", "gNNs", "meta_data.tsv")
-    dataset = BrainNetworkDataset(load_path, meta_data_file_path, max_workers=8)
+    save_path = os.path.join(os.getcwd(), "models", "gNNs", "tmp", "dataset")
+    dataset = BrainNetworkDataset(load_path, meta_data_file_path, max_workers=8, save_path=save_path)
