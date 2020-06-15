@@ -177,6 +177,8 @@ class ClassifierModel:
 
             if self.opt.dataset_mode == 'binary_class':
                 print("Pred. prob.:\t", out.item())
+            elif self.opt.dataset_mode == "segmentation":
+                print('Train Accuracy:\t', round(correct.item() * 100,2), "%")
             else:
                 print('Abs Error:\t', correct)#.item())
 

@@ -2,6 +2,8 @@ import pickle
 import pyvista as pv
 import sys
 from models.layers.mesh_prepare import from_scratch
+from util.normalize_labels import get_all_unique_labels
+
 
 __author__ = "Francis Rhys Ward"
 __license__ = "MIT"
@@ -41,20 +43,21 @@ def get_edge_features(mesh_data, feature_list, vtk_path):
     return mesh_data.edge_local_features
 
 
-def write_eseg(mesh_data, vtk_path, seg_path, patient_id, ses_id):
+def write_eseg(label_mapping, mesh_data, vtk_path, seg_path, patient_id, ses_id):
     get_edge_features(mesh_data, ["drawem"], vtk_path)
     edge_seg_labels = mesh_data.edge_local_features["drawem"]
 
     eseg_path = seg_path + patient_id + "_" + ses_id + ".eseg"
     with open(eseg_path, 'w') as f:
         for label in edge_seg_labels:
+            label = label_mapping[label]
             f.write("%s\n" % label)
 
 
-def write_seseg(eseg_path, seseg_path, patient_id, ses_id, num_labels):
+def write_seseg(label_mapping, eseg_path, seseg_path, patient_id, ses_id):
     eseg_file = eseg_path + patient_id + "_" + ses_id + ".eseg"
     seseg_file = seseg_path + patient_id + "_" + ses_id + ".seseg"
-    labels = range(num_labels)
+    labels = label_mapping.values()
 
     with open(eseg_file) as f:
         eseg = f.read().splitlines()

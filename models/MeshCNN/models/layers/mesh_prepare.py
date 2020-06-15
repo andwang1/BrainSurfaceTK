@@ -73,7 +73,7 @@ def from_scratch(file, opt):
 
 
 def fill_from_file(mesh, file, opt):
-    if opt.verbose:
+    if opt is not None and opt.verbose:
         print("fromfile", file)
     mesh.filename = ntpath.split(file)[1]
     mesh.fullfilename = file

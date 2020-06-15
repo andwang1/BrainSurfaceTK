@@ -63,6 +63,7 @@ class SegmentationData(BaseDataset):
         classes = np.loadtxt(classes_file)
         offset = classes[0]
         classes = classes - offset
+        print("Segmentation Classes: ", classes)
         return classes, offset
 
     @staticmethod
