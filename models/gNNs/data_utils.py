@@ -91,13 +91,34 @@ class BrainNetworkDataset(Dataset):
             if len(records) == 1:
                 files_to_load.append(os.path.join(load_path, fn))
                 self.targets.append(records.scan_age.values)
+        del df
         with ProcessPoolExecutor(max_workers=self.max_workers) as executor:
             self.samples = [graph for graph in tqdm(executor.map(self.load_data, files_to_load),
                                                     total=len(files_to_load))]
-            all_features = np.row_stack([graph.ndata["features"] for graph in self.samples])
-            mu = np.mean(all_features, axis=0, keepdims=True)
-            std = np.std(all_features, axis=0, keepdims=True)
-            del all_features
+
+            graph = self.samples[0]
+            features = graph.ndata["features"]
+            mu = torch.tensor(features).sum(dim=0)
+            total = len(features)
+            for i in range(1, len(self.samples)):
+                graph = self.samples[i]
+                features = graph.ndata["features"]#.copy()
+                mu += features.sum(dim=0)
+                total += len(features)
+            mu /= total
+            var = 0
+            for i in range(0, len(self.samples)):
+                graph = self.samples[i]
+                features = graph.ndata["features"]#.copy()
+                var += ((features - mu) ** 2).sum(dim=0)
+            std = torch.sqrt(var / (total - 1))
+
+            # all_features = np.row_stack([graph.ndata["features"] for graph in self.samples])
+            # test_mu = np.mean(all_features, axis=0, keepdims=True)
+            # test_std = np.std(all_features, axis=0, ddof=1, keepdims=True)
+            # print(torch.all(mu == torch.from_numpy(test_mu)))
+            # print(torch.all(std == torch.from_numpy(test_std)))
+
             for graph in self.samples:
                 graph.ndata["features"] -= mu
                 graph.ndata["features"] /= std
@@ -121,7 +142,7 @@ class BrainNetworkDataset(Dataset):
         )
         features = list()
         for name in mesh.array_names:
-            if name in ['segmentation', 'corrected_thickness', 'initial_thickness', 'curvature', 'sulcal_depth', 'roi']:
+            if name in ['corrected_thickness', 'initial_thickness', 'curvature', 'sulcal_depth', 'roi']:
                 features.append(mesh.get_array(name=name, preference="point"))
         G.ndata['features'] = torch.tensor(np.column_stack(features)).float()
         return G
@@ -132,7 +153,8 @@ class BrainNetworkDataset(Dataset):
         if self.max_workers > 1:
             filepaths = [os.path.join(ds_store_fp, f"{i}.pickle") for i in range(len(self.samples))]
             with ProcessPoolExecutor(max_workers=self.max_workers) as e:
-                [0 for _ in tqdm(e.map(self._save_data_with_pickle, filepaths, zip(*(self.samples, self.targets))), total=len(self.targets))]
+                [0 for _ in tqdm(e.map(self._save_data_with_pickle, filepaths, zip(*(self.samples, self.targets))),
+                                 total=len(self.targets))]
         else:
             for i in tqdm(range(len(self.samples)), total=len(self.samples)):
                 pair = (self.samples[i], self.targets[i])
@@ -165,15 +187,15 @@ class BrainNetworkDataset(Dataset):
 
 
 if __name__ == "__main__":
-    # # Local
-    # load_path = os.path.join(os.getcwd(), "data")
-    # meta_data_file_path = os.path.join(os.getcwd(), "meta_data.tsv")
-    # save_path = os.path.join(os.getcwd(), "tmp", "dataset")
+    # Local
+    load_path = os.path.join(os.getcwd(), "data")
+    meta_data_file_path = os.path.join(os.getcwd(), "meta_data.tsv")
+    save_path = os.path.join(os.getcwd(), "tmp", "dataset")
 
-    # Imperial
-    load_path = os.path.join(os.getcwd(), "models", "gNNs", "data")
-    meta_data_file_path = os.path.join(os.getcwd(), "models", "gNNs", "meta_data.tsv")
-    save_path = os.path.join(os.getcwd(), "models", "gNNs", "tmp", "dataset")
+    # # Imperial
+    # load_path = os.path.join(os.getcwd(), "models", "gNNs", "data")
+    # meta_data_file_path = os.path.join(os.getcwd(), "models", "gNNs", "meta_data.tsv")
+    # save_path = os.path.join(os.getcwd(), "models", "gNNs", "tmp", "dataset")
     dataset = BrainNetworkDataset(load_path, meta_data_file_path, max_workers=8, save_path=save_path, save_dataset=True)
 
     # test_vtp =  "/mnt/UHDD/Programming/Projects/DeepLearningOnBrains/models/gNNs/tmp_data/vtks"
