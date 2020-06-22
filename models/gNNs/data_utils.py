@@ -1,4 +1,5 @@
 import os
+import pickle
 from concurrent.futures import ProcessPoolExecutor
 
 import dgl
@@ -8,7 +9,6 @@ import pyvista as pv
 import torch
 from torch.utils.data.dataset import Dataset
 from tqdm import tqdm
-import pickle
 
 
 class BrainNetworkDataset(Dataset):
@@ -35,6 +35,13 @@ class BrainNetworkDataset(Dataset):
             if os.path.exists(save_path):
                 print("Prepared dataset already exists in: ", save_path)
                 self.sample_filepaths = self.get_sample_file_paths(save_path)
+            else:
+                print("Generating Dataset")
+                self.load_dataset(files_path, meta_data_filepath)
+                self.convert_ds_to_tensors()
+                if save_dataset and (save_path is not None):
+                    print("Saving")
+                    self.save_dataset_with_pickle(save_path)
         else:
             print("Generating Dataset")
             self.load_dataset(files_path, meta_data_filepath)
@@ -87,32 +94,45 @@ class BrainNetworkDataset(Dataset):
         with ProcessPoolExecutor(max_workers=self.max_workers) as executor:
             self.samples = [graph for graph in tqdm(executor.map(self.load_data, files_to_load),
                                                     total=len(files_to_load))]
+            all_features = np.row_stack([graph.ndata["features"] for graph in self.samples])
+            mu = np.mean(all_features, axis=0, keepdims=True)
+            std = np.std(all_features, axis=0, keepdims=True)
+            del all_features
+            for graph in self.samples:
+                graph.ndata["features"] -= mu
+                graph.ndata["features"] /= std
         return self.samples, self.targets
 
     def convert_ds_to_tensors(self):
         # Don't believe self.samples needs to be converted.
         # self.targets = np.array(self.targets, dtype=np.float)
         self.targets = torch.tensor(self.targets, dtype=torch.float).view((-1, 1))
+        self.targets = (self.targets - self.targets.mean()) / self.targets.std()
+        print("Targets normalised")
 
     def load_data(self, filepath):
         mesh = pv.read(filepath)
-        point_array = mesh.points.copy()
         src, dst = zip(*self.convert_face_array_to_edge_array(self.build_face_array(list(mesh.faces))))
         src = np.array(src)
         dst = np.array(dst)
         # Edges are directional in DGL; Make them bi-directional.
         G = dgl.DGLGraph(
-            (torch.from_numpy(np.concatenate([src, dst])), torch.from_numpy(np.concatenate([dst, src]))))
-        G.ndata['feat'] = torch.tensor(point_array)
+            (torch.from_numpy(np.concatenate([src, dst])), torch.from_numpy(np.concatenate([dst, src])))
+        )
+        features = list()
+        for name in mesh.array_names:
+            if name in ['segmentation', 'corrected_thickness', 'initial_thickness', 'curvature', 'sulcal_depth', 'roi']:
+                features.append(mesh.get_array(name=name, preference="point"))
+        G.ndata['features'] = torch.tensor(np.column_stack(features)).float()
         return G
 
     def save_dataset_with_pickle(self, ds_store_fp):
         if not os.path.exists(ds_store_fp):
             os.makedirs(ds_store_fp)
         if self.max_workers > 1:
-            filepaths = [os.path.join(ds_store_fp, f"{i}.pickle") for i in range(len(self))]
-            with ProcessPoolExecutor(max_workers=8) as e:
-                [0 for _ in tqdm(e.map(self._save_data_with_pickle, filepaths, self), total=len(self))]
+            filepaths = [os.path.join(ds_store_fp, f"{i}.pickle") for i in range(len(self.samples))]
+            with ProcessPoolExecutor(max_workers=self.max_workers) as e:
+                [0 for _ in tqdm(e.map(self._save_data_with_pickle, filepaths, zip(*(self.samples, self.targets))), total=len(self.targets))]
         else:
             for i in tqdm(range(len(self.samples)), total=len(self.samples)):
                 pair = (self.samples[i], self.targets[i])
@@ -126,7 +146,8 @@ class BrainNetworkDataset(Dataset):
 
     def load_sample_from_pickle(self, filepath):
         with open(filepath, "rb") as f:
-            return pickle.load(f)
+            contents = pickle.load(f)
+        return contents
 
     def get_sample_file_paths(self, ds_store_fp):
         return [os.path.join(ds_store_fp, fp) for fp in os.listdir(ds_store_fp)]
@@ -144,7 +165,15 @@ class BrainNetworkDataset(Dataset):
 
 
 if __name__ == "__main__":
+    # # Local
+    # load_path = os.path.join(os.getcwd(), "data")
+    # meta_data_file_path = os.path.join(os.getcwd(), "meta_data.tsv")
+    # save_path = os.path.join(os.getcwd(), "tmp", "dataset")
+
+    # Imperial
     load_path = os.path.join(os.getcwd(), "models", "gNNs", "data")
     meta_data_file_path = os.path.join(os.getcwd(), "models", "gNNs", "meta_data.tsv")
     save_path = os.path.join(os.getcwd(), "models", "gNNs", "tmp", "dataset")
-    dataset = BrainNetworkDataset(load_path, meta_data_file_path, max_workers=8, save_path=save_path)
+    dataset = BrainNetworkDataset(load_path, meta_data_file_path, max_workers=8, save_path=save_path, save_dataset=True)
+
+    # test_vtp =  "/mnt/UHDD/Programming/Projects/DeepLearningOnBrains/models/gNNs/tmp_data/vtks"
