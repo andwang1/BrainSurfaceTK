@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
     loss_function = nn.MSELoss()
 
-    accuracy_func = nn.L1Loss(reduction="sum")
+    accuracy_func = nn.L1Loss(reduction="none")
 
     print("Starting")
     for epoch in range(200):
@@ -87,6 +87,7 @@ if __name__ == "__main__":
         model.train()
         train_epoch_loss = 0
         train_epoch_acc = 0.
+        train_epoch_worst_diff = 0.
         for iter, (bg, label) in enumerate(train_dl):
             optimizer.zero_grad()
 
@@ -100,7 +101,11 @@ if __name__ == "__main__":
             optimizer.step()
 
             with torch.no_grad():
-                train_epoch_acc += accuracy_func(prediction, label).detach().item()
+                train_diff = accuracy_func(prediction, label)
+                train_epoch_acc += train_diff.sum().detach().item()
+                worst_diff = torch.max(train_diff).detach().item()
+                if worst_diff > train_epoch_worst_diff:
+                    train_epoch_worst_diff = worst_diff
             train_epoch_loss += loss.detach().item()
 
         train_epoch_loss /= (iter + 1)
@@ -111,8 +116,9 @@ if __name__ == "__main__":
 
             model.eval()
             test_epoch_loss = 0
-            test_acc = 0.
+            test_epoch_acc = 0.
             test_total = 0
+            test_epoch_worst_diff = 0.
             for test_iter, (bg, label) in enumerate(test_dl):
                 bg = bg.to(device)
                 bg_features = bg.ndata["features"].to(device)
@@ -121,12 +127,17 @@ if __name__ == "__main__":
                 prediction = model(bg, bg_features)
                 loss = loss_function(prediction, label)
 
-                test_acc += accuracy_func(prediction, label).detach().item()
+                test_diff = accuracy_func(prediction, label)
+                test_epoch_acc += test_diff.sum().detach().item()
+                worst_diff = torch.max(test_diff).detach().item()
+                if worst_diff > test_epoch_worst_diff:
+                    test_epoch_worst_diff = worst_diff
                 test_epoch_loss += loss.detach().item()
+
                 test_total += len(label)
 
             test_epoch_loss /= (test_iter + 1)
-            test_acc /= test_total
+            test_epoch_acc /= test_total
 
         print('Epoch {}, train_loss {:.4f}, test_loss {:.4f}'.format(epoch, train_epoch_loss, test_epoch_loss))
 
@@ -134,4 +145,6 @@ if __name__ == "__main__":
         writer.add_scalar("Loss/Train", train_epoch_loss, epoch)
         writer.add_scalar("Loss/Test", test_epoch_loss, epoch)
         writer.add_scalar("Accuracy/Train", train_epoch_acc, epoch)
-        writer.add_scalar("Accuracy/Test", test_acc, epoch)
+        writer.add_scalar("Accuracy/Test", test_epoch_acc, epoch)
+        writer.add_scalar("Max Error/Train", train_epoch_worst_diff, epoch)
+        writer.add_scalar("Max Error/Test", test_epoch_worst_diff, epoch)
