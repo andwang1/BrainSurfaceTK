@@ -96,11 +96,11 @@ if __name__ == "__main__":
 
             prediction = model(bg, bg_features)
             loss = loss_function(prediction, label)
-            with torch.no_grad():
-                train_epoch_acc += accuracy_func(prediction, label)
             loss.backward()
             optimizer.step()
 
+            with torch.no_grad():
+                train_epoch_acc += accuracy_func(prediction, label)
             train_epoch_loss += loss.detach().item()
 
         train_epoch_loss /= (iter + 1)
@@ -116,10 +116,13 @@ if __name__ == "__main__":
                 bg = bg.to(device)
                 bg_features = bg.ndata["features"].to(device)
                 label = label.to(device)
+
                 prediction = model(bg, bg_features)
                 loss = loss_function(prediction, label)
+
                 test_epoch_acc += accuracy_func(prediction, label)
                 test_epoch_loss += loss.detach().item()
+
             test_epoch_loss /= (test_iter + 1)
             test_epoch_acc /= (test_iter + 1)
 
