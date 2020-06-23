@@ -88,6 +88,7 @@ if __name__ == "__main__":
         train_epoch_loss = 0
         train_epoch_acc = 0.
         train_epoch_worst_diff = 0.
+        train_total_size = 0
         for iter, (bg, label) in enumerate(train_dl):
             optimizer.zero_grad()
 
@@ -107,9 +108,10 @@ if __name__ == "__main__":
                 if worst_diff > train_epoch_worst_diff:
                     train_epoch_worst_diff = worst_diff
             train_epoch_loss += loss.detach().item()
+            train_total_size += len(label)
 
         train_epoch_loss /= (iter + 1)
-        train_epoch_acc /= (iter + 1)
+        train_epoch_acc /= train_total_size
 
         # Test
         with torch.no_grad():
@@ -117,7 +119,7 @@ if __name__ == "__main__":
             model.eval()
             test_epoch_loss = 0
             test_epoch_acc = 0.
-            test_total = 0
+            test_total_size = 0
             test_epoch_worst_diff = 0.
             for test_iter, (bg, label) in enumerate(test_dl):
                 bg = bg.to(device)
@@ -134,10 +136,10 @@ if __name__ == "__main__":
                     test_epoch_worst_diff = worst_diff
                 test_epoch_loss += loss.detach().item()
 
-                test_total += len(label)
+                test_total_size += len(label)
 
             test_epoch_loss /= (test_iter + 1)
-            test_epoch_acc /= test_total
+            test_epoch_acc /= test_total_size
 
         print('Epoch {}, train_loss {:.4f}, test_loss {:.4f}'.format(epoch, train_epoch_loss, test_epoch_loss))
 
