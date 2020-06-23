@@ -144,7 +144,7 @@ if __name__ == "__main__":
         # Record to TensorBoard
         writer.add_scalar("Loss/Train", train_epoch_loss, epoch)
         writer.add_scalar("Loss/Test", test_epoch_loss, epoch)
-        writer.add_scalar("Accuracy/Train", train_epoch_acc, epoch)
-        writer.add_scalar("Accuracy/Test", test_epoch_acc, epoch)
+        writer.add_scalar("Error/Train", train_epoch_acc, epoch)
+        writer.add_scalar("Error/Test", test_epoch_acc, epoch)
         writer.add_scalar("Max Error/Train", train_epoch_worst_diff, epoch)
         writer.add_scalar("Max Error/Test", test_epoch_worst_diff, epoch)
