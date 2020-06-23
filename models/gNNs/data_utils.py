@@ -96,32 +96,32 @@ class BrainNetworkDataset(Dataset):
             self.samples = [graph for graph in tqdm(executor.map(self.load_data, files_to_load),
                                                     total=len(files_to_load))]
 
-            graph = self.samples[0]
-            features = graph.ndata["features"]
-            mu = torch.tensor(features).sum(dim=0)
-            total = len(features)
-            for i in range(1, len(self.samples)):
-                graph = self.samples[i]
-                features = graph.ndata["features"]#.copy()
-                mu += features.sum(dim=0)
-                total += len(features)
-            mu /= total
-            var = 0
-            for i in range(0, len(self.samples)):
-                graph = self.samples[i]
-                features = graph.ndata["features"]#.copy()
-                var += ((features - mu) ** 2).sum(dim=0)
-            std = torch.sqrt(var / (total - 1))
-
-            # all_features = np.row_stack([graph.ndata["features"] for graph in self.samples])
-            # test_mu = np.mean(all_features, axis=0, keepdims=True)
-            # test_std = np.std(all_features, axis=0, ddof=1, keepdims=True)
-            # print(torch.all(mu == torch.from_numpy(test_mu)))
-            # print(torch.all(std == torch.from_numpy(test_std)))
-
-            for graph in self.samples:
-                graph.ndata["features"] -= mu
-                graph.ndata["features"] /= std
+            # graph = self.samples[0]
+            # features = graph.ndata["features"]
+            # mu = torch.tensor(features).sum(dim=0)
+            # total = len(features)
+            # for i in range(1, len(self.samples)):
+            #     graph = self.samples[i]
+            #     features = graph.ndata["features"]#.copy()
+            #     mu += features.sum(dim=0)
+            #     total += len(features)
+            # mu /= total
+            # var = 0
+            # for i in range(0, len(self.samples)):
+            #     graph = self.samples[i]
+            #     features = graph.ndata["features"]#.copy()
+            #     var += ((features - mu) ** 2).sum(dim=0)
+            # std = torch.sqrt(var / (total - 1))
+            #
+            # # all_features = np.row_stack([graph.ndata["features"] for graph in self.samples])
+            # # test_mu = np.mean(all_features, axis=0, keepdims=True)
+            # # test_std = np.std(all_features, axis=0, ddof=1, keepdims=True)
+            # # print(torch.all(mu == torch.from_numpy(test_mu)))
+            # # print(torch.all(std == torch.from_numpy(test_std)))
+            #
+            # for graph in self.samples:
+            #     graph.ndata["features"] -= mu
+            #     graph.ndata["features"] /= std
         return self.samples, self.targets
 
     def convert_ds_to_tensors(self):
@@ -137,15 +137,16 @@ class BrainNetworkDataset(Dataset):
         src = np.array(src)
         dst = np.array(dst)
         # Edges are directional in DGL; Make them bi-directional.
-        G = dgl.DGLGraph(
+        g = dgl.DGLGraph(
             (torch.from_numpy(np.concatenate([src, dst])), torch.from_numpy(np.concatenate([dst, src])))
         )
         features = list()
         for name in mesh.array_names:
             if name in ['corrected_thickness', 'initial_thickness', 'curvature', 'sulcal_depth', 'roi']:
                 features.append(mesh.get_array(name=name, preference="point"))
-        G.ndata['features'] = torch.tensor(np.column_stack(features)).float()
-        return G
+        g.ndata['features'] = torch.tensor(np.column_stack(features)).float()
+        g.add_edges(g.nodes(), g.nodes())
+        return g
 
     def save_dataset_with_pickle(self, ds_store_fp):
         if not os.path.exists(ds_store_fp):

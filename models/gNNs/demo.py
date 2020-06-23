@@ -3,22 +3,28 @@ import os
 import dgl
 import torch
 import torch.nn as nn
-from models.gNNs.data_utils import BrainNetworkDataset
 from dgl.nn.pytorch import GraphConv
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
+from models.gNNs.data_utils import BrainNetworkDataset
+
 
 class Predictor(nn.Module):
-    def __init__(self, in_dim, hidden_dim, n_classes):
+    def __init__(self, in_dim, hidden_dim, n_classes, batch_norm=True):
         super(Predictor, self).__init__()
+        if batch_norm:
+            self.batch_norm = nn.BatchNorm1d(in_dim)
+        else:
+            self.batch_norm = lambda x: x
         self.conv1 = GraphConv(in_dim, hidden_dim, activation=nn.ReLU())
         self.conv2 = GraphConv(hidden_dim, hidden_dim, activation=nn.ReLU())
         self.predict_layer = nn.Linear(hidden_dim, n_classes)
 
     def forward(self, graph, features):
         # Perform graph convolution and activation function.
-        hidden = self.conv1(graph, features)
+        norm_features = self.batch_norm(features)
+        hidden = self.conv1(graph, norm_features)
         hidden = self.conv2(graph, hidden)
         with graph.local_scope():
             graph.ndata['tmp'] = hidden
@@ -36,13 +42,13 @@ def collate(samples):
 
 
 if __name__ == "__main__":
-    # load_path = os.path.join(os.getcwd(), "data")
-    load_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/vtps/white/30k/left")
+    load_path = os.path.join(os.getcwd(), "data")
+    # load_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/vtps/white/30k/left")
     # load_path ="/vol/bitbucket/cnw119/tmp_data"
-    # meta_data_file_path = os.path.join(os.getcwd(), "meta_data.tsv")
-    meta_data_file_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
-    # save_path = os.path.join(os.getcwd(), "tmp", "dataset")
-    save_path = "/vol/bitbucket/cnw119/tmp/dataset"
+    meta_data_file_path = os.path.join(os.getcwd(), "meta_data.tsv")
+    # meta_data_file_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
+    save_path = os.path.join(os.getcwd(), "tmp", "dataset")
+    # save_path = "/vol/bitbucket/cnw119/tmp/dataset"
 
     writer = SummaryWriter()
     batch_size = 12
