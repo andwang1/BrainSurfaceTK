@@ -3,11 +3,10 @@ import os
 import dgl
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
+from data_utils import BrainNetworkDataset
 from dgl.nn.pytorch import GraphConv
 from torch.utils.data.dataloader import DataLoader
-
-from data_utils import BrainNetworkDataset
+from torch.utils.tensorboard import SummaryWriter
 
 
 class Predictor(nn.Module):
@@ -44,14 +43,15 @@ if __name__ == "__main__":
     meta_data_file_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
     # save_path = os.path.join(os.getcwd(), "tmp", "dataset")
     save_path = "/vol/bitbucket/cnw119/tmp/dataset"
-    batch_size = 12
 
+    writer = SummaryWriter()
+    batch_size = 12
 
     train_test_split = 0.8
     # Use PyTorch's DataLoader and the collate function
     # defined before.
     dataset = BrainNetworkDataset(load_path, meta_data_file_path, save_path=save_path, max_workers=8,
-                                    save_dataset=True, load_from_pk=True)
+                                  save_dataset=True, load_from_pk=True)
 
     # Calculate the train/test splits
     train_size = round(len(dataset) * train_test_split)
@@ -67,36 +67,44 @@ if __name__ == "__main__":
     # Create model
     print("Creating Model")
     model = Predictor(6, 256, 1)
-    loss_func = nn.L1Loss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
-    model.train()
+    optimizer = torch.optim.Adam(model.parameters(), lr=5e-4)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=10, eta_min=1e-6)
     print("Model made")
 
-
-    print("Sending model to device")
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)
     print(f"Model is on: {'cuda' if torch.cuda.is_available() else 'cpu'}")
     print(model)
+
+    loss_func = nn.L1Loss()
+
     print("Starting")
     for epoch in range(200):
-        train_epoch_loss = 0
+
+        # Train
         model.train()
+        train_epoch_loss = 0
         for iter, (bg, label) in enumerate(train_dl):
+            optimizer.zero_grad()
+
             bg = bg.to(device)
             bg_features = bg.ndata["features"].to(device)
             label = label.to(device)
+
             prediction = model(bg, bg_features)
             loss = loss_func(prediction, label)
-            optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            optimizer.zero_grad()
+
             train_epoch_loss += loss.detach().item()
+
         train_epoch_loss /= (iter + 1)
-        test_epoch_loss = 0
-        model.eval()
+
+        # Test
         with torch.no_grad():
+
+            model.eval()
+            test_epoch_loss = 0
             for test_iter, (bg, label) in enumerate(test_dl):
                 bg = bg.to(device)
                 bg_features = bg.ndata["features"].to(device)
@@ -104,4 +112,10 @@ if __name__ == "__main__":
                 prediction = model(bg, bg_features)
                 loss = loss_func(prediction, label)
                 test_epoch_loss += loss.detach().item()
+            test_epoch_loss /= (test_iter + 1)
+
         print('Epoch {}, train_loss {:.4f}, test_loss {:.4f}'.format(epoch, train_epoch_loss, test_epoch_loss))
+
+        # Record to TensorBoard
+        writer.add_scalar("Loss/Train", train_epoch_loss)
+        writer.add_scalar("Loss/Test", test_epoch_loss)
