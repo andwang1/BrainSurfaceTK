@@ -5,10 +5,10 @@
 whoami
 export PATH=/vol/bitbucket/${USER}/miniconda3/bin/:$PATH
 source activate
-conda activate banter
+conda activate vortexAI
 # source /vol/cuda/10.0.130/setup.sh
 TERM=vt100 # or TERM=xterm
 /usr/bin/nvidia-smi
 uptime
-cd /vol/bitbucket/${USER}/neodeepbrain/models/gNNs
-python demo.py
+cd /vol/bitbucket/${USER} || exit
+python -u -m neodeepbrain.models.gNNs.demo

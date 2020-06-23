@@ -3,7 +3,7 @@ import os
 import dgl
 import torch
 import torch.nn as nn
-from data_utils import BrainNetworkDataset
+from models.gNNs.data_utils import BrainNetworkDataset
 from dgl.nn.pytorch import GraphConv
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.tensorboard import SummaryWriter
