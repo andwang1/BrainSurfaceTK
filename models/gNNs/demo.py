@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
     loss_function = nn.MSELoss()
 
-    accuracy_func = nn.L1Loss()
+    accuracy_func = nn.L1Loss(reduction="sum")
 
     print("Starting")
     for epoch in range(200):
@@ -111,7 +111,8 @@ if __name__ == "__main__":
 
             model.eval()
             test_epoch_loss = 0
-            test_epoch_acc = 0.
+            test_acc = 0.
+            test_total = 0
             for test_iter, (bg, label) in enumerate(test_dl):
                 bg = bg.to(device)
                 bg_features = bg.ndata["features"].to(device)
@@ -120,11 +121,12 @@ if __name__ == "__main__":
                 prediction = model(bg, bg_features)
                 loss = loss_function(prediction, label)
 
-                test_epoch_acc += accuracy_func(prediction, label).detach().item()
+                test_acc += accuracy_func(prediction, label).detach().item()
                 test_epoch_loss += loss.detach().item()
+                test_total += len(label)
 
             test_epoch_loss /= (test_iter + 1)
-            test_epoch_acc /= (test_iter + 1)
+            test_acc /= test_total
 
         print('Epoch {}, train_loss {:.4f}, test_loss {:.4f}'.format(epoch, train_epoch_loss, test_epoch_loss))
 
@@ -132,4 +134,4 @@ if __name__ == "__main__":
         writer.add_scalar("Loss/Train", train_epoch_loss, epoch)
         writer.add_scalar("Loss/Test", test_epoch_loss, epoch)
         writer.add_scalar("Accuracy/Train", train_epoch_acc, epoch)
-        writer.add_scalar("Accuracy/Test", test_epoch_acc, epoch)
+        writer.add_scalar("Accuracy/Test", test_acc, epoch)
