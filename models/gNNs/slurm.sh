@@ -10,5 +10,5 @@ conda activate vortexAI
 TERM=vt100 # or TERM=xterm
 /usr/bin/nvidia-smi
 uptime
-cd /vol/bitbucket/${USER} || exit
-python -u -m neodeepbrain.models.gNNs.demo
+cd /vol/bitbucket/${USER}/neodeepbrain || exit
+python -u -m models.gNNs.demo

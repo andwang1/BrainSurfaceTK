@@ -66,7 +66,7 @@ if __name__ == "__main__":
 
     # Create model
     print("Creating Model")
-    model = Predictor(6, 256, 1)
+    model = Predictor(5, 256, 1)
     optimizer = torch.optim.Adam(model.parameters(), lr=5e-4)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=10, eta_min=1e-6)
     print("Model made")
