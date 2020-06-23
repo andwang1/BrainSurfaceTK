@@ -121,7 +121,7 @@ class BrainNetworkDataset(Dataset):
                                                total=len(files_to_load))]
 
         train_size = round(len(samples) * self.train_split_per)
-        train_indices = np.random.choice([i for i in range(len(samples))], size=train_size)
+        train_indices = np.random.choice([i for i in range(len(samples))], size=train_size, replace=False)
 
         train_samples = [samples[i] for i in range(len(samples)) if i in train_indices]
         train_targets = [targets[i] for i in range(len(targets)) if i in train_indices]

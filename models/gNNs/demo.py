@@ -74,7 +74,7 @@ if __name__ == "__main__":
 
     loss_function = nn.MSELoss()
 
-    accuracy_func = nn.L1Loss(reduction="none")
+    diff_func = nn.L1Loss(reduction="none")
 
     print("Starting")
     for epoch in range(200):
@@ -98,7 +98,7 @@ if __name__ == "__main__":
             optimizer.step()
 
             with torch.no_grad():
-                train_diff = accuracy_func(prediction, label)
+                train_diff = diff_func(prediction, label)
                 train_epoch_acc += train_diff.sum().detach().item()
                 worst_diff = torch.max(train_diff).detach().item()
                 if worst_diff > train_epoch_worst_diff:
@@ -125,7 +125,7 @@ if __name__ == "__main__":
                 prediction = model(bg, bg_features)
                 loss = loss_function(prediction, label)
 
-                test_diff = accuracy_func(prediction, label)
+                test_diff = diff_func(prediction, label)
                 test_epoch_acc += test_diff.sum().detach().item()
                 worst_diff = torch.max(test_diff).detach().item()
                 if worst_diff > test_epoch_worst_diff:
