@@ -61,13 +61,13 @@ if __name__ == "__main__":
     train_ds, test_ds = torch.utils.data.random_split(dataset, [train_size, test_size])
     # Create the dataloaders for both the training and test datasets
     print("Building dataloaders")
-    train_dl = DataLoader(train_ds, batch_size=batch_size, shuffle=True, collate_fn=collate)
-    test_dl = DataLoader(test_ds, batch_size=batch_size, shuffle=True, collate_fn=collate)
+    train_dl = DataLoader(train_ds, batch_size=batch_size, shuffle=True, collate_fn=collate, num_workers=8)
+    test_dl = DataLoader(test_ds, batch_size=batch_size, shuffle=True, collate_fn=collate, num_workers=8)
 
     # Create model
     print("Creating Model")
     model = Predictor(5, 256, 1)
-    optimizer = torch.optim.Adam(model.parameters(), lr=5e-4)
+    optimizer = torch.optim.Adam(model.parameters(), lr=8e-4)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=10, eta_min=1e-6)
     print("Model made")
 
@@ -76,7 +76,9 @@ if __name__ == "__main__":
     print(f"Model is on: {'cuda' if torch.cuda.is_available() else 'cpu'}")
     print(model)
 
-    loss_func = nn.L1Loss()
+    loss_function = nn.MSELoss()
+
+    accuracy_func = nn.L1Loss()
 
     print("Starting")
     for epoch in range(200):
@@ -84,6 +86,7 @@ if __name__ == "__main__":
         # Train
         model.train()
         train_epoch_loss = 0
+        train_epoch_acc = 0.
         for iter, (bg, label) in enumerate(train_dl):
             optimizer.zero_grad()
 
@@ -92,30 +95,38 @@ if __name__ == "__main__":
             label = label.to(device)
 
             prediction = model(bg, bg_features)
-            loss = loss_func(prediction, label)
+            loss = loss_function(prediction, label)
+            with torch.no_grad():
+                train_epoch_acc += accuracy_func(prediction, label)
             loss.backward()
             optimizer.step()
 
             train_epoch_loss += loss.detach().item()
 
         train_epoch_loss /= (iter + 1)
+        train_epoch_acc /= (iter + 1)
 
         # Test
         with torch.no_grad():
 
             model.eval()
             test_epoch_loss = 0
+            test_epoch_acc = 0.
             for test_iter, (bg, label) in enumerate(test_dl):
                 bg = bg.to(device)
                 bg_features = bg.ndata["features"].to(device)
                 label = label.to(device)
                 prediction = model(bg, bg_features)
-                loss = loss_func(prediction, label)
+                loss = loss_function(prediction, label)
+                test_epoch_acc += accuracy_func(prediction, label)
                 test_epoch_loss += loss.detach().item()
             test_epoch_loss /= (test_iter + 1)
+            test_epoch_acc /= (test_iter + 1)
 
         print('Epoch {}, train_loss {:.4f}, test_loss {:.4f}'.format(epoch, train_epoch_loss, test_epoch_loss))
 
         # Record to TensorBoard
         writer.add_scalar("Loss/Train", train_epoch_loss, epoch)
         writer.add_scalar("Loss/Test", test_epoch_loss, epoch)
+        writer.add_scalar("Accuracy/Train", train_epoch_acc, epoch)
+        writer.add_scalar("Accuracy/Test", test_epoch_acc, epoch)
