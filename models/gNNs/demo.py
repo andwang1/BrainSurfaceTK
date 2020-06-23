@@ -117,5 +117,5 @@ if __name__ == "__main__":
         print('Epoch {}, train_loss {:.4f}, test_loss {:.4f}'.format(epoch, train_epoch_loss, test_epoch_loss))
 
         # Record to TensorBoard
-        writer.add_scalar("Loss/Train", train_epoch_loss)
-        writer.add_scalar("Loss/Test", test_epoch_loss)
+        writer.add_scalar("Loss/Train", train_epoch_loss, epoch)
+        writer.add_scalar("Loss/Test", test_epoch_loss, epoch)
