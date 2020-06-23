@@ -11,20 +11,15 @@ from models.gNNs.data_utils import BrainNetworkDataset
 
 
 class Predictor(nn.Module):
-    def __init__(self, in_dim, hidden_dim, n_classes, batch_norm=True):
+    def __init__(self, in_dim, hidden_dim, n_classes):
         super(Predictor, self).__init__()
-        if batch_norm:
-            self.batch_norm = nn.BatchNorm1d(in_dim)
-        else:
-            self.batch_norm = lambda x: x
         self.conv1 = GraphConv(in_dim, hidden_dim, activation=nn.ReLU())
         self.conv2 = GraphConv(hidden_dim, hidden_dim, activation=nn.ReLU())
         self.predict_layer = nn.Linear(hidden_dim, n_classes)
 
     def forward(self, graph, features):
         # Perform graph convolution and activation function.
-        norm_features = self.batch_norm(features)
-        hidden = self.conv1(graph, norm_features)
+        hidden = self.conv1(graph, features)
         hidden = self.conv2(graph, hidden)
         with graph.local_scope():
             graph.ndata['tmp'] = hidden
@@ -52,23 +47,18 @@ if __name__ == "__main__":
 
     writer = SummaryWriter()
     batch_size = 12
-
     train_test_split = 0.8
-    # Use PyTorch's DataLoader and the collate function
-    # defined before.
-    dataset = BrainNetworkDataset(load_path, meta_data_file_path, save_path=save_path, max_workers=8,
-                                  save_dataset=True, load_from_pk=True)
 
-    # Calculate the train/test splits
-    train_size = round(len(dataset) * train_test_split)
-    test_size = len(dataset) - train_size
-    # Split the dataset randomly
-    print("splitting dataset")
-    train_ds, test_ds = torch.utils.data.random_split(dataset, [train_size, test_size])
-    # Create the dataloaders for both the training and test datasets
+    train_dataset = BrainNetworkDataset(load_path, meta_data_file_path, save_path=save_path, max_workers=8,
+                                        save_dataset=True, load_from_pk=True, dataset="train",
+                                        train_split_per=train_test_split)
+
+    test_dataset = BrainNetworkDataset(load_path, meta_data_file_path, save_path=save_path, max_workers=8,
+                                       save_dataset=True, load_from_pk=True, dataset="test")
+
     print("Building dataloaders")
-    train_dl = DataLoader(train_ds, batch_size=batch_size, shuffle=True, collate_fn=collate, num_workers=8)
-    test_dl = DataLoader(test_ds, batch_size=batch_size, shuffle=True, collate_fn=collate, num_workers=8)
+    train_dl = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate, num_workers=8)
+    test_dl = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate, num_workers=8)
 
     # Create model
     print("Creating Model")

@@ -16,12 +16,15 @@ class BrainNetworkDataset(Dataset):
     Dataset for Brain Networks
     """
 
-    def __init__(self, files_path, meta_data_filepath, save_path=None, max_workers=6, save_dataset=False,
+    def __init__(self, files_path, meta_data_filepath, save_path=None, dataset="train", train_split_per=0.8,
+                 max_workers=6, save_dataset=False,
                  load_from_pk=True):
         if not os.path.isdir(files_path):
             raise IsADirectoryError(f"This Location: {files_path} doesn't exist")
         if not os.path.isfile(meta_data_filepath):
             raise FileNotFoundError(f"The meta_data.tsv file address ({meta_data_filepath}) doesn't exist!")
+        if dataset not in ["train", "test", "none"]:
+            raise ValueError("dataset must be one of: 'train', 'test', 'none'")
         print("Initialising Dataset")
         # Datapaths
         self.path = files_path
@@ -30,26 +33,47 @@ class BrainNetworkDataset(Dataset):
         self.max_workers = max_workers
         # Samples & respective targets
         self.sample_filepaths = None
+        self.train_split_per = train_split_per
+        self.dataset = dataset
         # Loading
-        if load_from_pk and isinstance(save_path, str):
-            if os.path.exists(save_path):
-                print("Prepared dataset already exists in: ", save_path)
-                self.sample_filepaths = self.get_sample_file_paths(save_path)
+        if load_from_pk and not isinstance(save_path, str):
+            raise Exception("Specify a save path!")
+        if save_dataset and (save_path is None):
+            raise Exception("You want to save the dataset but you haven't specified a save_path")
+
+        if load_from_pk and os.path.exists(self.update_save_path(save_path, dataset)):
+            print("Prepared dataset already exists in: ", save_path)
+            if dataset == "none":
+                train_sample_filepaths = self.get_sample_file_paths(self.update_save_path(save_path, "train"))
+                test_sample_filepaths = self.get_sample_file_paths(self.update_save_path(save_path, "test"))
+                self.sample_filepaths = train_sample_filepaths + test_sample_filepaths
             else:
-                print("Generating Dataset")
-                self.load_dataset(files_path, meta_data_filepath)
-                self.convert_ds_to_tensors()
-                if save_dataset and (save_path is not None):
-                    print("Saving")
-                    self.save_dataset_with_pickle(save_path)
+                save_path = self.update_save_path(save_path, dataset)
+                self.sample_filepaths = self.get_sample_file_paths(save_path)
         else:
             print("Generating Dataset")
-            self.load_dataset(files_path, meta_data_filepath)
-            self.convert_ds_to_tensors()
-            if save_dataset and (save_path is not None):
-                print("Saving")
-                self.save_dataset_with_pickle(save_path)
+            (train_samples, train_targets), (test_samples, test_targets) = self.load_dataset(files_path,
+                                                                                             meta_data_filepath)
+            print("Saving")
+            self.save_dataset_with_pickle(train_samples, train_targets, self.update_save_path(save_path, "train"))
+            self.save_dataset_with_pickle(test_samples, test_targets, self.update_save_path(save_path, "test"))
+
+            if dataset == "none":
+                train_sample_filepaths = self.get_sample_file_paths(self.update_save_path(save_path, "train"))
+                test_sample_filepaths = self.get_sample_file_paths(self.update_save_path(save_path, "test"))
+                self.sample_filepaths = train_sample_filepaths + test_sample_filepaths
+            else:
+                save_path = self.update_save_path(save_path, dataset)
+                self.sample_filepaths = self.get_sample_file_paths(save_path)
+
         print("Initialisation complete")
+
+    @staticmethod
+    def update_save_path(save_path, dataset):
+        if dataset == "none":
+            return save_path
+        else:
+            return os.path.join(save_path, dataset)
 
     def __len__(self):
         return len(self.sample_filepaths)
@@ -80,8 +104,8 @@ class BrainNetworkDataset(Dataset):
         return edges_list
 
     def load_dataset(self, load_path, meta_data_file_path):
-        self.samples = list()
-        self.targets = list()
+
+        targets = list()
         df = pd.read_csv(meta_data_file_path, sep='\t', header=0)
         potential_files = [f for f in os.listdir(load_path)]
         files_to_load = list()
@@ -90,46 +114,53 @@ class BrainNetworkDataset(Dataset):
             records = df[(df.participant_id == participant_id) & (df.session_id == int(session_id))]
             if len(records) == 1:
                 files_to_load.append(os.path.join(load_path, fn))
-                self.targets.append(records.scan_age.values)
-        del df
+                targets.append(records.scan_age.values)
+
         with ProcessPoolExecutor(max_workers=self.max_workers) as executor:
-            self.samples = [graph for graph in tqdm(executor.map(self.load_data, files_to_load),
-                                                    total=len(files_to_load))]
+            samples = [graph for graph in tqdm(executor.map(self.load_data, files_to_load),
+                                               total=len(files_to_load))]
 
-            # graph = self.samples[0]
-            # features = graph.ndata["features"]
-            # mu = torch.tensor(features).sum(dim=0)
-            # total = len(features)
-            # for i in range(1, len(self.samples)):
-            #     graph = self.samples[i]
-            #     features = graph.ndata["features"]#.copy()
-            #     mu += features.sum(dim=0)
-            #     total += len(features)
-            # mu /= total
-            # var = 0
-            # for i in range(0, len(self.samples)):
-            #     graph = self.samples[i]
-            #     features = graph.ndata["features"]#.copy()
-            #     var += ((features - mu) ** 2).sum(dim=0)
-            # std = torch.sqrt(var / (total - 1))
-            #
-            # # all_features = np.row_stack([graph.ndata["features"] for graph in self.samples])
-            # # test_mu = np.mean(all_features, axis=0, keepdims=True)
-            # # test_std = np.std(all_features, axis=0, ddof=1, keepdims=True)
-            # # print(torch.all(mu == torch.from_numpy(test_mu)))
-            # # print(torch.all(std == torch.from_numpy(test_std)))
-            #
-            # for graph in self.samples:
-            #     graph.ndata["features"] -= mu
-            #     graph.ndata["features"] /= std
-        return self.samples, self.targets
+        train_size = round(len(samples) * self.train_split_per)
+        train_indices = np.random.choice([i for i in range(len(samples))], size=train_size)
 
-    def convert_ds_to_tensors(self):
-        # Don't believe self.samples needs to be converted.
-        # self.targets = np.array(self.targets, dtype=np.float)
-        self.targets = torch.tensor(self.targets, dtype=torch.float).view((-1, 1))
-        self.targets = (self.targets - self.targets.mean()) / self.targets.std()
-        print("Targets normalised")
+        train_samples = [samples[i] for i in range(len(samples)) if i in train_indices]
+        train_targets = [targets[i] for i in range(len(targets)) if i in train_indices]
+
+        test_samples = [samples[i] for i in range(len(samples)) if i not in train_indices]
+        test_targets = [targets[i] for i in range(len(targets)) if i not in train_indices]
+
+        train_samples, train_targets = self.normalise_data(train_samples, train_targets)
+        test_samples, test_targets = self.normalise_data(test_samples, test_targets)
+
+        return (train_samples, train_targets), (test_samples, test_targets)
+
+    @staticmethod
+    def normalise_data(samples, targets):
+        # INPLACE OPERATION
+        graph = samples[0]
+        features = graph.ndata["features"]
+        mu = torch.tensor(features).sum(dim=0)
+        total = len(features)
+        for i in range(1, len(samples)):
+            graph = samples[i]
+            features = graph.ndata["features"]
+            mu += features.sum(dim=0)
+            total += len(features)
+        mu /= total
+        var = 0
+        for i in range(0, len(samples)):
+            graph = samples[i]
+            features = graph.ndata["features"]
+            var += ((features - mu) ** 2).sum(dim=0)
+        std = torch.sqrt(var / (total - 1))
+        for graph in samples:
+            graph.ndata["features"] -= mu
+            graph.ndata["features"] /= std
+
+        targets = torch.tensor(targets, dtype=torch.float).view((-1, 1))
+        targets -= targets.mean()
+        targets /= targets.std()
+        return samples, targets
 
     def load_data(self, filepath):
         mesh = pv.read(filepath)
@@ -148,17 +179,17 @@ class BrainNetworkDataset(Dataset):
         g.add_edges(g.nodes(), g.nodes())
         return g
 
-    def save_dataset_with_pickle(self, ds_store_fp):
+    def save_dataset_with_pickle(self, samples, targets, ds_store_fp):
         if not os.path.exists(ds_store_fp):
             os.makedirs(ds_store_fp)
         if self.max_workers > 1:
-            filepaths = [os.path.join(ds_store_fp, f"{i}.pickle") for i in range(len(self.samples))]
+            filepaths = [os.path.join(ds_store_fp, f"{i}.pickle") for i in range(len(samples))]
             with ProcessPoolExecutor(max_workers=self.max_workers) as e:
-                [0 for _ in tqdm(e.map(self._save_data_with_pickle, filepaths, zip(*(self.samples, self.targets))),
-                                 total=len(self.targets))]
+                results = [0 for _ in tqdm(e.map(self._save_data_with_pickle, filepaths, zip(*(samples, targets))),
+                                           total=len(targets))]
         else:
-            for i in tqdm(range(len(self.samples)), total=len(self.samples)):
-                pair = (self.samples[i], self.targets[i])
+            for i in tqdm(range(len(samples)), total=len(samples)):
+                pair = (samples[i], targets[i])
                 with open(os.path.join(ds_store_fp, f"{i}.pickle"), "wb") as f:
                     pickle.dump(pair, f)
         return ds_store_fp
@@ -198,5 +229,7 @@ if __name__ == "__main__":
     # meta_data_file_path = os.path.join(os.getcwd(), "models", "gNNs", "meta_data.tsv")
     # save_path = os.path.join(os.getcwd(), "models", "gNNs", "tmp", "dataset")
     dataset = BrainNetworkDataset(load_path, meta_data_file_path, max_workers=8, save_path=save_path, save_dataset=True)
+
+    print(dataset[0])
 
     # test_vtp =  "/mnt/UHDD/Programming/Projects/DeepLearningOnBrains/models/gNNs/tmp_data/vtks"
