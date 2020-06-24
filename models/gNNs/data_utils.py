@@ -1,6 +1,7 @@
 import os
 import pickle
 from concurrent.futures import ProcessPoolExecutor
+from itertools import cycle
 
 import dgl
 import numpy as np
@@ -52,11 +53,7 @@ class BrainNetworkDataset(Dataset):
                 self.sample_filepaths = self.get_sample_file_paths(save_path)
         else:
             print("Generating Dataset")
-            (train_samples, train_targets), (test_samples, test_targets) = self.load_dataset(files_path,
-                                                                                             meta_data_filepath)
-            print("Saving")
-            self.save_dataset_with_pickle(train_samples, train_targets, self.update_save_path(save_path, "train"))
-            self.save_dataset_with_pickle(test_samples, test_targets, self.update_save_path(save_path, "test"))
+            self.generate_dataset(files_path, meta_data_filepath, save_path)
 
             if dataset == "none":
                 train_sample_filepaths = self.get_sample_file_paths(self.update_save_path(save_path, "train"))
@@ -67,6 +64,112 @@ class BrainNetworkDataset(Dataset):
                 self.sample_filepaths = self.get_sample_file_paths(save_path)
 
         print("Initialisation complete")
+
+    def generate_dataset(self, files_path, meta_data_filepath, save_path):
+
+        # Find files in Imperial Folder & Corresponding targets
+        files_to_load, targets = self.search_for_files_and_targets(files_path, meta_data_filepath)
+
+        # Split the dataset here
+        (train_fps, train_targets), (test_fps, test_targets) = self.split_dataset(files_to_load,
+                                                                                  targets,
+                                                                                  self.train_split_per)
+
+        # Make dirs to store data
+        train_save_path = self.update_save_path(save_path, "train")
+        if not os.path.exists(train_save_path):
+            os.makedirs(train_save_path)
+        test_save_path = self.update_save_path(save_path, "test")
+        if not os.path.exists(test_save_path):
+            os.makedirs(test_save_path)
+
+        # Convert each mesh to a graph and save
+        if self.max_workers > 0:
+            with ProcessPoolExecutor(max_workers=self.max_workers) as executor:
+                tr_results = [r for r in tqdm(executor.map(
+                    self.process_file_target,
+                    train_fps,
+                    train_targets,
+                    cycle((train_save_path,))
+                ), total=len(train_fps))]
+                te_results = [r for r in tqdm(executor.map(
+                    self.process_file_target,
+                    test_fps,
+                    test_targets,
+                    cycle((test_save_path,))
+                ), total=len(test_fps))]
+        else:
+            tr_results = [r for r in tqdm(map(
+                self.process_file_target,
+                train_fps,
+                train_targets,
+                cycle((train_save_path,))
+            ), total=len(train_fps))]
+            te_results = [r for r in tqdm(map(
+                self.process_file_target,
+                test_fps,
+                test_targets,
+                cycle((test_save_path,))
+            ), total=len(test_fps))]
+
+        if None in tr_results or None in te_results:
+            print("Error during graph building")
+
+        self.normalise_dataset(train_save_path)
+        self.normalise_dataset(test_save_path)
+
+    def process_file_target(self, file_to_load, target, save_path):
+
+        fp_save_path = os.path.join(save_path, os.path.basename(file_to_load).replace(".vtp", ".pickle"))
+        if os.path.exists(fp_save_path):
+            return 2
+
+        mesh = pv.read(file_to_load)
+        src, dst = zip(*self.convert_face_array_to_edge_array(self.build_face_array(list(mesh.faces))))
+        src = np.array(src)
+        dst = np.array(dst)
+        # Edges are directional in DGL; Make them bi-directional.
+        g = dgl.DGLGraph(
+            (torch.from_numpy(np.concatenate([src, dst])), torch.from_numpy(np.concatenate([dst, src])))
+        )
+        features = list()
+        for name in mesh.array_names:
+            if name in ['corrected_thickness', 'initial_thickness', 'curvature', 'sulcal_depth', 'roi']:
+                features.append(mesh.get_array(name=name, preference="point"))
+        g.ndata['features'] = torch.tensor(np.column_stack(features)).float()
+        g.add_edges(g.nodes(), g.nodes())  # Required Trick --> see DGL discussions somewhere sorry
+        g.edata['features'] = self.get_edge_data(mesh, src, dst, g)
+
+        self._save_data_with_pickle(fp_save_path, (g, target))
+
+        return 1
+
+    @staticmethod
+    def split_dataset(samples, targets, train_split_per):
+        train_size = round(len(samples) * train_split_per)
+        train_indices = np.random.choice([i for i in range(len(samples))], size=train_size, replace=False)
+
+        train_samples = [samples[i] for i in range(len(samples)) if i in train_indices]
+        train_targets = [targets[i] for i in range(len(targets)) if i in train_indices]
+
+        test_samples = [samples[i] for i in range(len(samples)) if i not in train_indices]
+        test_targets = [targets[i] for i in range(len(targets)) if i not in train_indices]
+
+        return (train_samples, train_targets), (test_samples, test_targets)
+
+    @staticmethod
+    def search_for_files_and_targets(load_path, meta_data_file_path):
+        targets = list()
+        df = pd.read_csv(meta_data_file_path, sep='\t', header=0)
+        potential_files = [f for f in os.listdir(load_path)]
+        files_to_load = list()
+        for fn in potential_files:
+            participant_id, session_id = fn.split("_")[:2]
+            records = df[(df.participant_id == participant_id) & (df.session_id == int(session_id))]
+            if len(records) == 1:
+                files_to_load.append(os.path.join(load_path, fn))
+                targets.append(torch.tensor(records.scan_age.values, dtype=torch.float))
+        return files_to_load, targets
 
     @staticmethod
     def update_save_path(save_path, dataset):
@@ -103,37 +206,6 @@ class BrainNetworkDataset(Dataset):
                 point = next_point
         return edges_list
 
-    def load_dataset(self, load_path, meta_data_file_path):
-
-        targets = list()
-        df = pd.read_csv(meta_data_file_path, sep='\t', header=0)
-        potential_files = [f for f in os.listdir(load_path)]
-        files_to_load = list()
-        for fn in potential_files:
-            participant_id, session_id = fn.split("_")[:2]
-            records = df[(df.participant_id == participant_id) & (df.session_id == int(session_id))]
-            if len(records) == 1:
-                files_to_load.append(os.path.join(load_path, fn))
-                targets.append(records.scan_age.values)
-
-        with ProcessPoolExecutor(max_workers=self.max_workers) as executor:
-            samples = [graph for graph in tqdm(executor.map(self.load_data, files_to_load),
-                                               total=len(files_to_load))]
-
-        train_size = round(len(samples) * self.train_split_per)
-        train_indices = np.random.choice([i for i in range(len(samples))], size=train_size, replace=False)
-
-        train_samples = [samples[i] for i in range(len(samples)) if i in train_indices]
-        train_targets = [targets[i] for i in range(len(targets)) if i in train_indices]
-
-        test_samples = [samples[i] for i in range(len(samples)) if i not in train_indices]
-        test_targets = [targets[i] for i in range(len(targets)) if i not in train_indices]
-
-        train_samples, train_targets = self.normalise_data(train_samples, train_targets)
-        test_samples, test_targets = self.normalise_data(test_samples, test_targets)
-
-        return (train_samples, train_targets), (test_samples, test_targets)
-
     @staticmethod
     def get_edge_data(mesh, src, dst, g):
         # TODO: Clean
@@ -146,106 +218,106 @@ class BrainNetworkDataset(Dataset):
                                          torch.zeros(len(g.nodes), 1, dtype=torch.float)])
         return unnorm_edge_lengths
 
-    def normalise_data(self, samples, targets):
-        samples = self.normalise_nodes(samples)
-        samples = self.normalise_edges(samples)
-        targets = self.normalise_targets(targets)
-        return samples, targets
+    def normalise_dataset(self, data_path):
+        files_to_load = [os.path.join(data_path, file_to_load) for file_to_load in os.listdir(data_path) if
+                         file_to_load.endswith(".pickle")]
+        self.normalise_nodes(files_to_load)
+        self.normalise_edges(files_to_load)
+        self.normalise_targets(files_to_load)
 
-    def normalise_nodes(self, samples):
+    def normalise_nodes(self, files_to_load):
         # INPLACE OPERATION
-        graph = samples[0]
+
+        graph, _ = self.load_sample_from_pickle(files_to_load[0])
         features = graph.ndata["features"]
         mu = torch.tensor(features).sum(dim=0)
         total = len(features)
-        for i in range(1, len(samples)):
-            graph = samples[i]
+
+        for i in range(1, len(files_to_load)):
+            graph, _ = self.load_sample_from_pickle(files_to_load[i])
             features = graph.ndata["features"]
             mu += features.sum(dim=0)
             total += len(features)
         mu /= total
+
         var = 0
-        for i in range(0, len(samples)):
-            graph = samples[i]
+        for i in range(0, len(files_to_load)):
+            graph, _ = self.load_sample_from_pickle(files_to_load[i])
             features = graph.ndata["features"]
             var += ((features - mu) ** 2).sum(dim=0)
         std = torch.sqrt(var / (total - 1))
-        for graph in samples:
+
+        for file_to_load in files_to_load:
+            graph, target = self.load_sample_from_pickle(file_to_load)
             graph.ndata["features"] -= mu
             graph.ndata["features"] /= std
             self.check_tensor(graph.ndata["features"])
-        return samples
+            self._save_data_with_pickle(file_to_load, (graph, target))
 
-    def normalise_edges(self, samples):
+        return 1
+
+    def normalise_edges(self, files_to_load):
         # INPLACE OPERATION
-        graph = samples[0]
+
+        graph, _ = self.load_sample_from_pickle(files_to_load[0])
         features = graph.edata["features"]
         mu = torch.tensor(features).sum(dim=0)
         total = len(features)
-        for i in range(1, len(samples)):
-            graph = samples[i]
+
+        for i in range(1, len(files_to_load)):
+            graph, _ = self.load_sample_from_pickle(files_to_load[i])
             features = graph.edata["features"]
             mu += features.sum(dim=0)
             total += len(features)
         mu /= total
+
         var = 0
-        for i in range(0, len(samples)):
-            graph = samples[i]
+        for i in range(0, len(files_to_load)):
+            graph, _ = self.load_sample_from_pickle(files_to_load[i])
             features = graph.edata["features"]
             var += ((features - mu) ** 2).sum(dim=0)
         std = torch.sqrt(var / (total - 1))
-        for graph in samples:
+
+        for file_to_load in files_to_load:
+            graph, target = self.load_sample_from_pickle(file_to_load)
             graph.edata["features"] -= mu
             graph.edata["features"] /= std
-            self.check_tensor(graph.edata["features"])
-        return samples
+            self.check_tensor(graph.ndata["features"])
+            self._save_data_with_pickle(file_to_load, (graph, target))
 
-    def normalise_targets(self, targets):
+        return 1
+
+    def normalise_targets(self, files_to_load):
         # INPLACE OPERATION
-        targets = torch.tensor(targets, dtype=torch.float).view((-1, 1))
-        targets -= targets.mean()
-        targets /= targets.std()
-        self.check_tensor(targets)
-        return targets
+        graph, target = self.load_sample_from_pickle(files_to_load[0])
+        mu = torch.tensor(target)
+        total = 1
+
+        for i in range(1, len(files_to_load)):
+            _, target = self.load_sample_from_pickle(files_to_load[i])
+            mu += target
+            total += 1
+        mu /= total
+
+        var = 0
+        for i in range(0, len(files_to_load)):
+            _, target = self.load_sample_from_pickle(files_to_load[i])
+            var += (target - mu) ** 2
+        std = torch.sqrt(var / (total - 1))
+
+        for file_to_load in files_to_load:
+            graph, target = self.load_sample_from_pickle(file_to_load)
+            target -= mu
+            target /= std
+            self.check_tensor(graph.ndata["features"])
+            self._save_data_with_pickle(file_to_load, (graph, target))
+
+        return 1
 
     @staticmethod
     def check_tensor(tensor):
         if torch.any(torch.isnan(tensor)) or torch.any(torch.isinf(tensor)):
             raise ZeroDivisionError(f"Normalising went wrong, contains nans or infs")
-
-
-    def load_data(self, filepath):
-        mesh = pv.read(filepath)
-        src, dst = zip(*self.convert_face_array_to_edge_array(self.build_face_array(list(mesh.faces))))
-        src = np.array(src)
-        dst = np.array(dst)
-        # Edges are directional in DGL; Make them bi-directional.
-        g = dgl.DGLGraph(
-            (torch.from_numpy(np.concatenate([src, dst])), torch.from_numpy(np.concatenate([dst, src])))
-        )
-        features = list()
-        for name in mesh.array_names:
-            if name in ['corrected_thickness', 'initial_thickness', 'curvature', 'sulcal_depth', 'roi']:
-                features.append(mesh.get_array(name=name, preference="point"))
-        g.ndata['features'] = torch.tensor(np.column_stack(features)).float()
-        g.add_edges(g.nodes(), g.nodes())  # Required Trick --> see DGL discussions somewhere sorry
-        g.edata['features'] = self.get_edge_data(mesh, src, dst, g)
-        return g
-
-    def save_dataset_with_pickle(self, samples, targets, ds_store_fp):
-        if not os.path.exists(ds_store_fp):
-            os.makedirs(ds_store_fp)
-        # if self.max_workers > 1 :
-        #     filepaths = [os.path.join(ds_store_fp, f"{i}.pickle") for i in range(len(samples))]
-        #     with ProcessPoolExecutor(max_workers=self.max_workers) as e:
-        #         results = [0 for _ in tqdm(e.map(self._save_data_with_pickle, filepaths, zip(*(samples, targets))),
-        #                                    total=len(targets))]
-        # else:
-        for i in tqdm(range(len(samples)), total=len(samples)):
-            pair = (samples[i], targets[i])
-            with open(os.path.join(ds_store_fp, f"{i}.pickle"), "wb") as f:
-                pickle.dump(pair, f)
-        return ds_store_fp
 
     def _save_data_with_pickle(self, filepath, data):
         with open(filepath, "wb") as f:
@@ -264,9 +336,8 @@ class BrainNetworkDataset(Dataset):
             fps = [fp for fp in os.listdir(ds_store_fp)]
             data = list()
             for fp in tqdm(fps):
-                with open(os.path.join(ds_store_fp, fp), "rb") as f:
-                    data.append(pickle.load(f))
-            return zip(*data)
+                data.append(self.load_sample_from_pickle(os.path.join(ds_store_fp, fp)))
+            return data
         else:
             raise FileNotFoundError("No pickle file exists!")
 
@@ -281,7 +352,9 @@ if __name__ == "__main__":
     # load_path = os.path.join(os.getcwd(), "models", "gNNs", "data")
     # meta_data_file_path = os.path.join(os.getcwd(), "models", "gNNs", "meta_data.tsv")
     # save_path = os.path.join(os.getcwd(), "models", "gNNs", "tmp", "dataset")
-    dataset = BrainNetworkDataset(load_path, meta_data_file_path, max_workers=8, save_path=save_path, save_dataset=True)
+
+    dataset = BrainNetworkDataset(load_path, meta_data_file_path, max_workers=0, save_path=save_path, save_dataset=True,
+                                  train_split_per=0.5)
 
     print(dataset[0])
 
