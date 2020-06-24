@@ -7,7 +7,7 @@ from torch.utils.data.dataloader import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
 from models.gNNs.data_utils import BrainNetworkDataset
-from models.gNNs.networks import BasicGCN, GNNModel
+from models.gNNs.networks import GNNModel
 
 
 def collate(samples):
@@ -30,16 +30,19 @@ if __name__ == "__main__":
     meta_data_file_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
     save_path = "/vol/bitbucket/cnw119/tmp/dataset"
 
+    lr = 8e-4
+    T_max = 10
+    eta_min = 1e-6
+
     writer = SummaryWriter()
     batch_size = 12
     train_test_split = 0.8
 
     train_dataset = BrainNetworkDataset(load_path, meta_data_file_path, save_path=save_path, max_workers=8,
-                                        save_dataset=True, load_from_pk=True, dataset="train",
-                                        train_split_per=train_test_split)
+                                        dataset="train", train_split_per=train_test_split)
 
     test_dataset = BrainNetworkDataset(load_path, meta_data_file_path, save_path=save_path, max_workers=8,
-                                       save_dataset=True, load_from_pk=True, dataset="test")
+                                       dataset="test")
 
     print("Building dataloaders")
     train_dl = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate, num_workers=8)
@@ -47,10 +50,10 @@ if __name__ == "__main__":
 
     # Create model
     print("Creating Model")
-    model = BasicGCN(5, 256, 1)
-    model = GNNModel(5, 1, 64, 256, 1)
-    optimizer = torch.optim.Adam(model.parameters(), lr=8e-4)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=10, eta_min=1e-6)
+    # model = BasicGCN(5, 256, 1)
+    model = GNNModel(5, 1, 64, 256, 1)  # 5 features in a node, 1 features in an edge, ..., ..., 1 output (age)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=T_max, eta_min=eta_min)
     print("Model made")
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -93,8 +96,8 @@ if __name__ == "__main__":
             train_epoch_loss += loss.detach().item()
             train_total_size += len(label)
 
-        train_epoch_loss /= (iter + 1)
-        train_epoch_acc /= train_total_size
+        train_epoch_loss /= (iter + 1)  # Calculate mean batch loss over this epoch
+        train_epoch_acc /= train_total_size  # Calculate mean L1 error over all the training data over this epoch
 
         # Test
         with torch.no_grad():
@@ -105,8 +108,11 @@ if __name__ == "__main__":
             test_total_size = 0
             test_epoch_worst_diff = 0.
             for test_iter, (bg, label) in enumerate(test_dl):
+                # bg stands for batch graph
                 bg = bg.to(device)
+                # get node feature
                 bg_node_features = bg.ndata["features"].to(device)
+                # get edge features
                 bg_edge_features = bg.edata["features"].to(device)
                 label = label.to(device)
 
