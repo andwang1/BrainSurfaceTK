@@ -90,13 +90,15 @@ class BrainNetworkDataset(Dataset):
                     self.process_file_target,
                     train_fps,
                     train_targets,
-                    cycle((train_save_path,))
+                    cycle((train_save_path,)),
+                    chunksize=32
                 ), total=len(train_fps))]
                 te_results = [r for r in tqdm(executor.map(
                     self.process_file_target,
                     test_fps,
                     test_targets,
-                    cycle((test_save_path,))
+                    cycle((test_save_path,)),
+                    chunksize=32
                 ), total=len(test_fps))]
         else:
             tr_results = [r for r in tqdm(map(
