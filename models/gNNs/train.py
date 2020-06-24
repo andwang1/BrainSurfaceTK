@@ -2,12 +2,11 @@ import argparse, time
 import numpy as np
 import networkx as nx
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 from dgl import DGLGraph
 from dgl.data import register_data_args, load_data
 
-from models.gNNs.gcn import GCN
+from models.gNNs.misc.gcn import GCN
 # from gcn_mp import GCN
 #from gcn_spmv import GCN
 

@@ -3,29 +3,11 @@ import os
 import dgl
 import torch
 import torch.nn as nn
-from dgl.nn.pytorch import GraphConv
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
 from models.gNNs.data_utils import BrainNetworkDataset
-
-
-class Predictor(nn.Module):
-    def __init__(self, in_dim, hidden_dim, n_classes):
-        super(Predictor, self).__init__()
-        self.conv1 = GraphConv(in_dim, hidden_dim, activation=nn.ReLU())
-        self.conv2 = GraphConv(hidden_dim, hidden_dim, activation=nn.ReLU())
-        self.predict_layer = nn.Linear(hidden_dim, n_classes)
-
-    def forward(self, graph, features):
-        # Perform graph convolution and activation function.
-        hidden = self.conv1(graph, features)
-        hidden = self.conv2(graph, hidden)
-        with graph.local_scope():
-            graph.ndata['tmp'] = hidden
-            # Calculate graph representation by averaging all the node representations.
-            hg = dgl.mean_nodes(graph, 'tmp')
-        return self.predict_layer(hg)
+from models.gNNs.networks import BasicGCN, GNNModel
 
 
 def collate(samples):
@@ -37,12 +19,15 @@ def collate(samples):
 
 
 if __name__ == "__main__":
+
+    # # Local
     # load_path = os.path.join(os.getcwd(), "data")
-    load_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/vtps/white/30k/left")
-    # load_path ="/vol/bitbucket/cnw119/tmp_data"
     # meta_data_file_path = os.path.join(os.getcwd(), "meta_data.tsv")
-    meta_data_file_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
     # save_path = os.path.join(os.getcwd(), "tmp", "dataset")
+
+    # Imperial
+    load_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/vtps/white/30k/left")
+    meta_data_file_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
     save_path = "/vol/bitbucket/cnw119/tmp/dataset"
 
     writer = SummaryWriter()
@@ -62,7 +47,8 @@ if __name__ == "__main__":
 
     # Create model
     print("Creating Model")
-    model = Predictor(5, 256, 1)
+    model = BasicGCN(5, 256, 1)
+    model = GNNModel(5, 1, 64, 256, 1)
     optimizer = torch.optim.Adam(model.parameters(), lr=8e-4)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=10, eta_min=1e-6)
     print("Model made")
@@ -77,7 +63,7 @@ if __name__ == "__main__":
     diff_func = nn.L1Loss(reduction="none")
 
     print("Starting")
-    for epoch in range(200):
+    for epoch in range(1000):
 
         # Train
         model.train()
@@ -89,10 +75,11 @@ if __name__ == "__main__":
             optimizer.zero_grad()
 
             bg = bg.to(device)
-            bg_features = bg.ndata["features"].to(device)
+            bg_node_features = bg.ndata["features"].to(device)
+            bg_edge_features = bg.edata["features"].to(device)
             label = label.to(device)
 
-            prediction = model(bg, bg_features)
+            prediction = model(bg, bg_node_features, bg_edge_features)
             loss = loss_function(prediction, label)
             loss.backward()
             optimizer.step()
@@ -119,10 +106,11 @@ if __name__ == "__main__":
             test_epoch_worst_diff = 0.
             for test_iter, (bg, label) in enumerate(test_dl):
                 bg = bg.to(device)
-                bg_features = bg.ndata["features"].to(device)
+                bg_node_features = bg.ndata["features"].to(device)
+                bg_edge_features = bg.edata["features"].to(device)
                 label = label.to(device)
 
-                prediction = model(bg, bg_features)
+                prediction = model(bg, bg_node_features, bg_edge_features)
                 loss = loss_function(prediction, label)
 
                 test_diff = diff_func(prediction, label)

@@ -135,7 +135,24 @@ class BrainNetworkDataset(Dataset):
         return (train_samples, train_targets), (test_samples, test_targets)
 
     @staticmethod
-    def normalise_data(samples, targets):
+    def get_edge_data(mesh, src, dst, g):
+        # TODO: Clean
+        edge_lengths = torch.from_numpy(
+            np.row_stack([np.sqrt(np.abs(mesh.points[s] ** 2 - mesh.points[d] ** 2).sum())
+                          for s, d in zip(src, dst)])
+        )
+        unnorm_edge_lengths = torch.cat([edge_lengths,
+                                         edge_lengths,
+                                         torch.zeros(len(g.nodes), 1, dtype=torch.float)])
+        return unnorm_edge_lengths
+
+    def normalise_data(self, samples, targets):
+        samples = self.normalise_nodes(samples)
+        samples = self.normalise_edges(samples)
+        targets = self.normalise_targets(targets)
+        return samples, targets
+
+    def normalise_nodes(self, samples):
         # INPLACE OPERATION
         graph = samples[0]
         features = graph.ndata["features"]
@@ -156,11 +173,46 @@ class BrainNetworkDataset(Dataset):
         for graph in samples:
             graph.ndata["features"] -= mu
             graph.ndata["features"] /= std
+            self.check_tensor(graph.ndata["features"])
+        return samples
 
+    def normalise_edges(self, samples):
+        # INPLACE OPERATION
+        graph = samples[0]
+        features = graph.edata["features"]
+        mu = torch.tensor(features).sum(dim=0)
+        total = len(features)
+        for i in range(1, len(samples)):
+            graph = samples[i]
+            features = graph.edata["features"]
+            mu += features.sum(dim=0)
+            total += len(features)
+        mu /= total
+        var = 0
+        for i in range(0, len(samples)):
+            graph = samples[i]
+            features = graph.edata["features"]
+            var += ((features - mu) ** 2).sum(dim=0)
+        std = torch.sqrt(var / (total - 1))
+        for graph in samples:
+            graph.edata["features"] -= mu
+            graph.edata["features"] /= std
+            self.check_tensor(graph.edata["features"])
+        return samples
+
+    def normalise_targets(self, targets):
+        # INPLACE OPERATION
         targets = torch.tensor(targets, dtype=torch.float).view((-1, 1))
         targets -= targets.mean()
         targets /= targets.std()
-        return samples, targets
+        self.check_tensor(targets)
+        return targets
+
+    @staticmethod
+    def check_tensor(tensor):
+        if torch.any(torch.isnan(tensor)) or torch.any(torch.isinf(tensor)):
+            raise ZeroDivisionError(f"Normalising went wrong, contains nans or infs")
+
 
     def load_data(self, filepath):
         mesh = pv.read(filepath)
@@ -176,7 +228,8 @@ class BrainNetworkDataset(Dataset):
             if name in ['corrected_thickness', 'initial_thickness', 'curvature', 'sulcal_depth', 'roi']:
                 features.append(mesh.get_array(name=name, preference="point"))
         g.ndata['features'] = torch.tensor(np.column_stack(features)).float()
-        g.add_edges(g.nodes(), g.nodes())
+        g.add_edges(g.nodes(), g.nodes())  # Required Trick --> see DGL discussions somewhere sorry
+        g.edata['features'] = self.get_edge_data(mesh, src, dst, g)
         return g
 
     def save_dataset_with_pickle(self, samples, targets, ds_store_fp):
