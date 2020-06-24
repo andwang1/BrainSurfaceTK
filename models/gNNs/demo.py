@@ -18,17 +18,21 @@ def collate(samples):
     return batched_graph, torch.tensor(labels).view(len(graphs), -1)
 
 
+def denorm_target(target, dataset):
+    return (target.cpu() * dataset.targets_std) + dataset.targets_mu
+
+
 if __name__ == "__main__":
 
-    # # Local
-    # load_path = os.path.join(os.getcwd(), "data")
-    # meta_data_file_path = os.path.join(os.getcwd(), "meta_data.tsv")
-    # save_path = os.path.join(os.getcwd(), "tmp", "dataset")
+    # Local
+    load_path = os.path.join(os.getcwd(), "data")
+    meta_data_file_path = os.path.join(os.getcwd(), "meta_data.tsv")
+    save_path = os.path.join(os.getcwd(), "tmp", "dataset")
 
-    # Imperial
-    load_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/vtps/white/30k/left")
-    meta_data_file_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
-    save_path = "/vol/bitbucket/cnw119/tmp/dataset"
+    # # Imperial
+    # load_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/vtps/white/30k/left")
+    # meta_data_file_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
+    # save_path = "/vol/bitbucket/cnw119/tmp/dataset"
 
     lr = 8e-4
     T_max = 10
@@ -71,72 +75,75 @@ if __name__ == "__main__":
         # Train
         model.train()
         train_epoch_loss = 0
-        train_epoch_acc = 0.
+        train_epoch_error = 0.
         train_epoch_worst_diff = 0.
         train_total_size = 0
-        for iter, (bg, label) in enumerate(train_dl):
+        for iter, (bg, batch_labels) in enumerate(train_dl):
             optimizer.zero_grad()
 
             bg = bg.to(device)
             bg_node_features = bg.ndata["features"].to(device)
             bg_edge_features = bg.edata["features"].to(device)
-            label = label.to(device)
+            batch_labels = batch_labels.to(device)
 
             prediction = model(bg, bg_node_features, bg_edge_features)
-            loss = loss_function(prediction, label)
+            loss = loss_function(prediction, batch_labels)
             loss.backward()
             optimizer.step()
 
             with torch.no_grad():
-                train_diff = diff_func(prediction, label)
-                train_epoch_acc += train_diff.sum().detach().item()
+                train_diff = diff_func(denorm_target(prediction, train_dataset),
+                                       denorm_target(batch_labels, train_dataset))  # shape: (batch_size, 1)
+                train_epoch_error += train_diff.sum().detach().item()
                 worst_diff = torch.max(train_diff).detach().item()
                 if worst_diff > train_epoch_worst_diff:
                     train_epoch_worst_diff = worst_diff
             train_epoch_loss += loss.detach().item()
-            train_total_size += len(label)
+            train_total_size += len(batch_labels)
 
-        train_epoch_loss /= (iter + 1)  # Calculate mean batch loss over this epoch
-        train_epoch_acc /= train_total_size  # Calculate mean L1 error over all the training data over this epoch
+        # train_epoch_loss = train_epoch_loss / (iter + 1)
+        train_epoch_loss /= (iter + 1)  # Calculate mean batch loss over this epoch MSELoss
+        train_epoch_error /= train_total_size  # Calculate mean L1 error over all the training data over this epoch
 
         # Test
         with torch.no_grad():
 
             model.eval()
             test_epoch_loss = 0
-            test_epoch_acc = 0.
+            test_epoch_error = 0.
             test_total_size = 0
             test_epoch_worst_diff = 0.
-            for test_iter, (bg, label) in enumerate(test_dl):
+            for test_iter, (bg, batch_labels) in enumerate(test_dl):
                 # bg stands for batch graph
                 bg = bg.to(device)
                 # get node feature
                 bg_node_features = bg.ndata["features"].to(device)
                 # get edge features
                 bg_edge_features = bg.edata["features"].to(device)
-                label = label.to(device)
+                batch_labels = batch_labels.to(device)
 
                 prediction = model(bg, bg_node_features, bg_edge_features)
-                loss = loss_function(prediction, label)
+                loss = loss_function(prediction, batch_labels)
 
-                test_diff = diff_func(prediction, label)
-                test_epoch_acc += test_diff.sum().detach().item()
+                test_diff = diff_func(denorm_target(prediction, test_dataset),
+                                      denorm_target(batch_labels, test_dataset))
+                test_epoch_error += test_diff.sum().detach().item()
                 worst_diff = torch.max(test_diff).detach().item()
                 if worst_diff > test_epoch_worst_diff:
                     test_epoch_worst_diff = worst_diff
                 test_epoch_loss += loss.detach().item()
 
-                test_total_size += len(label)
+                test_total_size += len(batch_labels)
 
             test_epoch_loss /= (test_iter + 1)
-            test_epoch_acc /= test_total_size
+            test_epoch_error /= test_total_size
 
         print('Epoch {}, train_loss {:.4f}, test_loss {:.4f}'.format(epoch, train_epoch_loss, test_epoch_loss))
 
         # Record to TensorBoard
         writer.add_scalar("Loss/Train", train_epoch_loss, epoch)
         writer.add_scalar("Loss/Test", test_epoch_loss, epoch)
-        writer.add_scalar("Error/Train", train_epoch_acc, epoch)
-        writer.add_scalar("Error/Test", test_epoch_acc, epoch)
+        writer.add_scalar("Error/Train", train_epoch_error, epoch)
+        writer.add_scalar("Error/Test", test_epoch_error, epoch)
         writer.add_scalar("Max Error/Train", train_epoch_worst_diff, epoch)
         writer.add_scalar("Max Error/Test", test_epoch_worst_diff, epoch)

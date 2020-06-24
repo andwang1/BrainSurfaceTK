@@ -52,7 +52,7 @@ class BrainNetworkDataset(Dataset):
             self.generate_dataset(files_path, meta_data_filepath, save_path)
 
         # Now collect all required filepaths containing data which will be fed to the GNN
-        self.sample_filepaths = self.get_sample_file_paths(save_path, dataset)
+        self.sample_filepaths, self.targets_mu, self.targets_std = self.get_sample_file_paths(save_path, dataset)
 
         print("Initialisation complete")
 
@@ -296,7 +296,8 @@ class BrainNetworkDataset(Dataset):
         # TODO: add safeguard for when split percentage is 0. or 1.
         self.normalise_nodes_(files_to_load)
         self.normalise_edges_(files_to_load)
-        self.normalise_targets_(files_to_load)
+        targets_mu, targets_std = self.normalise_targets_(files_to_load)
+        self._save_data_with_pickle(os.path.join(data_path, "mu_std.pickle"), (targets_mu, targets_std))
 
     def normalise_nodes_(self, files_to_load):
         """
@@ -402,7 +403,7 @@ class BrainNetworkDataset(Dataset):
             self.check_tensor(graph.ndata["features"])
             self._save_data_with_pickle(file_to_load, (graph, target))
 
-        return 1
+        return mu, std
 
     @staticmethod
     def check_tensor(tensor):
@@ -449,7 +450,8 @@ class BrainNetworkDataset(Dataset):
             return tr_fps + te_fps
         else:
             parent_path = self.update_save_path(ds_store_fp, dataset)
-            return [os.path.join(parent_path, fp) for fp in os.listdir(parent_path)]
+            targets_mu, targets_std = self.load_sample_from_pickle(os.path.join(parent_path, "mu_std.pickle"))
+            return [os.path.join(parent_path, fp) for fp in os.listdir(parent_path) if fp != "mu_std.pickle"], targets_mu, targets_std
 
 
 if __name__ == "__main__":
@@ -465,5 +467,7 @@ if __name__ == "__main__":
 
     dataset = BrainNetworkDataset(load_path, meta_data_file_path, max_workers=0,
                                   save_path=save_path, train_split_per=0.5, dataset="train")
+
+    print(dataset.targets_mu, dataset.targets_std)
 
     print(dataset[0])
