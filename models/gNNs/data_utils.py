@@ -544,10 +544,10 @@ if __name__ == "__main__":
     # save_path = os.path.join(os.getcwd(), "tmp", "dataset")
 
     # Imperial
-    load_path = os.path.join(os.getcwd(), "models", "gNNs", "data")
+    load_path = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native_04152020/hemispheres/reducedto_10k/white/vtk"
     pickle_split_filepath = "/vol/bitbucket/cnw119/neodeepbrain/models/gNNs/names_06152020_noCrashSubs.pk"
-    meta_data_file_path = os.path.join(os.getcwd(), "models", "gNNs", "meta_data.tsv")
-    save_path = os.path.join(os.getcwd(), "models", "gNNs", "tmp", "dataset")
+    meta_data_file_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
+    save_path = "/vol/bitbucket/cnw119/tmp/basicdataset"
 
     dataset = BrainNetworkDataset(load_path, meta_data_file_path, max_workers=0,
                                   save_path=save_path, train_split_per=(0.4, 0.3, 0.3), dataset="train", index_split_pickle_fp=pickle_split_filepath)
