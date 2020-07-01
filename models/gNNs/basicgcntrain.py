@@ -7,7 +7,7 @@ from torch.utils.data.dataloader import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
 from models.gNNs.data_utils import BrainNetworkDataset
-from models.gNNs.networks import BasicGCN
+from models.gNNs.networks import BasicGCNRegressor
 
 
 def collate(samples):
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     # Create model
     print("Creating Model")
     # model = BasicGCN(5, 256, 1)
-    model = BasicGCN(5, 256, 1)  # 5 features in a node, 256 in the hidden, 1 output (age)
+    model = BasicGCNRegressor(5, 256, 1)  # 5 features in a node, 256 in the hidden, 1 output (age)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=T_max, eta_min=eta_min)
     print("Model made")

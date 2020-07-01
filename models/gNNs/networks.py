@@ -5,9 +5,9 @@ from dgl.nn.pytorch import GraphConv
 from models.gNNs.layers import GNNLayer
 
 
-class BasicGCN(nn.Module):
+class BasicGCNRegressor(nn.Module):
     def __init__(self, in_dim, hidden_dim, n_classes):
-        super(BasicGCN, self).__init__()
+        super(BasicGCNRegressor, self).__init__()
         self.conv1 = GraphConv(in_dim, hidden_dim, activation=nn.ReLU())
         self.conv2 = GraphConv(hidden_dim, hidden_dim, activation=nn.ReLU())
         self.predict_layer = nn.Linear(hidden_dim, n_classes)
@@ -22,6 +22,21 @@ class BasicGCN(nn.Module):
             hg = dgl.mean_nodes(graph, 'tmp')
 
         return self.predict_layer(hg)
+
+
+class BasicGCNSegmentation(nn.Module):
+    def __init__(self, in_dim, hidden_dim, n_classes):
+        super(BasicGCNSegmentation, self).__init__()
+        self.conv1 = GraphConv(in_dim, hidden_dim, activation=nn.ReLU())
+        self.conv2 = GraphConv(hidden_dim, hidden_dim, activation=nn.ReLU())
+        self.conv3 = GraphConv(hidden_dim, n_classes, activation=None)
+
+
+    def forward(self, graph, features):
+        # Perform graph convolution and activation function.
+        hidden = self.conv1(graph, features)
+        hidden = self.conv2(graph, hidden)
+        return self.conv3(graph, hidden)
 
 
 
