@@ -277,9 +277,10 @@ class BrainNetworkDataset(Dataset):
         potential_files = [f for f in os.listdir(load_path)]
         files_to_load = list()
         for fn in potential_files:
-            if "_".join(fn.split("_")[:2]) in indices:
+            tmp = fn.replace("sub-", "").replace("ses-", "").split("_")[:2]
+            if "_".join(tmp) in indices:
                 print("aweawsdasdasdadd")
-                participant_id, session_id = fn.split("_")[:2]
+                participant_id, session_id = tmp
                 records = df[(df.participant_id == participant_id) & (df.session_id == int(session_id))]
                 if len(records) == 1:
                     files_to_load.append(os.path.join(load_path, fn))
@@ -550,7 +551,8 @@ if __name__ == "__main__":
     save_path = "/vol/bitbucket/cnw119/tmp/basicdataset"
 
     dataset = BrainNetworkDataset(load_path, meta_data_file_path, max_workers=0,
-                                  save_path=save_path, train_split_per=(0.4, 0.3, 0.3), dataset="train", index_split_pickle_fp=pickle_split_filepath)
+                                  save_path=save_path, train_split_per=(0.4, 0.3, 0.3), dataset="train",
+                                  index_split_pickle_fp=pickle_split_filepath)
 
     print(dataset.targets_mu, dataset.targets_std)
 

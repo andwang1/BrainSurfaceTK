@@ -24,17 +24,17 @@ def denorm_target(target, dataset):
 
 if __name__ == "__main__":
 
-    # # Local
-    # load_path = os.path.join(os.getcwd(), "data")
-    # pickle_split_filepath = os.path.join(os.getcwd(), "names_06152020_noCrashSubs.pk")
-    # meta_data_file_path = os.path.join(os.getcwd(), "meta_data.tsv")
-    # save_path = os.path.join(os.getcwd(), "tmp", "dataset")
+    # Local
+    load_path = os.path.join(os.getcwd(), "data")
+    pickle_split_filepath = os.path.join(os.getcwd(), "names_06152020_noCrashSubs.pk")
+    meta_data_file_path = os.path.join(os.getcwd(), "meta_data.tsv")
+    save_path = os.path.join(os.getcwd(), "tmp", "dataset")
 
-    # Imperial
-    load_path = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native_04152020/hemispheres/reducedto_10k/white/vtk"
-    pickle_split_filepath = "/vol/bitbucket/cnw119/neodeepbrain/models/gNNs/names_06152020_noCrashSubs.pk"
-    meta_data_file_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
-    save_path = "/vol/bitbucket/cnw119/tmp/basicdataset"
+    # # Imperial
+    # load_path = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native_04152020/hemispheres/reducedto_10k/white/vtk"
+    # pickle_split_filepath = "/vol/bitbucket/cnw119/neodeepbrain/models/gNNs/names_06152020_noCrashSubs.pk"
+    # meta_data_file_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
+    # save_path = "/vol/bitbucket/cnw119/tmp/basicdataset"
 
     lr = 8e-4
     T_max = 10
