@@ -42,8 +42,7 @@ if __name__ == "__main__":
     eta_min = 1e-6
 
     writer = SummaryWriter(comment="basicgcn")
-    batch_size = 12
-    train_test_split = 0.8
+    batch_size = 64
 
     train_dataset = BrainNetworkDataset(load_path, meta_data_file_path, save_path=save_path, max_workers=8,
                                         dataset="train", index_split_pickle_fp=pickle_split_filepath)
