@@ -279,7 +279,6 @@ class BrainNetworkDataset(Dataset):
         for fn in potential_files:
             tmp = fn.replace("sub-", "").replace("ses-", "").split("_")[:2]
             if "_".join(tmp) in indices:
-                print("aweawsdasdasdadd")
                 participant_id, session_id = tmp
                 records = df[(df.participant_id == participant_id) & (df.session_id == int(session_id))]
                 if len(records) == 1:
