@@ -25,7 +25,7 @@ def denorm_target(target, dataset):
 def loss_function(predicts, targets):
     neg = targets == 0
     weight = (neg.sum(dim=0) - targets.sum(dim=0)) / targets.sum(dim=0)
-    return torch.nn.functional.cross_entropy(predicts, targets, weight=weight)
+    return torch.nn.functional.cross_entropy(predicts, targets, weight=weight.float())
 
 
 if __name__ == "__main__":
@@ -87,7 +87,7 @@ if __name__ == "__main__":
 
             bg = bg.to(device)
             bg_node_features = bg.ndata["features"].to(device)
-            batch_labels = bg.ndata["segmentation"].float().to(device)  # TEMP FIX WITH FLOAT HERE
+            batch_labels = bg.ndata["segmentation"].to(device)  # TEMP FIX WITH FLOAT HERE
 
             prediction = model(bg, bg_node_features)
             loss = loss_function(prediction, batch_labels)
