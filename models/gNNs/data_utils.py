@@ -121,11 +121,11 @@ class BrainNetworkDataset(Dataset):
         self.normalise_dataset(train_save_path)
         self.normalise_dataset(test_save_path)
 
-    def process_file_target(self, file_to_load, target, save_path):
+    def process_file_target(self, file_to_load, age, save_path):
         """
         Process the mesh in the file_to_load (.vtp) and convert it to a graph before pickling (graph, target)
         :param file_to_load: mesh in the file_to_load (.vtp) and convert it to a graph
-        :param target: tensor float
+        :param age: tensor float
         :param save_path: directory for the processed sample to be saved
         :return: 1 meaning success
         """
@@ -145,11 +145,11 @@ class BrainNetworkDataset(Dataset):
             (torch.from_numpy(np.concatenate([src, dst])), torch.from_numpy(np.concatenate([dst, src])))
         )
 
-        g.ndata['features'] = self.get_node_features(mesh)
+        g.ndata['features'], g.ndata['segmentation'] = self.get_node_features(mesh)
         g.add_edges(g.nodes(), g.nodes())  # Required Trick --> see DGL discussions somewhere sorry
         g.edata['features'] = self.get_edge_data(mesh, src, dst, g)
 
-        self._save_data_with_pickle(fp_save_path, (g, target))
+        self._save_data_with_pickle(fp_save_path, (g, age))
 
         return 1
 
@@ -161,10 +161,16 @@ class BrainNetworkDataset(Dataset):
         :return: torch tensor float containing features
         """
         features = list()
+        segmentation = list()
         for name in mesh.array_names:
             if name in ['corrected_thickness', 'initial_thickness', 'curvature', 'sulcal_depth', 'roi']:
                 features.append(mesh.get_array(name=name, preference="point"))
-        return torch.tensor(np.column_stack(features)).float()
+            if name == 'segmentation':
+                segmentation.append(mesh.get_array(name=name, preference="point"))
+
+        features = torch.tensor(np.column_stack(features)).float()
+        segmentation = torch.nn.functional.one_hot(torch.tensor(np.column_stack(segmentation)).int(), num_classes=40)
+        return features, segmentation
 
     @staticmethod
     def split_dataset(samples, targets, train_split_per):

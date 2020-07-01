@@ -20,7 +20,9 @@ class BasicGCN(nn.Module):
             graph.ndata['tmp'] = hidden
             # Calculate graph representation by averaging all the node representations.
             hg = dgl.mean_nodes(graph, 'tmp')
+
         return self.predict_layer(hg)
+
 
 
 class GNNModel(nn.Module):
