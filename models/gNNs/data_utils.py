@@ -278,6 +278,7 @@ class BrainNetworkDataset(Dataset):
         files_to_load = list()
         for fn in potential_files:
             if "_".join(fn.split("_")[:2]) in indices:
+                print("aweawsdasdasdadd")
                 participant_id, session_id = fn.split("_")[:2]
                 records = df[(df.participant_id == participant_id) & (df.session_id == int(session_id))]
                 if len(records) == 1:
@@ -536,16 +537,17 @@ class BrainNetworkDataset(Dataset):
 
 
 if __name__ == "__main__":
-    # Local
-    load_path = os.path.join(os.getcwd(), "data")
-    pickle_split_filepath = os.path.join(os.getcwd(), "names_06152020_noCrashSubs.pk")
-    meta_data_file_path = os.path.join(os.getcwd(), "meta_data.tsv")
-    save_path = os.path.join(os.getcwd(), "tmp", "dataset")
+    # # Local
+    # load_path = os.path.join(os.getcwd(), "data")
+    # pickle_split_filepath = os.path.join(os.getcwd(), "names_06152020_noCrashSubs.pk")
+    # meta_data_file_path = os.path.join(os.getcwd(), "meta_data.tsv")
+    # save_path = os.path.join(os.getcwd(), "tmp", "dataset")
 
-    # # Imperial
-    # load_path = os.path.join(os.getcwd(), "models", "gNNs", "data")
-    # meta_data_file_path = os.path.join(os.getcwd(), "models", "gNNs", "meta_data.tsv")
-    # save_path = os.path.join(os.getcwd(), "models", "gNNs", "tmp", "dataset")
+    # Imperial
+    load_path = os.path.join(os.getcwd(), "models", "gNNs", "data")
+    pickle_split_filepath = "/vol/bitbucket/cnw119/neodeepbrain/models/gNNs/names_06152020_noCrashSubs.pk"
+    meta_data_file_path = os.path.join(os.getcwd(), "models", "gNNs", "meta_data.tsv")
+    save_path = os.path.join(os.getcwd(), "models", "gNNs", "tmp", "dataset")
 
     dataset = BrainNetworkDataset(load_path, meta_data_file_path, max_workers=0,
                                   save_path=save_path, train_split_per=(0.4, 0.3, 0.3), dataset="train", index_split_pickle_fp=pickle_split_filepath)
