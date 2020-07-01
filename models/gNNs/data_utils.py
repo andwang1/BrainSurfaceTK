@@ -277,7 +277,7 @@ class BrainNetworkDataset(Dataset):
         potential_files = [f for f in os.listdir(load_path)]
         files_to_load = list()
         for fn in potential_files:
-            if fn.split("_")[:2] in indices:
+            if "_".join(fn.split("_")[:2]) in indices:
                 participant_id, session_id = fn.split("_")[:2]
                 records = df[(df.participant_id == participant_id) & (df.session_id == int(session_id))]
                 if len(records) == 1:
