@@ -169,7 +169,7 @@ class BrainNetworkDataset(Dataset):
                 segmentation.append(mesh.get_array(name=name, preference="point"))
 
         features = torch.tensor(np.column_stack(features)).float()
-        segmentation = torch.nn.functional.one_hot(torch.tensor(np.column_stack(segmentation)).int(), num_classes=40)
+        segmentation = torch.nn.functional.one_hot(torch.tensor(np.column_stack(segmentation)).long(), num_classes=40)
         return features, segmentation
 
     @staticmethod
