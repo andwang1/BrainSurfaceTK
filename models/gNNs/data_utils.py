@@ -79,7 +79,7 @@ class BrainNetworkDataset(Dataset):
             # Predetermined split
             (train_fps, train_targets), \
             (val_fps, val_targets), \
-            (test_fps, test_targets) = self.fetch_data_using_manual_split(load_path, meta_data_filepath,
+            (test_fps, test_targets) = self.fetch_data_using_manual_split(files_path, meta_data_filepath,
                                                                           index_split_pickle_fp)
 
         # Make dirs to store data
