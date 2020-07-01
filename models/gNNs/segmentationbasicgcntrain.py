@@ -22,23 +22,26 @@ def denorm_target(target, dataset):
     return (target.cpu() * dataset.targets_std) + dataset.targets_mu
 
 
-def loss_function(predicts, targets):
-    neg = targets == 0
-    weight = (neg.sum(dim=0) - targets.sum(dim=0)) / targets.sum(dim=0)
-    return torch.nn.functional.cross_entropy(predicts, targets, weight=weight.float())
+def loss_function(predicts, targets, num_classes=40):
+    one_hot = torch.nn.functional.one_hot(targets.flatten(), num_classes=num_classes)
+    neg = one_hot.float() == 0.
+    divisor = one_hot.float().sum(dim=0)
+    divisor[divisor == 0.] = 1.
+    weight = (neg.float().sum(dim=0) - one_hot.float().sum(dim=0)) / divisor
+    return torch.nn.functional.cross_entropy(predicts, targets.squeeze(), weight=weight.float())
 
 
 if __name__ == "__main__":
 
-    # # Local
-    # load_path = os.path.join(os.getcwd(), "data")
-    # meta_data_file_path = os.path.join(os.getcwd(), "meta_data.tsv")
-    # save_path = os.path.join(os.getcwd(), "tmp", "dataset")
+    # Local
+    load_path = os.path.join(os.getcwd(), "data")
+    meta_data_file_path = os.path.join(os.getcwd(), "meta_data.tsv")
+    save_path = os.path.join(os.getcwd(), "tmp", "dataset")
 
-    # Imperial
-    load_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/vtps/white/30k/left")
-    meta_data_file_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
-    save_path = "/vol/bitbucket/cnw119/tmp/dataset"
+    # # Imperial
+    # load_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/vtps/white/30k/left")
+    # meta_data_file_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
+    # save_path = "/vol/bitbucket/cnw119/tmp/dataset"
 
     lr = 8e-4
     T_max = 10
