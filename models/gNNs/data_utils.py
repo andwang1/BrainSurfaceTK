@@ -168,9 +168,9 @@ class BrainNetworkDataset(Dataset):
             if name == 'segmentation':
                 segmentation.append(mesh.get_array(name=name, preference="point"))
 
-        features = torch.tensor(np.column_stack(features)).float()
+        features = torch.tensor(np.column_stack(features))
         segmentation = torch.nn.functional.one_hot(torch.tensor(np.column_stack(segmentation)).long(), num_classes=40)
-        return features, segmentation
+        return features.float(), segmentation.float()
 
     @staticmethod
     def split_dataset(samples, targets, train_split_per):

@@ -1,3 +1,4 @@
+import math
 import os
 
 import dgl
@@ -6,8 +7,7 @@ from torch.utils.data.dataloader import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
 from models.gNNs.data_utils import BrainNetworkDataset
-from models.gNNs.networks import BasicGCNRegressor, BasicGCNSegmentation
-import math
+from models.gNNs.networks import BasicGCNSegmentation
 
 
 def collate(samples):
@@ -87,7 +87,7 @@ if __name__ == "__main__":
 
             bg = bg.to(device)
             bg_node_features = bg.ndata["features"].to(device)
-            batch_labels = bg.ndata["segmentation"].to(device)
+            batch_labels = bg.ndata["segmentation"].float().to(device)  # TEMP FIX WITH FLOAT HERE
 
             prediction = model(bg, bg_node_features)
             loss = loss_function(prediction, batch_labels)
