@@ -26,13 +26,16 @@ if __name__ == "__main__":
 
     # # Local
     # load_path = os.path.join(os.getcwd(), "data")
+    # pickle_split_filepath = os.path.join(os.getcwd(), "names_04152020_noCrashSubs.pk")
     # meta_data_file_path = os.path.join(os.getcwd(), "meta_data.tsv")
     # save_path = os.path.join(os.getcwd(), "tmp", "dataset")
 
     # Imperial
-    load_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/vtps/white/30k/left")
+    load_path = os.path.join(
+        "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native_04152020/hemispheres/reducedto_10k/white/vtk")
+    pickle_split_filepath = "/vol/bitbucket/cnw119/neodeepbrains/models/gNNs/names_04152020_noCrashSubs.pk"
     meta_data_file_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
-    save_path = "/vol/bitbucket/cnw119/tmp/dataset"
+    save_path = "/vol/bitbucket/cnw119/tmp/basicdataset"
 
     lr = 8e-4
     T_max = 10
@@ -43,19 +46,23 @@ if __name__ == "__main__":
     train_test_split = 0.8
 
     train_dataset = BrainNetworkDataset(load_path, meta_data_file_path, save_path=save_path, max_workers=8,
-                                        dataset="train", train_split_per=train_test_split)
+                                        dataset="train", index_split_pickle_fp=pickle_split_filepath)
+
+    val_dataset = BrainNetworkDataset(load_path, meta_data_file_path, save_path=save_path, max_workers=8,
+                                      dataset="val")
 
     test_dataset = BrainNetworkDataset(load_path, meta_data_file_path, save_path=save_path, max_workers=8,
                                        dataset="test")
 
     print("Building dataloaders")
     train_dl = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate, num_workers=8)
+    val_dl = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate, num_workers=8)
     test_dl = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate, num_workers=8)
 
     # Create model
     print("Creating Model")
     # model = BasicGCN(5, 256, 1)
-    model = BasicGCNRegressor(5, 256, 1)  # 5 features in a node, 256 in the hidden, 1 output (age)
+    model = BasicGCNRegressor(8, 256, 1)  # 5 features in a node, 256 in the hidden, 1 output (age)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=T_max, eta_min=eta_min)
     print("Model made")
@@ -65,7 +72,7 @@ if __name__ == "__main__":
     print(f"Model is on: {'cuda' if torch.cuda.is_available() else 'cpu'}")
     print(model)
 
-    loss_function = nn.MSELoss()
+    loss_function = nn.MSELoss(reduction="sum")
 
     diff_func = nn.L1Loss(reduction="none")
 
@@ -85,7 +92,7 @@ if __name__ == "__main__":
             bg_node_features = bg.ndata["features"].to(device)
             batch_labels = batch_labels.to(device)
 
-            prediction = model(bg, bg_node_features, bg_edge_features)
+            prediction = model(bg, bg_node_features)
             loss = loss_function(prediction, batch_labels)
             loss.backward()
             optimizer.step()
@@ -101,8 +108,39 @@ if __name__ == "__main__":
             train_total_size += len(batch_labels)
 
         # train_epoch_loss = train_epoch_loss / (iter + 1)
-        train_epoch_loss /= (iter + 1)  # Calculate mean batch loss over this epoch MSELoss
+        train_epoch_loss /= (iter + 1)  # Calculate mean sum batch loss over this epoch MSELoss
         train_epoch_error /= train_total_size  # Calculate mean L1 error over all the training data over this epoch
+
+        # Val
+        with torch.no_grad():
+
+            model.eval()
+            val_epoch_loss = 0
+            val_epoch_error = 0.
+            val_total_size = 0
+            val_epoch_worst_diff = 0.
+            for val_iter, (bg, batch_labels) in enumerate(val_dl):
+                # bg stands for batch graph
+                bg = bg.to(device)
+                # get node feature
+                bg_node_features = bg.ndata["features"].to(device)
+                batch_labels = batch_labels.to(device)
+
+                prediction = model(bg, bg_node_features)
+                loss = loss_function(prediction, batch_labels)
+
+                val_diff = diff_func(denorm_target(prediction, val_dataset),
+                                     denorm_target(batch_labels, val_dataset))
+                val_epoch_error += val_diff.sum().detach().item()
+                worst_diff = torch.max(val_diff).detach().item()
+                if worst_diff > val_epoch_worst_diff:
+                    val_epoch_worst_diff = worst_diff
+                val_epoch_loss += loss.item()
+
+                val_total_size += len(batch_labels)
+
+            val_epoch_loss /= (val_iter + 1)
+            val_epoch_error /= val_total_size
 
         # Test
         with torch.no_grad():
@@ -117,11 +155,9 @@ if __name__ == "__main__":
                 bg = bg.to(device)
                 # get node feature
                 bg_node_features = bg.ndata["features"].to(device)
-                # get edge features
-                bg_edge_features = bg.edata["features"].to(device)
                 batch_labels = batch_labels.to(device)
 
-                prediction = model(bg, bg_node_features, bg_edge_features)
+                prediction = model(bg, bg_node_features)
                 loss = loss_function(prediction, batch_labels)
 
                 test_diff = diff_func(denorm_target(prediction, test_dataset),
@@ -141,8 +177,11 @@ if __name__ == "__main__":
 
         # Record to TensorBoard
         writer.add_scalar("Loss/Train", train_epoch_loss, epoch)
+        writer.add_scalar("Loss/Val", val_epoch_loss, epoch)
         writer.add_scalar("Loss/Test", test_epoch_loss, epoch)
         writer.add_scalar("Error/Train", train_epoch_error, epoch)
+        writer.add_scalar("Error/Val", val_epoch_error, epoch)
         writer.add_scalar("Error/Test", test_epoch_error, epoch)
         writer.add_scalar("Max Error/Train", train_epoch_worst_diff, epoch)
+        writer.add_scalar("Max Error/Val", val_epoch_worst_diff, epoch)
         writer.add_scalar("Max Error/Test", test_epoch_worst_diff, epoch)
