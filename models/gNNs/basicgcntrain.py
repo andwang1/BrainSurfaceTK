@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     # # Local
     # load_path = os.path.join(os.getcwd(), "data")
-    # pickle_split_filepath = os.path.join(os.getcwd(), "names_04152020_noCrashSubs.pk")
+    # pickle_split_filepath = os.path.join(os.getcwd(), "names_06152020_noCrashSubs.pk")
     # meta_data_file_path = os.path.join(os.getcwd(), "meta_data.tsv")
     # save_path = os.path.join(os.getcwd(), "tmp", "dataset")
 

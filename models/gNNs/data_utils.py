@@ -271,16 +271,18 @@ class BrainNetworkDataset(Dataset):
 
     @staticmethod
     def get_file_paths_using_indices(load_path, meta_data_file_path, indices):
+        # TODO: REWRITE THIS COS INDICES ARENT INDICES THEY ARE JOINT PARTICIPANT SESSION IDS
         targets = list()
-        df = pd.read_csv(meta_data_file_path, sep='\t', header=0).loc[indices, :]
+        df = pd.read_csv(meta_data_file_path, sep='\t', header=0)
         potential_files = [f for f in os.listdir(load_path)]
         files_to_load = list()
         for fn in potential_files:
-            participant_id, session_id = fn.split("_")[:2]
-            records = df[(df.participant_id == participant_id) & (df.session_id == int(session_id))]
-            if len(records) == 1:
-                files_to_load.append(os.path.join(load_path, fn))
-                targets.append(torch.tensor(records.scan_age.values, dtype=torch.float))
+            if fn.split("_")[:2] in indices:
+                participant_id, session_id = fn.split("_")[:2]
+                records = df[(df.participant_id == participant_id) & (df.session_id == int(session_id))]
+                if len(records) == 1:
+                    files_to_load.append(os.path.join(load_path, fn))
+                    targets.append(torch.tensor(records.scan_age.values, dtype=torch.float))
         return files_to_load, targets
 
     @staticmethod
@@ -536,6 +538,7 @@ class BrainNetworkDataset(Dataset):
 if __name__ == "__main__":
     # Local
     load_path = os.path.join(os.getcwd(), "data")
+    pickle_split_filepath = os.path.join(os.getcwd(), "names_06152020_noCrashSubs.pk")
     meta_data_file_path = os.path.join(os.getcwd(), "meta_data.tsv")
     save_path = os.path.join(os.getcwd(), "tmp", "dataset")
 
@@ -545,7 +548,7 @@ if __name__ == "__main__":
     # save_path = os.path.join(os.getcwd(), "models", "gNNs", "tmp", "dataset")
 
     dataset = BrainNetworkDataset(load_path, meta_data_file_path, max_workers=0,
-                                  save_path=save_path, train_split_per=(0.4, 0.3, 0.3), dataset="train")
+                                  save_path=save_path, train_split_per=(0.4, 0.3, 0.3), dataset="train", index_split_pickle_fp=pickle_split_filepath)
 
     print(dataset.targets_mu, dataset.targets_std)
 
