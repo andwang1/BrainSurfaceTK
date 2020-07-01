@@ -33,15 +33,15 @@ def loss_function(predicts, targets, num_classes=40):
 
 if __name__ == "__main__":
 
-    # Local
-    load_path = os.path.join(os.getcwd(), "data")
-    meta_data_file_path = os.path.join(os.getcwd(), "meta_data.tsv")
-    save_path = os.path.join(os.getcwd(), "tmp", "dataset")
+    # # Local
+    # load_path = os.path.join(os.getcwd(), "data")
+    # meta_data_file_path = os.path.join(os.getcwd(), "meta_data.tsv")
+    # save_path = os.path.join(os.getcwd(), "tmp", "dataset")
 
-    # # Imperial
-    # load_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/vtps/white/30k/left")
-    # meta_data_file_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
-    # save_path = "/vol/bitbucket/cnw119/tmp/dataset"
+    # Imperial
+    load_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/vtps/white/30k/left")
+    meta_data_file_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
+    save_path = "/vol/bitbucket/cnw119/tmp/dataset"
 
     lr = 8e-4
     T_max = 10
