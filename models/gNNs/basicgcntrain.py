@@ -29,6 +29,8 @@ if __name__ == "__main__":
     parser.add_argument("part", help="part of the brain")
     parser.add_argument("max_epochs", help="max epochs")
 
+    args = parser.parse_args()
+
 
     # # Local
     # load_path = os.path.join(os.getcwd(), "data")
@@ -37,21 +39,21 @@ if __name__ == "__main__":
     # save_path = os.path.join(os.getcwd(), "tmp", "dataset")
 
     # Imperial
-    if parser.part == "left" or "right":
+    if args.part == "left" or "right":
         load_path = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native_04152020/hemispheres/reducedto_10k/white/vtk"
     else:
-        parser.part = "merged"
+        args.part = "merged"
         load_path = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native_04152020/merged/reducedto_10k/white/vtk"
 
     pickle_split_filepath = "/vol/bitbucket/cnw119/neodeepbrain/models/gNNs/names_06152020_noCrashSubs.pk"
     meta_data_file_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
-    save_path = f"/vol/bitbucket/cnw119/tmp/{parser.part}_dataset"
+    save_path = f"/vol/bitbucket/cnw119/tmp/{args.part}_dataset"
 
     lr = 8e-4
     T_max = 10
     eta_min = 1e-6
 
-    writer = SummaryWriter(comment=f"official_basicgcn_{parser.part}")
+    writer = SummaryWriter(comment=f"official_basicgcn_{args.part}")
     batch_size = 64
 
     train_dataset = BrainNetworkDataset(load_path, meta_data_file_path, save_path=save_path, max_workers=8,
@@ -86,7 +88,7 @@ if __name__ == "__main__":
     diff_func = nn.L1Loss(reduction="none")
 
     print("Starting")
-    for epoch in range(parser.max_epochs):
+    for epoch in range(args.max_epochs):
 
         # Train
         model.train()
