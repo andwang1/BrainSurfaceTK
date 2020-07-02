@@ -26,8 +26,8 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("part", help="part of the brain")
-    parser.add_argument("max_epochs", help="max epochs")
+    parser.add_argument("--part", help="part of the brain", type=str)
+    parser.add_argument("--max_epochs", help="max epochs", type=int)
 
     args = parser.parse_args()
 
