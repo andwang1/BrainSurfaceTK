@@ -15,7 +15,7 @@ import torch.nn.functional as F
 from torch.optim.lr_scheduler import StepLR
 from torch.utils.tensorboard import SummaryWriter
 
-from models.pointnet.src.models.pointnet2_regression import Net
+from models.pointnet.src.models.pointnet2_regression_v2 import Net
 from models.pointnet.src.utils import get_data_path, data
 
 
@@ -121,14 +121,14 @@ if __name__ == '__main__':
     ########### EXPERIMENT DESCRIPTION ##############
     #################################################
     recording = False
-    REPROCESS = False
+    REPROCESS = True
 
     data_nativeness = 'native'
     data_compression = "10k"
-    data_type = 'pial'
-    hemisphere = 'both'
+    data_type = 'white'
+    hemisphere = 'left'
 
-    comment = 'comment'
+    comment = 'comment1'
 
     #################################################
     ############ EXPERIMENT DESCRIPTION #############
@@ -137,7 +137,7 @@ if __name__ == '__main__':
     # 1. Model Parameters
     ################################################
     lr = 0.001
-    batch_size = 2
+    batch_size = 1
     gamma = 0.9875
     scheduler_step_size = 2
     target_class = 'scan_age'
@@ -146,10 +146,14 @@ if __name__ == '__main__':
     number_of_points = 10000
 
     ################################################
-
     ########## INDICES FOR DATA SPLIT #############
-    with open(PATH_TO_ROOT + 'src/names.pk', 'rb') as f:
+    with open(PATH_TO_ROOT + 'src/names_06152020_noCrashSubs.pk', 'rb') as f:
         indices = pickle.load(f)
+
+    # FOR TESTING
+    # indices = {'Train': ['CC00050XX01_7201', 'CC00051XX02_7702'],
+    #            'Test': ['CC00050XX01_7201', 'CC00051XX02_7702'],
+    #            'Val': ['CC00050XX01_7201', 'CC00051XX02_7702']}
     ###############################################
 
     data_folder, files_ending = get_data_path(data_nativeness, data_compression, data_type, hemisphere=hemisphere)
