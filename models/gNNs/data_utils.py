@@ -148,14 +148,14 @@ class BrainNetworkDataset(Dataset):
 
     def process_file_target(self, file_to_load, age, save_path):
         """
-        Process the mesh in the file_to_load (.vtp) and convert it to a graph before pickling (graph, target)
-        :param file_to_load: mesh in the file_to_load (.vtp) and convert it to a graph
+        Process the mesh in the file_to_load (.vtk) and convert it to a graph before pickling (graph, target)
+        :param file_to_load: mesh in the file_to_load (.vtk) and convert it to a graph
         :param age: tensor float
         :param save_path: directory for the processed sample to be saved
         :return: 1 meaning success
         """
 
-        fp_save_path = os.path.join(save_path, os.path.basename(file_to_load).replace(".vtp", ".pickle"))
+        fp_save_path = os.path.join(save_path, os.path.basename(file_to_load).replace(".vtk", ".pickle"))
         if os.path.exists(fp_save_path):
             # Response of 2 means this file already exists
             return 2
