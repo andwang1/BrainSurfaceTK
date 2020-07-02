@@ -18,7 +18,7 @@ class BrainNetworkDataset(Dataset):
     """
 
     def __init__(self, files_path, meta_data_filepath, save_path, dataset="train", index_split_pickle_fp=None,
-                 train_split_per=(0.8, 0.1, 0.1), max_workers=8):
+                 part="left", train_split_per=(0.8, 0.1, 0.1), max_workers=8):
         """
         :param files_path: Location of the vtps which will be converted to graphs
         :param meta_data_filepath: filepath of meta_data.tsv (tsv file that contains session/patient ids & scan age
@@ -40,6 +40,7 @@ class BrainNetworkDataset(Dataset):
         self.meta_data_path = meta_data_filepath
         # Number of workers for loading
         self.max_workers = max_workers
+        self.part = part
 
         # Filepaths containing stored graphs and their respective targets
         self.sample_filepaths = None
@@ -269,8 +270,7 @@ class BrainNetworkDataset(Dataset):
 
         return (train_files, train_targets), (val_files, val_targets), (test_files, test_targets)
 
-    @staticmethod
-    def get_file_paths_using_indices(load_path, meta_data_file_path, indices):
+    def get_file_paths_using_indices(self, load_path, meta_data_file_path, indices):
         # TODO: REWRITE THIS COS INDICES ARENT INDICES THEY ARE JOINT PARTICIPANT SESSION IDS
         targets = list()
         df = pd.read_csv(meta_data_file_path, sep='\t', header=0)
@@ -278,7 +278,7 @@ class BrainNetworkDataset(Dataset):
         files_to_load = list()
         for fn in potential_files:
             tmp = fn.replace("sub-", "").replace("ses-", "").split("_")[:2]
-            if ("_".join(tmp) in indices) and ("left" in fn):
+            if ("_".join(tmp) in indices) and (self.part in fn):
                 participant_id, session_id = tmp
                 records = df[(df.participant_id == participant_id) & (df.session_id == int(session_id))]
                 if len(records) == 1:
