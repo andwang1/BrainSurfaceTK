@@ -166,7 +166,7 @@ def evaluate(model, dl, ds, loss_function, diff_func, denorm_target_f, device):
             # Store
             batch_subjects.append(subjects.cpu())
             batch_preds.append(predictions.cpu())
-            batch_targets.append(batch_targets.cpu())
+            batch_targets.append(batch_labels.cpu())
             batch_diffs.append(diff.cpu())
 
             total_size += len(batch_labels)
@@ -179,7 +179,7 @@ def evaluate(model, dl, ds, loss_function, diff_func, denorm_target_f, device):
         all_targets = denorm_target_f(torch.cat(batch_targets), ds)
         all_diffs = torch.cat(batch_diffs)
 
-        csv_material = torch.cat((all_subjects, all_preds, all_targets, all_diffs))
+        csv_material = torch.cat((all_subjects, all_preds, all_targets, all_diffs), dim=-1)
 
     return epoch_loss, epoch_error, torch.max(all_diffs).item(), csv_material
 
