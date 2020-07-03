@@ -39,11 +39,13 @@ if __name__ == "__main__":
     # save_path = os.path.join(os.getcwd(), "tmp", "dataset")
 
     # Imperial
-    if args.part == "left" or "right":
+    if args.part == "left" or args.part == "right":
         load_path = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native_04152020/hemispheres/reducedto_10k/white/vtk"
     else:
         args.part = "merged"
         load_path = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native_04152020/merged/reducedto_10k/white/vtk"
+
+    print("Using files from: ", load_path)
 
     pickle_split_filepath = "/vol/bitbucket/cnw119/neodeepbrain/models/gNNs/names_06152020_noCrashSubs.pk"
     meta_data_file_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
@@ -74,6 +76,13 @@ if __name__ == "__main__":
     print("Creating Model")
     # model = BasicGCN(5, 256, 1)
     model = BasicGCNRegressor(8, 256, 1)  # 5 features in a node, 256 in the hidden, 1 output (age)
+
+
+    def count_parameters(model):
+        return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+    print(count_parameters(model))
+
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=T_max, eta_min=eta_min)
     print("Model made")
