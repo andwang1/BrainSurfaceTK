@@ -177,11 +177,12 @@ def evaluate(model, dl, ds, loss_function, diff_func, denorm_target_f, device):
         epoch_error /= total_size
 
         all_subjects = np.concatenate(batch_subjects)
-        all_preds = denorm_target_f(torch.cat(batch_preds), ds).numpy()
-        all_targets = denorm_target_f(torch.cat(batch_targets), ds).numpy()
-        all_diffs = torch.cat(batch_diffs).numpy()
+        all_preds = denorm_target_f(torch.cat(batch_preds), ds)
+        all_targets = denorm_target_f(torch.cat(batch_targets), ds)
+        all_diffs = torch.cat(batch_diffs)
 
-        csv_material = np.concatenate((all_subjects, all_preds, all_targets, all_diffs), axis=-1)
+        csv_material = np.concatenate((all_subjects, all_preds.numpy(), all_targets.numpy(), all_diffs.numpy()),
+                                      axis=-1)
 
     return epoch_loss, epoch_error, torch.max(all_diffs).item(), csv_material
 
