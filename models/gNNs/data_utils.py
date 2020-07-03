@@ -211,7 +211,7 @@ class BrainNetworkDataset(Dataset):
         """
         features = [mesh.points]
 
-        if self.featureless:
+        if not self.featureless:
             for name in mesh.array_names:
                 if name in ['corrected_thickness', 'initial_thickness', 'curvature', 'sulcal_depth', 'roi']:
                     features.append(mesh.get_array(name=name, preference="point"))
