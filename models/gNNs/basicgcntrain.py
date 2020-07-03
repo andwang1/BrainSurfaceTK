@@ -176,12 +176,12 @@ def evaluate(model, dl, ds, loss_function, diff_func, denorm_target_f, device):
         epoch_loss /= (iter + 1)
         epoch_error /= total_size
 
-        all_subjects = torch.cat(batch_subjects)
-        all_preds = denorm_target_f(torch.cat(batch_preds), ds)
-        all_targets = denorm_target_f(torch.cat(batch_targets), ds)
-        all_diffs = torch.cat(batch_diffs)
+        all_subjects = torch.cat(batch_subjects).numpy()
+        all_preds = denorm_target_f(torch.cat(batch_preds), ds).numpy()
+        all_targets = denorm_target_f(torch.cat(batch_targets), ds).numpy()
+        all_diffs = torch.cat(batch_diffs).numpy()
 
-        csv_material = torch.cat((all_subjects, all_preds, all_targets, all_diffs), dim=-1)
+        csv_material = np.concatenate((all_subjects, all_preds, all_targets, all_diffs), axis=-1)
 
     return epoch_loss, epoch_error, torch.max(all_diffs).item(), csv_material
 
@@ -216,8 +216,7 @@ def update_writer(writer, train_epoch_loss, val_epoch_loss, test_epoch_loss, tra
 #     pd.DataFrame(ndarray).to_csv(csv_fp)
 
 
-def record_csv_material(fp, csv_material):
-    data = csv_material.numpy()
+def record_csv_material(fp, data):
 
     if os.path.exists(fp):
         ndarray = np.load(fp)
