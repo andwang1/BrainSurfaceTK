@@ -24,13 +24,22 @@ def denorm_target_f(target, dataset):
     return (target.cpu() * dataset.targets_std) + dataset.targets_mu
 
 
+def str_to_bool(x):
+    if x == "True":
+        return True
+    elif x == "False":
+        return False
+    else:
+        raise ValueError("Expected True or False for featureless.")
+
+
 def get_args():
     import argparse
     parser = argparse.ArgumentParser()
     # Dataset/Dataloader Args
     parser.add_argument("part", help="part of the brain", type=str)
     parser.add_argument("res", help="number of vertices", type=str)
-    parser.add_argument("featureless", help="include features?", type=bool)
+    parser.add_argument("featureless", help="include features?", type=str_to_bool)
     parser.add_argument("--meta_data_file_path", help="tsv file", type=str,
                         default="/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
     parser.add_argument("--pickle_split_filepath", help="split file", type=str,
