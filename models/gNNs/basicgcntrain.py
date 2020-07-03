@@ -64,6 +64,9 @@ def get_args():
 
     args.experiment_folder = os.path.join(args.results, args.experiment_name)
 
+    if not os.path.exists(args.experiment_folder):
+        os.makedirs(args.experiment_folder)
+
     print("Using files from: ", args.load_path)
     print("Using: ", args.part)
     print("Data saved in: ", args.save_path)
