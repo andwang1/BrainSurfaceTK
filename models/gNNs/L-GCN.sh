@@ -15,5 +15,5 @@ cd /vol/bitbucket/${USER}/neodeepbrain || exit
 
 python -u -m models.gNNs.basicgcntrain left 10k True
 python -u -m models.gNNs.basicgcntrain left 10k False
-python -u -m models.gNNs.basicgcntrain left 20k True
-python -u -m models.gNNs.basicgcntrain left 10k False
+python -u -m models.gNNs.basicgcntrain left 20k True --batch_size 32
+python -u -m models.gNNs.basicgcntrain left 20k False --batch_size 32
