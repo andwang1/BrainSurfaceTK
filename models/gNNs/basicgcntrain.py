@@ -209,9 +209,9 @@ def update_writer(writer, train_epoch_loss, val_epoch_loss, test_epoch_loss, tra
     writer.add_scalar("Max Error/Test", test_epoch_max_diff, epoch)
 
 
-def convert_npfile_to_csv(fp, csv_fp):
-    ndarray = np.load(fp)
-    pd.DataFrame(ndarray).to_csv(csv_fp)
+# def convert_npfile_to_csv(fp, csv_fp):
+#     ndarray = np.load(fp)
+#     pd.DataFrame(ndarray).to_csv(csv_fp)
 
 
 def record_csv_material(fp, csv_material):
@@ -219,7 +219,7 @@ def record_csv_material(fp, csv_material):
 
     if os.path.exists(fp):
         ndarray = np.load(fp)
-        ndarray = np.stack((ndarray, data))
+        ndarray = np.concatenate((ndarray, data.reshape(1, *data.shape)))
     else:
         ndarray = data.reshape(1, *data.shape)
     np.save(file=fp, arr=ndarray)
@@ -280,8 +280,8 @@ if __name__ == "__main__":
                       test_epoch_error, train_epoch_max_diff, val_epoch_max_diff, test_epoch_max_diff, epoch)
 
         # Record material to be converted to csv later
-        record_csv_material(val_log_fp, val_csv_material)
-        record_csv_material(test_log_fp, test_csv_material)
+        record_csv_material(val_log_fp, val_csv_material + ".npy")
+        record_csv_material(test_log_fp, test_csv_material + ".npy")
 
         # Save model
         update_best_model(model, val_epoch_loss, best_val_loss, args)
@@ -289,5 +289,5 @@ if __name__ == "__main__":
 
         print('Epoch {}, train_loss {:.4f}, test_loss {:.4f}'.format(epoch, train_epoch_loss, test_epoch_loss))
 
-    convert_npfile_to_csv(val_log_fp, val_log_fp+".csv")
-    convert_npfile_to_csv(test_log_fp, test_log_fp+".csv")
+    # convert_npfile_to_csv(val_log_fp, val_log_fp + ".csv")
+    # convert_npfile_to_csv(test_log_fp, test_log_fp + ".csv")
