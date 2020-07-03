@@ -17,7 +17,7 @@ def collate(samples):
     #  (graph, label).
     subjects, graphs, labels = map(list, zip(*samples))
     batched_graph = dgl.batch(graphs)
-    return subjects, batched_graph, torch.tensor(labels).view(len(graphs), -1)
+    return np.array(subjects).reshape(len(graphs), -1), batched_graph, torch.tensor(labels).view(len(graphs), -1)
 
 
 def denorm_target_f(target, dataset):
@@ -217,7 +217,6 @@ def update_writer(writer, train_epoch_loss, val_epoch_loss, test_epoch_loss, tra
 
 
 def record_csv_material(fp, data):
-
     if os.path.exists(fp):
         ndarray = np.load(fp)
         ndarray = np.concatenate((ndarray, data.reshape(1, *data.shape)))

@@ -346,7 +346,7 @@ class BrainNetworkDataset(Dataset):
         """
         fp = self.sample_filepaths[item]
         graph, target = self.load_sample_from_pickle(fp)
-        subject = torch.tensor(os.path.basename(fp).split(".")[0])
+        subject = np.array(os.path.basename(fp).split(".")[0])
         return subject, graph, target
 
     @staticmethod
