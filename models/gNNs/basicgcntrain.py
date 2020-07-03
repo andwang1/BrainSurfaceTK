@@ -290,8 +290,8 @@ if __name__ == "__main__":
                       test_epoch_error, train_epoch_max_diff, val_epoch_max_diff, test_epoch_max_diff, epoch)
 
         # Record material to be converted to csv later
-        record_csv_material(val_log_fp, val_csv_material + ".npy")
-        record_csv_material(test_log_fp, test_csv_material + ".npy")
+        record_csv_material(val_log_fp + ".npy", val_csv_material)
+        record_csv_material(test_log_fp + ".npy", test_csv_material)
 
         # Save model
         update_best_model(model, val_epoch_loss, best_val_loss, args)
