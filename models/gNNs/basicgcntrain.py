@@ -31,7 +31,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-
     # # Local
     # load_path = os.path.join(os.getcwd(), "data")
     # pickle_split_filepath = os.path.join(os.getcwd(), "names_06152020_noCrashSubs.pk")
@@ -77,9 +76,12 @@ if __name__ == "__main__":
     # model = BasicGCN(5, 256, 1)
     model = BasicGCNRegressor(8, 256, 1)  # 5 features in a node, 256 in the hidden, 1 output (age)
 
+    torch.save(model, f"model-{(args.part)}")
+
 
     def count_parameters(model):
         return sum(p.numel() for p in model.parameters() if p.requires_grad)
+
 
     print(count_parameters(model))
 
@@ -88,7 +90,7 @@ if __name__ == "__main__":
     print("Model made")
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model.to(device)
+    model = model.to(device)
     print(f"Model is on: {'cuda' if torch.cuda.is_available() else 'cpu'}")
     print(model)
 
@@ -205,3 +207,5 @@ if __name__ == "__main__":
         writer.add_scalar("Max Error/Train", train_epoch_worst_diff, epoch)
         writer.add_scalar("Max Error/Val", val_epoch_worst_diff, epoch)
         writer.add_scalar("Max Error/Test", test_epoch_worst_diff, epoch)
+
+        torch.save(model, f"model-{(args.part)}")

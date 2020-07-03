@@ -11,4 +11,4 @@ TERM=vt100 # or TERM=xterm
 /usr/bin/nvidia-smi
 uptime
 cd /vol/bitbucket/${USER}/neodeepbrain || exit
-python -u -m models.gNNs.basicgcntrain --part=left --max_epochs=400
+python -u -m models.gNNs.basicgcntrain --part=left --max_epochs=300
