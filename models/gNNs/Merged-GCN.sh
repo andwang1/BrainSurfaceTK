@@ -11,4 +11,8 @@ TERM=vt100 # or TERM=xterm
 /usr/bin/nvidia-smi
 uptime
 cd /vol/bitbucket/${USER}/neodeepbrain || exit
-python -u -m models.gNNs.basicgcntrain --part=merged --max_epochs=300
+
+python -u -m models.gNNs.basicgcntrain merged 10k featureless=True
+python -u -m models.gNNs.basicgcntrain merged 10k featureless=False
+python -u -m models.gNNs.basicgcntrain merged 20k featureless=True
+python -u -m models.gNNs.basicgcntrain merged 10k featureless=False
