@@ -59,7 +59,7 @@ if __name__ == "__main__":
     batch_size = 64
 
     train_dataset = BrainNetworkDataset(load_path, meta_data_file_path, save_path=save_path, max_workers=8,
-                                        dataset="train", index_split_pickle_fp=pickle_split_filepath)
+                                        dataset="train", index_split_pickle_fp=pickle_split_filepath, part=args.part)
 
     val_dataset = BrainNetworkDataset(load_path, meta_data_file_path, save_path=save_path, max_workers=8,
                                       dataset="val")
