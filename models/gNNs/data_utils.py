@@ -17,8 +17,9 @@ class BrainNetworkDataset(Dataset):
     Dataset for Brain Networks
     """
 
-    def __init__(self, files_path, meta_data_filepath, save_path, dataset="train", index_split_pickle_fp=None,
-                 part="left", train_split_per=(0.8, 0.1, 0.1), max_workers=8):
+    def __init__(self, files_path, meta_data_filepath, save_path, dataset, part, featureless,
+                 index_split_pickle_fp=None,
+                 train_split_per=(0.8, 0.1, 0.1), max_workers=8):
         """
         :param files_path: Location of the vtps which will be converted to graphs
         :param meta_data_filepath: filepath of meta_data.tsv (tsv file that contains session/patient ids & scan age
@@ -40,6 +41,8 @@ class BrainNetworkDataset(Dataset):
         self.meta_data_path = meta_data_filepath
         # Number of workers for loading
         self.max_workers = max_workers
+
+        self.featureless = featureless
         self.part = part
 
         # Filepaths containing stored graphs and their respective targets
@@ -67,6 +70,9 @@ class BrainNetworkDataset(Dataset):
         :param save_path: location for the training and testing data to be saved
         :return: None
         """
+        train_indices = None
+        val_indices = None
+        test_indices = None
 
         if index_split_pickle_fp is None:
             # Find files in Imperial Folder & Corresponding targets
@@ -78,10 +84,18 @@ class BrainNetworkDataset(Dataset):
 
         else:
             # Predetermined split
-            (train_fps, train_targets), \
-            (val_fps, val_targets), \
-            (test_fps, test_targets) = self.fetch_data_using_manual_split(files_path, meta_data_filepath,
-                                                                          index_split_pickle_fp)
+            (train_fps, train_targets, train_indices), \
+            (val_fps, val_targets, val_indices), \
+            (test_fps, test_targets, test_indices) = self.fetch_data_using_manual_split(files_path,
+                                                                                        meta_data_filepath,
+                                                                                        index_split_pickle_fp)
+
+        if train_indices is None:
+            train_indices = cycle((None,))
+        if val_indices is None:
+            val_indices = cycle((None,))
+        if test_indices is None:
+            test_indices = cycle((None,))
 
         # Make dirs to store data
         train_save_path = self.update_save_path(save_path, "train")
@@ -102,6 +116,7 @@ class BrainNetworkDataset(Dataset):
                     train_fps,
                     train_targets,
                     cycle((train_save_path,)),
+                    train_indices,
                     chunksize=32
                 ), total=len(train_fps))]
                 val_results = [r for r in tqdm(executor.map(
@@ -109,6 +124,7 @@ class BrainNetworkDataset(Dataset):
                     val_fps,
                     val_targets,
                     cycle((val_save_path,)),
+                    val_indices,
                     chunksize=32
                 ), total=len(val_fps))]
                 te_results = [r for r in tqdm(executor.map(
@@ -116,6 +132,7 @@ class BrainNetworkDataset(Dataset):
                     test_fps,
                     test_targets,
                     cycle((test_save_path,)),
+                    test_indices,
                     chunksize=32
                 ), total=len(test_fps))]
         else:
@@ -123,19 +140,22 @@ class BrainNetworkDataset(Dataset):
                 self.process_file_target,
                 train_fps,
                 train_targets,
-                cycle((train_save_path,))
+                cycle((train_save_path,)),
+                train_indices
             ), total=len(train_fps))]
             val_results = [r for r in tqdm(map(
                 self.process_file_target,
                 val_fps,
                 val_targets,
                 cycle((val_save_path,)),
+                val_indices,
             ), total=len(val_fps))]
             te_results = [r for r in tqdm(map(
                 self.process_file_target,
                 test_fps,
                 test_targets,
-                cycle((test_save_path,))
+                cycle((test_save_path,)),
+                test_indices,
             ), total=len(test_fps))]
 
         if (None in tr_results) or (None in val_results) or (None in te_results):
@@ -147,7 +167,7 @@ class BrainNetworkDataset(Dataset):
         self.normalise_dataset(val_save_path)
         self.normalise_dataset(test_save_path)
 
-    def process_file_target(self, file_to_load, age, save_path):
+    def process_file_target(self, file_to_load, age, save_path, filename=None):
         """
         Process the mesh in the file_to_load (.vtk) and convert it to a graph before pickling (graph, target)
         :param file_to_load: mesh in the file_to_load (.vtk) and convert it to a graph
@@ -155,8 +175,11 @@ class BrainNetworkDataset(Dataset):
         :param save_path: directory for the processed sample to be saved
         :return: 1 meaning success
         """
+        if filename is None:
+            fp_save_path = os.path.join(save_path, os.path.basename(file_to_load).replace(".vtk", ".pickle"))
+        else:
+            fp_save_path = os.path.join(save_path, filename + ".pickle")
 
-        fp_save_path = os.path.join(save_path, os.path.basename(file_to_load).replace(".vtk", ".pickle"))
         if os.path.exists(fp_save_path):
             # Response of 2 means this file already exists
             return 2
@@ -180,20 +203,22 @@ class BrainNetworkDataset(Dataset):
 
         return 1
 
-    @staticmethod
-    def get_node_features(mesh):
+    def get_node_features(self, mesh):
         """
         Extract the point features from the mesh
         :param mesh: pv.PolyData object
         :return: torch tensor float containing features
         """
         features = [mesh.points]
+
+        if self.featureless:
+            for name in mesh.array_names:
+                if name in ['corrected_thickness', 'initial_thickness', 'curvature', 'sulcal_depth', 'roi']:
+                    features.append(mesh.get_array(name=name, preference="point"))
+
         segmentation = list()
-        for name in mesh.array_names:
-            if name in ['corrected_thickness', 'initial_thickness', 'curvature', 'sulcal_depth', 'roi']:
-                features.append(mesh.get_array(name=name, preference="point"))
-            if name == 'segmentation':
-                segmentation.append(mesh.get_array(name=name, preference="point"))
+        if 'segmentation' in mesh.array_names:
+            segmentation.append(mesh.get_array(name='segmentation', preference="point"))
 
         features = torch.tensor(np.column_stack(features)).float()
         segmentation = torch.from_numpy(np.column_stack(segmentation)).long()
@@ -264,27 +289,38 @@ class BrainNetworkDataset(Dataset):
         val_indices = indices["Val"]
         test_indices = indices["Test"]
 
-        train_files, train_targets = self.get_file_paths_using_indices(load_path, meta_data_file_path, train_indices)
-        val_files, val_targets = self.get_file_paths_using_indices(load_path, meta_data_file_path, val_indices)
-        test_files, test_targets = self.get_file_paths_using_indices(load_path, meta_data_file_path, test_indices)
+        # val_indices.remove("CC01006XX08_62330")  # TODO: MAKE LESS HARD CODED
 
-        return (train_files, train_targets), (val_files, val_targets), (test_files, test_targets)
+        train_files, train_targets, train_indices = self.get_file_paths_using_indices(load_path, meta_data_file_path,
+                                                                                      train_indices)
+        val_files, val_targets, val_indices = self.get_file_paths_using_indices(load_path, meta_data_file_path,
+                                                                                val_indices)
+        test_files, test_targets, test_indices = self.get_file_paths_using_indices(load_path, meta_data_file_path,
+                                                                                   test_indices)
+
+        return (train_files, train_targets, train_indices), \
+               (val_files, val_targets, val_indices), \
+               (test_files, test_targets, test_indices)
 
     def get_file_paths_using_indices(self, load_path, meta_data_file_path, indices):
         # TODO: REWRITE THIS COS INDICES ARENT INDICES THEY ARE JOINT PARTICIPANT SESSION IDS
+        index_order = list()  # convoluted
+
         targets = list()
         df = pd.read_csv(meta_data_file_path, sep='\t', header=0)
         potential_files = [f for f in os.listdir(load_path)]
         files_to_load = list()
         for fn in potential_files:
             tmp = fn.replace("sub-", "").replace("ses-", "").split("_")[:2]
-            if ("_".join(tmp) in indices) and (self.part in fn):
+            index = "_".join(tmp)
+            if (index in indices) and (self.part in fn):
                 participant_id, session_id = tmp
                 records = df[(df.participant_id == participant_id) & (df.session_id == int(session_id))]
                 if len(records) == 1:
+                    index_order.append(index)
                     files_to_load.append(os.path.join(load_path, fn))
                     targets.append(torch.tensor(records.scan_age.values, dtype=torch.float))
-        return files_to_load, targets
+        return files_to_load, targets, index_order
 
     @staticmethod
     def update_save_path(save_path, dataset):
@@ -308,7 +344,10 @@ class BrainNetworkDataset(Dataset):
         :param item: int index
         :return: (graph, target)
         """
-        return self.load_sample_from_pickle(self.sample_filepaths[item])
+        fp = self.sample_filepaths[item]
+        graph, target = self.load_sample_from_pickle(fp)
+        subject = torch.tensor(os.path.basename(fp).split(".")[0])
+        return subject, graph, target
 
     @staticmethod
     def build_face_array(face_indices, include_n_verts=False):
