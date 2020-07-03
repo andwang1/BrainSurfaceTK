@@ -166,7 +166,7 @@ def evaluate(model, dl, ds, loss_function, diff_func, denorm_target_f, device):
             epoch_loss += loss.item()
 
             # Store
-            batch_subjects.append(subjects.cpu())
+            batch_subjects.append(subjects)
             batch_preds.append(predictions.cpu())
             batch_targets.append(batch_labels.cpu())
             batch_diffs.append(diff.cpu())
@@ -176,7 +176,7 @@ def evaluate(model, dl, ds, loss_function, diff_func, denorm_target_f, device):
         epoch_loss /= (iter + 1)
         epoch_error /= total_size
 
-        all_subjects = torch.cat(batch_subjects).numpy()
+        all_subjects = np.concatenate(batch_subjects)
         all_preds = denorm_target_f(torch.cat(batch_preds), ds).numpy()
         all_targets = denorm_target_f(torch.cat(batch_targets), ds).numpy()
         all_diffs = torch.cat(batch_diffs).numpy()
