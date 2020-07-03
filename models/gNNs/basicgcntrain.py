@@ -57,7 +57,7 @@ def get_args():
         args.part = "merged"
         args.load_path = f"/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native_04152020/merged/reducedto_{args.res}/white/vtk"
 
-    args.save_path = f"{args.save_path}/{args.part}_{args.res}_dataset"
+    args.save_path = f"{args.save_path}/{args.part}_{args.res}-{'featureless' if args.featureless else 'features'}_dataset"
 
     args.experiment_name = f"GCN-part-{args.part}-res-{args.res}-featureless-{args.featureless}"
 
