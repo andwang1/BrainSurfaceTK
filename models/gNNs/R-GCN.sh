@@ -12,7 +12,7 @@ TERM=vt100 # or TERM=xterm
 uptime
 cd /vol/bitbucket/${USER}/neodeepbrain || exit
 
-python -u -m models.gNNs.basicgcntrain right 10k True
-python -u -m models.gNNs.basicgcntrain right 10k False
-python -u -m models.gNNs.basicgcntrain right 20k True --batch_size 32
-python -u -m models.gNNs.basicgcntrain right 20k False --batch_size 32
+# python -u -m models.gNNs.basicgcntrain right 10k True --save_path ../tmp2 --results ./results2
+python -u -m models.gNNs.basicgcntrain right 10k False some --save_path ../tmp2 --results ./results2
+# python -u -m models.gNNs.basicgcntrain right 20k True --batch_size 32 --save_path ../tmp2 --results ./results2
+python -u -m models.gNNs.basicgcntrain right 20k False some --batch_size 32 --save_path ../tmp2 --results ./results2

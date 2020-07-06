@@ -17,7 +17,7 @@ class BrainNetworkDataset(Dataset):
     Dataset for Brain Networks
     """
 
-    def __init__(self, files_path, meta_data_filepath, save_path, dataset, part, featureless,
+    def __init__(self, files_path, meta_data_filepath, save_path, dataset, part, features=None,
                  index_split_pickle_fp=None,
                  train_split_per=(0.8, 0.1, 0.1), max_workers=8):
         """
@@ -42,8 +42,13 @@ class BrainNetworkDataset(Dataset):
         # Number of workers for loading
         self.max_workers = max_workers
 
-        self.featureless = featureless
+        if features is None:
+            self.featureless = features
+        else:
+            self.featureless = False
+
         self.part = part
+        self.features = features # ['corrected_thickness', 'initial_thickness', 'curvature', 'sulcal_depth', 'roi']
 
         # Filepaths containing stored graphs and their respective targets
         self.sample_filepaths = None
@@ -213,7 +218,7 @@ class BrainNetworkDataset(Dataset):
 
         if not self.featureless:
             for name in mesh.array_names:
-                if name in ['corrected_thickness', 'initial_thickness', 'curvature', 'sulcal_depth', 'roi']:
+                if name in self.features:
                     features.append(mesh.get_array(name=name, preference="point"))
 
         segmentation = list()
