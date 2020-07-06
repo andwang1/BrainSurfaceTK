@@ -3,7 +3,7 @@
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=cnw119
 whoami
-export PATH=/vol/bitbucket/${USER}/miniconda3/bin/:$PATH
+export PATH=/vol/bitbucket/cnw119/miniconda3/bin/:$PATH
 source activate
 conda activate vortexAI
 # source /vol/cuda/10.0.130/setup.sh
