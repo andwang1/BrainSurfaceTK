@@ -40,7 +40,7 @@ def get_args():
     # Dataset/Dataloader Args
     parser.add_argument("part", help="part of the brain", type=str)
     parser.add_argument("res", help="number of vertices", type=str)
-    parser.add_argument("featureless", help="include features?", type=str_to_bool)
+    parser.add_argument("featureless", help="include features?", type=str_to_bool) #TODO PLAEASDARWAQRTF
     parser.add_argument("--meta_data_file_path", help="tsv file", type=str,
                         default="/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
     parser.add_argument("--pickle_split_filepath", help="split file", type=str,
@@ -81,6 +81,11 @@ def get_args():
     print("Data saved in: ", args.save_path)
     print("Results stored in: ", args.experiment_folder)
 
+    if args.featureless:
+        args.features = None
+    else:
+        args.features = ('corrected_thickness', 'initial_thickness', 'curvature', 'sulcal_depth', 'roi')
+
     return args
 
 
@@ -88,15 +93,15 @@ def get_dataloaders(args):
     train_dataset = BrainNetworkDataset(args.load_path, args.meta_data_file_path, save_path=args.save_path,
                                         max_workers=args.ds_max_workers,
                                         dataset="train", index_split_pickle_fp=args.pickle_split_filepath,
-                                        part=args.part, featureless=args.featureless)
+                                        part=args.part, features=args.features)
 
     val_dataset = BrainNetworkDataset(args.load_path, args.meta_data_file_path, save_path=args.save_path,
                                       max_workers=args.ds_max_workers,
-                                      dataset="val", part=args.part, featureless=args.featureless)
+                                      dataset="val", part=args.part, features=args.features)
 
     test_dataset = BrainNetworkDataset(args.load_path, args.meta_data_file_path, save_path=args.save_path,
                                        max_workers=args.ds_max_workers,
-                                       dataset="test", part=args.part, featureless=args.featureless)
+                                       dataset="test", part=args.part, features=args.features)
 
     train_dl = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=collate,
                           num_workers=args.dl_max_workers)
@@ -266,7 +271,7 @@ if __name__ == "__main__":
 
     train_dl, val_dl, test_dl, train_ds, val_ds, test_ds = get_dataloaders(args)
 
-    writer = SummaryWriter(comment=f"-{args.experiment_name}")
+    # writer = SummaryWriter(comment=f"-{args.experiment_name}")
 
     # Create model
     print("Creating Model")
@@ -307,24 +312,25 @@ if __name__ == "__main__":
                                                                                              diff_func, denorm_target_f,
                                                                                              device)
 
-        # Record to TensorBoard
-        update_writer(writer, train_epoch_loss, val_epoch_loss, test_epoch_loss, train_epoch_error, val_epoch_error,
-                      test_epoch_error, train_epoch_max_diff, val_epoch_max_diff, test_epoch_max_diff, epoch)
-
-        # Record material to be converted to csv later
-        record_csv_material(val_log_fp + ".npy", val_csv_material)
-        record_csv_material(test_log_fp + ".npy", test_csv_material)
-
-        # Save model
-        update_best_model(model, val_epoch_loss, best_val_loss, args)
-        torch.save(model, os.path.join(args.experiment_folder, "curr_model"))
+        # # Record to TensorBoard
+        # update_writer(writer, train_epoch_loss, val_epoch_loss, test_epoch_loss, train_epoch_error, val_epoch_error,
+        #               test_epoch_error, train_epoch_max_diff, val_epoch_max_diff, test_epoch_max_diff, epoch)
+        #
+        # # Record material to be converted to csv later
+        # record_csv_material(val_log_fp + ".npy", val_csv_material)
+        # record_csv_material(test_log_fp + ".npy", test_csv_material)
+        #
+        # # Save model
+        # update_best_model(model, val_epoch_loss, best_val_loss, args)
+        # torch.save(model, os.path.join(args.experiment_folder, "curr_model"))
 
         print('Epoch {}, train_loss {:.4f}, test_loss {:.4f}'.format(epoch, train_epoch_loss, test_epoch_loss))
 
-    mem = get_gpu_memory_map()
+        mem = get_gpu_memory_map()
 
-    with open(os.path.join(args.experiment_folder, "GPU_mem.txt"), "w") as f:
-        f.write(str(mem))
+        with open(os.path.join(args.experiment_folder, "GPU_mem.txt"), "w") as f:
+            f.write(str(mem))
+        break
 
     # convert_npfile_to_csv(val_log_fp, val_log_fp + ".csv")
     # convert_npfile_to_csv(test_log_fp, test_log_fp + ".csv")

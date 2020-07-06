@@ -7,6 +7,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data.dataloader import DataLoader
+from torch.utils.tensorboard import SummaryWriter
 
 from models.gNNs.data_utils import BrainNetworkDataset
 from models.gNNs.networks import BasicGCNRegressor
@@ -282,7 +283,7 @@ if __name__ == "__main__":
 
     train_dl, val_dl, test_dl, train_ds, val_ds, test_ds = get_dataloaders(args)
 
-    # writer = SummaryWriter(comment=f"-{args.experiment_name}")
+    writer = SummaryWriter(comment=f"-{args.experiment_name}")
 
     # Create model
     print("Creating Model")
@@ -323,25 +324,26 @@ if __name__ == "__main__":
                                                                                              diff_func, denorm_target_f,
                                                                                              device)
 
-        # # Record to TensorBoard
-        # update_writer(writer, train_epoch_loss, val_epoch_loss, test_epoch_loss, train_epoch_error, val_epoch_error,
-        #               test_epoch_error, train_epoch_max_diff, val_epoch_max_diff, test_epoch_max_diff, epoch)
-        #
-        # # Record material to be converted to csv later
-        # record_csv_material(val_log_fp + ".npy", val_csv_material)
-        # record_csv_material(test_log_fp + ".npy", test_csv_material)
-        #
-        # # Save model
-        # update_best_model(model, val_epoch_loss, best_val_loss, args)
-        # torch.save(model, os.path.join(args.experiment_folder, "curr_model"))
+        # Record to TensorBoard
+        update_writer(writer, train_epoch_loss, val_epoch_loss, test_epoch_loss, train_epoch_error, val_epoch_error,
+                      test_epoch_error, train_epoch_max_diff, val_epoch_max_diff, test_epoch_max_diff, epoch)
+
+        # Record material to be converted to csv later
+        record_csv_material(val_log_fp + ".npy", val_csv_material)
+        record_csv_material(test_log_fp + ".npy", test_csv_material)
+
+        # Save model
+        update_best_model(model, val_epoch_loss, best_val_loss, args)
+        torch.save(model, os.path.join(args.experiment_folder, "curr_model"))
 
         print('Epoch {}, train_loss {:.4f}, test_loss {:.4f}'.format(epoch, train_epoch_loss, test_epoch_loss))
 
-        mem = get_gpu_memory_map()
+    mem = get_gpu_memory_map()
 
-        with open(os.path.join(args.experiment_folder, "GPU_mem.txt"), "w") as f:
-            f.write(str(mem))
-        break
+    print(mem)
+
+    with open(os.path.join(args.experiment_folder, "GPU_mem.txt"), "w") as f:
+        f.write(str(mem))
 
     # convert_npfile_to_csv(val_log_fp, val_log_fp + ".csv")
     # convert_npfile_to_csv(test_log_fp, test_log_fp + ".csv")
