@@ -42,13 +42,15 @@ def str_to_features(x):
     elif x.lower() == "None".lower():
         return None
 
+
 def features_to_str(x):
     if x == ('corrected_thickness', 'initial_thickness', 'curvature', 'sulcal_depth', 'roi'):
         return "all"
-    elif x ==  ('corrected_thickness', 'curvature', 'sulcal_depth'):
+    elif x == ('corrected_thickness', 'curvature', 'sulcal_depth'):
         return "some"
     elif x == None:
         return "None"
+
 
 def get_args():
     import argparse
@@ -287,8 +289,7 @@ if __name__ == "__main__":
 
     # Create model
     print("Creating Model")
-    model = BasicGCNRegressor(3 if args.featureless else 8, 256,
-                              1)  # 5 features in a node, 256 in the hidden, 1 output (age)
+    model = BasicGCNRegressor(3 + len(args.features), 256, 1)  # 5 features in a node, 256 in the hidden, 1 output (age)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.T_max, eta_min=args.eta_min)
