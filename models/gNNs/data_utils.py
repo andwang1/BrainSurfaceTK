@@ -14,10 +14,11 @@ from tqdm import tqdm
 
 class BrainNetworkDataset(Dataset):
     """
-    Dataset for Brain Networks
+    Dataset for Brain Networks, please note that this dataset will process vtkPolyData and save them as DGL graphs in
+    the save_path location.
     """
 
-    def __init__(self, files_path, meta_data_filepath, save_path, dataset, part, features=None,
+    def __init__(self, files_path, meta_data_filepath, save_path, dataset, features=None,
                  index_split_pickle_fp=None,
                  train_split_per=(0.8, 0.1, 0.1), max_workers=8):
         """
@@ -25,7 +26,7 @@ class BrainNetworkDataset(Dataset):
         :param meta_data_filepath: filepath of meta_data.tsv (tsv file that contains session/patient ids & scan age
         :param save_path: location for the training and testing data to be saved
         :param dataset: "train", "test", "val", or "none" means all data will be available to the user
-        :param train_split_per: ie: 0.8 yields 80% of data to be in the training set and 20% to be in the test dataset
+        :param train_split_per: ie: (0.8, 0.1, 0.1) yields 80% of data to be in the training set and 10% to be in the val dataset and 10% to be in the test dataset
         :param max_workers: number of processes to be used to create the dataset, more is generally faster but don't go
                             higher than 8.
         """
@@ -47,7 +48,6 @@ class BrainNetworkDataset(Dataset):
         else:
             self.featureless = False
 
-        self.part = part
         self.features = features # ['corrected_thickness', 'initial_thickness', 'curvature', 'sulcal_depth', 'roi']
 
         # Filepaths containing stored graphs and their respective targets
@@ -169,12 +169,14 @@ class BrainNetworkDataset(Dataset):
         # Normalise the two datasets separately
         # TODO: save guard for when training_split is 0. or 1. otherwise we'll get an error
         self.normalise_dataset(train_save_path)
-        self.normalise_dataset(val_save_path)
-        self.normalise_dataset(test_save_path)
+        if len(val_fps) > 0:
+            self.normalise_dataset(val_save_path)
+        if len(test_fps) > 0:
+            self.normalise_dataset(test_save_path)
 
     def process_file_target(self, file_to_load, age, save_path, filename=None):
         """
-        Process the mesh in the file_to_load (.vtk) and convert it to a graph before pickling (graph, target)
+        Process the mesh, (vtk PolyData) in the file_to_load (.vtk) and convert it to a graph before pickling (graph, target)
         :param file_to_load: mesh in the file_to_load (.vtk) and convert it to a graph
         :param age: tensor float
         :param save_path: directory for the processed sample to be saved
@@ -294,8 +296,6 @@ class BrainNetworkDataset(Dataset):
         val_indices = indices["Val"]
         test_indices = indices["Test"]
 
-        # val_indices.remove("CC01006XX08_62330")  # TODO: MAKE LESS HARD CODED
-
         train_files, train_targets, train_indices = self.get_file_paths_using_indices(load_path, meta_data_file_path,
                                                                                       train_indices)
         val_files, val_targets, val_indices = self.get_file_paths_using_indices(load_path, meta_data_file_path,
@@ -309,6 +309,7 @@ class BrainNetworkDataset(Dataset):
 
     def get_file_paths_using_indices(self, load_path, meta_data_file_path, indices):
         # TODO: REWRITE THIS COS INDICES ARENT INDICES THEY ARE JOINT PARTICIPANT SESSION IDS
+        # What?
         index_order = list()  # convoluted
 
         targets = list()
@@ -318,7 +319,7 @@ class BrainNetworkDataset(Dataset):
         for fn in potential_files:
             tmp = fn.replace("sub-", "").replace("ses-", "").split("_")[:2]
             index = "_".join(tmp)
-            if (index in indices) and (self.part in fn):
+            if index in indices:
                 participant_id, session_id = tmp
                 records = df[(df.participant_id == participant_id) & (df.session_id == int(session_id))]
                 if len(records) == 1:
@@ -331,8 +332,8 @@ class BrainNetworkDataset(Dataset):
     def update_save_path(save_path, dataset):
         """
         Update save path with the direction to the training folder or testing folder respectively.
-        :param save_path:
-        :param dataset:
+        :param save_path: path to folder that should contain dataset related files.
+        :param dataset: ie: 'train', 'val', 'test', 'none'
         :return:
         """
         if dataset == "none":
@@ -347,7 +348,7 @@ class BrainNetworkDataset(Dataset):
         """
         Loads the data from the chosen sample filepath
         :param item: int index
-        :return: (graph, target)
+        :return: (subject, graph, target)
         """
         fp = self.sample_filepaths[item]
         graph, target = self.load_sample_from_pickle(fp)
@@ -392,7 +393,7 @@ class BrainNetworkDataset(Dataset):
     def get_edge_data(mesh, src, dst, g):
         """
         Extract the edge lengths from the mesh to be used by the graph
-        :param mesh: pv.PolyData object
+        :param mesh: pv.PolyData object (vtk PolyData)
         :param src:
         :param dst:
         :param g: graph
@@ -581,21 +582,21 @@ class BrainNetworkDataset(Dataset):
 
 
 if __name__ == "__main__":
-    # # Local
-    # load_path = os.path.join(os.getcwd(), "data")
-    # pickle_split_filepath = os.path.join(os.getcwd(), "names_06152020_noCrashSubs.pk")
-    # meta_data_file_path = os.path.join(os.getcwd(), "meta_data.tsv")
-    # save_path = os.path.join(os.getcwd(), "tmp", "dataset")
+    # Local
+    load_path = os.path.join(os.getcwd(), "data")
+    pickle_split_filepath = os.path.join(os.getcwd(), "names_06152020_noCrashSubs.pk")
+    meta_data_file_path = os.path.join(os.getcwd(), "meta_data.tsv")
+    save_path = os.path.join(os.getcwd(), "tmp", "dataset")
 
-    # Imperial
-    load_path = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native_04152020/hemispheres/reducedto_10k/white/vtk"
-    pickle_split_filepath = "/vol/bitbucket/cnw119/neodeepbrain/models/gNNs/names_06152020_noCrashSubs.pk"
-    meta_data_file_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
-    save_path = "/vol/bitbucket/cnw119/tmp/basicdataset"
+    # # Imperial
+    # load_path = "/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native_04152020/hemispheres/reducedto_10k/white/vtk"
+    # pickle_split_filepath = "/vol/bitbucket/cnw119/neodeepbrain/models/gNNs/names_06152020_noCrashSubs.pk"
+    # meta_data_file_path = os.path.join("/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
+    # save_path = "/vol/bitbucket/cnw119/tmp/basicdataset"
 
     dataset = BrainNetworkDataset(load_path, meta_data_file_path, max_workers=0,
-                                  save_path=save_path, train_split_per=(0.4, 0.3, 0.3), dataset="train",
-                                  index_split_pickle_fp=pickle_split_filepath)
+                                  save_path=save_path, train_split_per=(0.4, 0.3, 0.3), dataset="train",)
+                                  # index_split_pickle_fp=pickle_split_filepath)
 
     print(dataset.targets_mu, dataset.targets_std)
 

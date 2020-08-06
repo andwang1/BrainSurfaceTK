@@ -1,9 +1,11 @@
 import os
 import sys
 
+# This should be the only path that you'll need to edit in this file
+MEDIA_ROOT = "/vol/biomedic2/aa16914/shared/MScAI_brain_surface/media"
+
 SETTINGS = "GUI/BasicSite/settings.py"
 MANAGE_PATH = "GUI/manage.py"
-MEDIA_ROOT = "/vol/biomedic2/aa16914/shared/MScAI_brain_surface/media"
 
 
 def modify_settings(set_debug_status_to=True, media_path=""):

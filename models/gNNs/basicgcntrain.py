@@ -22,6 +22,7 @@ def collate(samples):
 
 
 def denorm_target_f(target, dataset):
+    # used to unstandardise the target (to get the scan age of the patient)
     return (target.cpu() * dataset.targets_std) + dataset.targets_mu
 
 
@@ -56,17 +57,18 @@ def get_args():
     import argparse
     parser = argparse.ArgumentParser()
     # Dataset/Dataloader Args
-    parser.add_argument("part", help="part of the brain", type=str)
-    parser.add_argument("res", help="number of vertices", type=str)
-    parser.add_argument("featureless", help="include features?", type=str_to_bool)
-    parser.add_argument("features", help="None, some or all", type=str_to_features)
-    parser.add_argument("--meta_data_file_path", help="tsv file", type=str,
-                        default="/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
-    parser.add_argument("--pickle_split_filepath", help="split file", type=str,
-                        default="/vol/bitbucket/cnw119/neodeepbrain/models/gNNs/names_06152020_noCrashSubs.pk")
+    parser.add_argument("load_path", help="location where files are stored (.vtk)/(.vtp)", type=str)
+    parser.add_argument("featureless", help="don't include features? True or False", type=str_to_bool)
+    parser.add_argument("features", help="""'None', 'some' or 'all' 
+    (edit the features_to_str function to customise tailor the names of the features to your needs)""",
+                        type=str_to_features)
+    parser.add_argument("--meta_data_file_path", help="tsv file containing patient data", type=str)
+                        # default="/vol/biomedic2/aa16914/shared/MScAI_brain_surface/data/meta_data.tsv")
+    parser.add_argument("--pickle_split_filepath", help="split file", type=str, default=None)
+                        # default="/vol/bitbucket/cnw119/neodeepbrain/models/gNNs/names_06152020_noCrashSubs.pk")
     parser.add_argument("--ds_max_workers", help="max_workers for building dataset", type=int, default=8)
     parser.add_argument("--dl_max_workers", help="max_workers for dataloader", type=int, default=4)
-    parser.add_argument("--save_path", help="where to store data", type=str, default="../tmp")
+    parser.add_argument("--save_path", help="where to store the dataset files", type=str, default="../tmp")
 
     # Training Args
     parser.add_argument("--max_epochs", help="max epochs", type=int, default=300)
@@ -80,15 +82,9 @@ def get_args():
 
     args = parser.parse_args()
 
-    if args.part == "left" or args.part == "right":
-        args.load_path = f"/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native_04152020/hemispheres/reducedto_{args.res}/white/vtk"
-    else:
-        args.part = "merged"
-        args.load_path = f"/vol/biomedic/users/aa16914/shared/data/dhcp_neonatal_brain/surface_native_04152020/merged/reducedto_{args.res}/white/vtk"
+    args.save_path = os.path.join(args.save_path, f"features-{features_to_str(args.features)}_dataset")
 
-    args.save_path = f"{args.save_path}/{args.part}_{args.res}-features-{features_to_str(args.features)}_dataset"
-
-    args.experiment_name = f"GCN-part-{args.part}-res-{args.res}-features-{features_to_str(args.features)}"
+    args.experiment_name = f"GCN-features-{features_to_str(args.features)}"
 
     args.experiment_folder = os.path.join(args.results, args.experiment_name)
 
@@ -96,7 +92,6 @@ def get_args():
         os.makedirs(args.experiment_folder)
 
     print("Using files from: ", args.load_path)
-    print("Using: ", args.part)
     print("Data saved in: ", args.save_path)
     print("Results stored in: ", args.experiment_folder)
 
@@ -107,15 +102,15 @@ def get_dataloaders(args):
     train_dataset = BrainNetworkDataset(args.load_path, args.meta_data_file_path, save_path=args.save_path,
                                         max_workers=args.ds_max_workers,
                                         dataset="train", index_split_pickle_fp=args.pickle_split_filepath,
-                                        part=args.part, features=args.features)
+                                        features=args.features)
 
     val_dataset = BrainNetworkDataset(args.load_path, args.meta_data_file_path, save_path=args.save_path,
                                       max_workers=args.ds_max_workers,
-                                      dataset="val", part=args.part, features=args.features)
+                                      dataset="val", features=args.features)
 
     test_dataset = BrainNetworkDataset(args.load_path, args.meta_data_file_path, save_path=args.save_path,
                                        max_workers=args.ds_max_workers,
-                                       dataset="test", part=args.part, features=args.features)
+                                       dataset="test", features=args.features)
 
     train_dl = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=collate,
                           num_workers=args.dl_max_workers)
@@ -241,11 +236,6 @@ def update_writer(writer, train_epoch_loss, val_epoch_loss, test_epoch_loss, tra
     writer.add_scalar("Max Error/Test", test_epoch_max_diff, epoch)
 
 
-# def convert_npfile_to_csv(fp, csv_fp):
-#     ndarray = np.load(fp)
-#     pd.DataFrame(ndarray).to_csv(csv_fp)
-
-
 def record_csv_material(fp, data):
     if os.path.exists(fp):
         ndarray = np.load(fp)
@@ -257,7 +247,7 @@ def record_csv_material(fp, data):
 
 def get_gpu_memory_map():
     """Get the current gpu usage.
-
+    Gotta love StackOverflow
     Returns
     -------
     usage: dict
@@ -276,7 +266,7 @@ def get_gpu_memory_map():
 
 
 if __name__ == "__main__":
-    # TODO MAKE NOT HARD CODED FOR IMPERIAL
+    # TODO MAKE NOT HARD CODED FOR IMPERIAL (I think this has been done but ping cnw119/cemlyn007 just in case)
 
     args = get_args()
 
@@ -345,6 +335,3 @@ if __name__ == "__main__":
 
     with open(os.path.join(args.experiment_folder, "GPU_mem.txt"), "w") as f:
         f.write(str(mem))
-
-    # convert_npfile_to_csv(val_log_fp, val_log_fp + ".csv")
-    # convert_npfile_to_csv(test_log_fp, test_log_fp + ".csv")
