@@ -108,7 +108,7 @@ GCNN [3] is a Graph Convolution Neural Network and uses the Deep Graph Library (
 
 ###### Run instructions
 
-Run as:
+Here is an example on how to run the model:
 ```
 python -u models/gNNs/basicgcntrain.py /path_to/meshes False all --batch_size 32 --save_path ../tmp_save --results ./results
 ```
