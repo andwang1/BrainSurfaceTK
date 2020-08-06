@@ -24,7 +24,7 @@ class ClassificationData(BaseDataset):
         if opt.verbose:
             print("DEBUG dir path in dataset ", self.dir)
         if opt.dataset_mode == 'regression':
-            self.class_to_idx = get_feature_dict(opt.label)
+            self.class_to_idx = get_feature_dict(opt.batch_labels)
             self.nclasses = 1
         else:
             self.classes, self.class_to_idx = self.find_classes(self.dir)
