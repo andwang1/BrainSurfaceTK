@@ -2,7 +2,7 @@
 
 <div align="center"> 
 
-<img src="https://gitlab.doc.ic.ac.uk/aw1912/neodeepbrain/-/raw/master/GUI/main/static/main/gifs/rotate-big.gif" width="600" height="450"/>
+<img src="https://github.com/andwang1/BrainSurfaceTK/blob/master/GUI/main/static/main/gifs/rotate-big.gif?raw=true" width="600" height="450"/>
 </div>
 
 # Setting up
@@ -74,7 +74,7 @@ In this repository, we have made multiple modifcations. These include functional
 Place the .obj mesh data files into a folder in *models/MeshCNN/datasets* with the correct folder structure - below is an example of the structure. Here, *brains* denotes the name of the directory in *models/MeshCNN/datasets* which holds one directory for each class, here e.g. *Male* and *Female*.
 In each class, folders *train*, *val* and *test* hold the files.
 
-<img src="https://gitlab.doc.ic.ac.uk/aw1912/neodeepbrain/-/raw/master/img/meshcnn_data.png" width="450" height="263" />
+<img src="https://github.com/andwang1/BrainSurfaceTK/blob/master/img/meshcnn_data.png?raw=true" width="450" height="263" />
 
 Please additionally place a file called *meta_data.tsv* in the *models/MeshCNN/util* folder. This tab-seperated file will be used to read in additional labels and features into the model.
 The file should contain columns participant_id and session_id, which will be concatenated to form a unique identifier of a patient's scan. This unique identifier must be used to name the data files in the datasets/ folder structure described above.
@@ -119,7 +119,7 @@ folder. This is don't because the conversion process can be a bit slow and for m
 
 <div align="center"> 
 
-<img src="https://gitlab.doc.ic.ac.uk/aw1912/neodeepbrain/-/raw/master/img/CC00380XX10_121200.gif" width="600" height="450"/>
+<img src="https://github.com/andwang1/BrainSurfaceTK/blob/master/img/CC00380XX10_121200.gif?raw=true" width="600" height="450"/>
 </div>
 
 

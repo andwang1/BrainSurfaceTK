@@ -22,12 +22,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '&e^6vrts8u_f%7ayi@u^o#+#hi=uys(zt5ncm0i*z3i*e4d9$s'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["146.169.40.58", "localhost"]
 
 # Must be relative to MEDIA_ROOT
-MEDIA_ROOT = "/vol/biomedic2/aa16914/shared/MScAI_brain_surface/media"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 ORIGINAL_META_DATA_PATH = "original/meta_data.tsv"
 ORIGINAL_MRI_DATA_PATH = "original/mris/"

@@ -171,22 +171,22 @@ class ClassifierModel:
             # Print to console
             print('-------')
             print('Patient ID:\t', patient_id)
-            print('Predicted:\t', pred_class.item())
-            print('Label:\t\t', label_class.item())
+            print('Predicted:\t', pred_class)#pred_class.item())
+            print('Label:\t\t', label_class)#.item())
             correct = self.get_accuracy(pred_class, label_class)
 
             if self.opt.dataset_mode == 'binary_class':
                 print("Pred. prob.:\t", out.item())
             else:
-                print('Abs Error:\t', correct.item())
+                print('Abs Error:\t', correct)#.item())
 
             # Log results to file
             file_name = f"{self.testacc_log}{epoch}.csv" if is_val else f"{self.final_testacc_log}{epoch}.csv"
             with open(file_name, "a") as log_file:
                 if self.opt.dataset_mode == 'binary_class':
                     log_file.write(f"{patient_id},{pred_class.item()},{label_class.item()},{out.item()}\n")
-                else:
-                    log_file.write(f"{patient_id},{pred_class.item()},{label_class.item()},{correct.item()}\n")
+                #else:
+                    #log_file.write(f"{patient_id},{pred_class.item()},{label_class.item()},{correct.item()}\n")
         return correct, len(label_class)
 
     def get_accuracy(self, pred, labels):
