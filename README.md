@@ -124,11 +124,17 @@ folder. This is don't because the conversion process can be a bit slow and for m
 
 
 
-###### References
-[1] Qi, C.R., Yi, L., Su, H., & Guibas, L.J. (2017). PointNet++: Deep Hierarchical Feature Learning on Point Sets in a Metric Space. NIPS.
+###### Citation
+If you use this code useful for your research, please cite our [paper](https://arxiv.org/abs/2008.06098):
 
-[2] Rana Hanocka et al. (2019). MeshCNN: A Network with an Edge. SIGGRAPH 2019.
-
-[3] https://tkipf.github.io/graph-convolutional-networks/
-
-[4] https://docs.dgl.ai/en/latest/tutorials/models/1_gnn/1_gcn.html
+```
+@article{vosylius2020geometric,
+    title={Geometric Deep Learning for Post-Menstrual Age Prediction based on the Neonatal White Matter Cortical Surface},
+    author={Vitalis Vosylius and Andy Wang and Cemlyn Waters and Alexey Zakharov and Francis Ward and Loic Le Folgoc and 
+    John Cupitt and Antonios Makropoulos and Andreas Schuh and Daniel Rueckert and Amir Alansary},
+    year={2020},
+    eprint={2008.06098},
+    archivePrefix={arXiv},
+    primaryClass={cs.CV}
+}
+```
