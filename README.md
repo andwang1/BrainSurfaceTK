@@ -43,7 +43,7 @@ chmod 700 ./createsuperuser.sh
 ./createsuperuser.sh
 ```
 3. Next you may want to use your own original data, this can be done by overwriting the meta_data.tsv data file in ``GUI/media/original/data``, please take care that the column names are exactly the same and in the same order. If not, then the load data function that can be called in the admin panel will not work. 
-4. After you've created a super user, you can either run the server in developement mode by running:
+4. After you've created a super user, you can either run the server in development mode by running:
 ```
 python startserver.py
 ```
@@ -53,7 +53,7 @@ python startserver.py prod
 ```
 
 # PointNet++
-PointNet++ is a hierarchical neural network, which was proposed to be used on point-cloud geometric data [1] for the tasks of regression, classification, and segmentation. In this project, we apply this architecture onto point-cloud representations of brain surfaces to tackle the tasks of age regression and brain segmentation.
+PointNet++ is a hierarchical neural network, which was proposed to be used on point-cloud geometric data [1] for the tasks of regression, classification, and segmentation. In this project, we apply this architecture on point-cloud representations of brain surfaces for the tasks of age regression and brain segmentation.
 
 ###### Run instructions
 
@@ -67,7 +67,7 @@ This framework includes convolution, pooling and unpooling layers which are appl
 
 The original GitHub repo and additional run instructions can be found here: https://github.com/ranahanocka/MeshCNN/
 
-In this repository, we have made multiple modifcations. These include functionality for regression, adding global features into the penultimate fully-connected layers, adding logging of test-ouput, allowing for a train/test/validation split, and functionality for new learning-rate schedulers among other features.
+In this repository, we have made multiple modifications. These include functionality for regression, adding global features into the penultimate fully-connected layers, adding logging of test-ouput, allowing for a train/test/validation split, and functionality for new learning-rate schedulers among other features.
 
 ###### Run instructions
 
@@ -76,7 +76,7 @@ In each class, folders *train*, *val* and *test* hold the files.
 
 <img src="https://github.com/andwang1/BrainSurfaceTK/blob/master/img/meshcnn_data.png?raw=true" width="450" height="263" />
 
-Please additionally place a file called *meta_data.tsv* in the *models/MeshCNN/util* folder. This tab-seperated file will be used to read in additional labels and features into the model.
+Please additionally place a file called *meta_data.tsv* in the *models/MeshCNN/util* folder. This tab-separated file will be used to read in additional labels and features into the model.
 The file should contain columns participant_id and session_id, which will be concatenated to form a unique identifier of a patient's scan. This unique identifier must be used to name the data files in the datasets/ folder structure described above.
 E.g. a *meta_data.tsv* file might look like this:
 
@@ -97,7 +97,7 @@ From the main repository level, the model can then be trained using, e.g. for re
 ```
 ./scripts/regression/MeshCNN/train_reg_brains.sh
 ```
-Similarly, a pretrained model can be applied to the test set, e.g.
+Similarly, a pre-trained model can be applied to the test set, e.g.
 ```
 ./scripts/regression/MeshCNN/test_reg_brains.sh
 ```
@@ -137,4 +137,5 @@ If you use this code useful for your research, please cite our [paper](https://a
     archivePrefix={arXiv},
     primaryClass={cs.CV}
 }
+
 ```
