@@ -5,6 +5,16 @@
 <img src="https://github.com/andwang1/BrainSurfaceTK/blob/master/GUI/main/static/main/gifs/rotate-big.gif?raw=true" width="600" height="450"/>
 </div>
 
+BrainSurfaceTK provides a suite of tools to apply geometrical deep learning techniques to brain surfaces and visualise the results in an easy-to-use web application.
+
+- [Setting up](#setting-up)
+- [Web Application](#web-application)
+  - [Run instructions](#run-instructions)
+- [PointNet++](#pointnet)
+- [MeshCNN](#meshcnn)
+- [Graph Convolutional NN](#gcnn)
+- [Citing us](#citation)
+
 # Setting up
 To install all required packages, please setup a virtual environment as per the instructions below. This virtual environment is based on a CUDA 10.1.105 installation.
 
