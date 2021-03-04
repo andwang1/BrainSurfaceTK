@@ -1,4 +1,3 @@
-# BrainSurfaceToolKit
 
 
 
@@ -22,7 +21,7 @@ BrainSurfaceTK provides a suite of tools to apply geometrical deep learning tech
 - [Citing us](#citation)
 
 
-<div align="center"> 
+<div align="left"> 
 
 <img src="https://github.com/andwang1/BrainSurfaceTK/blob/master/GUI/main/static/main/gifs/rotate-big.gif?raw=true" width="200" height="150"/>
 </div>
