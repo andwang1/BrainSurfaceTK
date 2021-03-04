@@ -1,9 +1,15 @@
 # BrainSurfaceToolKit
 
+
+
+
 <div align="center"> 
 
-<img src="https://github.com/andwang1/BrainSurfaceTK/blob/master/GUI/main/static/main/gifs/rotate-big.gif?raw=true" width="600" height="450"/>
+<img src="https://github.com/andwang1/BrainSurfaceTK/blob/master/img/logo3.png"/>
 </div>
+
+--------------------------------------------------------------------------------
+
 
 BrainSurfaceTK provides a suite of tools to apply geometrical deep learning techniques to brain surfaces and visualise the results in an easy-to-use web application.
 
@@ -14,6 +20,12 @@ BrainSurfaceTK provides a suite of tools to apply geometrical deep learning tech
 - [MeshCNN](#meshcnn)
 - [Graph Convolutional NN](#gcnn)
 - [Citing us](#citation)
+
+
+<div align="center"> 
+
+<img src="https://github.com/andwang1/BrainSurfaceTK/blob/master/GUI/main/static/main/gifs/rotate-big.gif?raw=true" width="200" height="150"/>
+</div>
 
 # Setting up
 To install all required packages, please setup a virtual environment as per the instructions below. This virtual environment is based on a CUDA 10.1.105 installation.
@@ -40,7 +52,7 @@ This server has been developed using the [Django](https://www.djangoproject.com/
 
 The MRI visualisation is done thanks to [Nilearn](https://nilearn.github.io/index.html) and the Brain surface is displayed using [VTK.js](https://kitware.github.io/vtk-js/index.html).
 
-###### Run instructions
+#### Run instructions
 
 After following the instructions on creating a virtual environment containing all of our dependencies:
 1. First run this until the server is successfully running:
@@ -65,7 +77,7 @@ python startserver.py prod
 # PointNet++
 PointNet++ is a hierarchical neural network, which was proposed to be used on point-cloud geometric data [1] for the tasks of regression, classification, and segmentation. In this project, we apply this architecture on point-cloud representations of brain surfaces for the tasks of age regression and brain segmentation.
 
-###### Run instructions
+#### Run instructions
 
 The run instructions differ slightly for Pointnet regression and segmentation. Please proceed to the README in models/pointnet of this repository for full information.
 
@@ -79,7 +91,7 @@ The original GitHub repo and additional run instructions can be found here: http
 
 In this repository, we have made multiple modifications. These include functionality for regression, adding global features into the penultimate fully-connected layers, adding logging of test-ouput, allowing for a train/test/validation split, and functionality for new learning-rate schedulers among other features.
 
-###### Run instructions
+#### Run instructions
 
 Place the .obj mesh data files into a folder in *models/MeshCNN/datasets* with the correct folder structure - below is an example of the structure. Here, *brains* denotes the name of the directory in *models/MeshCNN/datasets* which holds one directory for each class, here e.g. *Male* and *Female*.
 In each class, folders *train*, *val* and *test* hold the files.
@@ -116,7 +128,7 @@ Similarly, a pre-trained model can be applied to the test set, e.g.
 
 GCNN [3] is a Graph Convolution Neural Network and uses the Deep Graph Library (DGL) [4] implementation of a Graph Convolutional layer.
 
-###### Run instructions
+#### Run instructions
 
 Here is an example on how to run the model:
 ```
@@ -134,7 +146,7 @@ folder. This is don't because the conversion process can be a bit slow and for m
 
 
 
-###### Citation
+#### Citation
 If you use this code useful for your research, please cite our [paper](https://arxiv.org/abs/2008.06098):
 
 ```
