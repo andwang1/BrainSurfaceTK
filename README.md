@@ -10,7 +10,7 @@
 --------------------------------------------------------------------------------
 
 
-BrainSurfaceTK provides a suite of tools to apply geometrical deep learning techniques to brain surfaces and visualise the results in an easy-to-use web application.
+BrainSurfaceTK provides a suite of tools to apply geometric deep learning techniques to brain surfaces and visualise the results in an easy-to-use web application.
 
 - [Setting up](#setting-up)
 - [Web Application](#web-application)
